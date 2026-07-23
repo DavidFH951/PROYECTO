@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Perfil - Aula Virtual</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+
+    <!-- Barra de Navegación Superior / Botón de Retorno -->
+    <div class="top-nav">
+        <div class="nav-links">
+            <!-- AQUÍ ESTÁ EL ERROR 3: Cambiado para que regrese al dashboard inteligente y no a la raíz -->
+            <a href="{% url 'dashboard' %}" style="color: #1b4f72; font-weight: bold; text-decoration: none;">← Volver al Dashboard</a>
+        </div>
+        <div class="user-menu">
+            <span style="font-size: 14px; font-weight: 600; color: #555;">{{ request.user.username }}</span>
+            <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal del Perfil -->
+    <div class="main-container" style="max-width: 600px;">
+        <div class="form-card">
+            
+            <!-- AQUÍ ESTÁ EL ERROR 2: Valida dinámicamente si es docente o alumno -->
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 25px;">
+                👤 Datos del {% if request.user.groups.all.0.name == 'Docentes' or request.user.is_staff %}Docente{% else %}Estudiante{% endif %}
+            </h2>
+
+            <div class="form-group-mb">
+                <label class="form-label">Nombre de Usuario (Login)</label>
+                <input type="text" value="{{ request.user.username }}" disabled class="form-input" style="background: #e9ecef;">
+            </div>
+
+            <div class="form-group-mb">
+                <label class="form-label">Nombres</label>
+                <input type="text" value="{% if request.user.first_name %}{{ request.user.first_name }}{% else %}No registrado (Actualizar en Admin){% endif %}" disabled class="form-input" style="background: #e9ecef;">
+            </div>
+
+            <div class="form-group-mb">
+                <label class="form-label">Apellidos</label>
+                <input type="text" value="{% if request.user.last_name %}{{ request.user.last_name }}{% else %}No registrado (Actualizar en Admin){% endif %}" disabled class="form-input" style="background: #e9ecef;">
+            </div>
+
+            <div class="form-group-mb">
+                <label class="form-label">Correo Electrónico</label>
+                <input type="text" value="{% if request.user.email %}{{ request.user.email }}{% else %}No registrado{% endif %}" disabled class="form-input" style="background: #e9ecef;">
+            </div>
+
+            <div class="form-group-mb">
+                <label class="form-label">Miembro desde</label>
+                <input type="text" value="{{ request.user.date_joined|date:'d M Y' }}" disabled class="form-input" style="background: #e9ecef;">
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

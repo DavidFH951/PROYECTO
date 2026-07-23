@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ curso.nombre }} - Aula Virtual</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+
+    <!-- Barra de Navegación Superior -->
+    <div class="top-nav">
+        <div class="nav-links">
+            <span style="font-weight: bold; color: #1b4f72; font-size: 16px;">🩺 ACADEMIA MÉDICA</span>
+            <a href="{% url 'dashboard' %}" class="active">Mis Cursos</a>
+            <a href="{% url 'mis_notas' %}">Historial de Notas</a>
+            <a href="{% url 'mi_perfil' %}">Mi Perfil</a>
+        </div>
+        <div class="user-menu">
+    <div class="user-dropdown">
+        <button class="dropdown-toggle">
+            👤 Prof. {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %} ▾
+        </button>
+        <div class="dropdown-content">
+            <a href="{% url 'mi_perfil' %}">⚙️ Ver Mi Perfil</a>
+            <a href="{% url 'dashboard' %}">📊 Ir al Panel Principal</a>
+            <a href="{% url 'salir' %}" style="color: #c0392b; font-weight: bold;">🚪 Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <!-- Layout de Dos Columnas (Sidebar + Contenido) -->
+    <div class="course-layout">
+        
+        <!-- Menú Lateral Izquierdo -->
+        <div class="course-sidebar">
+            <div class="sidebar-title">Navegación</div>
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'dashboard' %}">🏠 Principal</a></li>
+                <li><a href="#" style="background: #34495e;">📚 General</a></li>
+                <li><a href="#">💡 Avisos y Foros</a></li>
+                <li><a href="#">📑 Sílabo del Curso</a></li>
+            </ul>
+
+            <div class="sidebar-title">Secciones</div>
+            <ul class="sidebar-menu">
+                <li><a href="#">Teoría - Semana 1</a></li>
+                <li><a href="#">Teoría - Semana 2</a></li>
+                <li><a href="#">Evaluación Práctica</a></li>
+            </ul>
+        </div>
+
+        <!-- Contenido Principal del Curso -->
+        <div class="course-main-content">
+            <h1 class="course-main-title">{{ curso.nombre }}</h1>
+
+            <!-- Pestañas Superiores -->
+            <div class="course-tabs">
+                <a href="#" class="course-tab active">Curso</a>
+                <a href="#" class="course-tab">Participantes</a>
+                <a href="#" class="course-tab">Calificaciones</a>
+            </div>
+
+            <!-- Botón exclusivo para docentes si desean subir material rápido -->
+            {% if request.user.is_staff or request.user.groups.all.0.name == 'Docentes' %}
+                <a href="{% url 'subir_material' curso.id %}" class="btn-docente-accion">➕ Subir Nuevo Material</a>
+            {% endif %}
+
+            <!-- Bloque de Contenido / Recursos -->
+            <h3 style="color: #333; margin-bottom: 15px; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Materiales de Estudio</h3>
+
+            {% for material in materiales %}
+                <div class="resource-card">
+                    <div class="resource-icon icon-recurso">📄</div>
+                    <div class="resource-details">
+                        <span class="resource-type">Recurso Académico</span>
+                        {% if material.archivo %}
+                            <a href="{{ material.archivo.url }}" target="_blank" class="resource-link">{{ material.titulo }}</a>
+                        {% elif material.enlace %}
+                            <a href="{{ material.enlace }}" target="_blank" class="resource-link">{{ material.titulo }} (Enlace Externo)</a>
+                        {% else %}
+                            <span class="resource-link" style="color: #333;">{{ material.titulo }}</span>
+                        {% endif %}
+                        <p style="font-size: 12px; color: #7f8c8d; margin: 3px 0 0 0;">Subido el {{ material.fecha_subida|date:"d M Y" }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="background: white; padding: 25px; border-radius: 6px; border: 1px solid #e1e8ed; text-align: center; color: #7f8c8d;">
+                    <p>Aún no hay materiales publicados en este curso.</p>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+</body>
+</html>

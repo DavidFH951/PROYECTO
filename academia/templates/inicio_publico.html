@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Academia de Medicina - Excelencia en Ciencias de la Salud</title>
+    <link rel="stylesheet" href="{% static 'css/publico.css' %}">
+</head>
+<body>
+
+    <!-- Barra de Navegación Pública -->
+    <header>
+        <div class="logo-area">
+            <span>🩺 Academia Médica</span>
+        </div>
+        <nav>
+            <a href="#">Inicio</a>
+            <a href="#">Nosotros</a>
+            <a href="#">Carreras y Cursos</a>
+            <a href="#">Contacto</a>
+            <!-- Botón de Intranet que lleva directo al login -->
+            <a href="{% url 'login' %}" class="btn-intranet">INTRANET</a>
+        </nav>
+    </header>
+
+    <!-- Banner Principal (Hero) -->
+    <section class="hero">
+        <h1>Formando a los Mejores Profesionales de la Salud</h1>
+        <p>Impulsa tu vocación médica con un modelo académico de alta exigencia, tecnología de vanguardia y un cuerpo docente de excelencia.</p>
+        <a href="#contacto" class="btn-contacto">Solicitar Información de Admisión</a>
+    </section>
+
+    <!-- Sección Informativa -->
+    <section class="info-section" id="contacto">
+        <h2>¿Listo para transformar tu futuro médico?</h2>
+        <p>Matricúlate en nuestros ciclos de preparación, especialización y refuerzo clínico. Nuestro equipo de asesores se pondrá en contacto contigo para brindarte toda la información que necesitas.</p>
+    </section>
+
+</body>
+</html>

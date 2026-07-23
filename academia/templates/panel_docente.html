@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Módulo de Profesores - Aula Virtual</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+
+    <!-- Barra de Navegación Superior -->
+    <div class="top-nav">
+        <div class="nav-links">
+            <span style="font-weight: bold; color: #d35400; font-size: 16px;">🩺 PANEL DOCENTE</span>
+            <a href="{% url 'dashboard' %}" class="active">Gestión de Cursos</a>
+        </div>
+       <div class="user-menu">
+            <div class="user-dropdown">
+                <button class="dropdown-toggle">
+                    👤 Prof. {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %} ▾
+                </button>
+                <div class="dropdown-content">
+                    <a href="{% url 'mi_perfil' %}">⚙️ Ver Mi Perfil</a>
+                    <a href="{% url 'dashboard' %}">📊 Ir al Panel Principal</a>
+                    <a href="{% url 'salir' %}" style="color: #c0392b; font-weight: bold;">🚪 Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="main-container">
+        <h1 class="welcome-title">¡Bienvenido, Profesor(a) {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}! 👨‍🏫</h1>
+        <h3 style="color: #555; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #ddd; padding-bottom: 8px;">Cursos a tu Cargo</h3>
+
+        <div class="courses-grid">
+            {% for curso in cursos %}
+                <div class="course-card">
+                    <div class="course-banner alt2"></div>
+                    <div class="course-info">
+                        <div>
+                            <span class="course-category">GESTIÓN ACADÉMICA / DOCENTE</span>
+                            <span class="course-title" style="font-size: 18px; margin-top: 5px;">{{ curso.nombre }}</span>
+                            <p style="font-size: 13px; color: #666; margin-top: 5px;">{{ curso.descripcion|truncatechars:80 }}</p>
+                        </div>
+                        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 12px; display: flex; gap: 10px;">
+                            <a href="{% url 'detalle_curso' curso.id %}" style="background: #2980b9; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold; flex: 1; text-align: center;">📂 Materiales</a>
+                            <a href="{% url 'detalle_curso' curso.id %}" style="background: #27ae60; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold; flex: 1; text-align: center;">✍️ Calificar</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="background: white; padding: 30px; border-radius: 8px; text-align: center; grid-column: 1 / -1; color: #7f8c8d;">
+                    <p>No hay cursos registrados en el sistema.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>

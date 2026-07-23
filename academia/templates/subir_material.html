@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Subir Material - {{ curso.nombre }}</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+
+    <!-- Barra de Navegación Superior -->
+    <div class="top-nav">
+        <div class="nav-links">
+            <span style="font-weight: bold; color: #d35400; font-size: 16px;">🩺 PANEL DOCENTE</span>
+            <a href="{% url 'dashboard' %}">Gestión de Cursos</a>
+        </div>
+        <div class="user-menu">
+            <span style="font-size: 14px; font-weight: 600; color: #555;">Prof. {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}</span>
+            <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal del Formulario -->
+    <div class="main-container" style="max-width: 600px;">
+        <h1 class="welcome-title" style="font-size: 24px;">Subir Material de Estudio</h1>
+        <p style="color: #666; margin-bottom: 25px;">Curso: <strong>{{ curso.nombre }}</strong></p>
+
+        <div class="form-card">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group-mb">
+                    <label class="form-label">Título del Material</label>
+                    <input type="text" name="titulo" required class="form-input">
+                </div>
+
+                <div class="form-group-mb">
+                    <label class="form-label">Archivo (PDF, Word, etc.)</label>
+                    <input type="file" name="archivo" class="form-input-file">
+                </div>
+
+                <div class="form-group-mb">
+                    <label class="form-label">O Enlace Web (Opcional)</label>
+                    <input type="url" name="enlace" placeholder="https://ejemplo.com" class="form-input">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Guardar y Publicar</button>
+                    <a href="{% url 'dashboard' %}" class="btn-cancel">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
