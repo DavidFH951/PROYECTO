@@ -8,17 +8,22 @@
 </head>
 <body>
 
-    <!-- Barra de Navegación Superior / Botón de Retorno -->
-    <div class="top-nav">
-        <div class="nav-links">
-            <!-- AQUÍ ESTÁ EL ERROR 3: Cambiado para que regrese al dashboard inteligente y no a la raíz -->
-            <a href="{% url 'dashboard' %}" style="color: #1b4f72; font-weight: bold; text-decoration: none;">← Volver al Dashboard</a>
-        </div>
-        <div class="user-menu">
-            <span style="font-size: 14px; font-weight: 600; color: #555;">{{ request.user.username }}</span>
-            <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
-        </div>
+   <!-- Barra de Navegación Superior -->
+<div class="top-nav">
+    <div class="nav-links">
+        <a href="{% url 'dashboard' %}">← Volver al Dashboard</a>
     </div>
+    <div class="user-menu">
+        <span class="user-name-display">
+            {% if request.user.first_name %}
+                {{ request.user.first_name }} {{ request.user.last_name }}
+            {% else %}
+                {{ request.user.username }}
+            {% endif %}
+        </span>
+        <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
+    </div>
+</div>
 
     <!-- Contenedor Principal del Perfil -->
     <div class="main-container" style="max-width: 600px;">

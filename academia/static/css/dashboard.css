@@ -342,7 +342,8 @@ body {
     border: 1px solid #dcdde1;
     border-radius: 6px;
     z-index: 99999;
-    margin-top: 6px;
+    margin-top: 0px;
+    padding-top: 6px;
 }
 .dropdown-content a {
     color: #333 !important;
@@ -361,4 +362,9 @@ body {
 }
 .user-dropdown:hover .dropdown-content {
     display: block !important;
+}
+.user-name-display {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
 }

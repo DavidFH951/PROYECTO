@@ -14,7 +14,6 @@ urlpatterns = [
     
     # El resto de nuestras rutas protegidas
     path('cuentas/', include('django.contrib.auth.urls')),
-    path('', views.dashboard, name='dashboard'),
     path('curso/<int:curso_id>/', views.detalle_curso, name='detalle_curso'),
     path('curso/<int:curso_id>/subir-material/', views.subir_material, name='subir_material'),
     path('notas/', views.mis_notas, name='mis_notas'),
