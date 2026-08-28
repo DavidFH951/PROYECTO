@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.core.paginator import Paginator
 
-from .models import Curso, Material, Inscripcion, Nota, LogActividad
+from .models import Curso, Material, Inscripcion, Calificacion, LogActividad
 from .forms import RegistroUsuarioForm, EditarUsuarioForm, CursoForm, InscripcionForm
 
 
@@ -180,7 +180,6 @@ def editar_usuario(request, user_id):
             usuario_editar.set_password(nuevo_password)
 
         nuevo_rol = request.POST.get('rol')
-        # Limpiar grupos y flags
         usuario_editar.groups.clear()
         if nuevo_rol == 'Administrador':
             usuario_editar.is_staff = True
@@ -190,7 +189,7 @@ def editar_usuario(request, user_id):
             usuario_editar.is_superuser = False
             grupo_docentes, _ = Group.objects.get_or_create(name='Docentes')
             usuario_editar.groups.add(grupo_docentes)
-        else: # Alumno
+        else:  # Alumno
             usuario_editar.is_staff = False
             usuario_editar.is_superuser = False
             grupo_alumnos, _ = Group.objects.get_or_create(name='Alumnos')
@@ -206,6 +205,7 @@ def editar_usuario(request, user_id):
     }
     return render(request, 'editar_usuario.html', context)
 
+
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_matricular(request, curso_id=None):
@@ -213,7 +213,6 @@ def admin_matricular(request, curso_id=None):
     curso_seleccionado = None
     alumnos_matriculados_ids = []
     
-    # Obtener el grupo de Alumnos
     grupo_alumnos = Group.objects.filter(name='Alumnos').first()
     alumnos = User.objects.filter(groups=grupo_alumnos).order_by('last_name', 'first_name') if grupo_alumnos else User.objects.none()
 
@@ -227,17 +226,14 @@ def admin_matricular(request, curso_id=None):
         seleccionados_ids = request.POST.getlist('alumnos_seleccionados')
         seleccionados_ids = [int(i) for i in seleccionados_ids]
 
-        # Alumnos a desmatricular (estaban pero ya no están marcados)
         Inscripcion.objects.filter(curso=curso_actual).exclude(alumno_id__in=seleccionados_ids).delete()
 
-        # Alumnos a matricular nuevos
         nuevos_matriculados = 0
         for a_id in seleccionados_ids:
             obj, created = Inscripcion.objects.get_or_create(curso=curso_actual, alumno_id=a_id)
             if created:
                 nuevos_matriculados += 1
 
-        # Registrar en Logs
         LogActividad.objects.create(
             usuario=request.user,
             accion=f"Actualizó matrícula del curso '{curso_actual.titulo}' ({len(seleccionados_ids)} alumnos activos)"
@@ -346,31 +342,23 @@ def admin_editar_curso(request, curso_id):
     curso = get_object_or_404(Curso, id=curso_id)
     
     if request.method == 'POST':
-        print("\n--- INICIO DEBUG SUBIDA ---")
-        print("Archivos recibidos en FILES:", request.FILES)
-        
         curso.titulo = request.POST.get('titulo')
         curso.descripcion = request.POST.get('descripcion')
         curso.estado = True if request.POST.get('estado') else False
         
         if 'imagen_portada' in request.FILES:
             curso.imagen_portada = request.FILES['imagen_portada']
-            print("=> Asignando imagen:", curso.imagen_portada)
-        else:
-            print("=> NO llegó ningún archivo con la clave 'imagen_portada'")
             
         docentes_ids = request.POST.getlist('docentes')
         curso.docentes.set(docentes_ids)
         curso.save()
-        
-        print("=> Imagen guardada en BD:", curso.imagen_portada)
-        print("--- FIN DEBUG SUBIDA ---\n")
         
         messages.success(request, f"Curso '{curso.titulo}' actualizado.")
         return redirect('admin_cursos_lista')
 
     docentes = User.objects.filter(groups__name='Docentes')
     return render(request, 'editar_curso.html', {'curso': curso, 'docentes': docentes})
+
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
@@ -553,14 +541,13 @@ def panel_docente(request):
     if not es_docente_valido(request.user):
         return HttpResponseForbidden("Acceso exclusivo para docentes.")
 
-    # El administrador puede supervisar todos, pero un docente común solo ve donde está asignado
     if request.user.is_superuser or request.user.is_staff:
         cursos = Curso.objects.prefetch_related('docentes', 'inscripciones', 'materiales').all()
     else:
-        # Filtro estricto: solo los cursos donde 'request.user' está en la relación 'docentes'
         cursos = Curso.objects.filter(docentes=request.user).prefetch_related('docentes', 'inscripciones', 'materiales').distinct()
 
     return render(request, 'panel_docente.html', {'cursos': cursos})
+
 
 @login_required
 def subir_material(request, curso_id):
@@ -569,7 +556,6 @@ def subir_material(request, curso_id):
     
     curso = get_object_or_404(Curso, id=curso_id)
 
-    # Validar que pertenezca al equipo docente si no es admin
     if not (request.user.is_staff or request.user.is_superuser) and not curso.docentes.filter(id=request.user.id).exists():
         return HttpResponseForbidden("No estás asignado como docente en este curso.")
     
@@ -611,46 +597,57 @@ def eliminar_material(request, material_id):
 @login_required
 def docente_calificar_curso(request, curso_id):
     curso = get_object_or_404(Curso, id=curso_id)
-    es_autorizado = request.user.is_staff or request.user.is_superuser or curso.docentes.filter(id=request.user.id).exists()
 
-    if not es_autorizado:
-        return HttpResponseForbidden("No tienes permiso para calificar en este curso.")
+    es_docente = curso.docentes.filter(id=request.user.id).exists()
+    es_admin = request.user.is_superuser or request.user.groups.filter(name='Administrador').exists()
+    
+    if not (es_docente or es_admin):
+        messages.error(request, "No tienes permisos para calificar en este curso.")
+        return redirect('panel_docente')
 
-    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
+    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno')
+
+    def parsear_nota(valor):
+        if valor is not None and str(valor).strip() != '':
+            try:
+                return float(valor)
+            except ValueError:
+                return None
+        return None
 
     if request.method == 'POST':
         for insc in inscripciones:
-            alumno_id = insc.alumno.id
-            calificacion_val = request.POST.get(f'nota_{alumno_id}', '').strip()
-            observacion_val = request.POST.get(f'obs_{alumno_id}', '').strip()
+            alumno_id = str(insc.alumno.id)
+            n1 = request.POST.get(f'nota1_{alumno_id}')
+            n2 = request.POST.get(f'nota2_{alumno_id}')
+            n3 = request.POST.get(f'nota3_{alumno_id}')
 
-            if calificacion_val != '':
-                try:
-                    calificacion_num = float(calificacion_val)
-                    if 0 <= calificacion_num <= 20:
-                        Nota.objects.update_or_create(
-                            alumno=insc.alumno,
-                            curso=curso,
-                            defaults={
-                                'calificacion': calificacion_num,
-                                'observaciones': observacion_val
-                            }
-                        )
-                except ValueError:
-                    pass
+            calificacion, _ = Calificacion.objects.get_or_create(curso=curso, alumno=insc.alumno)
+            calificacion.nota1 = parsear_nota(n1)
+            calificacion.nota2 = parsear_nota(n2)
+            calificacion.nota3 = parsear_nota(n3)
+            calificacion.save()
 
-        registrar_log(request, "Registro de Calificaciones", f"Actualizó las notas del curso '{curso.titulo}'")
-        messages.success(request, f"Calificaciones del curso '{curso.titulo}' guardadas exitosamente.")
-        return redirect('panel_docente')
+        registrar_log(request, "Registro de Calificaciones", f"Actualizó notas del curso '{curso.titulo}'")
+        messages.success(request, "Las calificaciones se guardaron correctamente.")
+        return redirect('docente_calificar_curso', curso_id=curso.id)
 
-    notas_dict = {n.alumno_id: n for n in Nota.objects.filter(curso=curso)}
+    calificaciones_dict = {c.alumno_id: c for c in Calificacion.objects.filter(curso=curso)}
+    filas_calificaciones = []
+    for insc in inscripciones:
+        calif = calificaciones_dict.get(insc.alumno.id)
+        filas_calificaciones.append({
+            'alumno': insc.alumno,
+            'nota1': calif.nota1 if calif and calif.nota1 is not None else '',
+            'nota2': calif.nota2 if calif and calif.nota2 is not None else '',
+            'nota3': calif.nota3 if calif and calif.nota3 is not None else '',
+            'promedio': calif.promedio if calif and hasattr(calif, 'promedio') else None
+        })
 
-    context = {
+    return render(request, 'docente_calificar.html', {
         'curso': curso,
-        'inscripciones': inscripciones,
-        'notas_dict': notas_dict,
-    }
-    return render(request, 'docente_calificar.html', context)
+        'filas_calificaciones': filas_calificaciones
+    })
 
 
 # ----------------------------------------------------
@@ -666,7 +663,7 @@ def detalle_curso(request, curso_id):
         return HttpResponseForbidden("No tienes permiso para ver este curso.")
     
     materiales = curso.materiales.all()
-    notas = Nota.objects.filter(alumno=request.user, curso=curso)
+    notas = Calificacion.objects.filter(alumno=request.user, curso=curso)
     
     context = {
         'curso': curso,
@@ -679,7 +676,7 @@ def detalle_curso(request, curso_id):
 
 @login_required
 def mis_notas(request):
-    notas = Nota.objects.filter(alumno=request.user).select_related('curso')
+    notas = Calificacion.objects.filter(alumno=request.user).select_related('curso')
     return render(request, 'notas.html', {'notas': notas})
 
 

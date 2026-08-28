@@ -87,20 +87,18 @@ class Material(models.Model):
 # ----------------------------------------------------
 # 4. MODELO NOTAS Y CALIFICACIONES
 # ----------------------------------------------------
-class Nota(models.Model):
-    alumno = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notas')
-    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='notas_curso')
-    calificacion = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Nota Final")
-    observaciones = models.TextField(blank=True, verbose_name="Observaciones del Docente")
-    fecha_registro = models.DateTimeField(auto_now_add=True)
+class Calificacion(models.Model):
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='calificaciones')
+    alumno = models.ForeignKey(User, on_delete=models.CASCADE, related_name='calificaciones')
+    nota1 = models.FloatField(null=True, blank=True)
+    nota2 = models.FloatField(null=True, blank=True)
+    nota3 = models.FloatField(null=True, blank=True)
 
     class Meta:
-        verbose_name = "Nota"
-        verbose_name_plural = "Notas"
-        ordering = ['-fecha_registro']
+        unique_together = ('curso', 'alumno')
 
     def __str__(self):
-        return f"Nota de {self.alumno.username} en {self.curso.titulo}: {self.calificacion}"
+        return f"{self.alumno.username} - {self.curso.titulo}"
 
 class LogActividad(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
