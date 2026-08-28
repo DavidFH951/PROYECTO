@@ -1,0 +1,177 @@
+/* ====================================================
+   VISTA DE PERFIL DE USUARIO
+   ==================================================== */
+.main-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.profile-wrapper {
+    max-width: 650px;
+    margin: 30px auto;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+/* Banner superior */
+.profile-banner {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    height: 120px;
+}
+
+/* Cabecera del usuario con avatar grande */
+.profile-header-box,
+.profile-avatar-container {
+    padding: 0 35px 20px 35px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    margin-top: -50px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.profile-large-avatar {
+    width: 95px;
+    height: 95px;
+    min-width: 95px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 38px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    text-transform: uppercase;
+}
+
+.profile-title-block {
+    padding-top: 55px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.profile-title-block h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.profile-role-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #dbeafe;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Grilla de información del usuario */
+.profile-content {
+    padding: 25px 35px 30px 35px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.profile-field-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: all 0.15s ease;
+}
+
+.profile-field-card:hover {
+    border-color: #cbd5e1;
+    background: #ffffff;
+}
+
+.profile-field-card.full-width {
+    grid-column: span 2;
+}
+
+.profile-field-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-field-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+/* Botón inferior de retorno */
+.profile-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.btn-profile-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    transition: all 0.15s ease;
+}
+
+.btn-profile-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+/* Responsivo para pantallas pequeñas */
+@media (max-width: 600px) {
+    .profile-header-box,
+    .profile-avatar-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: -45px;
+    }
+    .profile-title-block {
+        padding-top: 10px;
+        align-items: center;
+    }
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+    .profile-field-card.full-width {
+        grid-column: span 1;
+    }
+}

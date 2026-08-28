@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carga Masiva de Usuarios | Panel Admin</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=1.4">
+</head>
+<body>
+
+    <!-- Barra Superior -->
+    <header class="top-nav">
+        <div class="logo-area">
+            <span class="welcome-title">Panel Administrador | Academia Galeno</span>
+        </div>
+        <div class="user-menu">
+            <span class="user-name-display">Hola, {{ request.user.username }}</span>
+            <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <div class="main-container">
+        <div class="form-card-centered">
+            
+            <div class="form-header-clean">
+                <h2>📤 Carga Masiva de Usuarios</h2>
+                <p>Importa lotes de estudiantes o docentes mediante un archivo <strong>.CSV</strong> delimitado por comas.</p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'error' %}alert-box-error{% else %}alert-box-success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Guía de Formato -->
+            <div style="background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 22px;">
+                <p style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                    Estructura requerida de encabezados (primera fila):
+                </p>
+                <pre style="background-color: #1e293b; color: #38bdf8; padding: 10px 14px; border-radius: 6px; font-size: 12.5px; overflow-x: auto; margin-bottom: 10px;">username,first_name,last_name,email,password,rol</pre>
+                
+                <p style="font-size: 12.5px; color: #64748b; margin-bottom: 4px;">
+                    <strong>Valores válidos para la columna <code>rol</code>:</strong> <code>Alumnos</code>, <code>Docentes</code> o <code>Administrador</code>.
+                </p>
+                <p style="font-size: 12px; color: #94a3b8; margin: 0;">
+                    <em>Ejemplo de fila: <code>jperez,Juan,Perez,jperez@galeno.pe,Temporal123,Alumnos</code></em>
+                </p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group-mb">
+                    <label class="form-label" for="archivo_csv">Seleccionar Archivo CSV:</label>
+                    <input type="file" name="archivo_csv" id="archivo_csv" accept=".csv" required class="form-input" style="background-color: #ffffff; padding: 9px;">
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'admin_dashboard' %}" class="btn-cancel">Cancelar</a>
+                    <button type="submit" class="btn-save" style="background-color: #059669;">Procesar e Importar</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+</body>
+</html>

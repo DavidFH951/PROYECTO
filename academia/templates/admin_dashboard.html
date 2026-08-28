@@ -1,0 +1,229 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Administración | Academia Galeno</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=1.5">
+</head>
+<body>
+
+   <!-- Barra Superior de Navegación -->
+    <header class="top-nav">
+        <a href="{% url 'admin_dashboard' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
+            </div>
+        </a>
+
+        <!-- Menú de Usuario con Avatar -->
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    {{ request.user.first_name|default:request.user.username }} {{ request.user.last_name|default:"" }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo registrado" }}
+                    </div>
+                    <span class="dropdown-user-badge">
+                        Administrador
+                    </span>
+                </div>
+
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
+                        👤 Mi Perfil
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
+                        ⚙️ Panel de Control
+                    </a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
+                        🚪 Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <div class="main-container">
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}alert-box-error{% else %}alert-box-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Tarjetas de Métricas -->
+        <div class="stats-grid">
+            <div class="stat-card alumnos">
+                <h3>Total Alumnos</h3>
+                <div class="number">{{ total_alumnos }}</div>
+            </div>
+            <div class="stat-card docentes">
+                <h3>Total Docentes</h3>
+                <div class="number">{{ total_docentes }}</div>
+            </div>
+            <div class="stat-card cursos">
+                <h3>Cursos Activos</h3>
+                <div class="number">{{ total_cursos }}</div>
+            </div>
+        </div>
+
+        <!-- Navbar de Secciones -->
+        <div class="nav-tabs-container">
+            <a href="{% url 'admin_dashboard' %}" class="nav-tab-item active">👥 Usuarios</a>
+            <a href="{% url 'admin_cursos_lista' %}" class="nav-tab-item">📚 Cursos Registrados</a>
+            <a href="{% url 'admin_logs_actividad' %}" class="nav-tab-item">📋 Auditoría y Logs</a>
+        </div>
+
+<!-- Barra de Control Estilizada -->
+        <div class="control-toolbar">
+            <!-- Buscador y Filtro Integrados en una sola barra -->
+            <form method="GET" action="{% url 'admin_dashboard' %}" class="search-filter-box">
+                <span style="padding-left: 8px; color: #94a3b8; font-size: 14px;">🔍</span>
+                <input type="text" name="q" value="{{ query }}" placeholder="Buscar por nombre, usuario, correo..." class="search-input-field">
+                
+                <select name="rol" class="select-filter-inline" onchange="this.form.submit()">
+                    <option value="">Todos los Roles</option>
+                    <option value="alumno" {% if rol_filtro == 'alumno' %}selected{% endif %}>Alumnos</option>
+                    <option value="docente" {% if rol_filtro == 'docente' %}selected{% endif %}>Docentes</option>
+                    <option value="admin" {% if rol_filtro == 'admin' %}selected{% endif %}>Administradores</option>
+                </select>
+
+                <button type="submit" class="btn-search-icon">Buscar</button>
+                {% if query or rol_filtro %}
+                    <a href="{% url 'admin_dashboard' %}" style="padding: 0 8px; color: #64748b; text-decoration: none; font-size: 12px; font-weight: 600;">Limpiar</a>
+                {% endif %}
+            </form>
+
+            <!-- Botones de Acción Agrupados -->
+            <div class="action-buttons-group">
+                <a href="{% url 'exportar_usuarios_csv' %}" class="btn-pill-secondary">
+                    <span>📥</span> Exportar
+                </a>
+                <a href="{% url 'admin_carga_masiva_usuarios' %}" class="btn-pill-secondary">
+                    <span>📤</span> Carga Masiva
+                </a>
+                <a href="{% url 'registrar_usuario' %}" class="btn-pill-primary">
+                    <span>+</span> Nuevo Usuario
+                </a>
+                <button type="button" class="btn-pill-danger" onclick="document.getElementById('form-masivo').submit();" title="Eliminar seleccionados">
+                    <span>🗑️</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Formulario para acciones masivas y Tabla -->
+        <form method="POST" action="{% url 'eliminar_usuarios_masivo' %}" id="form-masivo" onsubmit="return confirm('¿Estás seguro de que deseas eliminar los usuarios seleccionados?');">
+            {% csrf_token %}
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px; text-align: center;">
+                            <input type="checkbox" id="check-all" class="table-checkbox" onclick="toggleAll(this)">
+                        </th>
+                        <th>Usuario</th>
+                        <th>Nombre Completo</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th style="text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td style="text-align: center;">
+                            {% if u != request.user %}
+                                <input type="checkbox" name="usuarios_seleccionados" value="{{ u.id }}" class="table-checkbox user-check">
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ u.username }}</strong></td>
+                        <td>{{ u.first_name }} {{ u.last_name }}</td>
+                        <td>{{ u.email|default:"Sin correo" }}</td>
+                        <td>
+                            {% if u.is_superuser or u.is_staff %}
+                                <span class="badge badge-admin">Admin</span>
+                            {% elif u.groups.all.0.name == 'Docentes' %}
+                                <span class="badge badge-docente">Docente</span>
+                            {% else %}
+                                <span class="badge badge-alumno">Alumno</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <a href="{% url 'admin_detalle_usuario' u.id %}" class="btn-detalle">Ver Detalle</a>
+                            <a href="{% url 'editar_usuario' u.id %}" class="btn-editar">Editar</a>
+                            
+                            {% if u != request.user %}
+                                <a href="{% url 'eliminar_usuario' u.id %}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de eliminar a {{ u.username }}?');">
+                                    Eliminar
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-table-text">
+                            {% if query or rol_filtro %}
+                                No se encontraron usuarios con los criterios aplicados.
+                            {% else %}
+                                No hay usuarios registrados.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+        <!-- Paginación -->
+        {% if usuarios.has_other_pages %}
+        <div class="pagination-container">
+            <span>Página {{ usuarios.number }} de {{ usuarios.paginator.num_pages }} (Total: {{ usuarios.paginator.count }} usuarios)</span>
+            <div class="pagination-links">
+                {% if usuarios.has_previous %}
+                    <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">&laquo; Primero</a>
+                    <a href="?page={{ usuarios.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">Anterior</a>
+                {% endif %}
+
+                <span class="page-btn active">{{ usuarios.number }}</span>
+
+                {% if usuarios.has_next %}
+                    <a href="?page={{ usuarios.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">Siguiente</a>
+                    <a href="?page={{ usuarios.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">Último &raquo;</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Script Selección múltiple -->
+    <script>
+        function toggleAll(source) {
+            var checkboxes = document.getElementsByClassName('user-check');
+            for(var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+    </script>
+
+</body>
+</html>

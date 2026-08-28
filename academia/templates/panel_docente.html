@@ -3,56 +3,128 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Módulo de Profesores - Aula Virtual</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula Virtual Docente | Academia Galeno</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=2.0">
 </head>
 <body>
 
-    <!-- Barra de Navegación Superior -->
-    <div class="top-nav">
-        <div class="nav-links">
-            <span style="font-weight: bold; color: #d35400; font-size: 16px;">🩺 PANEL DOCENTE</span>
-            <a href="{% url 'dashboard' %}" class="active">Gestión de Cursos</a>
-        </div>
-       <div class="user-menu">
-            <div class="user-dropdown">
-                <button class="dropdown-toggle">
-                    👤 Prof. {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %} ▾
-                </button>
-                <div class="dropdown-content">
-                    <a href="{% url 'mi_perfil' %}">⚙️ Ver Mi Perfil</a>
-                    <a href="{% url 'dashboard' %}">📊 Ir al Panel Principal</a>
-                    <a href="{% url 'salir' %}" style="color: #c0392b; font-weight: bold;">🚪 Cerrar Sesión</a>
+    <!-- Barra Superior con Logo Institucional y Menú Desplegable -->
+    <header class="top-nav" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; background: #ffffff; border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+        
+        <!-- Logo y Nombre de la Academia -->
+        <a href="{% url 'dashboard' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">Aula Virtual Docente</span>
+            </div>
+        </a>
+
+        <!-- Menú Desplegable de Usuario -->
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    Prof. {{ request.user.first_name|default:request.user.username }} {{ request.user.last_name|default:"" }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <!-- Menú Flotante -->
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo electrónico" }}
+                    </div>
+                    <span class="dropdown-user-badge">Docente Titular</span>
+                </div>
+
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
+                        👤 Ver Mi Perfil
+                    </a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
+                        🚪 Cerrar Sesión
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Contenedor Principal -->
     <div class="main-container">
-        <h1 class="welcome-title">¡Bienvenido, Profesor(a) {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}! 👨‍🏫</h1>
-        <h3 style="color: #555; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #ddd; padding-bottom: 8px;">Cursos a tu Cargo</h3>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}alert-box-error{% else %}alert-box-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
-        <div class="courses-grid">
+        <!-- Saludo y Cabecera de Sección -->
+        <div class="docente-welcome-header">
+            <h1>¡Bienvenido(a), {{ request.user.first_name|upper|default:request.user.username }}! 👋</h1>
+            <p>Vista general de los cursos que tienes a cargo para este periodo académico.</p>
+        </div>
+
+        <!-- Grid de Tarjetas de Cursos -->
+        <div class="courses-grid-cards">
             {% for curso in cursos %}
-                <div class="course-card">
-                    <div class="course-banner alt2"></div>
-                    <div class="course-info">
-                        <div>
-                            <span class="course-category">GESTIÓN ACADÉMICA / DOCENTE</span>
-                            <span class="course-title" style="font-size: 18px; margin-top: 5px;">{{ curso.nombre }}</span>
-                            <p style="font-size: 13px; color: #666; margin-top: 5px;">{{ curso.descripcion|truncatechars:80 }}</p>
+            <div class="course-card">
+                
+                <!-- Cabecera con Imagen Directa o Fallback -->
+                <div style="position: relative; height: 125px; overflow: hidden; border-top-left-radius: 12px; border-top-right-radius: 12px; background: #0f172a;">
+                    {% if curso.imagen_portada %}
+                        <img src="{{ curso.imagen_portada.url }}" 
+                             alt="{{ curso.titulo }}" 
+                             style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    {% else %}
+                        <div class="course-card-header {% cycle 'bg-pattern-1' 'bg-pattern-2' 'bg-pattern-3' 'bg-pattern-4' 'bg-pattern-5' 'bg-pattern-6' %}" style="width: 100%; height: 100%;"></div>
+                    {% endif %}
+
+                    {% if curso.estado %}
+                        <span style="position: absolute; top: 10px; right: 12px; background: rgba(255,255,255,0.95); color: #065f46; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; z-index: 2;">ACTIVO</span>
+                    {% else %}
+                        <span style="position: absolute; top: 10px; right: 12px; background: rgba(255,255,255,0.95); color: #64748b; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; z-index: 2;">INACTIVO</span>
+                    {% endif %}
+                </div>
+
+                <!-- Cuerpo de tarjeta -->
+                <div class="course-card-body">
+                    <div>
+                        <div class="course-card-category">Área Académica • Pregrado</div>
+                        <div class="course-card-title">{{ curso.titulo }}</div>
+                        <p class="course-card-desc">
+                            {{ curso.descripcion|default:"Materia regular de formación médica y ciencias de la salud." }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <div class="course-card-meta">
+                            <span>👥 <strong>{{ curso.inscripciones.count }}</strong> Alumnos</span>
+                            <span>📁 <strong>{{ curso.materiales.count }}</strong> Materiales</span>
                         </div>
-                        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 12px; display: flex; gap: 10px;">
-                            <a href="{% url 'detalle_curso' curso.id %}" style="background: #2980b9; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold; flex: 1; text-align: center;">📂 Materiales</a>
-                            <a href="{% url 'detalle_curso' curso.id %}" style="background: #27ae60; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold; flex: 1; text-align: center;">✍️ Calificar</a>
+
+                        <div class="course-card-actions">
+                            <a href="{% url 'detalle_curso' curso.id %}" class="btn-card-main">📖 Aula</a>
+                            <a href="{% url 'subir_material' curso.id %}" class="btn-card-sub">+ Material</a>
+                            <a href="{% url 'docente_calificar_curso' curso.id %}" class="btn-card-grade">📝 Notas</a>
                         </div>
                     </div>
                 </div>
+
+            </div>
             {% empty %}
-                <div style="background: white; padding: 30px; border-radius: 8px; text-align: center; grid-column: 1 / -1; color: #7f8c8d;">
-                    <p>No hay cursos registrados en el sistema.</p>
-                </div>
+            <div class="empty-courses-box">
+                No tienes cursos asignados en este momento.
+            </div>
             {% endfor %}
         </div>
     </div>

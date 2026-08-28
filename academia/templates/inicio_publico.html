@@ -11,20 +11,25 @@
     <!-- Barra de Navegación Pública -->
     <header>
         <div class="logo-area">
-            <span>🩺 Academia Médica</span>
+            <a href="{% url 'inicio_publico' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; gap: 10px;">
+                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Médica" style="height: 45px; width: auto; border-radius: 4px;">
+                <span style="font-weight: bold; font-size: 1.1rem;">Academia Galeno</span>
+            </a>
         </div>
         <nav>
             <a href="#">Inicio</a>
             <a href="#">Nosotros</a>
-            <a href="#">Carreras y Cursos</a>
-            <a href="#">Contacto</a>
+            <a href="#">Cursos</a>
+            <a href="#contacto">Contacto</a>
             <!-- Botón de Intranet que lleva directo al login -->
             <a href="{% url 'login' %}" class="btn-intranet">INTRANET</a>
         </nav>
     </header>
 
     <!-- Banner Principal (Hero) -->
-    <section class="hero">
+    <section class="hero" style="text-align: center; padding: 60px 20px;">
+        <img src="{% static 'image/logo_principall.png' %}" alt="Banner Academia Médica" style="max-width: 180px; height: auto; margin-bottom: 20px; border-radius: 8px;">
+        
         <h1>Formando a los Mejores Profesionales de la Salud</h1>
         <p>Impulsa tu vocación médica con un modelo académico de alta exigencia, tecnología de vanguardia y un cuerpo docente de excelencia.</p>
         <a href="#contacto" class="btn-contacto">Solicitar Información de Admisión</a>

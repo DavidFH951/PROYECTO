@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumnos en {{ curso.titulo }} | Panel Admin</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=1.5">
+</head>
+<body>
+
+    <!-- Barra Superior -->
+    <header class="top-nav">
+        <div class="logo-area">
+            <span class="welcome-title">Panel Administrador | Academia Galeno</span>
+        </div>
+        <div class="user-menu">
+            <span class="user-name-display">Hola, {{ request.user.username }}</span>
+            <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <div class="main-container">
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}alert-box-error{% else %}alert-box-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Barra de Cabecera y Retorno -->
+        <div class="action-bar" style="margin-bottom: 25px;">
+            <div>
+                <h2>Alumnos Inscritos: {{ curso.titulo }}</h2>
+                <p style="color: #64748b; font-size: 14px; margin-top: 4px;">
+                    Docente a cargo: <strong>{{ curso.docente.get_full_name|default:curso.docente.username|default:"No asignado" }}</strong> | 
+                    Total matriculados: <strong>{{ inscripciones.count }}</strong>
+                </p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'admin_cursos_lista' %}" class="btn-cancel">← Volver a Cursos</a>
+                <a href="{% url 'admin_matricular_alumno' %}" class="btn-crear" style="background-color: #8e44ad;">+ Matricular Alumno</a>
+            </div>
+        </div>
+
+        <!-- Tabla de Inscritos -->
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nombre Completo</th>
+                    <th>Correo Electrónico</th>
+                    <th>Fecha de Matrícula</th>
+                    <th style="text-align: center;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for insc in inscripciones %}
+                <tr>
+                    <td><strong>{{ insc.alumno.username }}</strong></td>
+                    <td>{{ insc.alumno.first_name }} {{ insc.alumno.last_name }}</td>
+                    <td>{{ insc.alumno.email|default:"Sin correo" }}</td>
+                    <td>{{ insc.fecha_inscripcion|date:"d/m/Y H:i" }}</td>
+                    <td style="text-align: center;">
+                        <a href="{% url 'admin_desmatricular_alumno' insc.id %}" 
+                           class="btn-eliminar" 
+                           onclick="return confirm('¿Estás seguro de desmatricular a {{ insc.alumno.username }} del curso {{ curso.titulo }}?');">
+                            Desmatricular
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-table-text">Aún no hay alumnos matriculados en este curso.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+</html>

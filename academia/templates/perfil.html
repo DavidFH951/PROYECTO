@@ -3,64 +3,156 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Perfil - Aula Virtual</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil | Academia Galeno</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/perfil.css' %}?v=2.0">
 </head>
 <body>
 
-   <!-- Barra de Navegación Superior -->
-<div class="top-nav">
-    <div class="nav-links">
-        <a href="{% url 'dashboard' %}">← Volver al Dashboard</a>
-    </div>
-    <div class="user-menu">
-        <span class="user-name-display">
-            {% if request.user.first_name %}
-                {{ request.user.first_name }} {{ request.user.last_name }}
-            {% else %}
-                {{ request.user.username }}
-            {% endif %}
-        </span>
-        <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
-    </div>
-</div>
+    <!-- Barra Superior de Navegación -->
+    <header class="top-nav">
+        <div style="display: flex; align-items: center; gap: 25px;">
+            <a href="{% url 'dashboard' %}" class="brand-container">
+                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+                <div class="brand-text-block">
+                    <span class="brand-title">Academia Galeno</span>
+                    <span class="brand-subtitle">
+                        {% if request.user.is_staff or request.user.is_superuser %}
+                            PANEL ADMINISTRADOR
+                        {% elif request.user.groups.all.0.name == 'Docentes' %}
+                            AULA VIRTUAL DOCENTE
+                        {% else %}
+                            AULA VIRTUAL
+                        {% endif %}
+                    </span>
+                </div>
+            </a>
 
-    <!-- Contenedor Principal del Perfil -->
-    <div class="main-container" style="max-width: 600px;">
-        <div class="form-card">
+            <nav style="display: flex; gap: 15px; align-items: center;">
+                <a href="{% url 'dashboard' %}" class="nav-tab-item">
+                    Mis Cursos
+                </a>
+                {% if not request.user.is_staff and not request.user.is_superuser %}
+                    <a href="{% url 'mis_notas' %}" class="nav-tab-item">
+                        Historial de Notas
+                    </a>
+                {% endif %}
+                <a href="{% url 'mi_perfil' %}" class="nav-tab-item active">
+                    Mi Perfil
+                </a>
+            </nav>
+        </div>
+
+        <!-- Menú de Usuario con Avatar -->
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    {{ request.user.first_name|default:request.user.username }} {{ request.user.last_name|default:"" }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo registrado" }}
+                    </div>
+                    <span class="dropdown-user-badge">
+                        {% if request.user.is_staff or request.user.is_superuser %}
+                            Administrador
+                        {% elif request.user.groups.all.0.name %}
+                            {{ request.user.groups.all.0.name }}
+                        {% else %}
+                            Alumno
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
+                        👤 Mi Perfil
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="dropdown-menu-item">
+                        📚 Panel Principal
+                    </a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
+                        🚪 Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tarjeta de Perfil -->
+    <main class="main-container">
+        <div class="profile-wrapper">
             
-            <!-- AQUÍ ESTÁ EL ERROR 2: Valida dinámicamente si es docente o alumno -->
-            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 25px;">
-                👤 Datos del {% if request.user.groups.all.0.name == 'Docentes' or request.user.is_staff %}Docente{% else %}Estudiante{% endif %}
-            </h2>
+            <div class="profile-banner"></div>
 
-            <div class="form-group-mb">
-                <label class="form-label">Nombre de Usuario (Login)</label>
-                <input type="text" value="{{ request.user.username }}" disabled class="form-input" style="background: #e9ecef;">
+            <div class="profile-header-box">
+                <div class="profile-large-avatar">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <div class="profile-title-block">
+                    <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
+                    <span class="profile-role-badge">
+                        {% if request.user.is_staff or request.user.is_superuser %}
+                            Administrador del Sistema
+                        {% elif request.user.groups.all.0.name %}
+                            Docente Académico
+                        {% else %}
+                            Estudiante Activo
+                        {% endif %}
+                    </span>
+                </div>
             </div>
 
-            <div class="form-group-mb">
-                <label class="form-label">Nombres</label>
-                <input type="text" value="{% if request.user.first_name %}{{ request.user.first_name }}{% else %}No registrado (Actualizar en Admin){% endif %}" disabled class="form-input" style="background: #e9ecef;">
-            </div>
+            <div class="profile-content">
+                <div class="profile-grid">
+                    
+                    <div class="profile-field-card">
+                        <div class="profile-field-label">👤 Usuario (Login)</div>
+                        <div class="profile-field-value">@{{ request.user.username }}</div>
+                    </div>
 
-            <div class="form-group-mb">
-                <label class="form-label">Apellidos</label>
-                <input type="text" value="{% if request.user.last_name %}{{ request.user.last_name }}{% else %}No registrado (Actualizar en Admin){% endif %}" disabled class="form-input" style="background: #e9ecef;">
-            </div>
+                    <div class="profile-field-card">
+                        <div class="profile-field-label">📅 Miembro Desde</div>
+                        <div class="profile-field-value">{{ request.user.date_joined|date:"d M Y" }}</div>
+                    </div>
 
-            <div class="form-group-mb">
-                <label class="form-label">Correo Electrónico</label>
-                <input type="text" value="{% if request.user.email %}{{ request.user.email }}{% else %}No registrado{% endif %}" disabled class="form-input" style="background: #e9ecef;">
-            </div>
+                    <div class="profile-field-card">
+                        <div class="profile-field-label">🏷️ Nombres</div>
+                        <div class="profile-field-value">{{ request.user.first_name|default:"No registrado" }}</div>
+                    </div>
 
-            <div class="form-group-mb">
-                <label class="form-label">Miembro desde</label>
-                <input type="text" value="{{ request.user.date_joined|date:'d M Y' }}" disabled class="form-input" style="background: #e9ecef;">
+                    <div class="profile-field-card">
+                        <div class="profile-field-label">🏷️ Apellidos</div>
+                        <div class="profile-field-value">{{ request.user.last_name|default:"No registrado" }}</div>
+                    </div>
+
+                    <div class="profile-field-card full-width">
+                        <div class="profile-field-label">✉️ Correo Electrónico</div>
+                        <div class="profile-field-value">{{ request.user.email|default:"Sin correo registrado" }}</div>
+                    </div>
+
+                </div>
+
+                <div class="profile-footer">
+                    <a href="{% url 'dashboard' %}" class="btn-profile-back">
+                        ← Volver al Panel Principal
+                    </a>
+                </div>
             </div>
 
         </div>
-    </div>
+    </main>
 
 </body>
 </html>

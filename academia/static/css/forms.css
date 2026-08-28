@@ -1,0 +1,134 @@
+/* ====================================================
+   FORMULARIO MODERNO EN TARJETA
+   ==================================================== */
+.form-card-centered {
+    background-color: #ffffff;
+    max-width: 680px;
+    margin: 40px auto;
+    padding: 35px 40px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    border: 1px solid #e2e8f0;
+}
+
+.form-header-clean {
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 18px;
+    margin-bottom: 24px;
+}
+
+.form-header-clean h2 {
+    font-size: 22px;
+    color: #0f172a;
+    font-weight: 800;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-header-clean p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Grid de 2 columnas para distribuir campos */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 20px;
+}
+
+.form-group-full {
+    grid-column: span 2;
+}
+
+.form-group-mb {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #0f172a;
+    background-color: #f8fafc;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    border-color: #2563eb;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+select.form-input {
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.btn-save {
+    padding: 11px 24px;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background-color: #2563eb;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-save:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 22px;
+    background-color: #f1f5f9;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.field-error-text {
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+}

@@ -1,0 +1,215 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expediente: {{ usuario_detalle.get_full_name|default:usuario_detalle.username }} | Academia Galeno</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/admin_expediente.css' %}?v=1.0">
+</head>
+<body>
+
+    <!-- Barra Superior -->
+    <header class="top-nav">
+        <a href="{% url 'admin_dashboard' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
+            </div>
+        </a>
+
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    {{ request.user.first_name|default:request.user.username }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo registrado" }}
+                    </div>
+                    <span class="dropdown-user-badge">Administrador</span>
+                </div>
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
+                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">⚙️ Panel Principal</a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <!-- Tabs de Navegación -->
+        <div class="nav-tabs-container">
+            <a href="{% url 'admin_dashboard' %}" class="nav-tab-item active">👥 Usuarios</a>
+            <a href="{% url 'admin_cursos_lista' %}" class="nav-tab-item">📚 Cursos y Matrícula</a>
+            <a href="{% url 'admin_logs_actividad' %}" class="nav-tab-item">📋 Auditoría y Logs</a>
+        </div>
+
+        <div class="expediente-grid">
+            
+            <!-- Columna Izquierda: Tarjeta de Datos del Usuario -->
+            <aside class="card-user-profile">
+                <div class="user-profile-banner-small"></div>
+                <div class="user-profile-avatar-box">
+                    <div class="user-large-avatar">
+                        {{ usuario_detalle.first_name|first|default:usuario_detalle.username|first }}
+                    </div>
+                </div>
+
+                <div class="user-profile-body">
+                    <h2 class="user-full-name">{{ usuario_detalle.get_full_name|default:usuario_detalle.username }}</h2>
+                    <span class="user-badge-role">
+                        {% if usuario_detalle.is_superuser or usuario_detalle.is_staff %}
+                            ADMINISTRADOR
+                        {% elif usuario_detalle.groups.all.0.name %}
+                            {{ usuario_detalle.groups.all.0.name|upper }}
+                        {% else %}
+                            ALUMNO
+                        {% endif %}
+                    </span>
+
+                    <div class="user-info-list">
+                        <div class="user-info-item">
+                            <span class="user-info-label">👤 Usuario (Login)</span>
+                            <span class="user-info-value">@{{ usuario_detalle.username }}</span>
+                        </div>
+
+                        <div class="user-info-item">
+                            <span class="user-info-label">✉️ Correo Electrónico</span>
+                            <span class="user-info-value">{{ usuario_detalle.email|default:"Sin correo registrado" }}</span>
+                        </div>
+
+                        <div class="user-info-item">
+                            <span class="user-info-label">📅 Fecha de Registro</span>
+                            <span class="user-info-value">{{ usuario_detalle.date_joined|date:"d/m/Y H:i" }}</span>
+                        </div>
+
+                        <div class="user-info-item">
+                            <span class="user-info-label">🕒 Último Ingreso</span>
+                            <span class="user-info-value">
+                                {% if usuario_detalle.last_login %}
+                                    {{ usuario_detalle.last_login|date:"d/m/Y H:i" }}
+                                {% else %}
+                                    Sin ingresos registrados
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Columna Derecha: Cursos Matriculados / Dictados -->
+            <!-- Columna Derecha: Cursos Matriculados / Dictados -->
+            <section class="card-main-expediente">
+                {% if usuario_detalle.groups.all.0.name == 'Docentes' or cursos_docente.exists %}
+                    <!-- VISTA PARA DOCENTES -->
+                    <div class="expediente-header-bar">
+                        <h3>📚 Cursos Asignados como Docente</h3>
+                        <span style="font-size: 13px; font-weight: 700; color: #2563eb;">
+                            {{ cursos_docente|length }} Cursos Asignados
+                        </span>
+                    </div>
+
+                    <table class="table-cursos-expediente">
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th>Fecha de Creación</th>
+                                <th>Estado del Curso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for curso in cursos_docente %}
+                                <tr>
+                                    <td style="font-weight: 700; color: #0f172a;">
+                                        📖 {{ curso.titulo }}
+                                    </td>
+                                    <td>{{ curso.fecha_creacion|date:"d/m/Y H:i"|default:curso.fecha_creacion|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if curso.estado %}
+                                            <span class="badge-status-active">ACTIVO</span>
+                                        {% else %}
+                                            <span style="display: inline-block; padding: 2px 8px; background: #fee2e2; color: #dc2626; font-size: 11px; font-weight: 700; border-radius: 4px;">INACTIVO</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: #94a3b8; padding: 35px 20px;">
+                                        Este docente no tiene cursos asignados actualmente.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                {% else %}
+                    <!-- VISTA PARA ALUMNOS -->
+                    <div class="expediente-header-bar">
+                        <h3>📚 Cursos Matriculados</h3>
+                        <span style="font-size: 13px; font-weight: 700; color: #2563eb;">
+                            {{ inscripciones|length }} Asignación(es)
+                        </span>
+                    </div>
+
+                    <table class="table-cursos-expediente">
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th>Fecha de Inscripción</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ins in inscripciones %}
+                                <tr>
+                                    <td style="font-weight: 700; color: #0f172a;">
+                                        📖 {{ ins.curso.titulo }}
+                                    </td>
+                                    <td>{{ ins.fecha_inscripcion|date:"d/m/Y H:i"|default:ins.fecha_inscripcion|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="badge-status-active">ACTIVA</span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: #94a3b8; padding: 35px 20px;">
+                                        Este estudiante no cuenta con inscripciones activas actualmente.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                <div class="expediente-footer-actions">
+                    <a href="{% url 'admin_dashboard' %}" class="btn-back-expediente">
+                        ← Volver al Panel
+                    </a>
+                    <a href="{% url 'editar_usuario' usuario_detalle.id %}" class="btn-edit-expediente">
+                        ✏️ Editar Usuario
+                    </a>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+</body>
+</html>

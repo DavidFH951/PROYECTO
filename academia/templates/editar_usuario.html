@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuario: {{ usuario_editar.username }} | Academia Galeno</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=3.0">
+</head>
+<body>
+
+    <!-- Barra Superior -->
+    <header class="top-nav">
+        <a href="{% url 'admin_dashboard' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
+            </div>
+        </a>
+
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    {{ request.user.first_name|default:request.user.username }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo registrado" }}
+                    </div>
+                    <span class="dropdown-user-badge">Administrador</span>
+                </div>
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
+                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">⚙️ Panel Principal</a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="form-container-boxed">
+        <div class="card-formulario">
+            
+            <div class="card-formulario-header">
+                <h2>✏️ Editar Usuario: @{{ usuario_editar.username }}</h2>
+                <p>Modifica los datos del usuario o actualiza sus credenciales y permisos en el sistema.</p>
+            </div>
+
+            <div class="card-formulario-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="grid-dos-columnas">
+                        
+                        <div class="campo-form">
+                            <label class="label-form" for="username">Usuario (Login)</label>
+                            <input type="text" id="username" name="username" class="input-form" value="{{ usuario_editar.username }}" required>
+                        </div>
+
+                        <div class="campo-form">
+                            <label class="label-form" for="rol">Rol en el Sistema</label>
+                            <select id="rol" name="rol" class="select-form" required>
+                                <option value="Alumno" {% if rol_actual == 'Alumno' or not rol_actual %}selected{% endif %}>Alumno</option>
+                                <option value="Docente" {% if rol_actual == 'Docente' or rol_actual == 'Docentes' %}selected{% endif %}>Docente</option>
+                                <option value="Administrador" {% if rol_actual == 'Administrador' or usuario_editar.is_superuser or usuario_editar.is_staff %}selected{% endif %}>Administrador</option>
+                            </select>
+                        </div>
+
+                        <div class="campo-form">
+                            <label class="label-form" for="first_name">Nombres</label>
+                            <input type="text" id="first_name" name="first_name" class="input-form" value="{{ usuario_editar.first_name }}" required>
+                        </div>
+
+                        <div class="campo-form">
+                            <label class="label-form" for="last_name">Apellidos</label>
+                            <input type="text" id="last_name" name="last_name" class="input-form" value="{{ usuario_editar.last_name }}" required>
+                        </div>
+
+                        <div class="campo-form ancho-completo">
+                            <label class="label-form" for="email">Correo Electrónico</label>
+                            <input type="email" id="email" name="email" class="input-form" value="{{ usuario_editar.email }}" required>
+                        </div>
+
+                        <div class="campo-form ancho-completo">
+                            <div class="caja-password-info">
+                                <p>🔒 Cambio de Contraseña (Opcional)</p>
+                                <input type="password" id="password" name="password" class="input-form" placeholder="Dejar en blanco para mantener la contraseña actual">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="footer-botones-form">
+                        <a href="{% url 'admin_dashboard' %}" class="btn-secundario">
+                            ← Cancelar
+                        </a>
+                        <button type="submit" class="btn-primario">
+                            💾 Guardar Cambios
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriculación de Alumnos | Academia Galeno</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/admin_matricula.css' %}?v=1.0">
+</head>
+<body>
+
+    <!-- Barra Superior Unificada -->
+    <header class="top-nav">
+        <a href="{% url 'admin_dashboard' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
+            </div>
+        </a>
+
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    {{ request.user.first_name|default:request.user.username }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo registrado" }}
+                    </div>
+                    <span class="dropdown-user-badge">Administrador</span>
+                </div>
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
+                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">⚙️ Panel Principal</a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <!-- Tabs de Navegación del Panel Admin -->
+        <div class="nav-tabs-container">
+            <a href="{% url 'admin_dashboard' %}" class="nav-tab-item">👥 Usuarios</a>
+            <a href="{% url 'admin_cursos_lista' %}" class="nav-tab-item active">📚 Cursos y Matrícula</a>
+            <a href="{% url 'admin_logs_actividad' %}" class="nav-tab-item">📋 Auditoría y Logs</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'success' %}alert-box-success{% else %}alert-box-error{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="matricula-grid">
+            
+            <!-- Selector de Curso (Columna Izquierda) -->
+            <div class="card-sidebar-cursos">
+                <div class="card-title-small">📖 Seleccionar Curso</div>
+                <div class="course-select-list">
+                    {% for c in cursos %}
+                        <a href="{% url 'admin_matricular_curso' c.id %}" 
+                           class="course-item-link {% if curso_seleccionado and curso_seleccionado.id == c.id %}active{% endif %}">
+                            <span>{{ c.titulo }}</span>
+                            <span>→</span>
+                        </a>
+                    {% empty %}
+                        <p style="font-size: 13px; color: #94a3b8;">No hay cursos activos creados.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Panel de Alumnos (Columna Derecha) -->
+            <div class="card-alumnos-container">
+                {% if curso_seleccionado %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="curso_id" value="{{ curso_seleccionado.id }}">
+
+                        <div class="alumnos-header-bar">
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0;">
+                                    Matrícula: {{ curso_seleccionado.titulo }}
+                                </h3>
+                                <span style="font-size: 13px; color: #64748b;">
+                                    Selecciona los estudiantes que tendrán acceso a esta materia.
+                                </span>
+                            </div>
+
+                            <button type="submit" class="btn-submit-mat">
+                                💾 Guardar Matrícula
+                            </button>
+                        </div>
+
+                        <!-- Filtro de búsqueda rápida en JS -->
+                        <div style="margin-bottom: 16px;">
+                            <input type="text" id="filtroAlumno" class="search-alumnos-input" placeholder="🔍 Filtrar alumno por nombre, usuario o email...">
+                        </div>
+
+                        <table class="table-matricula" id="tablaAlumnos">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center;">
+                                        <input type="checkbox" id="checkTodos" title="Seleccionar Todos">
+                                    </th>
+                                    <th>Alumno</th>
+                                    <th>Usuario</th>
+                                    <th>Correo Electrónico</th>
+                                    <th>Estado Actual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alumno in alumnos %}
+                                    <tr class="{% if alumno.id in alumnos_matriculados_ids %}student-row-active{% endif %} alumno-fila">
+                                        <td style="text-align: center;">
+                                            <input type="checkbox" 
+                                                   name="alumnos_seleccionados" 
+                                                   value="{{ alumno.id }}" 
+                                                   class="alumno-checkbox"
+                                                   {% if alumno.id in alumnos_matriculados_ids %}checked{% endif %}>
+                                        </td>
+                                        <td style="font-weight: 700; color: #0f172a;">
+                                            {{ alumno.get_full_name|default:alumno.username }}
+                                        </td>
+                                        <td>@{{ alumno.username }}</td>
+                                        <td>{{ alumno.email|default:"-" }}</td>
+                                        <td>
+                                            {% if alumno.id in alumnos_matriculados_ids %}
+                                                <span style="color: #16a34a; font-weight: 700; font-size: 12px;">● MATRICULADO</span>
+                                            {% else %}
+                                                <span style="color: #94a3b8; font-size: 12px;">No matriculado</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; color: #94a3b8; padding: 30px;">
+                                            No hay usuarios con el rol 'Alumnos' registrados en el sistema.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </form>
+                {% else %}
+                    <div style="text-align: center; padding: 60px 20px; color: #64748b;">
+                        <p style="font-size: 40px; margin-bottom: 12px;">👈</p>
+                        <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">Selecciona un curso de la columna izquierda</h3>
+                        <p style="font-size: 13.5px;">Para ver y gestionar la lista de estudiantes inscritos.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Script de Selección Rápida y Búsqueda en Vivo -->
+    <script>
+        // Seleccionar/Deseleccionar Todos
+        const checkTodos = document.getElementById('checkTodos');
+        if (checkTodos) {
+            checkTodos.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.alumno-checkbox');
+                checkboxes.forEach(cb => {
+                    if (cb.closest('tr').style.display !== 'none') {
+                        cb.checked = checkTodos.checked;
+                    }
+                });
+            });
+        }
+
+        // Buscador reactivo en vivo
+        const inputFiltro = document.getElementById('filtroAlumno');
+        if (inputFiltro) {
+            inputFiltro.addEventListener('input', function() {
+                const texto = this.value.toLowerCase();
+                const filas = document.querySelectorAll('.alumno-fila');
+
+                filas.forEach(fila => {
+                    const contenido = fila.textContent.toLowerCase();
+                    fila.style.display = contenido.includes(texto) ? '' : 'none';
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calificar: {{ curso.titulo }} | Aula Docente</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=1.6">
+</head>
+<body>
+
+    <header class="top-nav">
+        <div class="logo-area">
+            <span class="welcome-title">Registro de Calificaciones | {{ curso.titulo }}</span>
+        </div>
+        <div class="user-menu">
+            <span class="user-name-display">Prof. {{ request.user.username }}</span>
+            <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}alert-box-error{% else %}alert-box-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="control-toolbar">
+            <div>
+                <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">Libreta de Calificaciones</h2>
+                <p style="color: #64748b; font-size: 13.5px; margin-top: 4px;">
+                    Ingresa o modifica la nota final (0 a 20) y observaciones por cada alumno matriculado.
+                </p>
+            </div>
+            <div class="action-buttons-group">
+                <a href="{% url 'panel_docente' %}" class="btn-pill-secondary">
+                    ← Volver a Mis Cursos
+                </a>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>Alumno</th>
+                        <th>Correo</th>
+                        <th style="width: 140px; text-align: center;">Calificación (0-20)</th>
+                        <th>Observaciones / Comentarios</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for insc in inscripciones %}
+                    <tr>
+                        <td style="color: #94a3b8; font-weight: 700; width: 40px;">{{ forloop.counter }}</td>
+                        <td>
+                            <strong>{{ insc.alumno.get_full_name|default:insc.alumno.username }}</strong>
+                            <div style="font-size: 12px; color: #64748b;">@{{ insc.alumno.username }}</div>
+                        </td>
+                        <td>{{ insc.alumno.email|default:"Sin correo" }}</td>
+                        <td style="text-align: center;">
+                            <input type="number" 
+                                   name="nota_{{ insc.alumno.id }}" 
+                                   min="0" 
+                                   max="20" 
+                                   step="0.1" 
+                                   value="{{ notas_dict|dict_get:insc.alumno.id|default_if_none:'' }}"
+                                   placeholder="0.0" 
+                                   class="search-input-field" 
+                                   style="border: 1.5px solid #cbd5e1; border-radius: 6px; width: 85px; text-align: center; font-weight: 700; padding: 6px;">
+                        </td>
+                        <td>
+                            <input type="text" 
+                                   name="obs_{{ insc.alumno.id }}" 
+                                   placeholder="Ej: Excelente desempeño en prácticas..." 
+                                   class="search-input-field" 
+                                   style="border: 1.5px solid #cbd5e1; border-radius: 6px; width: 100%; padding: 6px 10px;">
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-table-text">No hay alumnos inscritos en este curso para calificar.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if inscripciones %}
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <a href="{% url 'panel_docente' %}" class="btn-pill-secondary">Cancelar</a>
+                <button type="submit" class="btn-pill-primary" style="background-color: #059669; border-color: #059669;">
+                    💾 Guardar Calificaciones
+                </button>
+            </div>
+            {% endif %}
+        </form>
+
+    </div>
+
+</body>
+</html>

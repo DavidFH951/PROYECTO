@@ -1,0 +1,346 @@
+/* ====================================================
+   VARIABLES Y ESTILOS GLOBALES
+   ==================================================== */
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* ====================================================
+   BARRA SUPERIOR (TOP-NAV) & BRANDING
+   ==================================================== */
+.top-nav {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.brand-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.brand-logo-img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 6px;
+    transition: transform 0.2s ease;
+}
+
+.brand-container:hover .brand-logo-img {
+    transform: scale(1.04);
+}
+
+.brand-text-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-title {
+    font-weight: 800;
+    font-size: 15px;
+    color: #0f172a;
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+}
+
+.brand-subtitle {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ====================================================
+   MENÚ DESPLEGABLE DE USUARIO (AVATAR & FLOTANTE)
+   ==================================================== */
+.user-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.user-profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    padding: 5px 14px 5px 6px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.user-profile-trigger:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.user-avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+}
+
+.user-trigger-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.dropdown-arrow {
+    font-size: 9px;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.user-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 230px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.user-dropdown-container:hover .user-dropdown-menu,
+.user-dropdown-container:focus-within .user-dropdown-menu {
+    display: block;
+    animation: fadeInDropdown 0.15s ease-out forwards;
+}
+
+.user-dropdown-container:hover .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+@keyframes fadeInDropdown {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-user-info {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #f8fafc;
+}
+
+.dropdown-user-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-user-email {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.dropdown-user-badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 8px;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.dropdown-menu-list {
+    padding: 6px 0;
+}
+
+.dropdown-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #334155;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.15s ease;
+}
+
+.dropdown-menu-item:hover {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.dropdown-menu-item.logout-danger {
+    color: #dc2626;
+    border-top: 1px solid #f1f5f9;
+}
+
+.dropdown-menu-item.logout-danger:hover {
+    background: #fef2f2;
+}
+
+/* ====================================================
+   ALERTAS Y NOTIFICACIONES
+   ==================================================== */
+.alert-box-success {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.alert-box-error {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ====================================================
+   NAVBAR DE SECCIONES (TABS)
+   ==================================================== */
+.nav-tabs-container {
+    display: flex;
+    gap: 12px;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 25px;
+}
+
+.nav-tab-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    margin-bottom: -2px;
+}
+
+.nav-tab-item:hover {
+    color: var(--primary);
+}
+
+.nav-tab-item.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+/* ====================================================
+   PORTADAS DE TARJETAS DE CURSOS (DOCENTE / ALUMNO)
+   ==================================================== */
+.card-curso-portada {
+    height: 125px;
+    position: relative;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Fondo por defecto en caso no tenga imagen subida */
+.card-curso-portada.sin-portada {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+}
+
+.badge-estado-portada {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #10b981;
+    color: #ffffff;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.badge-estado-portada.inactivo {
+    background: #ef4444;
+}
+
+/* Vista previa de imagen en formulario de edición */
+.preview-portada-box {
+    margin-bottom: 10px;
+}
+
+.preview-portada-img {
+    width: 150px;
+    height: 85px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e1;
+    display: block;
+}

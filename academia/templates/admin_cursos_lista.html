@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursos Registrados | Panel Admin</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=1.6">
+    <a href="{% url 'admin_matricular' %}" class="btn-secundario">👥 Matricular Alumnos</a>
+</head>
+<body>
+
+    <!-- Barra Superior de Navegación -->
+    <header class="top-nav">
+        <a href="{% url 'admin_dashboard' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
+            </div>
+        </a>
+
+        <!-- Menú de Usuario con Avatar -->
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    {{ request.user.first_name|default:request.user.username }} {{ request.user.last_name|default:"" }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo registrado" }}
+                    </div>
+                    <span class="dropdown-user-badge">
+                        Administrador
+                    </span>
+                </div>
+
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
+                        👤 Mi Perfil
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
+                        ⚙️ Panel de Control
+                    </a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
+                        🚪 Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <div class="main-container">
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}alert-box-error{% else %}alert-box-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Tarjetas de Métricas -->
+        <div class="stats-grid">
+            <div class="stat-card alumnos">
+                <h3>Total Alumnos</h3>
+                <div class="number">{{ total_alumnos }}</div>
+            </div>
+            <div class="stat-card docentes">
+                <h3>Total Docentes</h3>
+                <div class="number">{{ total_docentes }}</div>
+            </div>
+            <div class="stat-card cursos">
+                <h3>Cursos Activos</h3>
+                <div class="number">{{ total_cursos }}</div>
+            </div>
+        </div>
+
+        <!-- Navbar de Secciones -->
+        <div class="nav-tabs-container">
+            <a href="{% url 'admin_dashboard' %}" class="nav-tab-item">👥 Usuarios</a>
+            <a href="{% url 'admin_cursos_lista' %}" class="nav-tab-item active">📚 Cursos Registrados</a>
+            <a href="{% url 'admin_logs_actividad' %}" class="nav-tab-item">📋 Auditoría y Logs</a>
+        </div>
+
+        <!-- Barra de Control y Acciones de Cursos -->
+       <!-- Encabezado del Listado de Cursos -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0;">
+                Listado de Cursos
+            </h2>
+
+            <div class="table-header-actions">
+                <a href="{% url 'admin_matricular' %}" class="btn-secundario">
+                    👥 Matricular Alumnos
+                </a>
+                <a href="{% url 'admin_crear_curso' %}" class="btn-primario">
+                    + Crear Nuevo Curso
+                </a>
+            </div>
+        </div>
+
+        <!-- Tabla de Cursos -->
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Título del Curso</th>
+                    <th>Docente a Cargo</th>
+                    <th>Estado</th>
+                    <th>Fecha de Creación</th>
+                    <th style="text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for curso in cursos %}
+                <tr>
+                    <td><strong>{{ curso.titulo }}</strong></td>
+                   <td>
+                        {% if curso.docentes.all %}
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                {% for doc in curso.docentes.all %}
+                                    <span style="font-size: 12.5px; font-weight: 600; color: #1e293b;">
+                                        👨‍🏫 {{ doc.get_full_name|default:doc.username }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span style="color: #94a3b8; font-style: italic; font-size: 12.5px;">Sin docente asignado</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if curso.estado %}
+                            <span class="badge badge-docente">Activo</span>
+                        {% else %}
+                            <span class="badge badge-admin" style="background-color: #f1f5f9; color: #64748b; border-color: #cbd5e1;">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ curso.fecha_creacion|date:"d/m/Y" }}</td>
+                    <td style="text-align: center;">
+                        <a href="{% url 'admin_curso_alumnos' curso.id %}" class="btn-detalle" style="background-color: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;">
+                            👥 Alumnos
+                        </a>
+                        <a href="{% url 'detalle_curso' curso.id %}" class="btn-detalle">Aula</a>
+                        <a href="{% url 'admin_editar_curso' curso.id %}" class="btn-editar">Editar</a>
+                        <a href="{% url 'admin_eliminar_curso' curso.id %}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de eliminar el curso {{ curso.titulo }}? Se borrarán también sus materiales y matrículas asociadas.');">
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-table-text">No hay cursos registrados todavía.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+</html>

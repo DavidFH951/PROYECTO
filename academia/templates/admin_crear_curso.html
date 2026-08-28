@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Nuevo Curso | Academia Galeno</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=5.0">
+</head>
+<body>
+
+    <!-- Barra Superior -->
+    <header class="top-nav">
+        <a href="{% url 'admin_dashboard' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
+            </div>
+        </a>
+
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    {{ request.user.first_name|default:request.user.username }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo registrado" }}
+                    </div>
+                    <span class="dropdown-user-badge">Administrador</span>
+                </div>
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
+                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">⚙️ Panel Principal</a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="form-container-boxed">
+        <div class="card-formulario">
+            
+            <div class="card-formulario-header">
+                <h2>➕ Crear Nuevo Curso</h2>
+                <p>Configura los detalles de la nueva materia y asigna a los docentes a cargo.</p>
+            </div>
+
+            <div class="card-formulario-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        
+                        <!-- Título del Curso -->
+                        <div class="campo-form">
+                            <label class="label-form" for="titulo">Título del Curso *</label>
+                            <input type="text" id="titulo" name="titulo" class="input-form" placeholder="Ej. Fisiopatología, Farmacología Médica..." required>
+                        </div>
+
+                        <!-- Descripción / Sumilla -->
+                        <div class="campo-form">
+                            <label class="label-form" for="descripcion">Descripción o Sumilla</label>
+                            <textarea id="descripcion" name="descripcion" class="textarea-form" rows="3" placeholder="Breve sumilla o descripción de los temas del curso..."></textarea>
+                        </div>
+
+                        <!-- Selector de Docentes -->
+                        <div class="campo-form">
+                            <label class="label-form">Docentes Asignados (Selecciona quiénes dictarán el curso)</label>
+                            <div class="docentes-lista-card">
+                                {% for docente in docentes %}
+                                    <label class="docente-item-checkbox">
+                                        <input type="checkbox" name="docentes" value="{{ docente.id }}">
+                                        <span>👨‍🏫 {{ docente.get_full_name|default:docente.username }} (@{{ docente.username }})</span>
+                                    </label>
+                                {% empty %}
+                                    <p style="font-size: 13px; color: #94a3b8; margin: 0; padding: 10px; text-align: center;">
+                                        No hay docentes registrados en el sistema.
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Estado del Curso -->
+                        <div class="campo-form">
+                            <label class="label-form">Visibilidad</label>
+                            <label class="switch-estado-box">
+                                <input type="checkbox" name="estado" checked>
+                                <span class="switch-estado-label">✅ Curso Activo / Visible para alumnos y docentes</span>
+                            </label>
+                        </div>
+
+                        <div class="campo-form">
+    <label class="label-form" for="imagen_portada">🖼️ Imagen de Portada del Curso</label>
+    {% if curso.imagen_portada %}
+        <div style="margin-bottom: 8px;">
+            <img src="{{ curso.imagen_portada.url }}" alt="Portada actual" style="width: 140px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
+        </div>
+    {% endif %}
+    <input type="file" id="imagen_portada" name="imagen_portada" accept="image/*" class="input-form">
+</div>
+
+                    </div>
+
+                    <div class="footer-botones-form">
+                        <a href="{% url 'admin_cursos_lista' %}" class="btn-secundario">
+                            ← Cancelar
+                        </a>
+                        <button type="submit" class="btn-primario">
+                            💾 Guardar Curso
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditoría y Logs | Panel Admin</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=1.6">
+</head>
+<body>
+
+    <!-- Barra Superior de Navegación -->
+    <header class="top-nav">
+        <a href="{% url 'admin_dashboard' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
+            </div>
+        </a>
+
+        <!-- Menú de Usuario con Avatar -->
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    {{ request.user.first_name|default:request.user.username }} {{ request.user.last_name|default:"" }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo registrado" }}
+                    </div>
+                    <span class="dropdown-user-badge">
+                        Administrador
+                    </span>
+                </div>
+
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
+                        👤 Mi Perfil
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
+                        ⚙️ Panel de Control
+                    </a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
+                        🚪 Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <div class="main-container">
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}alert-box-error{% else %}alert-box-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Tarjetas de Métricas -->
+        <div class="stats-grid">
+            <div class="stat-card alumnos">
+                <h3>Total Alumnos</h3>
+                <div class="number">{{ total_alumnos }}</div>
+            </div>
+            <div class="stat-card docentes">
+                <h3>Total Docentes</h3>
+                <div class="number">{{ total_docentes }}</div>
+            </div>
+            <div class="stat-card cursos">
+                <h3>Cursos Activos</h3>
+                <div class="number">{{ total_cursos }}</div>
+            </div>
+        </div>
+
+        <!-- Navbar de Secciones -->
+        <div class="nav-tabs-container">
+            <a href="{% url 'admin_dashboard' %}" class="nav-tab-item">👥 Usuarios</a>
+            <a href="{% url 'admin_cursos_lista' %}" class="nav-tab-item">📚 Cursos Registrados</a>
+            <a href="{% url 'admin_logs_actividad' %}" class="nav-tab-item active">📋 Auditoría y Logs</a>
+        </div>
+
+        <!-- Barra de Búsqueda Estilizada -->
+        <div class="control-toolbar">
+            <form method="GET" action="{% url 'admin_logs_actividad' %}" class="search-filter-box" style="max-width: 500px;">
+                <span style="padding-left: 8px; color: #94a3b8; font-size: 14px;">🔍</span>
+                <input type="text" name="q" value="{{ query }}" placeholder="Buscar por acción, usuario o detalle..." class="search-input-field">
+                <button type="submit" class="btn-search-icon">Buscar</button>
+                {% if query %}
+                    <a href="{% url 'admin_logs_actividad' %}" style="padding: 0 8px; color: #64748b; text-decoration: none; font-size: 12px; font-weight: 600;">Limpiar</a>
+                {% endif %}
+            </form>
+            
+            <div style="font-size: 13px; color: #64748b; font-weight: 500;">
+                Registro en tiempo real de operaciones del sistema
+            </div>
+        </div>
+
+        <!-- Tabla de Logs -->
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th style="width: 175px;">Fecha y Hora</th>
+                    <th style="width: 160px;">Usuario Responsable</th>
+                    <th style="width: 190px;">Acción</th>
+                    <th>Detalles de la Operación</th>
+                    <th style="width: 130px; text-align: center;">IP Origen</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td style="white-space: nowrap; font-size: 13px; color: #64748b;">
+                        {{ log.fecha|date:"d/m/Y H:i:s" }}
+                    </td>
+                    <td>
+                        <strong>{{ log.usuario.username|default:"Sistema" }}</strong>
+                    </td>
+                    <td>
+                        <span class="badge badge-admin">{{ log.accion }}</span>
+                    </td>
+                    <td style="font-size: 13.5px; color: #334155;">
+                        {{ log.detalles|default:"-" }}
+                    </td>
+                    <td style="text-align: center; font-size: 12.5px; color: #64748b; font-family: monospace;">
+                        {{ log.ip_origen|default:"Local" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-table-text">
+                        {% if query %}
+                            No se encontraron registros de auditoría que coincidan con "{{ query }}".
+                        {% else %}
+                            Aún no se registran actividades en el sistema.
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Paginación -->
+        {% if logs.has_other_pages %}
+        <div class="pagination-container">
+            <span>Página {{ logs.number }} de {{ logs.paginator.num_pages }} (Total: {{ logs.paginator.count }} registros)</span>
+            <div class="pagination-links">
+                {% if logs.has_previous %}
+                    <a href="?page=1{% if query %}&q={{ query }}{% endif %}" class="page-btn">&laquo; Primero</a>
+                    <a href="?page={{ logs.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-btn">Anterior</a>
+                {% endif %}
+
+                <span class="page-btn active">{{ logs.number }}</span>
+
+                {% if logs.has_next %}
+                    <a href="?page={{ logs.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-btn">Siguiente</a>
+                    <a href="?page={{ logs.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="page-btn">Último &raquo;</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
