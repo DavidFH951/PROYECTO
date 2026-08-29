@@ -51,7 +51,7 @@
             
             <div class="card-formulario-header">
                 <h2>📁 Subir Material de Estudio</h2>
-                <p>Curso: <strong>{{ curso.nombre|default:"Curso Activo" }}</strong></p>
+                <p>Curso: <strong>{{ curso.nombre|default:curso.titulo|default:"Curso Activo" }}</strong></p>
             </div>
 
             <div class="card-formulario-body">
@@ -65,41 +65,60 @@
                     {% csrf_token %}
                     
                     <div style="display: flex; flex-direction: column; gap: 18px;">
+
+                        <!-- Selector de Semana -->
+                        <div class="campo-form">
+                            <label class="label-form" for="semana">Semana / Sesión Académica</label>
+                            {% if form.semana %}
+                                {{ form.semana }}
+                            {% else %}
+                                <select name="semana" id="semana" class="input-form" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #ffffff;" required>
+                                    <option value="1">Semana 01</option>
+                                    <option value="2">Semana 02</option>
+                                    <option value="3">Semana 03</option>
+                                    <option value="4">Semana 04</option>
+                                    <option value="5">Semana 05</option>
+                                    <option value="6">Semana 06</option>
+                                    <option value="7">Semana 07</option>
+                                    <option value="8">Semana 08</option>
+                                </select>
+                            {% endif %}
+                        </div>
                         
                         <!-- Título -->
                         <div class="campo-form">
-                            <label class="label-form" for="{{ form.titulo.id_for_label }}">Título del Material</label>
+                            <label class="label-form" for="{{ form.titulo.id_for_label|default:'titulo' }}">Título del Material</label>
                             {% if form.titulo %}
                                 {{ form.titulo }}
                             {% else %}
-                                <input type="text" name="titulo" class="input-form" placeholder="Ej. Diapositivas - Sesión 01" required>
+                                <input type="text" name="titulo" id="titulo" class="input-form" placeholder="Ej. Diapositivas - Sesión 01" required>
                             {% endif %}
                         </div>
 
                         <!-- Archivo -->
                         <div class="campo-form">
-                            <label class="label-form" for="{{ form.archivo.id_for_label }}">Archivo (PDF, Word, Diapositivas)</label>
+                            <label class="label-form" for="{{ form.archivo.id_for_label|default:'archivo' }}">Archivo (PDF, Word, Diapositivas)</label>
                             {% if form.archivo %}
                                 {{ form.archivo }}
                             {% else %}
-                                <input type="file" name="archivo" class="input-form">
+                                <input type="file" name="archivo" id="archivo" class="input-form">
                             {% endif %}
                         </div>
 
                         <!-- Enlace Web -->
                         <div class="campo-form">
-                            <label class="label-form" for="{{ form.enlace_web.id_for_label }}">O Enlace Web (Opcional)</label>
+                            <label class="label-form" for="{{ form.enlace_web.id_for_label|default:'enlace_web' }}">O Enlace Web (Opcional)</label>
                             {% if form.enlace_web %}
                                 {{ form.enlace_web }}
                             {% else %}
-                                <input type="url" name="enlace_web" class="input-form" placeholder="https://ejemplo.com/material">
+                                <input type="url" name="enlace_web" id="enlace_web" class="input-form" placeholder="https://ejemplo.com/material">
                             {% endif %}
                         </div>
 
                     </div>
 
                     <!-- Botones de Acción -->
-                    <div class="footer-botones-form">
+                    <div class="footer-botones-form" style="margin-top: 24px;">
                         <a href="{% url 'panel_docente' %}" class="btn-secundario">Cancelar</a>
                         <button type="submit" class="btn-primario" style="background-color: #059669; border-color: #059669;">
                             ✓ Guardar y Publicar

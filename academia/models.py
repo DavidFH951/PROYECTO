@@ -73,16 +73,16 @@ class Inscripcion(models.Model):
 class Material(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='materiales')
     titulo = models.CharField(max_length=200)
+    semana = models.PositiveSmallIntegerField(default=1, verbose_name="Semana / Sesión")  # <-- AGREGAR ESTA LÍNEA
     archivo = models.FileField(upload_to='materiales/', blank=True, null=True)
-    enlace = models.URLField(blank=True, null=True)
+    enlace_web = models.URLField(blank=True, null=True)
     fecha_subida = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Material"
-        verbose_name_plural = "Materiales"
+        ordering = ['semana', '-fecha_subida']
 
     def __str__(self):
-        return f"{self.titulo} - {self.curso.titulo}"
+        return f"Semana {self.semana}: {self.titulo}"
 
 # ----------------------------------------------------
 # 4. MODELO NOTAS Y CALIFICACIONES
