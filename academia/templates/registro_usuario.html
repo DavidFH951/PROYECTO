@@ -7,28 +7,41 @@
     <title>Registrar Usuario | Panel Admin</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=1.6">
-    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=1.4">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=1.5">
 </head>
 <body>
 
     <!-- Barra Superior -->
-    <header class="top-navbar">
+    <header class="top-nav">
         <a href="{% url 'admin_dashboard' %}" class="brand-container">
             <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
-            <div>
-                <div class="brand-title">Academia Galeno</div>
-                <small class="brand-subtitle">PANEL ADMINISTRADOR</small>
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
             </div>
         </a>
 
-        <div class="user-menu-container">
-            <div class="user-info-badge">
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
                 <div class="user-avatar-circle">
                     {{ request.user.username|make_list|first|upper }}
                 </div>
-                <span class="username-display">{{ request.user.username }}</span>
+                <span class="user-trigger-text">{{ request.user.username }}</span>
+                <span class="dropdown-arrow">▼</span>
             </div>
-            <a href="{% url 'logout' %}" class="btn-logout">Cerrar Sesión</a>
+            
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                    <div class="dropdown-user-email">{{ request.user.email|default:"Sin correo" }}</div>
+                    <span class="dropdown-user-badge">ADMIN</span>
+                </div>
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'logout' %}" class="dropdown-menu-item logout-danger">
+                        <span>🚪</span> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
 
