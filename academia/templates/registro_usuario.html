@@ -6,18 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Usuario | Panel Admin</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=1.6">
     <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=1.4">
 </head>
 <body>
 
     <!-- Barra Superior -->
-    <header class="top-nav">
-        <div class="logo-area">
-            <span class="welcome-title">Panel Administrador | Academia Galeno</span>
-        </div>
-        <div class="user-menu">
-            <span class="user-name-display">Hola, {{ request.user.username }}</span>
-            <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
+    <header class="top-navbar">
+        <a href="{% url 'admin_dashboard' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div>
+                <div class="brand-title">Academia Galeno</div>
+                <small class="brand-subtitle">PANEL ADMINISTRADOR</small>
+            </div>
+        </a>
+
+        <div class="user-menu-container">
+            <div class="user-info-badge">
+                <div class="user-avatar-circle">
+                    {{ request.user.username|make_list|first|upper }}
+                </div>
+                <span class="username-display">{{ request.user.username }}</span>
+            </div>
+            <a href="{% url 'logout' %}" class="btn-logout">Cerrar Sesión</a>
         </div>
     </header>
 
