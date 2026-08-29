@@ -3,56 +3,114 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Subir Material - {{ curso.nombre }}</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Material de Estudio | Panel Docente</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=2.0">
 </head>
 <body>
 
-    <!-- Barra de Navegación Superior -->
-    <div class="top-nav">
-        <div class="nav-links">
-            <span style="font-weight: bold; color: #d35400; font-size: 16px;">🩺 PANEL DOCENTE</span>
-            <a href="{% url 'dashboard' %}">Gestión de Cursos</a>
+    <!-- Barra Superior -->
+    <header class="top-nav">
+        <a href="{% url 'panel_docente' %}" class="brand-container">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
+            <div class="brand-text-block">
+                <span class="brand-title">Academia Galeno</span>
+                <span class="brand-subtitle">PANEL DOCENTE</span>
+            </div>
+        </a>
+
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|default:request.user.username|make_list|first|upper }}
+                </div>
+                <span class="user-trigger-text">{{ request.user.get_full_name|default:request.user.username }}</span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+            
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                    <div class="dropdown-user-email">{{ request.user.email|default:"Sin correo" }}</div>
+                    <span class="dropdown-user-badge">DOCENTE</span>
+                </div>
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'logout' %}" class="dropdown-menu-item logout-danger">
+                        <span>🚪</span> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="user-menu">
-            <span style="font-size: 14px; font-weight: 600; color: #555;">Prof. {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}</span>
-            <a href="{% url 'salir' %}" class="btn-logout">Cerrar Sesión</a>
-        </div>
-    </div>
+    </header>
 
-    <!-- Contenedor Principal del Formulario -->
-    <div class="main-container" style="max-width: 600px;">
-        <h1 class="welcome-title" style="font-size: 24px;">Subir Material de Estudio</h1>
-        <p style="color: #666; margin-bottom: 25px;">Curso: <strong>{{ curso.nombre }}</strong></p>
+    <!-- Formulario Centrado -->
+    <main class="form-container-boxed">
+        <section class="card-formulario">
+            
+            <div class="card-formulario-header">
+                <h2>📁 Subir Material de Estudio</h2>
+                <p>Curso: <strong>{{ curso.nombre|default:"Curso Activo" }}</strong></p>
+            </div>
 
-        <div class="form-card">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                
-                <div class="form-group-mb">
-                    <label class="form-label">Título del Material</label>
-                    <input type="text" name="titulo" required class="form-input">
-                </div>
+            <div class="card-formulario-body">
+                {% if form.errors %}
+                    <div class="alert-box-error" style="background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 18px;">
+                        Por favor, revisa los campos requeridos.
+                    </div>
+                {% endif %}
 
-                <div class="form-group-mb">
-                    <label class="form-label">Archivo (PDF, Word, etc.)</label>
-                    <input type="file" name="archivo" class="form-input-file">
-                </div>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div style="display: flex; flex-direction: column; gap: 18px;">
+                        
+                        <!-- Título -->
+                        <div class="campo-form">
+                            <label class="label-form" for="{{ form.titulo.id_for_label }}">Título del Material</label>
+                            {% if form.titulo %}
+                                {{ form.titulo }}
+                            {% else %}
+                                <input type="text" name="titulo" class="input-form" placeholder="Ej. Diapositivas - Sesión 01" required>
+                            {% endif %}
+                        </div>
 
-                <div class="form-group-mb">
-                    <label class="form-label">O Enlace Web (Opcional)</label>
-                    <input type="url" name="enlace" placeholder="https://ejemplo.com" class="form-input">
-                </div>
+                        <!-- Archivo -->
+                        <div class="campo-form">
+                            <label class="label-form" for="{{ form.archivo.id_for_label }}">Archivo (PDF, Word, Diapositivas)</label>
+                            {% if form.archivo %}
+                                {{ form.archivo }}
+                            {% else %}
+                                <input type="file" name="archivo" class="input-form">
+                            {% endif %}
+                        </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn-save">Guardar y Publicar</button>
-                    <a href="{% url 'dashboard' %}" class="btn-cancel">Cancelar</a>
-                </div>
-            </form>
-        </div>
-    </div>
+                        <!-- Enlace Web -->
+                        <div class="campo-form">
+                            <label class="label-form" for="{{ form.enlace_web.id_for_label }}">O Enlace Web (Opcional)</label>
+                            {% if form.enlace_web %}
+                                {{ form.enlace_web }}
+                            {% else %}
+                                <input type="url" name="enlace_web" class="input-form" placeholder="https://ejemplo.com/material">
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="footer-botones-form">
+                        <a href="{% url 'panel_docente' %}" class="btn-secundario">Cancelar</a>
+                        <button type="submit" class="btn-primario" style="background-color: #059669; border-color: #059669;">
+                            ✓ Guardar y Publicar
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </section>
+    </main>
 
 </body>
 </html>
