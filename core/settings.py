@@ -2,6 +2,9 @@
 Django settings for core project.
 """
 
+import dj_database_url
+import os
+
 from pathlib import Path
 import os
 
@@ -63,14 +66,10 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'academia_bd',
-        'USER': 'postgres',
-        'PASSWORD': 'davidfh159',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', 'postgresql://postgres:TU_PASSWORD_LOCAL@localhost:5432/TU_BASE_LOCAL'),
+        conn_max_age=600
+    )
 }
 
 
