@@ -561,7 +561,7 @@ def subir_material(request, curso_id):
     
     if request.method == 'POST':
         titulo = request.POST.get('titulo')
-        semana = request.POST.get('semana', 1)  # <-- Captura el número de semana
+        semana = request.POST.get('semana', 1)
         archivo = request.FILES.get('archivo')
         enlace = request.POST.get('enlace') or request.POST.get('enlace_web')
         
@@ -569,9 +569,9 @@ def subir_material(request, curso_id):
             Material.objects.create(
                 curso=curso,
                 titulo=titulo,
-                semana=semana,                  # <-- Se guarda en la base de datos
+                semana=semana,
                 archivo=archivo,
-                enlace=enlace
+                enlace_web=enlace  # <-- AQUÍ: cambiar enlace por enlace_web
             )
             registrar_log(request, "Subida de Material", f"Subió '{titulo}' (Semana {semana}) al curso '{curso.titulo}'")
             messages.success(request, f"Material '{titulo}' publicado exitosamente en la Semana {semana}.")
