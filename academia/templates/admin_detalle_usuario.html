@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expediente: {{ usuario_detalle.get_full_name|default:usuario_detalle.username }} | Academia Galeno</title>
+
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/admin_expediente.css' %}?v=1.0">
