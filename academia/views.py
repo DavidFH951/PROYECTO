@@ -677,19 +677,26 @@ def detalle_curso(request, curso_id):
     return render(request, 'detalle_curso.html', context)
 @login_required
 def mis_notas(request):
-    inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso').prefetch_related('curso__calificaciones')
+    # Intentar obtener las inscripciones
+    inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso')
     
-    # Contexto para el template
+    # Si las inscripciones vienen vacías, obtener directamente los cursos asignados al alumno
+    cursos_alumno = []
+    if inscripciones.exists():
+        cursos_alumno = [ins.curso for ins in inscripciones]
+    elif hasattr(request.user, 'cursos_matriculados'):
+        cursos_alumno = request.user.cursos_matriculados.all()
+    elif hasattr(request.user, 'cursos'):
+        cursos_alumno = request.user.cursos.all()
+    else:
+        # Consulta de respaldo por relación inversa de Curso a Alumno
+        cursos_alumno = Curso.objects.filter(alumnos=request.user)
+
     context = {
         'inscripciones': inscripciones,
+        'cursos_alumno': cursos_alumno,
     }
     return render(request, 'notas.html', context)
-
-
-@login_required
-def mis_notas(request):
-    notas = Calificacion.objects.filter(alumno=request.user).select_related('curso')
-    return render(request, 'notas.html', {'notas': notas})
 
 
 @login_required
