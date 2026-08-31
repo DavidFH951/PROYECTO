@@ -1,0 +1,267 @@
+/* ===================================================
+   SISTEMA DE REGISTRO DE EVALUACIONES - ESTILOS
+   =================================================== */
+
+body {
+    background-color: #f1f5f9;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #334155;
+}
+
+/* Barra Superior Verde */
+.academic-topbar {
+    background-color: #008744;
+    color: #ffffff;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.academic-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.academic-topbar a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: opacity 0.15s;
+}
+
+.academic-topbar a:hover {
+    opacity: 0.85;
+}
+
+/* Cabecera Oscura del Sistema */
+.system-header {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.system-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.student-fullname {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #e2e8f0;
+}
+
+/* Contenedor Principal */
+.portal-container {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 0 20px;
+}
+
+.card-panel {
+    background: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    padding: 24px;
+}
+
+.panel-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.panel-toolbar h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.semester-select {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    font-size: 13px;
+    color: #334155;
+    outline: none;
+    background: #ffffff;
+}
+
+/* Tabla de Cursos */
+.academic-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.academic-table th {
+    text-align: left;
+    padding: 12px 14px;
+    font-weight: 700;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+    background-color: #fafafa;
+}
+
+.academic-table td {
+    padding: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.academic-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* Botones de Acción */
+.btn-green-nota {
+    background-color: #009640;
+    color: #ffffff;
+    border: none;
+    padding: 5px 14px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-green-nota:hover {
+    background-color: #007a33;
+}
+
+.btn-disabled-cronograma {
+    background-color: #f8fafc;
+    color: #94a3b8;
+    border: 1px solid #e2e8f0;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: not-allowed;
+    text-transform: uppercase;
+}
+
+/* Footer Institucional */
+.panel-footer {
+    margin-top: 24px;
+    text-align: right;
+    font-size: 11px;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Modal Flotante */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-box {
+    background: #ffffff;
+    border-radius: 6px;
+    width: 100%;
+    max-width: 650px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: fadeInModal 0.2s ease-out;
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h4 {
+    margin: 0;
+    font-size: 15px;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.modal-table th {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #475569;
+    font-weight: 700;
+}
+
+.modal-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-footer-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.btn-modal-close {
+    background-color: #009640;
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}

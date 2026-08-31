@@ -1,35 +1,156 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mis Notas - Aula Virtual</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluaciones de Alumno | Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; margin: 0; }
-        .nav-bar { background-color: #34495e; padding: 15px 20px; border-radius: 5px; margin-bottom: 20px; }
-        .nav-bar a { color: white; text-decoration: none; margin-right: 15px; font-weight: bold; }
-        .nota-card { background: white; padding: 15px; margin-bottom: 10px; border-left: 5px solid #2ecc71; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=1.0">
 </head>
 <body>
 
-    <div class="nav-bar">
-        <a href="{% url 'dashboard' %}">← Volver al Dashboard</a>
+    <!-- Barra Superior Verde -->
+    <div class="academic-topbar">
+        <div class="academic-topbar-left">
+            <a href="{% url 'dashboard' %}">🏠 Aula Virtual</a>
+            <span>Evaluaciones de Alumno</span>
+        </div>
+        <div>
+            <a href="{% url 'salir' %}">Cerrar Sesión</a>
+        </div>
     </div>
 
-    <h2>Historial de Calificaciones</h2>
-    <hr>
+    <!-- Barra de Título del Sistema -->
+    <div class="system-header">
+        <span class="system-title">Sistema de Registro de Evaluaciones</span>
+        <span class="student-fullname">{{ request.user.get_full_name|upper|default:request.user.username|upper }}</span>
+    </div>
 
-    {% for nota in notas %}
-        <div class="nota-card">
-            <h4 style="margin-top: 0; color: #2c3e50;">Curso: {{ nota.curso.titulo }}</h4>
-            <strong style="font-size: 18px;">Nota Final: {{ nota.calificacion }} / 20</strong> 
-            <p style="color: #7f8c8d; margin-bottom: 0;">Observaciones: {{ nota.observaciones }}</p>
+    <!-- Contenido Principal -->
+    <main class="portal-container">
+        <div class="card-panel">
+            
+            <div class="panel-toolbar">
+                <h3>Cursos</h3>
+                <div>
+                    <label for="semestreSelect" style="font-size: 13px; color: #64748b; margin-right: 6px;">semestre:</label>
+                    <select id="semestreSelect" class="semester-select">
+                        <option value="2026-2" selected>2026-2</option>
+                        <option value="2026-1">2026-1</option>
+                    </select>
+                </div>
+            </div>
+
+            <table class="academic-table">
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">Código</th>
+                        <th style="width: 35%;">Carrera</th>
+                        <th style="width: 10%;">Currículo</th>
+                        <th style="width: 25%;">Curso</th>
+                        <th style="width: 8%;">Grupo</th>
+                        <th style="width: 10%; text-align: center;">Ver</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inscripcion in inscripciones %}
+                        <tr>
+                            <td><strong>MED-{{ inscripcion.curso.id|stringformat:"04d" }}</strong></td>
+                            <td>Medicina Humana / Ciencias de la Salud</td>
+                            <td>01</td>
+                            <td><strong>{{ inscripcion.curso.titulo }}</strong></td>
+                            <td>01</td>
+                            <td style="text-align: center; white-space: nowrap;">
+                                <button class="btn-green-nota" onclick="abrirModalNotas('{{ inscripcion.curso.titulo }}', '{{ inscripcion.curso.id }}')">
+                                    NOTA
+                                </button>
+                                <button class="btn-disabled-cronograma" disabled>
+                                    CRONOGRAMA
+                                </button>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">
+                                No tienes cursos matriculados para este período académico.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="panel-footer">
+                © Academia Galeno - Sistema Académico | Todos los derechos reservados
+            </div>
+
         </div>
-    {% empty %}
-        <p>Aún no tienes calificaciones registradas en el sistema.</p>
-    {% endfor %}
+    </main>
+
+    <!-- Modal Emergente de Notas -->
+    <div id="modalNotas" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h4 id="modalCursoTitulo">Nota del Curso</h4>
+                <button class="modal-close-btn" onclick="cerrarModalNotas()">×</button>
+            </div>
+            <div class="modal-body">
+                <table class="modal-table">
+                    <thead>
+                        <tr>
+                            <th>Descripción de Evaluación</th>
+                            <th>Prefijo</th>
+                            <th style="text-align: right;">Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalNotasContenido">
+                        <tr>
+                            <td>Examen Parcial (Teoría)</td>
+                            <td>EP</td>
+                            <td style="text-align: right; font-weight: 700; color: #0284c7;">--</td>
+                        </tr>
+                        <tr>
+                            <td>Evaluación Continua / Prácticas</td>
+                            <td>EC</td>
+                            <td style="text-align: right; font-weight: 700; color: #0284c7;">--</td>
+                        </tr>
+                        <tr>
+                            <td>Examen Final (Teoría)</td>
+                            <td>EF</td>
+                            <td style="text-align: right; font-weight: 700; color: #0284c7;">--</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="modal-footer-box">
+                    <div style="font-size: 13px;">
+                        <strong>Fórmula:</strong><br>
+                        <span style="color: #64748b; font-size: 12px;">PF = (EP*0.35 + EF*0.35 + EC*0.30)</span>
+                    </div>
+                    <button class="btn-modal-close" onclick="cerrarModalNotas()">CERRAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script del Modal -->
+    <script>
+        function abrirModalNotas(nombreCurso, cursoId) {
+            document.getElementById('modalCursoTitulo').innerText = 'Nota del Curso: ' + nombreCurso + ' 01';
+            document.getElementById('modalNotas').style.display = 'flex';
+        }
+
+        function cerrarModalNotas() {
+            document.getElementById('modalNotas').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalNotas');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    </script>
 
 </body>
 </html>
