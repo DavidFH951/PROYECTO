@@ -350,3 +350,265 @@ body {
     border: 1.5px solid #cbd5e1;
     display: block;
 }
+
+/* ====================================================
+   ESTILOS - CARGA MASIVA DE USUARIOS
+   ==================================================== */
+.upload-view-body {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.upload-navbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.upload-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.upload-nav-brand img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+}
+
+.upload-nav-brand-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+    display: block;
+}
+
+.upload-nav-brand-sub {
+    font-size: 11px;
+    color: #0284c7;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+.upload-nav-user-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+}
+
+.upload-nav-logout {
+    color: #dc2626;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.upload-main-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.upload-card {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    border: 1px solid #e2e8f0;
+    width: 100%;
+    max-width: 680px;
+    padding: 32px;
+}
+
+.upload-card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eff6ff;
+    color: #0284c7;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+
+.upload-card-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+}
+
+.upload-card-desc {
+    font-size: 13.5px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.upload-excel-box {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.upload-excel-box strong {
+    color: #166534;
+    font-size: 14px;
+    display: block;
+}
+
+.upload-excel-box span {
+    color: #15803d;
+    font-size: 12px;
+}
+
+.btn-download-template {
+    background: #16a34a;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-download-template:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+}
+
+.upload-grid-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.upload-grid-container {
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    overflow-x: auto;
+    margin-bottom: 8px;
+    background: #ffffff;
+}
+
+.upload-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    text-align: left;
+}
+
+.upload-grid-table th {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 10px 14px;
+    font-weight: 700;
+    border-right: 1px solid #334155;
+    white-space: nowrap;
+}
+
+.upload-grid-table th:last-child {
+    border-right: none;
+}
+
+.upload-grid-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    border-right: 1px solid #f1f5f9;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.upload-grid-table tr:last-child td {
+    border-bottom: none;
+}
+
+.upload-role-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.role-pill-alumno { background: #e0f2fe; color: #0369a1; }
+.role-pill-docente { background: #fef3c7; color: #92400e; }
+
+.upload-file-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 10px;
+    font-size: 13.5px;
+    background: #f8fafc;
+    cursor: pointer;
+}
+
+.upload-actions-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-upload-cancel {
+    padding: 10px 20px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.btn-upload-cancel:hover {
+    background: #e2e8f0;
+}
+
+.btn-upload-submit {
+    padding: 10px 22px;
+    background: #059669;
+    border: none;
+    color: #ffffff;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-upload-submit:hover {
+    background: #047857;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
