@@ -10,22 +10,29 @@
 </head>
 <body class="upload-view-body">
 
-    <!-- Barra de Navegación Superior -->
-    <header class="upload-navbar">
-        <a href="{% url 'admin_dashboard' %}" class="upload-nav-brand">
-            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Galeno">
-            <div>
-                <span class="upload-nav-brand-title">Academia Galeno</span>
-                <span class="upload-nav-brand-sub">Panel de Administración</span>
+    <!-- Barra de Navegación Superior Estándar -->
+    <header class="main-header">
+        <a href="{% url 'admin_dashboard' %}" class="header-logo-area">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Galeno" class="header-logo-img">
+            <div class="header-titles">
+                <span class="header-main-title">Academia Galeno</span>
+                <span class="header-sub-title">Panel de Administración</span>
             </div>
         </a>
 
-        <div class="upload-nav-user-meta">
-            <span>Hola, <strong>{{ request.user.username }}</strong></span>
-            <a href="{% url 'salir' %}" class="upload-nav-logout">🚪 Cerrar Sesión</a>
+        <div class="header-user-actions">
+            <div class="header-user-info">
+                <span class="header-greeting">Hola, <strong>{{ request.user.username }}</strong></span>
+                <span class="header-badge-admin">Admin</span>
+            </div>
+            <a href="{% url 'admin_dashboard' %}" class="btn-nav-dashboard">
+                ⬅ Volver al Panel
+            </a>
+            <a href="{% url 'salir' %}" class="btn-nav-logout">
+                🚪 Cerrar Sesión
+            </a>
         </div>
     </header>
-
     <!-- Contenedor Central -->
     <main class="upload-main-wrapper">
         <div class="upload-card">
