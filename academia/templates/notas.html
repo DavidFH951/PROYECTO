@@ -121,32 +121,19 @@
                     <tbody>
     {% for curso in cursos_alumno %}
         <tr>
+            <td><strong>{{ curso.codigo|default:"MED-0001" }}</strong></td>
+            <td>{{ curso.area|default:"Pregrado • Medicina Humana" }}</td>
+            <td><strong>{{ curso.titulo }}</strong></td>
+            <td>01</td>
             <td>
-                <span style="font-weight: 700; color: #0284c7;">MED-{{ curso.id|stringformat:"04d" }}</span>
-            </td>
-            <td>
-                Pregrado • Medicina Humana
-            </td>
-            <td>
-                <strong>{{ curso.titulo }}</strong>
-            </td>
-            <td>
-                <span style="background: #f1f5f9; padding: 3px 8px; border-radius: 4px; font-weight: 600;">01</span>
-            </td>
-            <td style="text-align: center; white-space: nowrap;">
-                <button type="button" class="btn-action-green" onclick="abrirModalNotas('{{ curso.titulo|escapejs }}')">
-                    NOTA
-                </button>
-                <button type="button" class="btn-action-disabled" disabled title="No disponible">
-                    CRONOGRAMA
-                </button>
+                <span class="badge-nota">NOTA</span>
             </td>
         </tr>
     {% empty %}
         <tr>
-            <td colspan="5" style="text-align: center; padding: 48px 20px; color: #64748b;">
-                <span style="font-size: 32px; display: block; margin-bottom: 8px;">📚</span>
-                No tienes cursos matriculados en este período académico.
+            <td colspan="5" style="text-align: center; padding: 30px; color: #64748b;">
+                📚 <br>
+                <strong>No tienes cursos matriculados en este período académico.</strong>
             </td>
         </tr>
     {% endfor %}

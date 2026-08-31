@@ -684,26 +684,21 @@ def mis_notas(request):
     periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
     periodo_id = request.GET.get('periodo')
     
-    # 1. Determinar el período a consultar
+    # 1. Determinar el período a consultar (por URL o el que esté marcado como Activo)
     periodo_actual = None
     if periodo_id:
         periodo_actual = PeriodoAcademico.objects.filter(id=periodo_id).first()
     if not periodo_actual:
         periodo_actual = PeriodoAcademico.objects.filter(activo=True).first() or periodos.first()
 
-    # 2. Filtrar las inscripciones del alumno en ese período específico
-    # Si los cursos aún no tienen período asignado, se muestran como respaldo
+    # 2. Filtro estricto por el período seleccionado
     if periodo_actual:
         inscripciones = Inscripcion.objects.filter(
             alumno=request.user,
             curso__periodo=periodo_actual
         ).select_related('curso')
-        
-        # Respaldo: si aún no se han asignado los cursos a la temporada, traer los del alumno
-        if not inscripciones.exists() and not Inscripcion.objects.filter(curso__periodo__isnull=False).exists():
-            inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso')
     else:
-        inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso')
+        inscripciones = Inscripcion.objects.none()
 
     cursos_alumno = [ins.curso for ins in inscripciones]
 
@@ -713,8 +708,6 @@ def mis_notas(request):
         'cursos_alumno': cursos_alumno,
     }
     return render(request, 'notas.html', context)
-
-
 @login_required
 def mi_perfil(request):
     return render(request, 'perfil.html')
