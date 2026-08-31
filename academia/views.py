@@ -729,14 +729,18 @@ def gestionar_temporada(request):
         accion = request.POST.get('accion')
 
         if accion == 'crear':
-            nombre = request.POST.get('nombre')
-            codigo = request.POST.get('codigo')
+            nombre = request.POST.get('nombre', '').strip()
+            codigo = request.POST.get('codigo', '').strip()
             fecha_inicio = request.POST.get('fecha_inicio')
             fecha_fin = request.POST.get('fecha_fin')
             activar_inmediato = request.POST.get('activo') == 'on'
 
+            # Validar si el código ya existe
+            if PeriodoAcademico.objects.filter(codigo=codigo).exists():
+                messages.error(request, f"Ya existe un período registrado con el código '{codigo}'. Usa otro código.")
+                return redirect('admin_dashboard')
+
             if activar_inmediato:
-                # Desactivar las temporadas anteriores si la nueva se activa
                 PeriodoAcademico.objects.update(activo=False)
 
             PeriodoAcademico.objects.create(
