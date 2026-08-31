@@ -677,23 +677,29 @@ def detalle_curso(request, curso_id):
     return render(request, 'detalle_curso.html', context)
 @login_required
 def mis_notas(request):
-    # Intentar obtener las inscripciones
-    inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso')
+    periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
+    periodo_seleccionado_id = request.GET.get('periodo')
     
-    # Si las inscripciones vienen vacías, obtener directamente los cursos asignados al alumno
-    cursos_alumno = []
-    if inscripciones.exists():
+    # Obtener el período activo por defecto si no se selecciona uno
+    periodo_actual = None
+    if periodo_seleccionado_id:
+        periodo_actual = PeriodoAcademico.objects.filter(id=periodo_seleccionado_id).first()
+    if not periodo_actual:
+        periodo_actual = PeriodoAcademico.objects.filter(activo=True).first() or periodos.first()
+
+    # Cursos del alumno en el período específico
+    if periodo_actual:
+        inscripciones = Inscripcion.objects.filter(
+            alumno=request.user, 
+            curso__periodo=periodo_actual
+        ).select_related('curso')
         cursos_alumno = [ins.curso for ins in inscripciones]
-    elif hasattr(request.user, 'cursos_matriculados'):
-        cursos_alumno = request.user.cursos_matriculados.all()
-    elif hasattr(request.user, 'cursos'):
-        cursos_alumno = request.user.cursos.all()
     else:
-        # Consulta de respaldo por relación inversa de Curso a Alumno
-        cursos_alumno = Curso.objects.filter(alumnos=request.user)
+        cursos_alumno = []
 
     context = {
-        'inscripciones': inscripciones,
+        'periodos': periodos,
+        'periodo_actual': periodo_actual,
         'cursos_alumno': cursos_alumno,
     }
     return render(request, 'notas.html', context)

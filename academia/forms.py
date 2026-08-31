@@ -126,11 +126,11 @@ class CursoForm(forms.ModelForm):
 
     class Meta:
         model = Curso
-        fields = ['titulo', 'descripcion', 'docentes', 'estado']
+        fields = ['titulo', 'descripcion', 'imagen_portada', 'periodo', 'docentes']
         widgets = {
-            'titulo': forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Ej. Fisiopatología'}),
-            'descripcion': forms.Textarea(attrs={'class': 'custom-textarea', 'rows': 3, 'placeholder': 'Breve sumilla o descripción del curso...'}),
-            'estado': forms.CheckboxInput(attrs={'class': 'custom-switch'}),
+            'titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej. Anatomía Humana'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripción del curso...'}),
+            'periodo': forms.Select(attrs={'class': 'form-control'}),
         }
 
 # ----------------------------------------------------
