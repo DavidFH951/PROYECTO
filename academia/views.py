@@ -668,17 +668,20 @@ def detalle_curso(request, curso_id):
     if not (esta_matriculado or es_docente_curso or request.user.is_staff or request.user.is_superuser):
         return HttpResponseForbidden("No tienes permiso para ver este curso.")
     
-    # Obtener el período del curso o la temporada activa actual
+    # Obtener el período del curso o la temporada activa global
     periodo = curso.periodo or PeriodoAcademico.objects.filter(activo=True).first()
 
-    # 1. Generar cronograma de semanas
+    # 1. Generar cronograma de semanas de manera segura
+    cronograma = []
     if periodo:
-        cronograma = periodo.obtener_cronograma_semanas()
+        try:
+            cronograma = periodo.obtener_cronograma_semanas()
+        except Exception:
+            cronograma = [{'numero': i, 'inicio': None, 'fin': None, 'etiqueta': f"Semana {i}"} for i in range(1, 9)]
     else:
-        # Respaldo si no hay ninguna temporada creada
         cronograma = [{'numero': i, 'inicio': None, 'fin': None, 'etiqueta': f"Semana {i}"} for i in range(1, 9)]
 
-    # 2. Materiales del curso
+    # 2. Materiales del curso ordenados
     materiales = curso.materiales.all().order_by('semana', '-fecha_subida')
     
     # 3. Armar los bloques de semanas

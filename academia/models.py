@@ -23,17 +23,33 @@ class PeriodoAcademico(models.Model):
         return f"{self.nombre} ({self.codigo})"
 
     def obtener_cronograma_semanas(self):
-        inicio = self.fecha_inicio if isinstance(self.fecha_inicio, date) else parse_date(str(self.fecha_inicio))
-        fin = self.fecha_fin if isinstance(self.fecha_fin, date) else parse_date(str(self.fecha_fin))
-        
-        if not inicio or not fin:
+        inicio = self.fecha_inicio
+        fin = self.fecha_fin
+
+        # Asegurar conversion estricta a datetime.date
+        if isinstance(inicio, str):
+            inicio = parse_date(inicio)
+        elif isinstance(inicio, datetime):
+            inicio = inicio.date()
+
+        if isinstance(fin, str):
+            fin = parse_date(fin)
+        elif isinstance(fin, datetime):
+            fin = fin.date()
+
+        # Respaldo seguro si las fechas estan vacias o corruptas
+        if not inicio or not fin or inicio > fin:
             return [{'numero': i, 'inicio': None, 'fin': None, 'etiqueta': f"Semana {i}"} for i in range(1, 9)]
 
         semanas = []
         fecha_actual = inicio
         num = 1
+
         while fecha_actual <= fin:
-            fin_semana = min(fecha_actual + timedelta(days=6), fin)
+            fin_semana = fecha_actual + timedelta(days=6)
+            if fin_semana > fin:
+                fin_semana = fin
+
             semanas.append({
                 'numero': num,
                 'inicio': fecha_actual,
@@ -42,9 +58,8 @@ class PeriodoAcademico(models.Model):
             })
             fecha_actual = fin_semana + timedelta(days=1)
             num += 1
+
         return semanas
-
-
 # ----------------------------------------------------
 # 1. MODELO CURSO
 # ----------------------------------------------------
