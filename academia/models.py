@@ -4,7 +4,7 @@ from django.utils.dateparse import parse_date
 # ----------------------------------------------------
 # 0. MODELO PERÍODO ACADÉMICO / TEMPORADA
 # ----------------------------------------------------
-from datetime import timedelta
+from datetime import timedelta, date, timedelta
 import math
 
 class PeriodoAcademico(models.Model):
@@ -26,7 +26,7 @@ class PeriodoAcademico(models.Model):
         inicio = self.fecha_inicio
         fin = self.fecha_fin
 
-        # Asegurar conversion estricta a datetime.date
+        # Normalizar a objeto date
         if isinstance(inicio, str):
             inicio = parse_date(inicio)
         elif isinstance(inicio, datetime):
@@ -37,14 +37,14 @@ class PeriodoAcademico(models.Model):
         elif isinstance(fin, datetime):
             fin = fin.date()
 
-        # Respaldo seguro si las fechas estan vacias o corruptas
         if not inicio or not fin or inicio > fin:
-            return [{'numero': i, 'inicio': None, 'fin': None, 'etiqueta': f"Semana {i}"} for i in range(1, 9)]
+            return [{'numero': i, 'inicio': None, 'fin': None, 'etiqueta': f"Semana {i}"} for i in range(1, 11)]
 
         semanas = []
         fecha_actual = inicio
         num = 1
 
+        # Iterar mientras no hayamos superado la fecha de fin
         while fecha_actual <= fin:
             fin_semana = fecha_actual + timedelta(days=6)
             if fin_semana > fin:
