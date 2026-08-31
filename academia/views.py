@@ -492,6 +492,21 @@ def admin_carga_masiva_usuarios(request):
     return render(request, 'admin_carga_masiva.html')
 
 @login_required
+def descargar_plantilla_usuarios(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("No tienes permiso para realizar esta acción.")
+
+    response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+    response['Content-Disposition'] = 'attachment; filename="plantilla_carga_usuarios.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['username', 'first_name', 'last_name', 'email', 'password', 'rol'])
+    writer.writerow(['jperez', 'Juan', 'Perez Garcia', 'jperez@galeno.pe', 'Temporal123*', 'Alumnos'])
+    writer.writerow(['mrodriguez', 'Maria', 'Rodriguez Soto', 'mrodriguez@galeno.pe', 'Temporal123*', 'Docentes'])
+    
+    return response
+
+@login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def exportar_usuarios_csv(request):
     response = HttpResponse(content_type='text/csv; charset=utf-8')

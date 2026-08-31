@@ -29,6 +29,7 @@ urlpatterns = [
     path('panel-admin/usuario/<int:user_id>/editar/', views.editar_usuario, name='editar_usuario'),
     path('panel-admin/usuario/<int:user_id>/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),
     path('panel-admin/usuarios/eliminar-masivo/', views.eliminar_usuarios_masivo, name='eliminar_usuarios_masivo'),
+    path('panel-admin/descargar-plantilla/', views.descargar_plantilla_usuarios, name='descargar_plantilla_usuarios'),
     path('panel-admin/carga-masiva/', views.admin_carga_masiva_usuarios, name='admin_carga_masiva_usuarios'),
     path('panel-admin/exportar/usuarios-csv/', views.exportar_usuarios_csv, name='exportar_usuarios_csv'),
     path('panel-admin/auditoria/', views.admin_logs_actividad, name='admin_logs_actividad'),
