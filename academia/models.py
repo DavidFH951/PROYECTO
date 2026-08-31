@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.utils.dateparse import parse_date
 # ----------------------------------------------------
 # 0. MODELO PERÍODO ACADÉMICO / TEMPORADA
 # ----------------------------------------------------
@@ -22,17 +22,18 @@ class PeriodoAcademico(models.Model):
     def __str__(self):
         return f"{self.nombre} ({self.codigo})"
 
-    @property
-    def total_semanas(self):
-        dias = (self.fecha_fin - self.fecha_inicio).days + 1
-        return max(1, math.ceil(dias / 7))
-
     def obtener_cronograma_semanas(self):
+        inicio = self.fecha_inicio if isinstance(self.fecha_inicio, date) else parse_date(str(self.fecha_inicio))
+        fin = self.fecha_fin if isinstance(self.fecha_fin, date) else parse_date(str(self.fecha_fin))
+        
+        if not inicio or not fin:
+            return [{'numero': i, 'inicio': None, 'fin': None, 'etiqueta': f"Semana {i}"} for i in range(1, 9)]
+
         semanas = []
-        fecha_actual = self.fecha_inicio
+        fecha_actual = inicio
         num = 1
-        while fecha_actual <= self.fecha_fin:
-            fin_semana = min(fecha_actual + timedelta(days=6), self.fecha_fin)
+        while fecha_actual <= fin:
+            fin_semana = min(fecha_actual + timedelta(days=6), fin)
             semanas.append({
                 'numero': num,
                 'inicio': fecha_actual,
