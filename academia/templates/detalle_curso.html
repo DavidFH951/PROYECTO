@@ -111,7 +111,11 @@
 
             <div style="position: relative; z-index: 2;">
                 <span style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.3);">
-                    Período Académico Activo
+                    {% if curso.periodo %}
+                        Período: {{ curso.periodo.nombre }} ({{ curso.periodo.codigo }})
+                    {% else %}
+                        Período Académico Activo
+                    {% endif %}
                 </span>
 
                 <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0 0 6px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
@@ -153,7 +157,7 @@
                 <a href="#" class="sidebar-nav-link">📝 Evaluaciones</a>
             </aside>
 
-            <!-- Área de Materiales Organizada por Semanas -->
+            <!-- Área de Materiales Organizada por Semanas Calculadas Dinámicamente -->
             <section class="course-main-content">
                 <div class="content-action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y Clases</h3>
@@ -174,31 +178,36 @@
                             <span style="font-size: 22px;">📢</span>
                             <div>
                                 <div style="font-size: 14px; font-weight: 600; color: #1e293b;">Avisos del Curso</div>
-                                <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas</div>
+                                <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas de la temporada</div>
                             </div>
                         </div>
                     </div>
                 </details>
 
-                <!-- Agrupación dinámica por semanas -->
-                {% regroup materiales by semana as semanas_list %}
-
-                {% if semanas_list %}
+                <!-- Bloques Dinámicos por Semanas del Período -->
+                {% if bloques_semanas %}
                     <div style="display: flex; flex-direction: column; gap: 14px;">
-                        {% for grupo in semanas_list %}
+                        {% for bloque in bloques_semanas %}
                             <details open style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff;">
                                 <summary style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <span style="color: #0284c7; font-size: 12px;">▼</span>
-                                        <span>Semana {{ grupo.grouper }}</span>
+                                        <span>
+                                            Semana {{ bloque.info.numero }}
+                                            {% if bloque.info.inicio and bloque.info.fin %}
+                                                <small style="color: #64748b; font-weight: 500; margin-left: 6px;">
+                                                    ({{ bloque.info.inicio|date:"d/m" }} al {{ bloque.info.fin|date:"d/m" }})
+                                                </small>
+                                            {% endif %}
+                                        </span>
                                     </div>
                                     <span style="font-size: 11px; color: #64748b; font-weight: 500; background: #edf2f7; padding: 2px 8px; border-radius: 12px;">
-                                        {{ grupo.list|length }} recurso(s)
+                                        {{ bloque.total_materiales }} recurso(s)
                                     </span>
                                 </summary>
                                 
                                 <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
-                                    {% for mat in grupo.list %}
+                                    {% for mat in bloque.materiales %}
                                         <div class="material-item-card" style="margin: 0;">
                                             <div class="material-info">
                                                 <div class="material-icon-box {% if mat.archivo %}icon-file{% else %}icon-link{% endif %}">
@@ -206,6 +215,9 @@
                                                 </div>
                                                 <div class="material-details">
                                                     <h4>{{ mat.titulo }}</h4>
+                                                    {% if mat.contenido %}
+                                                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido }}</p>
+                                                    {% endif %}
                                                     <span>Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
                                                 </div>
                                             </div>
@@ -215,8 +227,14 @@
                                                     <a href="{{ mat.archivo.url }}" class="btn-download-mat" target="_blank" download>
                                                         📥 Descargar
                                                     </a>
-                                                {% elif mat.enlace_web or mat.enlace %}
-                                                    <a href="{{ mat.enlace_web|default:mat.enlace }}" class="btn-download-mat" target="_blank" style="background: #0284c7;">
+                                                {% endif %}
+                                                
+                                                {% if mat.enlace %}
+                                                    <a href="{{ mat.enlace }}" class="btn-download-mat" target="_blank" style="background: #0284c7;">
+                                                        🌐 Abrir Enlace
+                                                    </a>
+                                                {% elif mat.enlace_web %}
+                                                    <a href="{{ mat.enlace_web }}" class="btn-download-mat" target="_blank" style="background: #0284c7;">
                                                         🌐 Abrir Enlace
                                                     </a>
                                                 {% endif %}
@@ -228,6 +246,10 @@
                                                 {% endif %}
                                             </div>
                                         </div>
+                                    {% empty %}
+                                        <div style="text-align: center; padding: 12px; color: #94a3b8; font-size: 13px;">
+                                            No hay materiales asignados para esta semana aún.
+                                        </div>
                                     {% endfor %}
                                 </div>
                             </details>
@@ -236,7 +258,7 @@
                 {% else %}
                     <div class="empty-materials-state" style="margin-top: 10px;">
                         <p style="font-size: 32px; margin-bottom: 10px;">📂</p>
-                        <p>Aún no se han publicado materiales en este curso.</p>
+                        <p>Aún no se han configurado semanas ni publicado materiales en este curso.</p>
                     </div>
                 {% endif %}
             </section>

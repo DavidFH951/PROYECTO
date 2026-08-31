@@ -4,12 +4,15 @@ from django.contrib.auth.models import User
 # ----------------------------------------------------
 # 0. MODELO PERÍODO ACADÉMICO / TEMPORADA
 # ----------------------------------------------------
+from datetime import timedelta
+import math
+
 class PeriodoAcademico(models.Model):
-    nombre = models.CharField(max_length=50, help_text="Ej: Verano 2027, Ciclo Regular 2027-1")
-    codigo = models.CharField(max_length=20, unique=True, help_text="Ej: 2027-0, 2027-1")
+    nombre = models.CharField(max_length=50)
+    codigo = models.CharField(max_length=20, unique=True)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
-    activo = models.BooleanField(default=True, help_text="Indica si es el período vigente")
+    activo = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Período Académico"
@@ -18,6 +21,27 @@ class PeriodoAcademico(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.codigo})"
+
+    @property
+    def total_semanas(self):
+        dias = (self.fecha_fin - self.fecha_inicio).days + 1
+        return max(1, math.ceil(dias / 7))
+
+    def obtener_cronograma_semanas(self):
+        semanas = []
+        fecha_actual = self.fecha_inicio
+        num = 1
+        while fecha_actual <= self.fecha_fin:
+            fin_semana = min(fecha_actual + timedelta(days=6), self.fecha_fin)
+            semanas.append({
+                'numero': num,
+                'inicio': fecha_actual,
+                'fin': fin_semana,
+                'etiqueta': f"Semana {num} ({fecha_actual.strftime('%d/%m')} - {fin_semana.strftime('%d/%m')})"
+            })
+            fecha_actual = fin_semana + timedelta(days=1)
+            num += 1
+        return semanas
 
 
 # ----------------------------------------------------
