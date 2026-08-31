@@ -678,24 +678,30 @@ def detalle_curso(request, curso_id):
 @login_required
 def mis_notas(request):
     periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
-    periodo_seleccionado_id = request.GET.get('periodo')
+    periodo_id = request.GET.get('periodo')
     
-    # Obtener el período activo por defecto si no se selecciona uno
+    # 1. Determinar el período a consultar
     periodo_actual = None
-    if periodo_seleccionado_id:
-        periodo_actual = PeriodoAcademico.objects.filter(id=periodo_seleccionado_id).first()
+    if periodo_id:
+        periodo_actual = PeriodoAcademico.objects.filter(id=periodo_id).first()
     if not periodo_actual:
         periodo_actual = PeriodoAcademico.objects.filter(activo=True).first() or periodos.first()
 
-    # Cursos del alumno en el período específico
+    # 2. Filtrar las inscripciones del alumno en ese período específico
+    # Si los cursos aún no tienen período asignado, se muestran como respaldo
     if periodo_actual:
         inscripciones = Inscripcion.objects.filter(
-            alumno=request.user, 
+            alumno=request.user,
             curso__periodo=periodo_actual
         ).select_related('curso')
-        cursos_alumno = [ins.curso for ins in inscripciones]
+        
+        # Respaldo: si aún no se han asignado los cursos a la temporada, traer los del alumno
+        if not inscripciones.exists() and not Inscripcion.objects.filter(curso__periodo__isnull=False).exists():
+            inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso')
     else:
-        cursos_alumno = []
+        inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso')
+
+    cursos_alumno = [ins.curso for ins in inscripciones]
 
     context = {
         'periodos': periodos,

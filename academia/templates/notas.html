@@ -87,20 +87,25 @@
         
         <div class="card-panel">
             
-            <div class="panel-header-block">
-                <div class="panel-title-area">
-                    <h2>📊 Registro Académico de Evaluaciones</h2>
-                    <p>Consulta tus calificaciones y estado por asignatura en el período activo.</p>
-                </div>
-                
-                <div class="semester-badge-select">
-                    <label for="semestreSelect">Período:</label>
-                    <select id="semestreSelect">
-                        <option value="2026-2" selected>Verano 2027 / 2026-2</option>
-                        <option value="2026-1">2026-1</option>
-                    </select>
-                </div>
-            </div>
+           <div class="panel-header-block">
+    <div class="panel-title-area">
+        <h2>📊 Registro Académico de Evaluaciones</h2>
+        <p>Consulta tus calificaciones y estado por asignatura en el período activo.</p>
+    </div>
+    
+    <div class="semester-badge-select">
+        <label for="semestreSelect">Período:</label>
+        <select id="semestreSelect" onchange="if (this.value) window.location.href='?periodo=' + this.value;">
+            {% for per in periodos %}
+                <option value="{{ per.id }}" {% if periodo_actual and per.id == periodo_actual.id %}selected{% endif %}>
+                    {{ per.nombre }}
+                </option>
+            {% empty %}
+                <option value="" selected>Verano 2027</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
 
             <div class="table-responsive-wrapper">
                 <table class="academic-table">
