@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
+from django.utils.dateparse import parse_date
 from django.core.paginator import Paginator
 
 from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico
@@ -88,6 +89,9 @@ def admin_dashboard(request):
     total_docentes = User.objects.filter(groups__name='Docentes').count()
     total_cursos = Curso.objects.count()
     
+    # Obtener el período académico activo para el modal de gestión
+    periodo_activo = PeriodoAcademico.objects.filter(activo=True).first()
+    
     query = request.GET.get('q', '').strip()
     rol_filtro = request.GET.get('rol', '').strip()
     
@@ -119,9 +123,9 @@ def admin_dashboard(request):
         'usuarios': usuarios,
         'query': query,
         'rol_filtro': rol_filtro,
+        'periodo_activo': periodo_activo,
     }
     return render(request, 'admin_dashboard.html', context)
-
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
@@ -714,3 +718,42 @@ def mis_notas(request):
 @login_required
 def mi_perfil(request):
     return render(request, 'perfil.html')
+
+@login_required
+def gestionar_temporada(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "No tienes permisos para realizar esta acción.")
+        return redirect('admin_dashboard')
+
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+
+        if accion == 'crear':
+            nombre = request.POST.get('nombre')
+            codigo = request.POST.get('codigo')
+            fecha_inicio = request.POST.get('fecha_inicio')
+            fecha_fin = request.POST.get('fecha_fin')
+            activar_inmediato = request.POST.get('activo') == 'on'
+
+            if activar_inmediato:
+                # Desactivar las temporadas anteriores si la nueva se activa
+                PeriodoAcademico.objects.update(activo=False)
+
+            PeriodoAcademico.objects.create(
+                nombre=nombre,
+                codigo=codigo,
+                fecha_inicio=fecha_inicio,
+                fecha_fin=fecha_fin,
+                activo=activar_inmediato
+            )
+            messages.success(request, f"Temporada '{nombre}' creada exitosamente.")
+
+        elif accion == 'culminar':
+            periodo_id = request.POST.get('periodo_id')
+            periodo = PeriodoAcademico.objects.filter(id=periodo_id).first()
+            if periodo:
+                periodo.activo = False
+                periodo.save()
+                messages.warning(request, f"La temporada '{periodo.nombre}' ha sido culminada. El ciclo quedó cerrado.")
+
+    return redirect('admin_dashboard')
