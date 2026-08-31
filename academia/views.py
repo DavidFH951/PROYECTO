@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.core.paginator import Paginator
 
-from .models import Curso, Material, Inscripcion, Calificacion, LogActividad
+from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico
 from .forms import RegistroUsuarioForm, EditarUsuarioForm, CursoForm, InscripcionForm
 
 
