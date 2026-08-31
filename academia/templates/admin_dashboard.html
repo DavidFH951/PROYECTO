@@ -92,13 +92,13 @@
         <div class="nav-tabs-container">
             <a href="{% url 'admin_dashboard' %}" class="nav-tab-item active">👥 Usuarios</a>
             <a href="{% url 'admin_cursos_lista' %}" class="nav-tab-item">📚 Cursos Registrados</a>
-            <a href="{% url 'admin:academia_periodoacademico_changelist' %}" class="tab-item" target="_blank">
-        🗓️ Temporadas / Períodos ↗
-    </a>
+            <button type="button" class="nav-tab-item" onclick="abrirModalTemporadas()" style="background:none; border:none; cursor:pointer; font-size:inherit; font-family:inherit;">
+                🗓️ Temporadas / Períodos
+            </button>
             <a href="{% url 'admin_logs_actividad' %}" class="nav-tab-item">📋 Auditoría y Logs</a>
         </div>
 
-<!-- Barra de Control Estilizada -->
+        <!-- Barra de Control Estilizada -->
         <div class="control-toolbar">
             <!-- Buscador y Filtro Integrados en una sola barra -->
             <form method="GET" action="{% url 'admin_dashboard' %}" class="search-filter-box">
@@ -220,13 +220,97 @@
 
     </div>
 
-    <!-- Script Selección múltiple -->
+    <!-- MODAL DE GESTIÓN DE TEMPORADAS -->
+    <div id="modalTemporadas" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(3px); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#ffffff; width:90%; max-width:520px; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1); overflow:hidden; font-family:inherit;">
+            
+            <div style="background:#0f172a; color:#ffffff; padding:18px 24px; display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0; font-size:17px; font-weight:700;">🗓️ Control de Temporadas y Ciclos</h3>
+                <button type="button" onclick="cerrarModalTemporadas()" style="background:none; border:none; color:#94a3b8; font-size:22px; cursor:pointer;">×</button>
+            </div>
+
+            <div style="padding:24px;">
+                <!-- Sección: Temporada Activa / Culminar -->
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:20px;">
+                    <span style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Temporada Vigente</span>
+                    {% if periodo_activo %}
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                            <div>
+                                <strong style="color:#0f172a; font-size:15px; display:block;">{{ periodo_activo.nombre }} ({{ periodo_activo.codigo }})</strong>
+                                <small style="color:#64748b;">Fin: {{ periodo_activo.fecha_fin|date:"d M Y" }}</small>
+                            </div>
+                            <form method="POST" action="{% url 'gestionar_temporada' %}" onsubmit="return confirm('¿Seguro que deseas culminar el ciclo? Los docentes no podrán registrar más notas tras el cierre.');">
+                                {% csrf_token %}
+                                <input type="hidden" name="accion" value="culminar">
+                                <input type="hidden" name="periodo_id" value="{{ periodo_activo.id }}">
+                                <button type="submit" style="background:#dc2626; color:#ffffff; border:none; padding:7px 14px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">
+                                    ⚠️ Culminar Ciclo
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <p style="margin:8px 0 0; font-size:13px; color:#e11d48; font-weight:600;">No hay ningún período activo actualmente.</p>
+                    {% endif %}
+                </div>
+
+                <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
+
+                <!-- Formulario: Abrir Nueva Temporada -->
+                <h4 style="margin:0 0 14px 0; font-size:14px; color:#1e293b; font-weight:700;">➕ Abrir Nueva Temporada</h4>
+                <form method="POST" action="{% url 'gestionar_temporada' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="crear">
+
+                    <div style="margin-bottom:12px;">
+                        <label style="display:block; font-size:12px; font-weight:600; color:#475569; margin-bottom:4px;">Nombre del Período</label>
+                        <input type="text" name="nombre" placeholder="Ej: Verano 2027 o Ciclo Regular 2027-I" required style="width:100%; box-sizing:border-box; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+                    </div>
+
+                    <div style="margin-bottom:12px;">
+                        <label style="display:block; font-size:12px; font-weight:600; color:#475569; margin-bottom:4px;">Código Interno</label>
+                        <input type="text" name="codigo" placeholder="Ej: 2027-0" required style="width:100%; box-sizing:border-box; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                        <div>
+                            <label style="display:block; font-size:12px; font-weight:600; color:#475569; margin-bottom:4px;">Fecha Inicio</label>
+                            <input type="date" name="fecha_inicio" required style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:12px; font-weight:600; color:#475569; margin-bottom:4px;">Fecha Cierre</label>
+                            <input type="date" name="fecha_fin" required style="width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="activoCheck" name="activo" checked>
+                        <label for="activoCheck" style="font-size:13px; color:#334155; cursor:pointer;">Activar esta temporada como ciclo vigente inmediato</label>
+                    </div>
+
+                    <div style="text-align:right;">
+                        <button type="button" onclick="cerrarModalTemporadas()" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:8px 16px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; margin-right:8px;">Cancelar</button>
+                        <button type="submit" style="background:#0284c7; color:#ffffff; border:none; padding:8px 18px; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer;">Abrir Temporada</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script>
         function toggleAll(source) {
             var checkboxes = document.getElementsByClassName('user-check');
             for(var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].checked = source.checked;
             }
+        }
+
+        function abrirModalTemporadas() {
+            document.getElementById('modalTemporadas').style.display = 'flex';
+        }
+
+        function cerrarModalTemporadas() {
+            document.getElementById('modalTemporadas').style.display = 'none';
         }
     </script>
 

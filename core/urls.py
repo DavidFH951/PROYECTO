@@ -38,6 +38,7 @@ urlpatterns = [
     path('panel-admin/crear-curso/', views.admin_crear_curso, name='admin_crear_curso'),
     path('panel-admin/curso/<int:curso_id>/editar/', views.admin_editar_curso, name='admin_editar_curso'),
     path('panel-admin/curso/<int:curso_id>/eliminar/', views.admin_eliminar_curso, name='admin_eliminar_curso'),
+    path('admin-panel/gestionar-temporada/', views.gestionar_temporada, name='gestionar_temporada'),
     
     # Matrículas
     path('panel-admin/matricular/', views.admin_matricular, name='admin_matricular'),
