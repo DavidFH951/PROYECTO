@@ -426,26 +426,41 @@ def admin_carga_masiva_usuarios(request):
     if request.method == 'POST' and request.FILES.get('archivo_csv'):
         archivo = request.FILES['archivo_csv']
         
-        if not archivo.name.endswith('.csv'):
+        if not archivo.name.lower().endswith('.csv'):
             messages.error(request, "El archivo seleccionado debe tener extensión .csv")
             return redirect('admin_carga_masiva_usuarios')
 
         try:
-            contenido = archivo.read().decode('utf-8-sig')
-            lector = csv.DictReader(io.StringIO(contenido))
+            # 1. Leer y decodificar con tolerancia a formatos de Excel
+            raw_data = archivo.read()
+            try:
+                contenido = raw_data.decode('utf-8-sig')
+            except UnicodeDecodeError:
+                contenido = raw_data.decode('latin-1')
+
+            # 2. Detectar si Excel usó comas (,) o punto y coma (;)
+            primera_linea = contenido.split('\n')[0] if contenido else ''
+            delimitador = ';' if ';' in primera_linea and ',' not in primera_linea else ','
+
+            lector = csv.DictReader(io.StringIO(contenido), delimiter=delimitador)
             
+            # Limpiar posibles espacios accidentales en los encabezados
+            if lector.fieldnames:
+                lector.fieldnames = [nombre.strip().lower() for nombre in lector.fieldnames if nombre]
+
             creados = 0
             omitidos = 0
 
             for fila in lector:
+                # Obtener valores limpiando espacios
                 username = fila.get('username', '').strip()
                 email = fila.get('email', '').strip()
                 first_name = fila.get('first_name', '').strip()
                 last_name = fila.get('last_name', '').strip()
                 password = fila.get('password', '').strip()
-                rol = fila.get('rol', 'Alumnos').strip()
+                rol = fila.get('rol', 'Alumnos').strip() or 'Alumnos'
 
-                if username and password and not User.objects.filter(username=username).exists():
+                if username and password and not User.objects.filter(username__iexact=username).exists():
                     user = User.objects.create_user(
                         username=username,
                         email=email,
@@ -454,10 +469,12 @@ def admin_carga_masiva_usuarios(request):
                         last_name=last_name
                     )
                     
-                    if rol == 'Administrador':
+                    # Asignar permisos si es Administrador
+                    if rol.lower() in ['administrador', 'admin']:
                         user.is_staff = True
                         user.save()
                     
+                    # Asignar grupo
                     grupo, _ = Group.objects.get_or_create(name=rol)
                     user.groups.add(grupo)
                     creados += 1
@@ -473,7 +490,6 @@ def admin_carga_masiva_usuarios(request):
             return redirect('admin_carga_masiva_usuarios')
 
     return render(request, 'admin_carga_masiva.html')
-
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
