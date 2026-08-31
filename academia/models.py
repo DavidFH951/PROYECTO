@@ -1,12 +1,13 @@
-from django.db import models
+from datetime import date, datetime, timedelta
+import math
+
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils.dateparse import parse_date
+
 # ----------------------------------------------------
 # 0. MODELO PERÍODO ACADÉMICO / TEMPORADA
 # ----------------------------------------------------
-from datetime import timedelta, date, timedelta
-import math
-
 class PeriodoAcademico(models.Model):
     nombre = models.CharField(max_length=50)
     codigo = models.CharField(max_length=20, unique=True)
@@ -26,7 +27,7 @@ class PeriodoAcademico(models.Model):
         inicio = self.fecha_inicio
         fin = self.fecha_fin
 
-        # Normalizar a objeto date
+        # Normalizar a objeto date por seguridad
         if isinstance(inicio, str):
             inicio = parse_date(inicio)
         elif isinstance(inicio, datetime):
@@ -44,7 +45,6 @@ class PeriodoAcademico(models.Model):
         fecha_actual = inicio
         num = 1
 
-        # Iterar mientras no hayamos superado la fecha de fin
         while fecha_actual <= fin:
             fin_semana = fecha_actual + timedelta(days=6)
             if fin_semana > fin:
