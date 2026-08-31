@@ -145,128 +145,136 @@
         </div>
 
         <!-- Layout con Sidebar y Contenidos -->
-        <div class="course-layout">
-            
-            <!-- Barra Lateral -->
-            <aside class="course-sidebar">
-                <div class="sidebar-section-title">Navegación</div>
-                <a href="#" class="sidebar-nav-link active">🏠 General y Materiales</a>
-                <a href="#" class="sidebar-nav-link">📢 Avisos y Foros</a>
-                <a href="#" class="sidebar-nav-link">📄 Sílabo del Curso</a>
+       <!-- Layout con Sidebar y Contenidos -->
+<div class="course-layout">
+    
+    <!-- Barra Lateral Dinámica (Índice) -->
+    <aside class="course-sidebar">
+        <div class="sidebar-section-title">Navegación</div>
+        <a href="#seccion-general" class="sidebar-nav-link active">🏠 General y Avisos</a>
+        <a href="#" class="sidebar-nav-link">📢 Avisos y Foros</a>
+        <a href="#" class="sidebar-nav-link">📄 Sílabo del Curso</a>
 
-                <div class="sidebar-section-title">Módulos</div>
-                <a href="#" class="sidebar-nav-link">📘 Unidad 1: Fundamentos</a>
-                <a href="#" class="sidebar-nav-link">📗 Unidad 2: Casos Clínicos</a>
-                <a href="#" class="sidebar-nav-link">📝 Evaluaciones</a>
-            </aside>
-
-            <!-- Área de Materiales Organizada por Semanas Calculadas Dinámicamente -->
-            <section class="course-main-content">
-                <div class="content-action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y Clases</h3>
-                    {% if es_docente_curso %}
-                        <a href="{% url 'subir_material' curso.id %}" class="btn-upload-material" style="background-color: #059669; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                            ➕ Subir Nuevo Material
-                        </a>
+        <div class="sidebar-section-title">Semanas del Ciclo</div>
+        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
+            {% for bloque in bloques_semanas %}
+                <a href="#semana-{{ bloque.info.numero }}" class="sidebar-nav-link" style="font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>🗓️ Sem. {{ bloque.info.numero }}</span>
+                    {% if bloque.total_materiales > 0 %}
+                        <span style="background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px;">
+                            {{ bloque.total_materiales }}
+                        </span>
                     {% endif %}
-                </div>
-
-                <!-- Sección General fija (Estilo Moodle) -->
-                <details open style="margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff;">
-                    <summary style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0;">
-                        <span style="color: #059669; font-size: 12px;">▼</span> General
-                    </summary>
-                    <div style="padding: 14px 18px;">
-                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px;">
-                            <span style="font-size: 22px;">📢</span>
-                            <div>
-                                <div style="font-size: 14px; font-weight: 600; color: #1e293b;">Avisos del Curso</div>
-                                <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas de la temporada</div>
-                            </div>
-                        </div>
-                    </div>
-                </details>
-
-                <!-- Bloques Dinámicos por Semanas del Período -->
-                {% if bloques_semanas %}
-                    <div style="display: flex; flex-direction: column; gap: 14px;">
-                        {% for bloque in bloques_semanas %}
-                            <details open style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff;">
-                                <summary style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span style="color: #0284c7; font-size: 12px;">▼</span>
-                                        <span>
-                                            Semana {{ bloque.info.numero }}
-                                            {% if bloque.info.inicio and bloque.info.fin %}
-                                                <small style="color: #64748b; font-weight: 500; margin-left: 6px;">
-                                                    ({{ bloque.info.inicio|date:"d/m" }} al {{ bloque.info.fin|date:"d/m" }})
-                                                </small>
-                                            {% endif %}
-                                        </span>
-                                    </div>
-                                    <span style="font-size: 11px; color: #64748b; font-weight: 500; background: #edf2f7; padding: 2px 8px; border-radius: 12px;">
-                                        {{ bloque.total_materiales }} recurso(s)
-                                    </span>
-                                </summary>
-                                
-                                <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
-                                    {% for mat in bloque.materiales %}
-                                        <div class="material-item-card" style="margin: 0;">
-                                            <div class="material-info">
-                                                <div class="material-icon-box {% if mat.archivo %}icon-file{% else %}icon-link{% endif %}">
-                                                    {% if mat.archivo %}📄{% else %}🔗{% endif %}
-                                                </div>
-                                                <div class="material-details">
-                                                    <h4>{{ mat.titulo }}</h4>
-                                                    {% if mat.contenido %}
-                                                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido }}</p>
-                                                    {% endif %}
-                                                    <span>Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
-                                                </div>
-                                            </div>
-
-                                            <div class="material-actions">
-                                                {% if mat.archivo %}
-                                                    <a href="{{ mat.archivo.url }}" class="btn-download-mat" target="_blank" download>
-                                                        📥 Descargar
-                                                    </a>
-                                                {% endif %}
-                                                
-                                                {% if mat.enlace %}
-                                                    <a href="{{ mat.enlace }}" class="btn-download-mat" target="_blank" style="background: #0284c7;">
-                                                        🌐 Abrir Enlace
-                                                    </a>
-                                                {% elif mat.enlace_web %}
-                                                    <a href="{{ mat.enlace_web }}" class="btn-download-mat" target="_blank" style="background: #0284c7;">
-                                                        🌐 Abrir Enlace
-                                                    </a>
-                                                {% endif %}
-
-                                                {% if es_docente_curso %}
-                                                    <a href="{% url 'eliminar_material' mat.id %}" class="btn-delete-mat" onclick="return confirm('¿Estás seguro de eliminar este material?');">
-                                                        🗑️
-                                                    </a>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    {% empty %}
-                                        <div style="text-align: center; padding: 12px; color: #94a3b8; font-size: 13px;">
-                                            No hay materiales asignados para esta semana aún.
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </details>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="empty-materials-state" style="margin-top: 10px;">
-                        <p style="font-size: 32px; margin-bottom: 10px;">📂</p>
-                        <p>Aún no se han configurado semanas ni publicado materiales en este curso.</p>
-                    </div>
-                {% endif %}
-            </section>
-
+                </a>
+            {% empty %}
+                <span style="font-size: 12px; color: #94a3b8; padding: 6px 12px;">Sin semanas configuradas</span>
+            {% endfor %}
         </div>
+    </aside>
+
+    <!-- Área de Materiales Organizada por Semanas -->
+    <section class="course-main-content">
+        <div class="content-action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y Clases</h3>
+            {% if es_docente_curso %}
+                <a href="{% url 'subir_material' curso.id %}" class="btn-upload-material" style="background-color: #059669; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    ➕ Subir Nuevo Material
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Sección General fija con ancla -->
+        <details id="seccion-general" open style="margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
+            <summary style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0;">
+                <span style="color: #059669; font-size: 12px;">▼</span> General
+            </summary>
+            <div style="padding: 14px 18px;">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px;">
+                    <span style="font-size: 22px;">📢</span>
+                    <div>
+                        <div style="font-size: 14px; font-weight: 600; color: #1e293b;">Avisos del Curso</div>
+                        <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas de la temporada</div>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- Bloques de Semanas con ID para anclaje -->
+        {% if bloques_semanas %}
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                {% for bloque in bloques_semanas %}
+                    <details id="semana-{{ bloque.info.numero }}" open style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
+                        <summary style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #0284c7; font-size: 12px;">▼</span>
+                                <span>
+                                    Semana {{ bloque.info.numero }}
+                                    {% if bloque.info.inicio and bloque.info.fin %}
+                                        <small style="color: #64748b; font-weight: 500; margin-left: 6px;">
+                                            ({{ bloque.info.inicio|date:"d/m" }} al {{ bloque.info.fin|date:"d/m" }})
+                                        </small>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <span style="font-size: 11px; color: #64748b; font-weight: 500; background: #edf2f7; padding: 2px 8px; border-radius: 12px;">
+                                {{ bloque.total_materiales }} recurso(s)
+                            </span>
+                        </summary>
+                        
+                        <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
+                            {% for mat in bloque.materiales %}
+                                <div class="material-item-card" style="margin: 0;">
+                                    <div class="material-info">
+                                        <div class="material-icon-box {% if mat.archivo %}icon-file{% else %}icon-link{% endif %}">
+                                            {% if mat.archivo %}📄{% else %}🔗{% endif %}
+                                        </div>
+                                        <div class="material-details">
+                                            <h4>{{ mat.titulo }}</h4>
+                                            {% if mat.contenido %}
+                                                <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido }}</p>
+                                            {% endif %}
+                                            <span>Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="material-actions">
+                                        {% if mat.archivo %}
+                                            <a href="{{ mat.archivo.url }}" class="btn-download-mat" target="_blank" download>
+                                                📥 Descargar
+                                            </a>
+                                        {% endif %}
+                                        
+                                        {% if mat.enlace or mat.enlace_web %}
+                                            <a href="{{ mat.enlace|default:mat.enlace_web }}" class="btn-download-mat" target="_blank" style="background: #0284c7;">
+                                                🌐 Abrir Enlace
+                                            </a>
+                                        {% endif %}
+
+                                        {% if es_docente_curso %}
+                                            <a href="{% url 'eliminar_material' mat.id %}" class="btn-delete-mat" onclick="return confirm('¿Estás seguro de eliminar este material?');">
+                                                🗑️
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div style="text-align: center; padding: 12px; color: #94a3b8; font-size: 13px;">
+                                    No hay materiales asignados para esta semana aún.
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </details>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-materials-state" style="margin-top: 10px;">
+                <p style="font-size: 32px; margin-bottom: 10px;">📂</p>
+                <p>Aún no se han configurado semanas ni publicado materiales en este curso.</p>
+            </div>
+        {% endif %}
+    </section>
+
+</div>
 
     </main>
 
