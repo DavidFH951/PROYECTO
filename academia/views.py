@@ -673,7 +673,17 @@ def detalle_curso(request, curso_id):
         'notas': notas,
         'es_docente_curso': es_docente_curso or request.user.is_staff or request.user.is_superuser,
     }
+
     return render(request, 'detalle_curso.html', context)
+@login_required
+def mis_notas(request):
+    inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso').prefetch_related('curso__calificaciones')
+    
+    # Contexto para el template
+    context = {
+        'inscripciones': inscripciones,
+    }
+    return render(request, 'notas.html', context)
 
 
 @login_required

@@ -4,96 +4,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluaciones de Alumno | Academia Galeno</title>
+    <title>Historial de Notas | Aula Virtual Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=2.0">
 </head>
 <body>
 
-    <!-- Barra Superior Verde -->
-    <div class="academic-topbar">
-        <div class="academic-topbar-left">
-            <a href="{% url 'dashboard' %}">🏠 Aula Virtual</a>
-            <span>Evaluaciones de Alumno</span>
-        </div>
-        <div>
-            <a href="{% url 'salir' %}">Cerrar Sesión</a>
-        </div>
-    </div>
+    <!-- Barra Superior Homogénea -->
+    <header class="top-nav">
+        <div style="display: flex; align-items: center; gap: 25px;">
+            <a href="{% url 'dashboard' %}" class="brand-container">
+                <img src="{% static 'image/logo.jpeg' %}" 
+                     alt="Logo Academia Galeno" 
+                     class="brand-logo-img" 
+                     style="height: 38px; width: auto; max-width: 45px; object-fit: contain; display: block;">
+                <div class="brand-text-block">
+                    <span class="brand-title">Academia Galeno</span>
+                    <span class="brand-subtitle">Aula Virtual</span>
+                </div>
+            </a>
 
-    <!-- Barra de Título del Sistema -->
-    <div class="system-header">
-        <span class="system-title">Sistema de Registro de Evaluaciones</span>
-        <span class="student-fullname">{{ request.user.get_full_name|upper|default:request.user.username|upper }}</span>
-    </div>
+            <nav style="display: flex; gap: 15px; align-items: center;">
+                <a href="{% url 'dashboard' %}" class="nav-tab-item">
+                    Mis Cursos
+                </a>
+                <a href="{% url 'mis_notas' %}" class="nav-tab-item active">
+                    Historial de Notas
+                </a>
+                <a href="{% url 'mi_perfil' %}" class="nav-tab-item">
+                    Mi Perfil
+                </a>
+            </nav>
+        </div>
+
+        <!-- Perfil y Menú Desplegable -->
+        <div class="user-dropdown-container">
+            <div class="user-profile-trigger">
+                <div class="user-avatar-circle">
+                    {{ request.user.first_name|first|default:request.user.username|first }}
+                </div>
+                <span class="user-trigger-text">
+                    {{ request.user.get_full_name|default:request.user.username }}
+                </span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div class="user-dropdown-menu">
+                <div class="dropdown-user-info">
+                    <div class="dropdown-user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="dropdown-user-email">
+                        {{ request.user.email|default:"Sin correo registrado" }}
+                    </div>
+                    <span class="dropdown-user-badge">
+                        {% if request.user.is_staff or request.user.is_superuser %}
+                            Administrador
+                        {% else %}
+                            Alumno
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="dropdown-menu-list">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
+                        👤 Mi Perfil
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="dropdown-menu-item">
+                        📚 Mis Cursos
+                    </a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
+                        🚪 Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <!-- Contenido Principal -->
     <main class="portal-container">
+        
         <div class="card-panel">
             
-            <div class="panel-toolbar">
-                <h3>Cursos</h3>
-                <div>
-                    <label for="semestreSelect" style="font-size: 13px; color: #64748b; margin-right: 6px;">semestre:</label>
-                    <select id="semestreSelect" class="semester-select">
-                        <option value="2026-2" selected>2026-2</option>
+            <div class="panel-header-block">
+                <div class="panel-title-area">
+                    <h2>📊 Registro Académico de Evaluaciones</h2>
+                    <p>Consulta tus calificaciones y estado por asignatura en el período activo.</p>
+                </div>
+                
+                <div class="semester-badge-select">
+                    <label for="semestreSelect">Período:</label>
+                    <select id="semestreSelect">
+                        <option value="2026-2" selected>Verano 2027 / 2026-2</option>
                         <option value="2026-1">2026-1</option>
                     </select>
                 </div>
             </div>
 
-            <table class="academic-table">
-                <thead>
-                    <tr>
-                        <th style="width: 12%;">Código</th>
-                        <th style="width: 35%;">Carrera</th>
-                        <th style="width: 10%;">Currículo</th>
-                        <th style="width: 25%;">Curso</th>
-                        <th style="width: 8%;">Grupo</th>
-                        <th style="width: 10%; text-align: center;">Ver</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for inscripcion in inscripciones %}
+            <div class="table-responsive-wrapper">
+                <table class="academic-table">
+                    <thead>
                         <tr>
-                            <td><strong>MED-{{ inscripcion.curso.id|stringformat:"04d" }}</strong></td>
-                            <td>Medicina Humana / Ciencias de la Salud</td>
-                            <td>01</td>
-                            <td><strong>{{ inscripcion.curso.titulo }}</strong></td>
-                            <td>01</td>
-                            <td style="text-align: center; white-space: nowrap;">
-                                <button class="btn-green-nota" onclick="abrirModalNotas('{{ inscripcion.curso.titulo }}', '{{ inscripcion.curso.id }}')">
-                                    NOTA
-                                </button>
-                                <button class="btn-disabled-cronograma" disabled>
-                                    CRONOGRAMA
-                                </button>
-                            </td>
+                            <th style="width: 14%;">Código</th>
+                            <th style="width: 32%;">Área / Especialidad</th>
+                            <th style="width: 28%;">Curso Matriculado</th>
+                            <th style="width: 10%;">Grupo</th>
+                            <th style="width: 16%; text-align: center;">Acciones</th>
                         </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">
-                                No tienes cursos matriculados para este período académico.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for ins in inscripciones %}
+                            <tr>
+                                <td><span style="font-weight: 700; color: #0284c7;">MED-{{ ins.curso.id|stringformat:"04d" }}</span></td>
+                                <td>{{ ins.curso.area_academica|default:"Pregrado • Ciencias de la Salud" }}</td>
+                                <td>
+                                    <strong>{{ ins.curso.titulo }}</strong>
+                                </td>
+                                <td><span style="background: #f1f5f9; padding: 3px 8px; border-radius: 4px; font-weight: 600;">01</span></td>
+                                <td style="text-align: center; white-space: nowrap;">
+                                    <button class="btn-action-green" onclick="abrirModalNotas('{{ ins.curso.titulo }}')">
+                                        NOTA
+                                    </button>
+                                    <button class="btn-action-disabled" disabled title="No disponible">
+                                        CRONOGRAMA
+                                    </button>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 48px 20px; color: #64748b;">
+                                    <span style="font-size: 32px; display: block; margin-bottom: 8px;">📚</span>
+                                    No tienes cursos matriculados en este período académico.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-            <div class="panel-footer">
-                © Academia Galeno - Sistema Académico | Todos los derechos reservados
+            <div style="margin-top: 24px; text-align: right; font-size: 11px; color: #94a3b8;">
+                © Academia Galeno • Sistema Académico de Evaluación
             </div>
 
         </div>
+
     </main>
 
-    <!-- Modal Emergente de Notas -->
+    <!-- Modal Emergente de Evaluaciones -->
     <div id="modalNotas" class="modal-backdrop">
         <div class="modal-box">
             <div class="modal-header">
                 <h4 id="modalCursoTitulo">Nota del Curso</h4>
                 <button class="modal-close-btn" onclick="cerrarModalNotas()">×</button>
             </div>
+            
             <div class="modal-body">
                 <table class="modal-table">
                     <thead>
@@ -103,29 +168,29 @@
                             <th style="text-align: right;">Nota</th>
                         </tr>
                     </thead>
-                    <tbody id="modalNotasContenido">
+                    <tbody>
                         <tr>
-                            <td>Examen Parcial (Teoría)</td>
-                            <td>EP</td>
+                            <td>Examen Parcial (Teórico)</td>
+                            <td><span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px;">EP</span></td>
                             <td style="text-align: right; font-weight: 700; color: #0284c7;">--</td>
                         </tr>
                         <tr>
-                            <td>Evaluación Continua / Prácticas</td>
-                            <td>EC</td>
+                            <td>Evaluación Continua / Seminarios</td>
+                            <td><span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px;">EC</span></td>
                             <td style="text-align: right; font-weight: 700; color: #0284c7;">--</td>
                         </tr>
                         <tr>
-                            <td>Examen Final (Teoría)</td>
-                            <td>EF</td>
+                            <td>Examen Final (Teórico)</td>
+                            <td><span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px;">EF</span></td>
                             <td style="text-align: right; font-weight: 700; color: #0284c7;">--</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="modal-footer-box">
-                    <div style="font-size: 13px;">
-                        <strong>Fórmula:</strong><br>
-                        <span style="color: #64748b; font-size: 12px;">PF = (EP*0.35 + EF*0.35 + EC*0.30)</span>
+                    <div style="font-size: 12.5px;">
+                        <strong style="color: #334155;">Fórmula de Promedio:</strong><br>
+                        <span style="color: #64748b; font-size: 11.5px;">PF = (EP × 0.35) + (EF × 0.35) + (EC × 0.30)</span>
                     </div>
                     <button class="btn-modal-close" onclick="cerrarModalNotas()">CERRAR</button>
                 </div>
@@ -133,10 +198,10 @@
         </div>
     </div>
 
-    <!-- Script del Modal -->
+    <!-- Control del Modal -->
     <script>
-        function abrirModalNotas(nombreCurso, cursoId) {
-            document.getElementById('modalCursoTitulo').innerText = 'Nota del Curso: ' + nombreCurso + ' 01';
+        function abrirModalNotas(nombreCurso) {
+            document.getElementById('modalCursoTitulo').innerText = 'Evaluaciones: ' + nombreCurso;
             document.getElementById('modalNotas').style.display = 'flex';
         }
 
@@ -144,9 +209,9 @@
             document.getElementById('modalNotas').style.display = 'none';
         }
 
-        window.onclick = function(event) {
+        window.onclick = function(e) {
             const modal = document.getElementById('modalNotas');
-            if (event.target === modal) {
+            if (e.target === modal) {
                 modal.style.display = 'none';
             }
         };
