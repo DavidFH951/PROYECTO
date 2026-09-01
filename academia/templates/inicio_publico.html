@@ -12,8 +12,8 @@
 
     <!-- Barra de Navegación Principal -->
     <header class="main-header" style="position: sticky; top: 0; z-index: 100;">
-        <a href="{% url 'inicio' %}" class="header-logo-area">
-            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Galeno" class="header-logo-img">
+        <a href="{% url 'inicio_publico' %}" class="header-logo-area">
+                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Galeno" class="header-logo-img">
             <div class="header-titles">
                 <span class="header-main-title">Academia Galeno</span>
                 <span class="header-sub-title">Excelencia Médica</span>
@@ -28,15 +28,15 @@
                 <a href="#contacto" style="color: #475569; text-decoration: none;">Contacto</a>
             </nav>
 
-            {% if user.is_authenticated %}
-                <a href="{% if user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}" class="btn-hero-primary" style="padding: 8px 18px; font-size: 13px;">
-                    Ir al Aula Virtual ➔
-                </a>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn-hero-primary" style="background: #059669; padding: 8px 18px; font-size: 13px;">
-                    INTRANET
-                </a>
-            {% endif %}
+           {% if user.is_authenticated %}
+    <a href="{% if user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}" class="btn-hero-primary" style="padding: 8px 18px; font-size: 13px;">
+        Ir al Aula Virtual ➔
+    </a>
+          {% else %}
+    <a href="{% url 'login' %}" class="btn-hero-primary" style="background: #059669; padding: 8px 18px; font-size: 13px;">
+        INTRANET
+    </a>
+          {% endif %}
         </div>
     </header>
 
