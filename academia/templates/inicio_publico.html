@@ -206,50 +206,58 @@
         </div>
     </section>
 
-    <!-- Sección de Cursos Disponibles -->
-    <section id="cursos" class="landing-section" style="padding-top: 30px;">
+   <!-- Sección Informativa de Cursos Disponibles -->
+    <section id="cursos" class="landing-section" style="padding-top: 20px;">
         <div class="section-header">
-            <span class="section-badge">Oferta Académica</span>
+            <span class="section-badge">OFERTA ACADÉMICA</span>
             <h2 class="section-heading">
                 {% if periodo_activo %}
                     Cursos Disponibles • {{ periodo_activo.nombre }}
                 {% else %}
-                    Nuestros Cursos
+                    Cursos del Sistema
                 {% endif %}
             </h2>
         </div>
 
-        <div class="courses-showcase-grid">
+        <div class="info-courses-grid">
             {% for curso in cursos_destacados %}
-                <div class="public-course-card">
-                    <div class="public-course-img-wrapper">
-                        {% if curso.imagen_portada %}
-                            <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}" class="public-course-img">
+                <article class="info-course-card">
+                    <div class="info-course-header">
+                        {% if curso.portada %}
+                            <img src="{{ curso.portada.url }}" alt="{{ curso.nombre }}" class="info-course-img">
                         {% else %}
-                            <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 32px;">
-                                📖
-                            </div>
+                            <span style="font-size: 38px;">🩺</span>
                         {% endif %}
+                        <span class="info-course-badge">
+                            {% if curso.periodo %}{{ curso.periodo.nombre }}{% else %}Academia Galeno{% endif %}
+                        </span>
                     </div>
-                    <div class="public-course-body">
-                        <h3 class="public-course-title">{{ curso.titulo }}</h3>
-                        <p class="public-course-desc">
-                            {{ curso.descripcion|default:"Programa intensivo con desarrollo de teoría, material de lectura y banco de preguntas comentadas."|truncatewords:18 }}
+
+                    <div class="info-course-content">
+                        <h3 class="info-course-title">{{ curso.nombre }}</h3>
+                        <p class="info-course-desc">
+                            {{ curso.descripcion|default:"Programa teórico y práctico con análisis de casos y material estructurado por semanas."|truncatewords:22 }}
                         </p>
-                        <div class="public-course-footer">
-                            <span>👨‍🏫 {{ curso.docentes_nombres }}</span>
-                            <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 700; text-decoration: none;">Inscribirme ➔</a>
+
+                        <div class="info-course-meta">
+                            <div class="info-course-meta-item">
+                                <span>👨‍⚕️</span>
+                                <span><strong>Docente:</strong> {{ curso.docente.get_full_name|default:curso.docente.username|default:"Plana Médica Galeno" }}</span>
+                            </div>
+                            <div class="info-course-meta-item">
+                                <span>📚</span>
+                                <span><strong>Modalidad:</strong> Aula Virtual y Evaluaciones</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </article>
             {% empty %}
-                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #94a3b8;">
-                    No hay cursos abiertos para inscripciones en este momento.
+                <div style="grid-column: 1 / -1; text-align: center; padding: 48px; background: #ffffff; border-radius: 14px; border: 1px dashed #cbd5e1; color: #64748b;">
+                    <p style="font-size: 15px; margin: 0;">Actualmente no hay cursos registrados en el sistema.</p>
                 </div>
             {% endfor %}
         </div>
     </section>
-
     <!-- Pie de Página Corporativo -->
     <footer class="main-footer">
         <div class="footer-container">

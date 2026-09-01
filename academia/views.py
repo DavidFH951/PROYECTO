@@ -51,18 +51,19 @@ def es_docente_valido(user):
 def inicio_publico(request):
     periodo_activo = PeriodoAcademico.objects.filter(activo=True).first()
     
-    # Cursos vigentes de la temporada activa o todos los activos
+    # Trae los cursos del periodo activo; si no hay periodo asignado, muestra todos los cursos existentes
     if periodo_activo:
-        cursos_destacados = Curso.objects.filter(periodo=periodo_activo, estado=True)[:6]
+        cursos = Curso.objects.filter(periodo=periodo_activo)
+        if not cursos.exists():
+            cursos = Curso.objects.all()
     else:
-        cursos_destacados = Curso.objects.filter(estado=True)[:6]
+        cursos = Curso.objects.all()
 
     context = {
         'periodo_activo': periodo_activo,
-        'cursos_destacados': cursos_destacados,
+        'cursos_destacados': cursos,
     }
     return render(request, 'inicio_publico.html', context)
-
 
 def salir(request):
     logout(request)
