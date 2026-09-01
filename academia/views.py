@@ -49,7 +49,19 @@ def es_docente_valido(user):
 # VISTAS PÚBLICAS Y GENERALES
 # ----------------------------------------------------
 def inicio_publico(request):
-    return render(request, 'inicio_publico.html')
+    periodo_activo = PeriodoAcademico.objects.filter(activo=True).first()
+    
+    # Cursos vigentes de la temporada activa o todos los activos
+    if periodo_activo:
+        cursos_destacados = Curso.objects.filter(periodo=periodo_activo, estado=True)[:6]
+    else:
+        cursos_destacados = Curso.objects.filter(estado=True)[:6]
+
+    context = {
+        'periodo_activo': periodo_activo,
+        'cursos_destacados': cursos_destacados,
+    }
+    return render(request, 'inicio_publico.html', context)
 
 
 def salir(request):

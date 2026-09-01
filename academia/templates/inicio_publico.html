@@ -3,45 +3,190 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Academia de Medicina - Excelencia en Ciencias de la Salud</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia Galeno | Excelencia Médica</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/publico.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
-<body>
+<body style="background-color: #f8fafc; margin: 0;">
 
-    <!-- Barra de Navegación Pública -->
-    <header>
-        <div class="logo-area">
-            <a href="{% url 'inicio_publico' %}" style="display: flex; align-items: center; text-decoration: none; color: inherit; gap: 10px;">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Médica" style="height: 45px; width: auto; border-radius: 4px;">
-                <span style="font-weight: bold; font-size: 1.1rem;">Academia Galeno</span>
-            </a>
+    <!-- Barra de Navegación Principal -->
+    <header class="main-header" style="position: sticky; top: 0; z-index: 100;">
+        <a href="{% url 'inicio' %}" class="header-logo-area">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Galeno" class="header-logo-img">
+            <div class="header-titles">
+                <span class="header-main-title">Academia Galeno</span>
+                <span class="header-sub-title">Excelencia Médica</span>
+            </div>
+        </a>
+
+        <div style="display: flex; align-items: center; gap: 24px;">
+            <nav style="display: flex; gap: 20px; font-size: 14px; font-weight: 600;">
+                <a href="#inicio" style="color: #0f172a; text-decoration: none;">Inicio</a>
+                <a href="#nosotros" style="color: #475569; text-decoration: none;">Nosotros</a>
+                <a href="#cursos" style="color: #475569; text-decoration: none;">Cursos</a>
+                <a href="#contacto" style="color: #475569; text-decoration: none;">Contacto</a>
+            </nav>
+
+            {% if user.is_authenticated %}
+                <a href="{% if user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}" class="btn-hero-primary" style="padding: 8px 18px; font-size: 13px;">
+                    Ir al Aula Virtual ➔
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-hero-primary" style="background: #059669; padding: 8px 18px; font-size: 13px;">
+                    INTRANET
+                </a>
+            {% endif %}
         </div>
-        <nav>
-            <a href="#">Inicio</a>
-            <a href="#">Nosotros</a>
-            <a href="#">Cursos</a>
-            <a href="#contacto">Contacto</a>
-            <!-- Botón de Intranet que lleva directo al login -->
-            <a href="{% url 'login' %}" class="btn-intranet">INTRANET</a>
-        </nav>
     </header>
 
-    <!-- Banner Principal (Hero) -->
-    <section class="hero" style="text-align: center; padding: 60px 20px;">
-        <img src="{% static 'image/logo_principall.png' %}" alt="Banner Academia Médica" style="max-width: 180px; height: auto; margin-bottom: 20px; border-radius: 8px;">
-        
-        <h1>Formando a los Mejores Profesionales de la Salud</h1>
-        <p>Impulsa tu vocación médica con un modelo académico de alta exigencia, tecnología de vanguardia y un cuerpo docente de excelencia.</p>
-        <a href="#contacto" class="btn-contacto">Solicitar Información de Admisión</a>
+    <!-- Hero Section -->
+    <section id="inicio" class="landing-hero">
+        <div class="hero-badge">
+            🩺 Especialistas en Formación de Pregrado y Postgrado
+        </div>
+        <h1 class="hero-title">
+            Formando a los Mejores Profesionales de la Salud
+        </h1>
+        <p class="hero-subtitle">
+            Impulsa tu preparación con docentes especialistas, metodologías de alta exigencia, casos clínicos reales y un aula virtual optimizada.
+        </p>
+        <div class="hero-buttons">
+            <a href="#cursos" class="btn-hero-primary">Explorar Cursos Vigentes</a>
+            <a href="#contacto" class="btn-hero-secondary">Solicitar Asesoría de Admisión</a>
+        </div>
     </section>
 
-    <!-- Sección Informativa -->
-    <section class="info-section" id="contacto">
-        <h2>¿Listo para transformar tu futuro médico?</h2>
-        <p>Matricúlate en nuestros ciclos de preparación, especialización y refuerzo clínico. Nuestro equipo de asesores se pondrá en contacto contigo para brindarte toda la información que necesitas.</p>
+    <!-- Barra de Métricas -->
+    <div class="stats-banner">
+        <div class="stat-item">
+            <div class="stat-number">+1,500</div>
+            <div class="stat-label">Alumnos Capacitados</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Tasa de Aprobación</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Docentes Especialistas</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Acceso a la Plataforma</div>
+        </div>
+    </div>
+
+    <!-- Sección de Pilares -->
+    <section id="nosotros" class="landing-section">
+        <div class="section-header">
+            <span class="section-badge">¿Por qué estudiar en Galeno?</span>
+            <h2 class="section-heading">Nuestra Metodología de Alto Rendimiento</h2>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon-box">📚</div>
+                <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Plan de Estudios Enfocado</h3>
+                <p style="font-size: 13.5px; color: #64748b; line-height: 1.6;">
+                    Contenido estructurado semana a semana con sílabos orientados a los exámenes y exigencias universitarias reales.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-box" style="background: #f0fdf4;">👨‍⚕️</div>
+                <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Plana Docente de Élite</h3>
+                <p style="font-size: 13.5px; color: #64748b; line-height: 1.6;">
+                    Médicos especialistas y residentes con vocación de enseñanza y amplia experiencia en docencia universitaria.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-box" style="background: #fef3c7;">💻</div>
+                <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Campus Virtual Integral</h3>
+                <p style="font-size: 13.5px; color: #64748b; line-height: 1.6;">
+                    Accede a grabaciones, diapositivas y guías clínicas organizadas cronológicamente en cualquier dispositivo.
+                </p>
+            </div>
+        </div>
     </section>
+
+    <!-- Sección de Cursos Destacados -->
+    <section id="cursos" class="landing-section">
+        <div class="section-header">
+            <span class="section-badge">Oferta Académica</span>
+            <h2 class="section-heading">
+                {% if periodo_activo %}
+                    Cursos Disponibles • {{ periodo_activo.nombre }}
+                {% else %}
+                    Nuestros Cursos
+                {% endif %}
+            </h2>
+        </div>
+
+        <div class="courses-showcase-grid">
+            {% for curso in cursos_destacados %}
+                <div class="public-course-card">
+                    <div class="public-course-img-wrapper">
+                        {% if curso.imagen_portada %}
+                            <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}" class="public-course-img">
+                        {% else %}
+                            <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 32px;">
+                                📖
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="public-course-body">
+                        <h3 class="public-course-title">{{ curso.titulo }}</h3>
+                        <p class="public-course-desc">
+                            {{ curso.descripcion|default:"Programa académico intensivo con material teórico, discusión de casos y evaluaciones periódicas."|truncatewords:20 }}
+                        </p>
+                        <div class="public-course-footer">
+                            <span>👨‍🏫 {{ curso.docentes_nombres }}</span>
+                            <a href="{% url 'login' %}" style="color: #0284c7; font-weight: 700; text-decoration: none;">Inscribirme ➔</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #94a3b8;">
+                    No hay cursos publicados para esta temporada actualmente.
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Sección de Contacto y Admisión -->
+    <section id="contacto" class="landing-section">
+        <div class="section-header">
+            <span class="section-badge">Atención Personalizada</span>
+            <h2 class="section-heading">Solicita Información de Admisión</h2>
+        </div>
+
+        <div class="contact-card-box">
+            <form action="https://wa.me/51999999999" method="GET" target="_blank">
+                <div class="form-group-landing">
+                    <label>Nombre y Apellidos</label>
+                    <input type="text" class="form-input-landing" placeholder="Ej. Carlos Mendoza" required>
+                </div>
+                <div class="form-group-landing">
+                    <label>Correo Electrónico</label>
+                    <input type="email" class="form-input-landing" placeholder="ejemplo@correo.com" required>
+                </div>
+                <div class="form-group-landing">
+                    <label>Curso o Especialidad de Interés</label>
+                    <input type="text" class="form-input-landing" placeholder="Ej. Fisiopatología / Anatomía" required>
+                </div>
+                <button type="submit" class="btn-hero-primary" style="width: 100%; border: none; cursor: pointer; text-align: center; justify-content: center; font-size: 15px; margin-top: 10px;">
+                    📲 Contactar por WhatsApp
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Pie de Página -->
+    <footer style="background: #0f172a; color: #94a3b8; padding: 32px 20px; text-align: center; font-size: 13px;">
+        <p style="margin: 0;">© 2027 Academia Galeno. Todos los derechos reservados.</p>
+    </footer>
 
 </body>
 </html>
