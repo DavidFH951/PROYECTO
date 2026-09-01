@@ -68,11 +68,11 @@
                 </div>
             </div>
 
-            <!-- Tarjeta Lateral de Admisión -->
+           <!-- Tarjeta Lateral de Consulta Galeno -->
             <div class="hero-card-form">
                 <div class="card-form-header">
                     <div class="card-form-title">
-                        ¡Inicia tu Preparación<br>Académica!
+                        ¡Consulta e Inscríbete<br>en la Academia!
                     </div>
                     <div class="card-form-badge">
                         Galeno <span>2027</span>
@@ -80,29 +80,16 @@
                 </div>
 
                 <form class="lead-form-body" onsubmit="return false;">
-                    <div class="form-radio-group">
-                        <label class="radio-item">
-                            <input type="radio" name="modalidad" value="Pregrado" checked>
-                            <span>Pregrado</span>
-                        </label>
-                        <label class="radio-item">
-                            <input type="radio" name="modalidad" value="Postgrado">
-                            <span>Postgrado</span>
-                        </label>
-                        <label class="radio-item">
-                            <input type="radio" name="modalidad" value="Residentado">
-                            <span>Residentado</span>
-                        </label>
-                    </div>
-
                     <div class="form-group-full">
                         <select class="hero-input-field" required>
-                            <option value="" disabled selected>Selecciona tu curso o especialidad *</option>
-                            <option value="Fisiopatologia">Fisiopatología</option>
-                            <option value="Farmacologia">Farmacología</option>
-                            <option value="Anatomia">Anatomía Humana</option>
-                            <option value="Medicina Interna">Medicina Interna</option>
-                            <option value="Cirugia">Cirugía General</option>
+                            <option value="" disabled selected>Selecciona el curso de tu interés *</option>
+                            {% for curso in cursos_destacados %}
+                                <option value="{{ curso.titulo }}">{{ curso.titulo }}</option>
+                            {% empty %}
+                                <option value="Fisiopatologia">Fisiopatología</option>
+                                <option value="Farmacologia">Farmacología</option>
+                                <option value="Anatomia">Anatomía Humana</option>
+                            {% endfor %}
                         </select>
                     </div>
 
@@ -127,13 +114,11 @@
                         <label for="acepto_privacidad">Acepto las <a href="#">Políticas de Privacidad</a></label>
                     </div>
 
-                    <button type="submit" class="btn-submit-hero-form">
-                        Solicitar Información
+                    <button type="submit" class="btn-submit-whatsapp-hero">
+                        📲 Envíanos mensaje al WhatsApp
                     </button>
                 </form>
             </div>
-
-        </div>
     </section>
     <!-- Pie de Página -->
     <footer style="background: #0f172a; color: #94a3b8; padding: 32px 20px; text-align: center; font-size: 13px;">

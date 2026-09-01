@@ -1101,7 +1101,7 @@ body {
     color: #ffffff;
 }
 
-/* Tarjeta Formulario Flotante */
+/* Tarjeta Formulario Flotante (Azul Galeno) */
 .hero-card-form {
     background: #ffffff;
     border-radius: 18px;
@@ -1114,7 +1114,7 @@ body {
 }
 
 .card-form-header {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     padding: 18px 24px;
     display: flex;
     justify-content: space-between;
@@ -1123,8 +1123,8 @@ body {
 }
 
 .card-form-title {
-    font-size: 14px;
-    font-weight: 900;
+    font-size: 14.5px;
+    font-weight: 800;
     line-height: 1.25;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1135,7 +1135,7 @@ body {
     font-size: 10.5px;
     font-weight: 700;
     text-transform: uppercase;
-    color: #a7f3d0;
+    color: #bae6fd;
 }
 
 .card-form-badge span {
@@ -1151,22 +1151,93 @@ body {
     background: #ffffff;
 }
 
-.btn-submit-hero-form {
+/* Campos del Formulario */
+.form-group-full {
+    margin-bottom: 10px;
+}
+
+.form-row-dual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.hero-input-field {
     width: 100%;
-    background: #059669;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-main);
+    box-sizing: border-box;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.hero-input-field:focus {
+    background: #ffffff;
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.required-notice {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.form-terms-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.form-terms-check a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+/* Botón Oficial de WhatsApp */
+.btn-submit-whatsapp-hero {
+    width: 100%;
+    background: #25d366;
     color: #ffffff;
     border: none;
     padding: 13px;
     border-radius: 9px;
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.btn-submit-hero-form:hover {
-    background: #047857;
+.btn-submit-whatsapp-hero:hover {
+    background: #1eb954;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.45);
+}
+
+/* Responsividad para móviles */
+@media (max-width: 960px) {
+    .hero-split-container {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+    .hero-card-form {
+        margin: 0 auto;
+    }
+    .hero-main-title {
+        font-size: 32px;
+    }
 }
