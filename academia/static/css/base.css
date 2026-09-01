@@ -1011,3 +1011,212 @@ body {
     border-color: #0284c7;
     box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
+
+/* ====================================================
+   HERO SPLIT CON FORMULARIO FLOTANTE (ESTILO UNIVERSITARIO)
+   ==================================================== */
+.hero-split-section {
+    position: relative;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(2, 132, 199, 0.82)),
+                url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+    padding: 60px 24px 80px;
+    min-height: 580px;
+    display: flex;
+    align-items: center;
+}
+
+.hero-split-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 48px;
+    align-items: center;
+}
+
+/* Columna Izquierda */
+.hero-left-content {
+    color: #ffffff;
+}
+
+.hero-main-title {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.15;
+    color: #ffffff;
+    margin: 16px 0;
+    letter-spacing: -0.5px;
+}
+
+.hero-description {
+    font-size: 16.5px;
+    color: #e2e8f0;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: 540px;
+}
+
+.hero-pills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #bae6fd;
+}
+
+/* Columna Derecha: Tarjeta */
+.hero-card-form {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    max-width: 440px;
+    margin-left: auto;
+    width: 100%;
+}
+
+.card-form-header {
+    background: linear-gradient(135deg, #059669, #047857);
+    padding: 18px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+}
+
+.card-form-title {
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    max-width: 220px;
+}
+
+.card-form-badge {
+    text-align: right;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #d1fae5;
+}
+
+.card-form-badge span {
+    display: block;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1;
+    color: #ffffff;
+}
+
+.lead-form-body {
+    padding: 22px;
+}
+
+/* Radios */
+.form-radio-group {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 6px;
+}
+
+.radio-item {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.radio-item input[type="radio"] {
+    accent-color: #059669;
+    cursor: pointer;
+}
+
+.form-group-full {
+    margin-bottom: 10px;
+}
+
+.form-row-dual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.hero-input-field {
+    width: 100%;
+    padding: 9.5px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #1e293b;
+    box-sizing: border-box;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.hero-input-field:focus {
+    background: #ffffff;
+    border-color: #059669;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}
+
+.required-notice {
+    display: block;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.form-terms-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    color: #64748b;
+    margin-bottom: 16px;
+}
+
+.form-terms-check a {
+    color: #0284c7;
+    text-decoration: underline;
+}
+
+.btn-submit-hero-form {
+    width: 100%;
+    background: #059669;
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s;
+}
+
+.btn-submit-hero-form:hover {
+    background: #047857;
+    transform: translateY(-1px);
+}
+
+/* Responsividad */
+@media (max-width: 960px) {
+    .hero-split-container {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+    .hero-card-form {
+        margin: 0 auto;
+    }
+    .hero-main-title {
+        font-size: 32px;
+    }
+}

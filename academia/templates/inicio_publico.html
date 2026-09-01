@@ -40,146 +40,97 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section id="inicio" class="landing-hero">
-        <div class="hero-badge">
-            🩺 Especialistas en Formación de Pregrado y Postgrado
-        </div>
-        <h1 class="hero-title">
-            Formando a los Mejores Profesionales de la Salud
-        </h1>
-        <p class="hero-subtitle">
-            Impulsa tu preparación con docentes especialistas, metodologías de alta exigencia, casos clínicos reales y un aula virtual optimizada.
-        </p>
-        <div class="hero-buttons">
-            <a href="#cursos" class="btn-hero-primary">Explorar Cursos Vigentes</a>
-            <a href="#contacto" class="btn-hero-secondary">Solicitar Asesoría de Admisión</a>
-        </div>
-    </section>
-
-    <!-- Barra de Métricas -->
-    <div class="stats-banner">
-        <div class="stat-item">
-            <div class="stat-number">+1,500</div>
-            <div class="stat-label">Alumnos Capacitados</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">98%</div>
-            <div class="stat-label">Tasa de Aprobación</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">100%</div>
-            <div class="stat-label">Docentes Especialistas</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">24/7</div>
-            <div class="stat-label">Acceso a la Plataforma</div>
-        </div>
-    </div>
-
-    <!-- Sección de Pilares -->
-    <section id="nosotros" class="landing-section">
-        <div class="section-header">
-            <span class="section-badge">¿Por qué estudiar en Galeno?</span>
-            <h2 class="section-heading">Nuestra Metodología de Alto Rendimiento</h2>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon-box">📚</div>
-                <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Plan de Estudios Enfocado</h3>
-                <p style="font-size: 13.5px; color: #64748b; line-height: 1.6;">
-                    Contenido estructurado semana a semana con sílabos orientados a los exámenes y exigencias universitarias reales.
+    <!-- Hero Section con Formulario Integrado al Costado -->
+    <section id="inicio" class="hero-split-section">
+        <div class="hero-split-container">
+            
+            <!-- Columna Izquierda: Mensaje Principal -->
+            <div class="hero-left-content">
+                <div class="hero-badge">
+                    🩺 Especialistas en Ciencias Médicas y de la Salud
+                </div>
+                <h1 class="hero-main-title">
+                    Formando a los Mejores Profesionales de la Salud
+                </h1>
+                <p class="hero-description">
+                    Impulsa tu preparación académica con docentes especialistas, metodologías de alta exigencia y una plataforma diseñada para tu éxito.
                 </p>
+                <div class="hero-pills-list">
+                    <span>✓ Clases teóricas y resolución de casos</span>
+                    <span>✓ Acceso a materiales 24/7</span>
+                    <span>✓ Docentes médicos especialistas</span>
+                </div>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon-box" style="background: #f0fdf4;">👨‍⚕️</div>
-                <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Plana Docente de Élite</h3>
-                <p style="font-size: 13.5px; color: #64748b; line-height: 1.6;">
-                    Médicos especialistas y residentes con vocación de enseñanza y amplia experiencia en docencia universitaria.
-                </p>
-            </div>
+            <!-- Columna Derecha: Tarjeta de Contacto / Admisión -->
+            <div class="hero-card-form">
+                <div class="card-form-header">
+                    <div class="card-form-title">¡INICIA TU PREPARACIÓN HOY!</div>
+                    <div class="card-form-badge">Galeno <span>2027</span></div>
+                </div>
 
-            <div class="feature-card">
-                <div class="feature-icon-box" style="background: #fef3c7;">💻</div>
-                <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Campus Virtual Integral</h3>
-                <p style="font-size: 13.5px; color: #64748b; line-height: 1.6;">
-                    Accede a grabaciones, diapositivas y guías clínicas organizadas cronológicamente en cualquier dispositivo.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Sección de Cursos Destacados -->
-    <section id="cursos" class="landing-section">
-        <div class="section-header">
-            <span class="section-badge">Oferta Académica</span>
-            <h2 class="section-heading">
-                {% if periodo_activo %}
-                    Cursos Disponibles • {{ periodo_activo.nombre }}
-                {% else %}
-                    Nuestros Cursos
-                {% endif %}
-            </h2>
-        </div>
-
-        <div class="courses-showcase-grid">
-            {% for curso in cursos_destacados %}
-                <div class="public-course-card">
-                    <div class="public-course-img-wrapper">
-                        {% if curso.imagen_portada %}
-                            <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}" class="public-course-img">
-                        {% else %}
-                            <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 32px;">
-                                📖
-                            </div>
-                        {% endif %}
+                <form class="lead-form-body" action="https://wa.me/51999999999" method="GET" target="_blank">
+                    
+                    <!-- Radios de Modalidad / Nivel -->
+                    <div class="form-radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="modalidad" value="Pregrado" checked>
+                            <span>Pregrado</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="modalidad" value="Postgrado">
+                            <span>Postgrado</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="modalidad" value="Residentado">
+                            <span>Residentado</span>
+                        </label>
                     </div>
-                    <div class="public-course-body">
-                        <h3 class="public-course-title">{{ curso.titulo }}</h3>
-                        <p class="public-course-desc">
-                            {{ curso.descripcion|default:"Programa académico intensivo con material teórico, discusión de casos y evaluaciones periódicas."|truncatewords:20 }}
-                        </p>
-                        <div class="public-course-footer">
-                            <span>👨‍🏫 {{ curso.docentes_nombres }}</span>
-                            <a href="{% url 'login' %}" style="color: #0284c7; font-weight: 700; text-decoration: none;">Inscribirme ➔</a>
-                        </div>
+
+                    <!-- Selección de Programa -->
+                    <div class="form-group-full">
+                        <select name="curso_interes" class="hero-input-field" required>
+                            <option value="" disabled selected>Selecciona tu curso o especialidad *</option>
+                            <option value="Fisiopatologia">Fisiopatología</option>
+                            <option value="Farmacologia">Farmacología</option>
+                            <option value="Anatomia">Anatomía Humana</option>
+                            <option value="Medicina Interna">Medicina Interna</option>
+                            <option value="Cirugia">Cirugía General</option>
+                        </select>
                     </div>
-                </div>
-            {% empty %}
-                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #94a3b8;">
-                    No hay cursos publicados para esta temporada actualmente.
-                </div>
-            {% endfor %}
-        </div>
-    </section>
 
-    <!-- Sección de Contacto y Admisión -->
-    <section id="contacto" class="landing-section">
-        <div class="section-header">
-            <span class="section-badge">Atención Personalizada</span>
-            <h2 class="section-heading">Solicita Información de Admisión</h2>
-        </div>
+                    <!-- Campos Nombres y Apellidos en 2 Columnas -->
+                    <div class="form-row-dual">
+                        <input type="text" name="nombres" class="hero-input-field" placeholder="Nombres *" required>
+                        <input type="text" name="apellidos" class="hero-input-field" placeholder="Apellidos *" required>
+                    </div>
 
-        <div class="contact-card-box">
-            <form action="https://wa.me/51999999999" method="GET" target="_blank">
-                <div class="form-group-landing">
-                    <label>Nombre y Apellidos</label>
-                    <input type="text" class="form-input-landing" placeholder="Ej. Carlos Mendoza" required>
-                </div>
-                <div class="form-group-landing">
-                    <label>Correo Electrónico</label>
-                    <input type="email" class="form-input-landing" placeholder="ejemplo@correo.com" required>
-                </div>
-                <div class="form-group-landing">
-                    <label>Curso o Especialidad de Interés</label>
-                    <input type="text" class="form-input-landing" placeholder="Ej. Fisiopatología / Anatomía" required>
-                </div>
-                <button type="submit" class="btn-hero-primary" style="width: 100%; border: none; cursor: pointer; text-align: center; justify-content: center; font-size: 15px; margin-top: 10px;">
-                    📲 Contactar por WhatsApp
-                </button>
-            </form>
+                    <!-- Campos DNI y Celular en 2 Columnas -->
+                    <div class="form-row-dual">
+                        <input type="text" name="dni" class="hero-input-field" placeholder="DNI *" maxlength="8" required>
+                        <input type="tel" name="celular" class="hero-input-field" placeholder="Celular / WhatsApp *" maxlength="9" required>
+                    </div>
+
+                    <!-- Campo Correo -->
+                    <div class="form-group-full">
+                        <input type="email" name="email" class="hero-input-field" placeholder="Correo Electrónico *" required>
+                    </div>
+
+                    <small class="required-notice">(*) Campos obligatorios</small>
+
+                    <!-- Checkbox Términos -->
+                    <div class="form-terms-check">
+                        <input type="checkbox" id="acepto_privacidad" required checked>
+                        <label for="acepto_privacidad">Acepto las <a href="#">Políticas de Privacidad</a></label>
+                    </div>
+
+                    <!-- Botón de Envío -->
+                    <button type="submit" class="btn-submit-hero-form">
+                        Solicitar Información
+                    </button>
+                </form>
+            </div>
+
         </div>
     </section>
 
