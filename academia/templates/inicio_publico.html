@@ -225,6 +225,8 @@
                     <div class="info-course-header">
                         {% if curso.portada %}
                             <img src="{{ curso.portada.url }}" alt="{{ curso.nombre }}" class="info-course-img">
+                        {% elif curso.imagen_portada %}
+                            <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.nombre }}" class="info-course-img">
                         {% else %}
                             <span style="font-size: 38px;">🩺</span>
                         {% endif %}
@@ -234,7 +236,7 @@
                     </div>
 
                     <div class="info-course-content">
-                        <h3 class="info-course-title">{{ curso.nombre }}</h3>
+                        <h3 class="info-course-title">{{ curso.nombre|default:curso.titulo }}</h3>
                         <p class="info-course-desc">
                             {{ curso.descripcion|default:"Programa teórico y práctico con análisis de casos y material estructurado por semanas."|truncatewords:22 }}
                         </p>
@@ -242,11 +244,11 @@
                         <div class="info-course-meta">
                             <div class="info-course-meta-item">
                                 <span>👨‍⚕️</span>
-                                <span><strong>Docente:</strong> {{ curso.docente.get_full_name|default:curso.docente.username|default:"Plana Médica Galeno" }}</span>
+                                <span><strong>Docentes:</strong> Plana Médica Especializada</span>
                             </div>
                             <div class="info-course-meta-item">
                                 <span>📚</span>
-                                <span><strong>Modalidad:</strong> Aula Virtual y Evaluaciones</span>
+                                <span><strong>Modalidad:</strong> Campus Virtual y Evaluaciones</span>
                             </div>
                         </div>
                     </div>
