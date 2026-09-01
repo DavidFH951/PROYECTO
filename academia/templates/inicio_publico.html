@@ -40,11 +40,11 @@
         </div>
     </header>
 
-    <!-- Hero Section con Formulario Integrado al Costado -->
+    <!-- Hero Section -->
     <section id="inicio" class="hero-split-section">
         <div class="hero-split-container">
             
-            <!-- Columna Izquierda: Mensaje Principal -->
+            <!-- Mensaje y Propuesta de Valor -->
             <div class="hero-left-content">
                 <div class="hero-badge">
                     🩺 Especialistas en Ciencias Médicas y de la Salud
@@ -53,25 +53,33 @@
                     Formando a los Mejores Profesionales de la Salud
                 </h1>
                 <p class="hero-description">
-                    Impulsa tu preparación académica con docentes especialistas, metodologías de alta exigencia y una plataforma diseñada para tu éxito.
+                    Impulsa tu rendimiento académico con docentes especialistas, análisis de casos clínicos reales y acceso completo a nuestra plataforma digital.
                 </p>
                 <div class="hero-pills-list">
-                    <span>✓ Clases teóricas y resolución de casos</span>
-                    <span>✓ Acceso a materiales 24/7</span>
-                    <span>✓ Docentes médicos especialistas</span>
+                    <div class="hero-pill-item">
+                        <span class="check-icon">✓</span> Clases magistrales y resolución de exámenes
+                    </div>
+                    <div class="hero-pill-item">
+                        <span class="check-icon">✓</span> Biblioteca virtual y materiales descargables 24/7
+                    </div>
+                    <div class="hero-pill-item">
+                        <span class="check-icon">✓</span> Asesoría y acompañamiento docente continuo
+                    </div>
                 </div>
             </div>
 
-            <!-- Columna Derecha: Tarjeta de Contacto / Admisión -->
+            <!-- Tarjeta Lateral de Admisión -->
             <div class="hero-card-form">
                 <div class="card-form-header">
-                    <div class="card-form-title">¡INICIA TU PREPARACIÓN HOY!</div>
-                    <div class="card-form-badge">Galeno <span>2027</span></div>
+                    <div class="card-form-title">
+                        ¡Inicia tu Preparación<br>Académica!
+                    </div>
+                    <div class="card-form-badge">
+                        Galeno <span>2027</span>
+                    </div>
                 </div>
 
-                <form class="lead-form-body" action="https://wa.me/51999999999" method="GET" target="_blank">
-                    
-                    <!-- Radios de Modalidad / Nivel -->
+                <form class="lead-form-body" onsubmit="return false;">
                     <div class="form-radio-group">
                         <label class="radio-item">
                             <input type="radio" name="modalidad" value="Pregrado" checked>
@@ -87,9 +95,8 @@
                         </label>
                     </div>
 
-                    <!-- Selección de Programa -->
                     <div class="form-group-full">
-                        <select name="curso_interes" class="hero-input-field" required>
+                        <select class="hero-input-field" required>
                             <option value="" disabled selected>Selecciona tu curso o especialidad *</option>
                             <option value="Fisiopatologia">Fisiopatología</option>
                             <option value="Farmacologia">Farmacología</option>
@@ -99,32 +106,27 @@
                         </select>
                     </div>
 
-                    <!-- Campos Nombres y Apellidos en 2 Columnas -->
                     <div class="form-row-dual">
-                        <input type="text" name="nombres" class="hero-input-field" placeholder="Nombres *" required>
-                        <input type="text" name="apellidos" class="hero-input-field" placeholder="Apellidos *" required>
+                        <input type="text" class="hero-input-field" placeholder="Nombres *" required>
+                        <input type="text" class="hero-input-field" placeholder="Apellidos *" required>
                     </div>
 
-                    <!-- Campos DNI y Celular en 2 Columnas -->
                     <div class="form-row-dual">
-                        <input type="text" name="dni" class="hero-input-field" placeholder="DNI *" maxlength="8" required>
-                        <input type="tel" name="celular" class="hero-input-field" placeholder="Celular / WhatsApp *" maxlength="9" required>
+                        <input type="text" class="hero-input-field" placeholder="DNI *" maxlength="8" required>
+                        <input type="tel" class="hero-input-field" placeholder="Celular / WhatsApp *" maxlength="9" required>
                     </div>
 
-                    <!-- Campo Correo -->
                     <div class="form-group-full">
-                        <input type="email" name="email" class="hero-input-field" placeholder="Correo Electrónico *" required>
+                        <input type="email" class="hero-input-field" placeholder="Correo Electrónico *" required>
                     </div>
 
                     <small class="required-notice">(*) Campos obligatorios</small>
 
-                    <!-- Checkbox Términos -->
                     <div class="form-terms-check">
-                        <input type="checkbox" id="acepto_privacidad" required checked>
+                        <input type="checkbox" id="acepto_privacidad" checked required>
                         <label for="acepto_privacidad">Acepto las <a href="#">Políticas de Privacidad</a></label>
                     </div>
 
-                    <!-- Botón de Envío -->
                     <button type="submit" class="btn-submit-hero-form">
                         Solicitar Información
                     </button>
@@ -133,7 +135,6 @@
 
         </div>
     </section>
-
     <!-- Pie de Página -->
     <footer style="background: #0f172a; color: #94a3b8; padding: 32px 20px; text-align: center; font-size: 13px;">
         <p style="margin: 0;">© 2027 Academia Galeno. Todos los derechos reservados.</p>
