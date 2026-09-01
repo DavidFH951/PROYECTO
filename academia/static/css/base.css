@@ -1241,3 +1241,217 @@ body {
         font-size: 32px;
     }
 }
+
+/* ====================================================
+   HERO CON CARRUSEL DE IMÁGENES DE FONDO (FADE SLIDER)
+   ==================================================== */
+.hero-slider-wrapper {
+    position: relative;
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 60px 24px 70px;
+    box-sizing: border-box;
+}
+
+/* Slides de Fondo */
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out, transform 6s ease;
+    transform: scale(1.04);
+    z-index: 1;
+}
+
+.hero-slide.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Capa de contraste sobre las imágenes */
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(15, 23, 42, 0.88) 0%, rgba(10, 37, 64, 0.78) 55%, rgba(2, 132, 199, 0.65) 100%);
+    z-index: 2;
+}
+
+/* Contenido Principal sobre el Slider */
+.hero-slider-content {
+    position: relative;
+    z-index: 3;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 48px;
+    align-items: center;
+}
+
+/* Indicadores de diapositivas */
+.slider-dots {
+    position: absolute;
+    bottom: 24px;
+    left: 32px;
+    z-index: 4;
+    display: flex;
+    gap: 10px;
+}
+
+.slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.slider-dot.active {
+    background: #ffffff;
+    transform: scale(1.2);
+}
+
+/* ====================================================
+   SECCIÓN SOBRE NOSOTROS, MISIÓN Y VISIÓN
+   ==================================================== */
+.about-section {
+    padding: 85px 24px;
+    background: #ffffff;
+}
+
+.about-container {
+    max-width: 1140px;
+    margin: 0 auto;
+}
+
+.about-intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    margin-bottom: 60px;
+}
+
+.about-image-frame {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
+    height: 360px;
+}
+
+.about-image-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 28px;
+}
+
+.mv-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 32px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.mv-card:hover {
+    transform: translateY(-4px);
+    border-color: #cbd5e1;
+}
+
+.mv-card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: #e0f2fe;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 18px;
+}
+
+.mv-card-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+.mv-card-text {
+    font-size: 14.5px;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* ====================================================
+   PIE DE PÁGINA CORPORATIVO
+   ==================================================== */
+.main-footer {
+    background: #0b132b;
+    color: #94a3b8;
+    padding: 60px 24px 25px;
+    font-size: 13.5px;
+}
+
+.footer-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 40px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-col h4 {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 25px;
+    font-size: 12.5px;
+    color: #64748b;
+}
+
+@media (max-width: 960px) {
+    .hero-slider-content,
+    .about-intro-grid,
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
+}

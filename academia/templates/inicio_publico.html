@@ -13,7 +13,7 @@
     <!-- Barra de Navegación Principal -->
     <header class="main-header" style="position: sticky; top: 0; z-index: 100;">
         <a href="{% url 'inicio_publico' %}" class="header-logo-area">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Galeno" class="header-logo-img">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Galeno" class="header-logo-img">
             <div class="header-titles">
                 <span class="header-main-title">Academia Galeno</span>
                 <span class="header-sub-title">Excelencia Médica</span>
@@ -24,51 +24,59 @@
             <nav style="display: flex; gap: 20px; font-size: 14px; font-weight: 600;">
                 <a href="#inicio" style="color: #0f172a; text-decoration: none;">Inicio</a>
                 <a href="#nosotros" style="color: #475569; text-decoration: none;">Nosotros</a>
+                <a href="#mision-vision" style="color: #475569; text-decoration: none;">Misión y Visión</a>
                 <a href="#cursos" style="color: #475569; text-decoration: none;">Cursos</a>
-                <a href="#contacto" style="color: #475569; text-decoration: none;">Contacto</a>
             </nav>
 
-           {% if user.is_authenticated %}
-    <a href="{% if user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}" class="btn-hero-primary" style="padding: 8px 18px; font-size: 13px;">
-        Ir al Aula Virtual ➔
-    </a>
-          {% else %}
-    <a href="{% url 'login' %}" class="btn-hero-primary" style="background: #059669; padding: 8px 18px; font-size: 13px;">
-        INTRANET
-    </a>
-          {% endif %}
+            {% if user.is_authenticated %}
+                <a href="{% if user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}" class="btn-hero-primary" style="padding: 8px 18px; font-size: 13px;">
+                    Ir al Aula Virtual ➔
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-hero-primary" style="background: #059669; padding: 8px 18px; font-size: 13px;">
+                    INTRANET
+                </a>
+            {% endif %}
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section id="inicio" class="hero-split-section">
-        <div class="hero-split-container">
+    <!-- Hero Section con Carrusel de Imágenes de Fondo -->
+    <section id="inicio" class="hero-slider-wrapper">
+        
+        <!-- Diapositivas de fondo -->
+        <div class="hero-slide active" style="background-image: url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1920&q=85');"></div>
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1920&q=85');"></div>
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1920&q=85');"></div>
+
+        <div class="hero-overlay"></div>
+
+        <!-- Contenido y Formulario Flotante -->
+        <div class="hero-slider-content">
             
-            <!-- Mensaje y Propuesta de Valor -->
             <div class="hero-left-content">
                 <div class="hero-badge">
-                    🩺 Especialistas en Ciencias Médicas y de la Salud
+                    🩺 Especialistas en Formación y Ciencias de la Salud
                 </div>
                 <h1 class="hero-main-title">
                     Formando a los Mejores Profesionales de la Salud
                 </h1>
                 <p class="hero-description">
-                    Impulsa tu rendimiento académico con docentes especialistas, análisis de casos clínicos reales y acceso completo a nuestra plataforma digital.
+                    Metodología de alto rendimiento, docentes médicos especializados y resolución de casos reales para potenciar tu nivel académico.
                 </p>
                 <div class="hero-pills-list">
                     <div class="hero-pill-item">
-                        <span class="check-icon">✓</span> Clases magistrales y resolución de exámenes
+                        <span class="check-icon">✓</span> Clases teóricas y resolución intensiva de exámenes
                     </div>
                     <div class="hero-pill-item">
-                        <span class="check-icon">✓</span> Biblioteca virtual y materiales descargables 24/7
+                        <span class="check-icon">✓</span> Materiales y biblioteca digital organizados semana a semana
                     </div>
                     <div class="hero-pill-item">
-                        <span class="check-icon">✓</span> Asesoría y acompañamiento docente continuo
+                        <span class="check-icon">✓</span> Asesoría médica continua y retroalimentación personalizada
                     </div>
                 </div>
             </div>
 
-           <!-- Tarjeta Lateral de Consulta Galeno -->
+            <!-- Tarjeta Lateral de Admisión -->
             <div class="hero-card-form">
                 <div class="card-form-header">
                     <div class="card-form-title">
@@ -119,11 +127,196 @@
                     </button>
                 </form>
             </div>
+
+        </div>
+
+        <!-- Indicadores de imagen -->
+        <div class="slider-dots">
+            <button class="slider-dot active" onclick="irASlide(0)"></button>
+            <button class="slider-dot" onclick="irASlide(1)"></button>
+            <button class="slider-dot" onclick="irASlide(2)"></button>
+        </div>
     </section>
-    <!-- Pie de Página -->
-    <footer style="background: #0f172a; color: #94a3b8; padding: 32px 20px; text-align: center; font-size: 13px;">
-        <p style="margin: 0;">© 2027 Academia Galeno. Todos los derechos reservados.</p>
+
+    <!-- Barra de Métricas -->
+    <div class="stats-banner">
+        <div class="stat-item">
+            <div class="stat-number">+1,500</div>
+            <div class="stat-label">Alumnos Capacitados</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Tasa de Aprobación</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Docentes Médicos Especialistas</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Campus Virtual Activo</div>
+        </div>
+    </div>
+
+    <!-- Sección Sobre Nosotros -->
+    <section id="nosotros" class="about-section">
+        <div class="about-container">
+            <div class="about-intro-grid">
+                <div>
+                    <span class="section-badge">Sobre Nosotros</span>
+                    <h2 class="section-heading" style="text-align: left; margin-bottom: 18px;">
+                        Comprometidos con la excelencia y el rigor científico
+                    </h2>
+                    <p style="font-size: 15px; color: #64748b; line-height: 1.7; margin-bottom: 16px;">
+                        En <strong>Academia Galeno</strong> nos dedicamos al fortalecimiento de competencias en estudiantes y profesionales de ciencias de la salud. Nuestro enfoque combina teoría de vanguardia, correlación clínico-patológica y acompañamiento continuo.
+                    </p>
+                    <p style="font-size: 15px; color: #64748b; line-height: 1.7;">
+                        Contamos con una infraestructura virtual moderna orientada a la resolución ágil de dudas y a la asimilación profunda de cada asignatura médica.
+                    </p>
+                </div>
+                <div class="about-image-frame">
+                    <img src="https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=800&q=80" alt="Estudio Médico">
+                </div>
+            </div>
+
+            <!-- Misión y Visión -->
+            <div id="mision-vision" class="mv-grid">
+                <div class="mv-card">
+                    <div class="mv-card-icon">🎯</div>
+                    <h3 class="mv-card-title">Nuestra Misión</h3>
+                    <p class="mv-card-text">
+                        Brindar una educación complementaria y de especialización médica accesible, estructurada y exigente que potencie el rendimiento de nuestros alumnos y su capacidad de toma de decisiones clínicas.
+                    </p>
+                </div>
+                <div class="mv-card">
+                    <div class="mv-card-icon">👁️</div>
+                    <h3 class="mv-card-title">Nuestra Visión</h3>
+                    <p class="mv-card-text">
+                        Ser la academia líder de formación y actualización en ciencias médicas a nivel nacional, reconocida por el rigor de sus programas, la calidad docente y el éxito profesional de sus egresados.
+                    </p>
+                </div>
+                <div class="mv-card">
+                    <div class="mv-card-icon">⭐</div>
+                    <h3 class="mv-card-title">Nuestros Valores</h3>
+                    <p class="mv-card-text">
+                        Rigor científico, compromiso con la salud humana, integridad profesional, innovación pedagógica constante y vocación de servicio docente.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Cursos Disponibles -->
+    <section id="cursos" class="landing-section" style="padding-top: 30px;">
+        <div class="section-header">
+            <span class="section-badge">Oferta Académica</span>
+            <h2 class="section-heading">
+                {% if periodo_activo %}
+                    Cursos Disponibles • {{ periodo_activo.nombre }}
+                {% else %}
+                    Nuestros Cursos
+                {% endif %}
+            </h2>
+        </div>
+
+        <div class="courses-showcase-grid">
+            {% for curso in cursos_destacados %}
+                <div class="public-course-card">
+                    <div class="public-course-img-wrapper">
+                        {% if curso.imagen_portada %}
+                            <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}" class="public-course-img">
+                        {% else %}
+                            <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 32px;">
+                                📖
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="public-course-body">
+                        <h3 class="public-course-title">{{ curso.titulo }}</h3>
+                        <p class="public-course-desc">
+                            {{ curso.descripcion|default:"Programa intensivo con desarrollo de teoría, material de lectura y banco de preguntas comentadas."|truncatewords:18 }}
+                        </p>
+                        <div class="public-course-footer">
+                            <span>👨‍🏫 {{ curso.docentes_nombres }}</span>
+                            <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 700; text-decoration: none;">Inscribirme ➔</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #94a3b8;">
+                    No hay cursos abiertos para inscripciones en este momento.
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Pie de Página Corporativo -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <img src="{% static 'image/logo.jpeg' %}" alt="Logo Galeno" style="height: 34px; border-radius: 4px;">
+                    <strong style="color: #ffffff; font-size: 16px;">Academia Galeno</strong>
+                </div>
+                <p style="line-height: 1.6; margin-bottom: 14px;">
+                    Centro de preparación académica especializada en formación y ciencias médicas de alto nivel.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Enlaces Rápidos</h4>
+                <ul class="footer-links">
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#nosotros">Sobre Nosotros</a></li>
+                    <li><a href="#mision-vision">Misión y Visión</a></li>
+                    <li><a href="#cursos">Cursos Vigentes</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contacto Directo</h4>
+                <ul class="footer-links">
+                    <li>📍 Lima, Perú</li>
+                    <li>💬 WhatsApp: +51 999 999 999</li>
+                    <li>📧 informes@academiagaleno.pe</li>
+                    <li>⏰ Lun - Sáb: 8:00 AM - 8:00 PM</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2027 Academia Galeno. Todos los derechos reservados.
+        </div>
     </footer>
+
+    <!-- Script de Automatización del Carrusel -->
+    <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.slider-dot');
+
+        function mostrarSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            slideIndex = (index + slides.length) % slides.length;
+            slides[slideIndex].classList.add('active');
+            dots[slideIndex].classList.add('active');
+        }
+
+        function siguienteSlide() {
+            mostrarSlide(slideIndex + 1);
+        }
+
+        function irASlide(index) {
+            mostrarSlide(index);
+            reiniciarIntervalo();
+        }
+
+        let intervalo = setInterval(siguienteSlide, 5000);
+
+        function reiniciarIntervalo() {
+            clearInterval(intervalo);
+            intervalo = setInterval(siguienteSlide, 5000);
+        }
+    </script>
 
 </body>
 </html>
