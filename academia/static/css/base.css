@@ -1253,6 +1253,7 @@ body {
     overflow: hidden;
     padding: 60px 24px 70px;
     box-sizing: border-box;
+    background-color: #0b132b; /* Fondo neutro oscuro sin foto fija */
 }
 
 /* Slides de Fondo */
