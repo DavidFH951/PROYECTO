@@ -51,12 +51,11 @@ def es_docente_valido(user):
 def inicio_publico(request):
     periodo_activo = PeriodoAcademico.objects.filter(activo=True).first()
     
-    # Base queryset optimizada con relaciones habituales
-    cursos_qs = Curso.objects.select_related('periodo', 'docente')
+    # Solo precargar 'periodo', que es la ForeignKey válida en Curso
+    cursos_qs = Curso.objects.select_related('periodo')
 
     if periodo_activo:
         cursos = cursos_qs.filter(periodo=periodo_activo)
-        # Si el periodo activo no tiene cursos asignados, traemos los generales
         if not cursos.exists():
             cursos = cursos_qs.all()
     else:
