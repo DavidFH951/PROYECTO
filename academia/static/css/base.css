@@ -1273,14 +1273,34 @@ body {
     transform: scale(1);
 }
 
-/* Capa de contraste sobre las imágenes */
+/* Capa de contraste suave para resaltar la imagen */
 .hero-overlay {
     position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg, rgba(15, 23, 42, 0.88) 0%, rgba(10, 37, 64, 0.78) 55%, rgba(2, 132, 199, 0.65) 100%);
-    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(11, 19, 43, 0.45) 0%,   /* Sombra suave solo a la izquierda para el texto */
+        rgba(11, 19, 43, 0.15) 50%,
+        rgba(11, 19, 43, 0.05) 100%  /* Prácticamente transparente a la derecha */
+    );
+    z-index: 3;
+}
+.hero-main-title {
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
 }
 
+.hero-description {
+    color: #f1f5f9;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+.hero-pill-item {
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
 /* Contenido Principal sobre el Slider */
 .hero-slider-content {
     position: relative;
