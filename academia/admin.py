@@ -32,7 +32,7 @@ class LogActividadAdmin(admin.ModelAdmin):
 
 @admin.register(BannerCarrusel)
 class BannerCarruselAdmin(admin.ModelAdmin):
-    list_display = ('orden', 'titulo', 'activo')
+    list_display = ('titulo', 'orden', 'activo')
     list_editable = ('orden', 'activo')
 
 @admin.register(ConfiguracionLanding)
