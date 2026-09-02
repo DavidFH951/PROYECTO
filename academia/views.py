@@ -51,12 +51,16 @@ def es_docente_valido(user):
 def inicio_publico(request):
     periodo_activo = PeriodoAcademico.objects.filter(activo=True).first()
     
+    # Base queryset optimizada con relaciones habituales
+    cursos_qs = Curso.objects.select_related('periodo', 'docente')
+
     if periodo_activo:
-        cursos = Curso.objects.filter(periodo=periodo_activo)
+        cursos = cursos_qs.filter(periodo=periodo_activo)
+        # Si el periodo activo no tiene cursos asignados, traemos los generales
         if not cursos.exists():
-            cursos = Curso.objects.all()
+            cursos = cursos_qs.all()
     else:
-        cursos = Curso.objects.all()
+        cursos = cursos_qs.all()
 
     banners = BannerCarrusel.objects.filter(activo=True).order_by('orden')
     config_landing, _ = ConfiguracionLanding.objects.get_or_create(id=1)
