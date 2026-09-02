@@ -327,13 +327,12 @@
             iniciarIntervalo();
         }
 
-        // --- 2. ENVÍO DINÁMICO A WHATSAPP ---
+        // --- 2. ENVÍO A WHATSAPP (EN NUEVA PESTAÑA) ---
         const formLead = document.getElementById('form-whatsapp-lead');
         if (formLead) {
             formLead.addEventListener('submit', function (e) {
                 e.preventDefault();
 
-                // Número configurado en Django Admin (limpia caracteres no numéricos)
                 const numeroAdmin = "{{ config.whatsapp_contacto|default:'51926901555' }}".replace(/\D/g, '');
 
                 const curso = document.getElementById('lead-curso')?.value || 'No especificado';
@@ -351,8 +350,16 @@
                                 `✉️ *Correo:* ${correo}\n\n` +
                                 `Quedo a la espera de la información de vacantes y matrícula.`;
 
-                // Redirección directa para evitar bloqueos de ventanas emergentes (pop-ups)
-                window.location.href = `https://wa.me/${numeroAdmin}?text=${encodeURIComponent(mensaje)}`;
+                const urlWa = `https://wa.me/${numeroAdmin}?text=${encodeURIComponent(mensaje)}`;
+
+                // Enlace dinámico con target="_blank" para no salir de la página actual
+                const link = document.createElement('a');
+                link.href = urlWa;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
         }
     });
