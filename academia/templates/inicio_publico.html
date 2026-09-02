@@ -276,90 +276,86 @@
     </footer>
 
     <!-- Script de Automatización del Carrusel -->
-    <script>
+<script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. LÓGICA DEL CARRUSEL ---
         let slideIndex = 0;
         const slides = document.querySelectorAll('.hero-slide');
         const dots = document.querySelectorAll('.slider-dot');
         const sliderWrapper = document.querySelector('.hero-slider-wrapper');
         let intervalo = null;
 
-        // Si no hay slides o solo hay 1, no hace falta ciclar
-        if (slides.length <= 1) return;
+        if (slides.length > 1) {
+            function mostrarSlide(index) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
 
-        function mostrarSlide(index) {
-            slides.forEach(slide => slide.classList.remove('active'));
-            dots.forEach(dot => dot.classList.remove('active'));
-
-            slideIndex = (index + slides.length) % slides.length;
-            slides[slideIndex].classList.add('active');
-            
-            if (dots[slideIndex]) {
-                dots[slideIndex].classList.add('active');
+                slideIndex = (index + slides.length) % slides.length;
+                slides[slideIndex].classList.add('active');
+                
+                if (dots[slideIndex]) {
+                    dots[slideIndex].classList.add('active');
+                }
             }
-        }
 
-        function siguienteSlide() {
-            mostrarSlide(slideIndex + 1);
-        }
+            function siguienteSlide() {
+                mostrarSlide(slideIndex + 1);
+            }
 
-        function iniciarIntervalo() {
-            detenerIntervalo();
-            intervalo = setInterval(siguienteSlide, 5000);
-        }
+            function iniciarIntervalo() {
+                detenerIntervalo();
+                intervalo = setInterval(siguienteSlide, 5000);
+            }
 
-        function detenerIntervalo() {
-            if (intervalo) clearInterval(intervalo);
-        }
+            function detenerIntervalo() {
+                if (intervalo) clearInterval(intervalo);
+            }
 
-        // Event listeners para los puntos indicadores sin romper sintaxis en HTML
-        dots.forEach(dot => {
-            dot.addEventListener('click', function() {
-                const idx = parseInt(this.getAttribute('data-index'), 10);
-                mostrarSlide(idx);
-                iniciarIntervalo();
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const idx = parseInt(this.getAttribute('data-index'), 10);
+                    mostrarSlide(idx);
+                    iniciarIntervalo();
+                });
             });
-        });
 
-        // Pausar rotación si el usuario está interactuando con el mouse
-        if (sliderWrapper) {
-            sliderWrapper.addEventListener('mouseenter', detenerIntervalo);
-            sliderWrapper.addEventListener('mouseleave', iniciarIntervalo);
+            if (sliderWrapper) {
+                sliderWrapper.addEventListener('mouseenter', detenerIntervalo);
+                sliderWrapper.addEventListener('mouseleave', iniciarIntervalo);
+            }
+
+            iniciarIntervalo();
         }
 
-        iniciarIntervalo();
+        // --- 2. ENVÍO DINÁMICO A WHATSAPP ---
+        const formLead = document.getElementById('form-whatsapp-lead');
+        if (formLead) {
+            formLead.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Número configurado en Django Admin (limpia caracteres no numéricos)
+                const numeroAdmin = "{{ config.whatsapp_contacto|default:'51926901555' }}".replace(/\D/g, '');
+
+                const curso = document.getElementById('lead-curso')?.value || 'No especificado';
+                const nombres = document.getElementById('lead-nombres')?.value.trim() || '';
+                const apellidos = document.getElementById('lead-apellidos')?.value.trim() || '';
+                const dni = document.getElementById('lead-dni')?.value.trim() || '';
+                const telefono = document.getElementById('lead-telefono')?.value.trim() || '';
+                const correo = document.getElementById('lead-correo')?.value.trim() || '';
+
+                const mensaje = `¡Hola Academia Galeno! Deseo solicitar informes para inscribirme:\n\n` +
+                                `📚 *Curso:* ${curso}\n` +
+                                `👤 *Postulante:* ${nombres} ${apellidos}\n` +
+                                `🪪 *DNI:* ${dni}\n` +
+                                `📱 *WhatsApp:* ${telefono}\n` +
+                                `✉️ *Correo:* ${correo}\n\n` +
+                                `Quedo a la espera de la información de vacantes y matrícula.`;
+
+                // Redirección directa para evitar bloqueos de ventanas emergentes (pop-ups)
+                window.location.href = `https://wa.me/${numeroAdmin}?text=${encodeURIComponent(mensaje)}`;
+            });
+        }
     });
 </script>
-// Envío dinámico del formulario hacia el WhatsApp del Administrador
-    const formLead = document.getElementById('form-whatsapp-lead');
-    if (formLead) {
-        formLead.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // Número configurado por el admin en la base de datos
-            const numeroAdmin = "{{ config.whatsapp_contacto|default:'51999999999' }}";
-
-            // Captura de datos
-            const curso = document.getElementById('lead-curso').value;
-            const nombres = document.getElementById('lead-nombres').value.trim();
-            const apellidos = document.getElementById('lead-apellidos').value.trim();
-            const dni = document.getElementById('lead-dni').value.trim();
-            const telefono = document.getElementById('lead-telefono').value.trim();
-            const correo = document.getElementById('lead-correo').value.trim();
-
-            // Formato ordenado del mensaje
-            const mensaje = `¡Hola Academia Galeno! Deseo solicitar informes para inscribirme:\n\n` +
-                            `📚 *Curso:* ${curso}\n` +
-                            `👤 *Postulante:* ${nombres} ${apellidos}\n` +
-                            `🪪 *DNI:* ${dni}\n` +
-                            `📱 *WhatsApp:* ${telefono}\n` +
-                            `✉️ *Correo:* ${correo}\n\n` +
-                            `Quedo a la espera de la información de vacantes y matrícula.`;
-
-            // Construir enlace directo y abrir en pestaña nueva
-            const enlaceWa = `https://api.whatsapp.com/send?phone=${numeroAdmin}&text=${encodeURIComponent(mensaje)}`;
-            window.open(enlaceWa, '_blank');
-        });
-    }
 </body>
 </html>
