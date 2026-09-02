@@ -43,11 +43,12 @@
     <!-- Hero Section con Carrusel de Imágenes de Fondo -->
     <section id="inicio" class="hero-slider-wrapper">
         
-        <!-- Diapositivas de fondo -->
-        <div class="hero-slide active" style="background-image: url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1920&q=85');"></div>
-        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1920&q=85');"></div>
-        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1920&q=85');"></div>
+       <!-- Diapositivas dinámicas desde la BD -->
+        {% for banner in banners %}
+            <div class="hero-slide {% if forloop.first %}active{% endif %}" style="background-image: url('{{ banner.imagen.url }}');"></div>
+        {% endfor %}
 
+        <div class="hero-overlay"></div>
         <div class="hero-overlay"></div>
 
         <!-- Contenido y Formulario Flotante -->
@@ -130,11 +131,11 @@
 
         </div>
 
-        <!-- Indicadores de imagen -->
+     <!-- Indicadores de diapositivas dinámicos -->
         <div class="slider-dots">
-            <button class="slider-dot active" onclick="irASlide(0)"></button>
-            <button class="slider-dot" onclick="irASlide(1)"></button>
-            <button class="slider-dot" onclick="irASlide(2)"></button>
+            {% for banner in banners %}
+                <button type="button" class="slider-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></button>
+            {% endfor %}
         </div>
     </section>
 
@@ -278,9 +279,15 @@
 
     <!-- Script de Automatización del Carrusel -->
     <script>
+    document.addEventListener('DOMContentLoaded', () => {
         let slideIndex = 0;
         const slides = document.querySelectorAll('.hero-slide');
         const dots = document.querySelectorAll('.slider-dot');
+        const sliderWrapper = document.querySelector('.hero-slider-wrapper');
+        let intervalo = null;
+
+        // Si no hay slides o solo hay 1, no hace falta ciclar
+        if (slides.length <= 1) return;
 
         function mostrarSlide(index) {
             slides.forEach(slide => slide.classList.remove('active'));
@@ -288,25 +295,42 @@
 
             slideIndex = (index + slides.length) % slides.length;
             slides[slideIndex].classList.add('active');
-            dots[slideIndex].classList.add('active');
+            
+            if (dots[slideIndex]) {
+                dots[slideIndex].classList.add('active');
+            }
         }
 
         function siguienteSlide() {
             mostrarSlide(slideIndex + 1);
         }
 
-        function irASlide(index) {
-            mostrarSlide(index);
-            reiniciarIntervalo();
-        }
-
-        let intervalo = setInterval(siguienteSlide, 5000);
-
-        function reiniciarIntervalo() {
-            clearInterval(intervalo);
+        function iniciarIntervalo() {
+            detenerIntervalo();
             intervalo = setInterval(siguienteSlide, 5000);
         }
-    </script>
 
+        function detenerIntervalo() {
+            if (intervalo) clearInterval(intervalo);
+        }
+
+        // Event listeners para los puntos indicadores sin romper sintaxis en HTML
+        dots.forEach(dot => {
+            dot.addEventListener('click', function() {
+                const idx = parseInt(this.getAttribute('data-index'), 10);
+                mostrarSlide(idx);
+                iniciarIntervalo();
+            });
+        });
+
+        // Pausar rotación si el usuario está interactuando con el mouse
+        if (sliderWrapper) {
+            sliderWrapper.addEventListener('mouseenter', detenerIntervalo);
+            sliderWrapper.addEventListener('mouseleave', iniciarIntervalo);
+        }
+
+        iniciarIntervalo();
+    });
+</script>
 </body>
 </html>
