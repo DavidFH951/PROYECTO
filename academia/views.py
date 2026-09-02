@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.utils.dateparse import parse_date
 from django.core.paginator import Paginator
 
-from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico
+from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico,BannerCarrusel, ConfiguracionLanding
 from .forms import RegistroUsuarioForm, EditarUsuarioForm, CursoForm, InscripcionForm
 
 
@@ -51,7 +51,6 @@ def es_docente_valido(user):
 def inicio_publico(request):
     periodo_activo = PeriodoAcademico.objects.filter(activo=True).first()
     
-    # Trae los cursos del periodo activo; si no hay periodo asignado, muestra todos los cursos existentes
     if periodo_activo:
         cursos = Curso.objects.filter(periodo=periodo_activo)
         if not cursos.exists():
@@ -59,9 +58,14 @@ def inicio_publico(request):
     else:
         cursos = Curso.objects.all()
 
+    banners = BannerCarrusel.objects.filter(activo=True).order_by('orden')
+    config_landing, _ = ConfiguracionLanding.objects.get_or_create(id=1)
+
     context = {
         'periodo_activo': periodo_activo,
         'cursos_destacados': cursos,
+        'banners': banners,
+        'config': config_landing,
     }
     return render(request, 'inicio_publico.html', context)
 

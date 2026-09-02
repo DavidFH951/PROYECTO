@@ -155,6 +155,8 @@ class Calificacion(models.Model):
 # ----------------------------------------------------
 # 5. MODELO LOG DE ACTIVIDAD
 # ----------------------------------------------------
+
+
 class LogActividad(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     accion = models.CharField(max_length=255)
@@ -169,3 +171,52 @@ class LogActividad(models.Model):
 
     def __str__(self):
         return f"[{self.fecha.strftime('%d/%m/%Y %H:%M')}] {self.usuario}: {self.accion}"
+
+
+# ----------------------------------------------------
+# 6. MODELOS DINÁMICOS DE LA PORTADA
+# ----------------------------------------------------
+class BannerCarrusel(models.Model):
+    titulo = models.CharField(max_length=150, help_text="Descripción o referencia de la foto", default="Banner Médico")
+    imagen = models.ImageField(upload_to='carrusel/', verbose_name="Imagen de Fondo (Horizontal)")
+    orden = models.PositiveIntegerField(default=1, help_text="Orden de aparición: 1, 2, 3...")
+    activo = models.BooleanField(default=True, verbose_name="¿Activo?")
+
+    class Meta:
+        verbose_name = "Banner del Carrusel"
+        verbose_name_plural = "Banners del Carrusel"
+        ordering = ['orden']
+
+    def __str__(self):
+        return f"Slide #{self.orden} - {self.titulo}"
+
+
+class ConfiguracionLanding(models.Model):
+    # Textos del Hero Principal
+    hero_badge = models.CharField(max_length=120, default="🩺 Especialistas en Formación y Ciencias de la Salud")
+    hero_titulo = models.CharField(max_length=200, default="Formando a los Mejores Profesionales de la Salud")
+    hero_subtitulo = models.TextField(default="Metodología de alto rendimiento, docentes médicos especializados y resolución de casos reales para potenciar tu nivel académico.")
+    
+    # Textos Institucionales
+    sobre_nosotros_titulo = models.CharField(max_length=200, default="Comprometidos con la excelencia y el rigor científico")
+    sobre_nosotros_texto_1 = models.TextField(default="En Academia Galeno nos dedicamos al fortalecimiento de competencias en estudiantes y profesionales de ciencias de la salud.")
+    sobre_nosotros_texto_2 = models.TextField(default="Contamos con una infraestructura virtual moderna orientada a la resolución ágil de dudas y a la asimilación profunda de cada asignatura médica.")
+    sobre_nosotros_imagen = models.ImageField(upload_to='institucional/', null=True, blank=True, verbose_name="Foto Sobre Nosotros")
+
+    mision = models.TextField(default="Brindar una educación complementaria y de especialización médica accesible, estructurada y exigente que potencie el rendimiento y la capacidad de toma de decisiones clínicas.")
+    vision = models.TextField(default="Ser la academia líder de formación y actualización en ciencias médicas a nivel nacional, reconocida por el rigor de sus programas y el éxito de sus egresados.")
+    valores = models.TextField(default="Rigor científico, compromiso con la salud humana, integridad profesional, innovación pedagógica constante y vocación de servicio docente.")
+
+    # Datos de Contacto Directo
+    whatsapp_contacto = models.CharField(max_length=20, default="51999999999", help_text="Código de país seguido del número (ej. 51987654321)")
+    correo_contacto = models.EmailField(default="informes@academiagaleno.pe")
+    horario_atencion = models.CharField(max_length=100, default="Lun - Sáb: 8:00 AM - 8:00 PM")
+
+    class Meta:
+        verbose_name = "Configuración de la Portada"
+        verbose_name_plural = "Configuración de la Portada"
+
+    def __str__(self):
+        return "Configuración General de la Portada"
+
+    

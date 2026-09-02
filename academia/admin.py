@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PeriodoAcademico, Curso, Material, Inscripcion, Calificacion, LogActividad
+from .models import PeriodoAcademico, Curso, Material, Inscripcion, Calificacion, LogActividad,BannerCarrusel, ConfiguracionLanding
 
 @admin.register(PeriodoAcademico)
 class PeriodoAcademicoAdmin(admin.ModelAdmin):
@@ -29,3 +29,16 @@ class CalificacionAdmin(admin.ModelAdmin):
 class LogActividadAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'accion', 'fecha')
     list_filter = ('accion',)
+
+@admin.register(BannerCarrusel)
+class BannerCarruselAdmin(admin.ModelAdmin):
+    list_display = ('orden', 'titulo', 'activo')
+    list_editable = ('orden', 'activo')
+
+@admin.register(ConfiguracionLanding)
+class ConfiguracionLandingAdmin(admin.ModelAdmin):
+    # Evita crear múltiples registros: solo debe existir una configuración general
+    def has_add_permission(self, request):
+        if self.model.objects.exists():
+            return False
+        return super().has_add_permission(request)
