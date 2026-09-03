@@ -239,13 +239,15 @@ class Examen(models.Model):
     curso = models.ForeignKey('Curso', on_delete=models.CASCADE, related_name='examenes')
     titulo = models.CharField(max_length=200, verbose_name="Título de la Evaluación")
     semana = models.PositiveSmallIntegerField(
-        default=1, 
+        default=1,
         verbose_name="Semana del Ciclo",
-        help_text="Número de la semana en la que aparecerá el examen (Ej: 1, 2, 8)"
+        help_text="Semana donde se mostrará la evaluación"
     )
     descripcion = models.TextField(blank=True, verbose_name="Instrucciones")
     duracion_minutos = models.PositiveIntegerField(default=60, help_text="Tiempo límite en minutos")
-    activo = models.BooleanField(default=True, verbose_name="Disponible para alumnos")
+    fecha_apertura = models.DateTimeField(null=True, blank=True, verbose_name="Fecha y hora de inicio")
+    fecha_cierre = models.DateTimeField(null=True, blank=True, verbose_name="Fecha y hora de cierre")
+    activo = models.BooleanField(default=True, verbose_name="Habilitado")
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     class Meta:

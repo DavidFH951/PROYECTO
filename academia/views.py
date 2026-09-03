@@ -1198,3 +1198,32 @@ def importar_preguntas_curso(request, curso_id):
         messages.error(request, "Por favor adjunta un archivo Excel válido (.xlsx).")
 
     return redirect('banco_preguntas_curso', curso_id=curso.id)
+
+@login_required
+def crear_examen_curso(request, curso_id):
+    curso = get_object_or_404(Curso, id=curso_id)
+
+    if not (request.user.is_staff or getattr(request.user, 'rol', None) == 'docente' or request.user.is_superuser):
+        messages.error(request, "No tienes permisos para programar evaluaciones.")
+        return redirect('detalle_curso', curso_id=curso.id)
+
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo')
+        semana = request.POST.get('semana', 1)
+        duracion = request.POST.get('duracion_minutos', 60)
+        descripcion = request.POST.get('descripcion', '')
+
+        if titulo:
+            Examen.objects.create(
+                curso=curso,
+                titulo=titulo,
+                semana=int(semana),
+                duracion_minutos=int(duracion),
+                descripcion=descripcion,
+                activo=True
+            )
+            messages.success(request, f"Evaluación '{titulo}' creada con éxito en la Semana {semana}.")
+        else:
+            messages.error(request, "Debes ingresar un título para la evaluación.")
+
+    return redirect('detalle_curso', curso_id=curso.id)
