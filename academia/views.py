@@ -868,4 +868,4 @@ def banco_preguntas_curso(request, curso_id):
         'form': form,
         'preguntas': preguntas,
     }
-    return render(request, 'academia/banco_preguntas.html', context)
+    return render(request, 'banco_preguntas.html', context)
