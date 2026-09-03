@@ -1,6 +1,11 @@
 from django.contrib import admin
 from .models import PeriodoAcademico, Curso, Material, Inscripcion, Calificacion, LogActividad,BannerCarrusel, ConfiguracionLanding,Examen, Pregunta, Opcion, IntentoExamen
 
+# 1. Primero defines el Inline de las alternativas
+class OpcionInline(admin.TabularInline):
+    model = Opcion
+    extra = 4
+
 @admin.register(PeriodoAcademico)
 class PeriodoAcademicoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'codigo', 'fecha_inicio', 'fecha_fin', 'activo')
@@ -54,6 +59,7 @@ class PreguntaAdmin(admin.ModelAdmin):
         return obj.enunciado[:80] + "..." if len(obj.enunciado) > 80 else obj.enunciado
     enunciado_corto.short_description = "Enunciado"
 
+# 3. Resto de modelos
 @admin.register(Examen)
 class ExamenAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'curso', 'duracion_minutos', 'activo', 'fecha_creacion')
