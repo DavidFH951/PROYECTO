@@ -11,7 +11,8 @@ from django.db.models import Q
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.core.paginator import Paginator
-
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico,BannerCarrusel, ConfiguracionLanding,Curso, Examen, Pregunta, Opcion,IntentoExamen
 from .forms import RegistroUsuarioForm, EditarUsuarioForm, CursoForm, InscripcionForm, PreguntaForm
 
@@ -917,29 +918,84 @@ def rendir_examen(request, examen_id):
 
 @login_required
 def descargar_plantilla_preguntas(request):
-    """Genera un archivo CSV plantilla para que los docentes solo rellenen los datos."""
-    response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
-    response['Content-Disposition'] = 'attachment; filename="plantilla_preguntas_galeno.csv"'
-    
-    writer = csv.writer(response)
-    # Cabeceras
-    writer.writerow(['enunciado', 'opcion_a', 'opcion_b', 'opcion_c', 'opcion_d', 'correcta', 'puntaje', 'explicacion'])
-    # Fila de ejemplo médico
-    writer.writerow([
-        '¿Cuál es el agente causal más frecuente de la infección del tracto urinario?',
-        'Escherichia coli',
-        'Staphylococcus aureus',
-        'Klebsiella pneumoniae',
-        'Pseudomonas aeruginosa',
-        'A',
-        '2.0',
-        'E. coli es responsable de más del 80% de las ITU no complicadas.'
-    ])
+    """Genera directamente un archivo binario .xlsx con columnas independientes."""
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "BancoPreguntas"
+
+    # Encabezados: cada uno es una celda independiente
+    headers = [
+        "Enunciado de la Pregunta",
+        "Alternativa A",
+        "Alternativa B",
+        "Alternativa C",
+        "Alternativa D",
+        "Respuesta Correcta (A, B, C o D)",
+        "Puntaje",
+        "Explicación Clínica"
+    ]
+    ws.append(headers)
+
+    # Estilos de encabezado
+    header_fill = PatternFill(start_color="0284C7", end_color="0284C7", fill_type="solid")
+    header_font = Font(name="Segoe UI", size=11, bold=True, color="FFFFFF")
+    thin_border = Border(
+        left=Side(style='thin', color='CBD5E1'),
+        right=Side(style='thin', color='CBD5E1'),
+        top=Side(style='thin', color='CBD5E1'),
+        bottom=Side(style='thin', color='CBD5E1')
+    )
+
+    for col_idx in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col_idx)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        cell.border = thin_border
+
+    # Fila de ejemplo con datos en cada celda
+    ejemplo = [
+        "¿Cuál es el agente causal más frecuente de la infección del tracto urinario?",
+        "Escherichia coli",
+        "Staphylococcus aureus",
+        "Klebsiella pneumoniae",
+        "Pseudomonas aeruginosa",
+        "A",
+        2.0,
+        "E. coli representa más del 80% de los casos comunitarios."
+    ]
+    ws.append(ejemplo)
+
+    for col_idx in range(1, len(ejemplo) + 1):
+        cell = ws.cell(row=2, column=col_idx)
+        cell.border = thin_border
+        cell.alignment = Alignment(vertical="center")
+
+    # Anchos fijos por columna
+    ws.column_dimensions['A'].width = 50
+    ws.column_dimensions['B'].width = 25
+    ws.column_dimensions['C'].width = 25
+    ws.column_dimensions['D'].width = 25
+    ws.column_dimensions['E'].width = 25
+    ws.column_dimensions['F'].width = 30
+    ws.column_dimensions['G'].width = 12
+    ws.column_dimensions['H'].width = 45
+
+    # Guardar en memoria binaria
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="plantilla_preguntas.xlsx"'
     return response
 
 @login_required
 def importar_preguntas_curso(request, curso_id):
-    """Procesa el archivo CSV y crea las preguntas y opciones en lote."""
+    """Lee el archivo .xlsx subido por el profesor y crea las preguntas."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not (request.user.is_staff or getattr(request.user, 'rol', None) == 'docente' or request.user.is_superuser):
@@ -957,50 +1013,188 @@ def importar_preguntas_curso(request, curso_id):
         examen = get_object_or_404(Examen, id=examen_id, curso=curso)
 
         try:
-            # Soporte para UTF-8 y codificaciones de Excel (latin-1)
-            decoded_file = archivo.read().decode('utf-8-sig')
-        except UnicodeDecodeError:
-            archivo.seek(0)
-            decoded_file = archivo.read().decode('latin-1')
+            wb = openpyxl.load_workbook(archivo, data_only=True)
+            ws = wb.active
 
-        reader = csv.reader(decoded_file.splitlines())
-        header = next(reader, None)
+            creadas = 0
+            # Iterar desde la fila 2 para saltar la cabecera
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row or not row[0]:
+                    continue
 
-        creadas = 0
-        for row in reader:
-            if not row or len(row) < 6:
-                continue
-            
-            enunciado = row[0].strip()
-            op_a = row[1].strip()
-            op_b = row[2].strip()
-            op_c = row[3].strip()
-            op_d = row[4].strip()
-            correcta = row[5].strip().upper()
-            puntaje = float(row[6].strip()) if len(row) > 6 and row[6].strip() else 1.0
-            explicacion = row[7].strip() if len(row) > 7 else ""
+                enunciado = str(row[0]).strip()
+                op_a = str(row[1]).strip() if len(row) > 1 and row[1] is not None else ""
+                op_b = str(row[2]).strip() if len(row) > 2 and row[2] is not None else ""
+                op_c = str(row[3]).strip() if len(row) > 3 and row[3] is not None else ""
+                op_d = str(row[4]).strip() if len(row) > 4 and row[4] is not None else ""
+                correcta = str(row[5]).strip().upper() if len(row) > 5 and row[5] is not None else "A"
 
-            if not enunciado or not op_a:
-                continue
+                try:
+                    puntaje = float(row[6]) if len(row) > 6 and row[6] is not None else 1.0
+                except (ValueError, TypeError):
+                    puntaje = 1.0
 
-            # Crear la pregunta
-            pregunta = Pregunta.objects.create(
-                examen=examen,
-                enunciado=enunciado,
-                explicacion=explicacion,
-                puntaje=puntaje
-            )
+                explicacion = str(row[7]).strip() if len(row) > 7 and row[7] is not None else ""
 
-            # Crear las 4 alternativas
-            Opcion.objects.create(pregunta=pregunta, texto=op_a, es_correcta=(correcta == 'A'))
-            Opcion.objects.create(pregunta=pregunta, texto=op_b, es_correcta=(correcta == 'B'))
-            Opcion.objects.create(pregunta=pregunta, texto=op_c, es_correcta=(correcta == 'C'))
-            Opcion.objects.create(pregunta=pregunta, texto=op_d, es_correcta=(correcta == 'D'))
+                if not enunciado or not op_a:
+                    continue
 
-            creadas += 1
+                # Guardar en Base de Datos
+                pregunta = Pregunta.objects.create(
+                    examen=examen,
+                    enunciado=enunciado,
+                    explicacion=explicacion,
+                    puntaje=puntaje
+                )
 
-        messages.success(request, f"Se importaron con éxito {creadas} preguntas a la evaluación '{examen.titulo}'.")
+                Opcion.objects.create(pregunta=pregunta, texto=op_a, es_correcta=(correcta == 'A'))
+                Opcion.objects.create(pregunta=pregunta, texto=op_b, es_correcta=(correcta == 'B'))
+                Opcion.objects.create(pregunta=pregunta, texto=op_c, es_correcta=(correcta == 'C'))
+                Opcion.objects.create(pregunta=pregunta, texto=op_d, es_correcta=(correcta == 'D'))
+
+                creadas += 1
+
+            messages.success(request, f"Se importaron con éxito {creadas} preguntas a la evaluación '{examen.titulo}'.")
+        except Exception as e:
+            messages.error(request, f"Error al procesar el archivo Excel: {str(e)}")
     else:
-        messages.error(request, "Archivo no proporcionado o formato inválido.")
+        messages.error(request, "Por favor adjunta un archivo Excel válido (.xlsx).")
+
+    return redirect('banco_preguntas_curso', curso_id=curso.id)
+
+@login_required
+def descargar_plantilla_preguntas(request):
+    """Genera una plantilla Excel (.xlsx) con celdas, colores y columnas tabuladas."""
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Preguntas"
+
+    # Encabezados de columna
+    headers = [
+        "Enunciado de la Pregunta",
+        "Alternativa A",
+        "Alternativa B",
+        "Alternativa C",
+        "Alternativa D",
+        "Respuesta Correcta (A, B, C o D)",
+        "Puntaje",
+        "Explicación Clínica (Opcional)"
+    ]
+    ws.append(headers)
+
+    # Estilos de encabezado
+    header_fill = PatternFill(start_color="0284C7", end_color="0284C7", fill_type="solid")
+    header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+    thin_border = Border(
+        left=Side(style='thin', color='CBD5E1'),
+        right=Side(style='thin', color='CBD5E1'),
+        top=Side(style='thin', color='CBD5E1'),
+        bottom=Side(style='thin', color='CBD5E1')
+    )
+
+    for col_num in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col_num)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        cell.border = thin_border
+
+    # Fila de ejemplo
+    ws.append([
+        "¿Cuál es el agente causal más frecuente de la infección del tracto urinario?",
+        "Escherichia coli",
+        "Staphylococcus aureus",
+        "Klebsiella pneumoniae",
+        "Pseudomonas aeruginosa",
+        "A",
+        2.0,
+        "E. coli representa más del 80% de las ITUs comunitarias."
+    ])
+
+    for col_num in range(1, len(headers) + 1):
+        cell = ws.cell(row=2, column=col_num)
+        cell.border = thin_border
+        cell.alignment = Alignment(vertical="center")
+
+    # Ajuste de ancho de columnas
+    ws.column_dimensions['A'].width = 45
+    ws.column_dimensions['B'].width = 25
+    ws.column_dimensions['C'].width = 25
+    ws.column_dimensions['D'].width = 25
+    ws.column_dimensions['E'].width = 25
+    ws.column_dimensions['F'].width = 30
+    ws.column_dimensions['G'].width = 12
+    ws.column_dimensions['H'].width = 40
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="plantilla_preguntas_galeno.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required
+def importar_preguntas_curso(request, curso_id):
+    """Lee el archivo .xlsx cargado y registra preguntas y opciones en la BD."""
+    curso = get_object_or_404(Curso, id=curso_id)
+
+    if not (request.user.is_staff or getattr(request.user, 'rol', None) == 'docente' or request.user.is_superuser):
+        messages.error(request, "No tienes permisos para esta acción.")
+        return redirect('detalle_curso', curso_id=curso.id)
+
+    if request.method == 'POST' and request.FILES.get('archivo_preguntas'):
+        examen_id = request.POST.get('examen_id')
+        archivo = request.FILES['archivo_preguntas']
+
+        if not examen_id:
+            messages.error(request, "Debes seleccionar una evaluación de destino.")
+            return redirect('banco_preguntas_curso', curso_id=curso.id)
+
+        examen = get_object_or_404(Examen, id=examen_id, curso=curso)
+
+        try:
+            wb = openpyxl.load_workbook(archivo, data_only=True)
+            ws = wb.active
+
+            creadas = 0
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row or not row[0]:
+                    continue
+
+                enunciado = str(row[0]).strip()
+                op_a = str(row[1]).strip() if len(row) > 1 and row[1] is not None else ""
+                op_b = str(row[2]).strip() if len(row) > 2 and row[2] is not None else ""
+                op_c = str(row[3]).strip() if len(row) > 3 and row[3] is not None else ""
+                op_d = str(row[4]).strip() if len(row) > 4 and row[4] is not None else ""
+                correcta = str(row[5]).strip().upper() if len(row) > 5 and row[5] is not None else "A"
+
+                try:
+                    puntaje = float(row[6]) if len(row) > 6 and row[6] is not None else 1.0
+                except (ValueError, TypeError):
+                    puntaje = 1.0
+
+                explicacion = str(row[7]).strip() if len(row) > 7 and row[7] is not None else ""
+
+                if not enunciado or not op_a:
+                    continue
+
+                pregunta = Pregunta.objects.create(
+                    examen=examen,
+                    enunciado=enunciado,
+                    explicacion=explicacion,
+                    puntaje=puntaje
+                )
+
+                Opcion.objects.create(pregunta=pregunta, texto=op_a, es_correcta=(correcta == 'A'))
+                Opcion.objects.create(pregunta=pregunta, texto=op_b, es_correcta=(correcta == 'B'))
+                Opcion.objects.create(pregunta=pregunta, texto=op_c, es_correcta=(correcta == 'C'))
+                Opcion.objects.create(pregunta=pregunta, texto=op_d, es_correcta=(correcta == 'D'))
+
+                creadas += 1
+
+            messages.success(request, f"Se importaron con éxito {creadas} preguntas a '{examen.titulo}'.")
+        except Exception as e:
+            messages.error(request, f"Error al procesar el archivo Excel: {str(e)}")
+    else:
+        messages.error(request, "Por favor adjunta un archivo Excel válido (.xlsx).")
 
     return redirect('banco_preguntas_curso', curso_id=curso.id)
