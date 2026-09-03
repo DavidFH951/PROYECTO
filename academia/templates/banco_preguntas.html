@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="max-width: 1100px; margin: 30px auto; padding: 0 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div>
+            <h2 style="margin: 0; color: #0f172a;">Banco de Preguntas</h2>
+            <p style="margin: 4px 0 0; color: #64748b;">Curso: <strong>{{ curso.titulo }}</strong></p>
+        </div>
+        <a href="{% url 'detalle_curso' curso.id %}" style="text-decoration: none; color: #0284c7; font-weight: 600;">
+            ← Volver al Aula
+        </a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px;">
+        <!-- Formulario de creación -->
+        <div style="background: #ffffff; padding: 24px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+            <h3 style="margin-top: 0; margin-bottom: 16px; color: #1e293b;">Nueva Pregunta</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div>
+                        <label style="font-weight: 600; font-size: 14px;">Evaluación destino:</label>
+                        {{ form.examen }}
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; font-size: 14px;">Enunciado médico:</label>
+                        {{ form.enunciado }}
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="font-weight: 600; font-size: 13px;">Alternativa A:</label>
+                            {{ form.opcion_1 }}
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; font-size: 13px;">Alternativa B:</label>
+                            {{ form.opcion_2 }}
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; font-size: 13px;">Alternativa C:</label>
+                            {{ form.opcion_3 }}
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; font-size: 13px;">Alternativa D:</label>
+                            {{ form.opcion_4 }}
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="font-weight: 600; font-size: 13px;">Alternativa Correcta:</label>
+                            {{ form.opcion_correcta }}
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; font-size: 13px;">Puntaje:</label>
+                            {{ form.puntaje }}
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; font-size: 13px;">Feedback clínico (opcional):</label>
+                        {{ form.explicacion }}
+                    </div>
+                    <button type="submit" style="background: #0284c7; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                        ➕ Guardar en el Banco
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Lista de preguntas registradas -->
+        <div>
+            <h3 style="margin-top: 0; margin-bottom: 16px; color: #1e293b;">Preguntas en este Curso ({{ preguntas.count }})</h3>
+            <div style="display: flex; flex-direction: column; gap: 14px; max-height: 600px; overflow-y: auto; padding-right: 6px;">
+                {% for p in preguntas %}
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                        <span style="font-size: 12px; font-weight: bold; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px;">
+                            {{ p.puntaje }} pts
+                        </span>
+                        <small style="color: #64748b;">{{ p.examen.titulo }}</small>
+                    </div>
+                    <p style="margin: 0 0 10px; font-weight: 600; color: #0f172a; font-size: 14px;">{{ p.enunciado }}</p>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #334155;">
+                     {% for op in p.opciones.all %}
+                        {% if op.es_correcta %}
+                            <li style="color: #16a34a; font-weight: bold; margin-bottom: 4px;">
+                                {{ op.texto }} ✓ (Correcta)
+                            </li>
+                        {% else %}
+                            <li style="color: #334155; margin-bottom: 4px;">
+                                {{ op.texto }}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% empty %}
+                <p style="color: #94a3b8; font-style: italic;">Aún no hay preguntas registradas para este curso.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

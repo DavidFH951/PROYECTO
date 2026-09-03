@@ -7,6 +7,10 @@ from django.utils.dateparse import parse_date
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+
+
+
+
 # ----------------------------------------------------
 # 0. MODELO PERÍODO ACADÉMICO / TEMPORADA
 # ----------------------------------------------------

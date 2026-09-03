@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User, Group
-from .models import Curso, Inscripcion
+from .models import Curso, Inscripcion,Examen, Pregunta, Opcion
 
 # ----------------------------------------------------
 # 1. REGISTRO DE USUARIOS
@@ -149,3 +149,33 @@ class InscripcionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Filtra para que solo aparezcan usuarios del grupo Alumnos
         self.fields['alumno'].queryset = User.objects.filter(groups__name='Alumnos')
+
+class PreguntaForm(forms.ModelForm):
+    # Campos dinámicos para las 4 alternativas típicas (A, B, C, D)
+    opcion_1 = forms.CharField(label="Alternativa A", max_length=255, widget=forms.TextInput(attrs={'class': 'hero-input-field', 'placeholder': 'Texto opción A'}))
+    opcion_2 = forms.CharField(label="Alternativa B", max_length=255, widget=forms.TextInput(attrs={'class': 'hero-input-field', 'placeholder': 'Texto opción B'}))
+    opcion_3 = forms.CharField(label="Alternativa C", max_length=255, widget=forms.TextInput(attrs={'class': 'hero-input-field', 'placeholder': 'Texto opción C'}))
+    opcion_4 = forms.CharField(label="Alternativa D", max_length=255, widget=forms.TextInput(attrs={'class': 'hero-input-field', 'placeholder': 'Texto opción D'}))
+    
+    opcion_correcta = forms.ChoiceField(
+        label="¿Cuál es la alternativa correcta?",
+        choices=[('1', 'Opción A'), ('2', 'Opción B'), ('3', 'Opción C'), ('4', 'Opción D')],
+        widget=forms.Select(attrs={'class': 'hero-input-field'})
+    )
+
+    class Meta:
+        model = Pregunta
+        fields = ['examen', 'enunciado', 'explicacion', 'puntaje']
+        widgets = {
+            'examen': forms.Select(attrs={'class': 'hero-input-field'}),
+            'enunciado': forms.Textarea(attrs={'class': 'hero-input-field', 'rows': 3, 'placeholder': 'Enunciado clínico o teórico...'}),
+            'explicacion': forms.Textarea(attrs={'class': 'hero-input-field', 'rows': 2, 'placeholder': 'Feedback médico o justificación (opcional)...'}),
+            'puntaje': forms.NumberInput(attrs={'class': 'hero-input-field', 'step': '0.5'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        curso = kwargs.pop('curso', None)
+        super().__init__(*args, **kwargs)
+        if curso:
+            # Filtrar solo exámenes pertenecientes a este curso
+            self.fields['examen'].queryset = Examen.objects.filter(curso=curso)

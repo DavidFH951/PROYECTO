@@ -11,8 +11,8 @@ from django.db.models import Q
 from django.utils.dateparse import parse_date
 from django.core.paginator import Paginator
 
-from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico,BannerCarrusel, ConfiguracionLanding
-from .forms import RegistroUsuarioForm, EditarUsuarioForm, CursoForm, InscripcionForm
+from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico,BannerCarrusel, ConfiguracionLanding,Curso, Examen, Pregunta, Opcion
+from .forms import RegistroUsuarioForm, EditarUsuarioForm, CursoForm, InscripcionForm, PreguntaForm
 
 
 # ----------------------------------------------------
@@ -827,3 +827,45 @@ def gestionar_temporada(request):
                 messages.warning(request, f"La temporada '{periodo.nombre}' ha sido culminada. El ciclo quedó cerrado.")
 
     return redirect('admin_dashboard')
+
+@login_required
+def banco_preguntas_curso(request, curso_id):
+    curso = get_object_or_404(Curso, id=curso_id)
+
+    # Validar permisos: solo docentes o staff/admin
+    if not (request.user.is_staff or getattr(request.user, 'rol', None) == 'docente' or request.user.is_superuser):
+        messages.error(request, "No tienes permisos para gestionar el banco de preguntas.")
+        return redirect('detalle_curso', curso_id=curso.id)
+
+    # Si aún no existe ningún examen en este curso, creamos uno base
+    examen_general, _ = Examen.objects.get_or_create(
+        curso=curso,
+        titulo=f"Evaluación General - {curso.titulo}",
+        defaults={'duracion_minutos': 60, 'activo': True}
+    )
+
+    if request.method == 'POST':
+        form = PreguntaForm(request.POST, curso=curso)
+        if form.is_valid():
+            pregunta = form.save()
+            correcta = form.cleaned_data['opcion_correcta']
+
+            # Guardar las 4 alternativas
+            Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_1'], es_correcta=(correcta == '1'))
+            Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_2'], es_correcta=(correcta == '2'))
+            Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_3'], es_correcta=(correcta == '3'))
+            Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_4'], es_correcta=(correcta == '4'))
+
+            messages.success(request, "Pregunta agregada con éxito al banco.")
+            return redirect('banco_preguntas_curso', curso_id=curso.id)
+    else:
+        form = PreguntaForm(curso=curso, initial={'examen': examen_general})
+
+    preguntas = Pregunta.objects.filter(examen__curso=curso).prefetch_related('opciones').order_by('-id')
+
+    context = {
+        'curso': curso,
+        'form': form,
+        'preguntas': preguntas,
+    }
+    return render(request, 'academia/banco_preguntas.html', context)

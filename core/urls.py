@@ -4,6 +4,7 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 from academia import views
+from .views import banco_preguntas_curso
 
 urlpatterns = [
     # Panel Django por defecto
@@ -61,6 +62,10 @@ urlpatterns = [
     path('curso/<int:curso_id>/', views.detalle_curso, name='detalle_curso'),
     path('notas/', views.mis_notas, name='mis_notas'),
     path('perfil/', views.mi_perfil, name='mi_perfil'),
+
+
+    # ... tus otras rutas
+    path('curso/<int:curso_id>/banco-preguntas/', banco_preguntas_curso, name='banco_preguntas_curso'),
 ]
 
 # Servir archivos multimedia (PDFs, tareas, imágenes) subidos en desarrollo
