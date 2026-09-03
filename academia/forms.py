@@ -179,3 +179,14 @@ class PreguntaForm(forms.ModelForm):
         if curso:
             # Filtrar solo exámenes pertenecientes a este curso
             self.fields['examen'].queryset = Examen.objects.filter(curso=curso)
+
+class ExamenForm(forms.ModelForm):
+    class Meta:
+        model = Examen
+        fields = ['titulo', 'semana', 'duracion_minutos', 'descripcion', 'activo']
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'hero-input-field', 'placeholder': 'Ej: Examen Parcial / Test Rápido'}),
+            'semana': forms.NumberInput(attrs={'class': 'hero-input-field', 'min': 1, 'max': 20}),
+            'duracion_minutos': forms.NumberInput(attrs={'class': 'hero-input-field', 'placeholder': 'Minutos'}),
+            'descripcion': forms.Textarea(attrs={'class': 'hero-input-field', 'rows': 2, 'placeholder': 'Instrucciones para el postulante...'}),
+        }

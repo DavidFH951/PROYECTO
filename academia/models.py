@@ -238,6 +238,11 @@ class Prospecto(models.Model):
 class Examen(models.Model):
     curso = models.ForeignKey('Curso', on_delete=models.CASCADE, related_name='examenes')
     titulo = models.CharField(max_length=200, verbose_name="Título de la Evaluación")
+    semana = models.PositiveSmallIntegerField(
+        default=1, 
+        verbose_name="Semana del Ciclo",
+        help_text="Número de la semana en la que aparecerá el examen (Ej: 1, 2, 8)"
+    )
     descripcion = models.TextField(blank=True, verbose_name="Instrucciones")
     duracion_minutos = models.PositiveIntegerField(default=60, help_text="Tiempo límite en minutos")
     activo = models.BooleanField(default=True, verbose_name="Disponible para alumnos")
@@ -248,7 +253,7 @@ class Examen(models.Model):
         verbose_name_plural = "Exámenes y Evaluaciones"
 
     def __str__(self):
-        return f"{self.titulo} - {self.curso.titulo}"
+        return f"[Semana {self.semana}] {self.titulo} - {self.curso.titulo}"
 
 class Pregunta(models.Model):
     examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='preguntas')

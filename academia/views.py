@@ -9,9 +9,10 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.utils.dateparse import parse_date
+from django.utils import timezone
 from django.core.paginator import Paginator
 
-from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico,BannerCarrusel, ConfiguracionLanding,Curso, Examen, Pregunta, Opcion
+from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico,BannerCarrusel, ConfiguracionLanding,Curso, Examen, Pregunta, Opcion,IntentoExamen
 from .forms import RegistroUsuarioForm, EditarUsuarioForm, CursoForm, InscripcionForm, PreguntaForm
 
 
@@ -727,15 +728,21 @@ def detalle_curso(request, curso_id):
     else:
         cronograma = [{'numero': i, 'inicio': None, 'fin': None, 'etiqueta': f"Semana {i}"} for i in range(1, 11)]
 
-    materiales = curso.materiales.all().order_by('semana', '-fecha_subida')
+    # Consultas de contenidos
+    materiales = list(curso.materiales.all().order_by('semana', '-fecha_subida'))
+    examenes = list(curso.examenes.filter(activo=True).prefetch_related('preguntas'))
     
     bloques_semanas = []
     for sem in cronograma:
         mats_semana = [m for m in materiales if m.semana == sem['numero']]
+        exams_semana = [e for e in examenes if e.semana == sem['numero']]
+        
         bloques_semanas.append({
             'info': sem,
             'materiales': mats_semana,
-            'total_materiales': len(mats_semana)
+            'examenes': exams_semana,
+            'total_materiales': len(mats_semana),
+            'total_recursos': len(mats_semana) + len(exams_semana)
         })
 
     notas = Calificacion.objects.filter(alumno=request.user, curso=curso)
@@ -869,3 +876,46 @@ def banco_preguntas_curso(request, curso_id):
         'preguntas': preguntas,
     }
     return render(request, 'banco_preguntas.html', context)
+
+@login_required
+def rendir_examen(request, examen_id):
+    examen = get_object_or_404(Examen, id=examen_id, activo=True)
+    
+    # 1. Obtener preguntas en orden aleatorio
+    preguntas = list(examen.preguntas.order_by('?'))
+
+    # 2. Asignar alternativas desordenadas a cada pregunta
+    for pregunta in preguntas:
+        pregunta.opciones_aleatorias = list(pregunta.opciones.order_by('?'))
+
+    # 3. Procesar respuestas al enviar el formulario
+    if request.method == 'POST':
+        puntaje_total = 0.0
+        
+        for pregunta in examen.preguntas.all():
+            opcion_seleccionada_id = request.POST.get(f'pregunta_{pregunta.id}')
+            if opcion_seleccionada_id:
+                try:
+                    opcion = Opcion.objects.get(id=opcion_seleccionada_id, pregunta=pregunta)
+                    if opcion.es_correcta:
+                        puntaje_total += float(pregunta.puntaje)
+                except Opcion.DoesNotExist:
+                    pass
+
+        # Registrar el intento y la nota del alumno
+        intento = IntentoExamen.objects.create(
+            alumno=request.user,
+            examen=examen,
+            nota=puntaje_total,
+            completado=True,
+            fecha_fin=timezone.now()
+        )
+        
+        messages.success(request, f"Examen finalizado. Tu puntaje obtenido es: {puntaje_total} puntos.")
+        return redirect('detalle_curso', curso_id=examen.curso.id)
+
+    context = {
+        'examen': examen,
+        'preguntas': preguntas,
+    }
+    return render(request, 'rendir_examen.html', context)
