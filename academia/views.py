@@ -839,17 +839,12 @@ def gestionar_temporada(request):
 def banco_preguntas_curso(request, curso_id):
     curso = get_object_or_404(Curso, id=curso_id)
 
-    # Validar permisos: solo docentes o staff/admin
     if not (request.user.is_staff or getattr(request.user, 'rol', None) == 'docente' or request.user.is_superuser):
         messages.error(request, "No tienes permisos para gestionar el banco de preguntas.")
         return redirect('detalle_curso', curso_id=curso.id)
 
-    # Si aún no existe ningún examen en este curso, creamos uno base
-    examen_general, _ = Examen.objects.get_or_create(
-        curso=curso,
-        titulo=f"Evaluación General - {curso.titulo}",
-        defaults={'duracion_minutos': 60, 'activo': True}
-    )
+    # Obtenemos los exámenes existentes creados para este curso
+    examenes_curso = Examen.objects.filter(curso=curso)
 
     if request.method == 'POST':
         form = PreguntaForm(request.POST, curso=curso)
@@ -857,7 +852,6 @@ def banco_preguntas_curso(request, curso_id):
             pregunta = form.save()
             correcta = form.cleaned_data['opcion_correcta']
 
-            # Guardar las 4 alternativas
             Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_1'], es_correcta=(correcta == '1'))
             Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_2'], es_correcta=(correcta == '2'))
             Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_3'], es_correcta=(correcta == '3'))
@@ -866,7 +860,7 @@ def banco_preguntas_curso(request, curso_id):
             messages.success(request, "Pregunta agregada con éxito al banco.")
             return redirect('banco_preguntas_curso', curso_id=curso.id)
     else:
-        form = PreguntaForm(curso=curso, initial={'examen': examen_general})
+        form = PreguntaForm(curso=curso)
 
     preguntas = Pregunta.objects.filter(examen__curso=curso).prefetch_related('opciones').order_by('-id')
 
@@ -874,6 +868,7 @@ def banco_preguntas_curso(request, curso_id):
         'curso': curso,
         'form': form,
         'preguntas': preguntas,
+        'examenes_curso': examenes_curso,
     }
     return render(request, 'banco_preguntas.html', context)
 
