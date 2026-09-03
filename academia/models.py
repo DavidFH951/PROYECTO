@@ -4,6 +4,8 @@ import math
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.dateparse import parse_date
+from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # ----------------------------------------------------
 # 0. MODELO PERÍODO ACADÉMICO / TEMPORADA
@@ -228,3 +230,58 @@ class Prospecto(models.Model):
     curso_interes = models.CharField(max_length=150)
     fecha_contacto = models.DateTimeField(auto_now_add=True)
     contactado = models.BooleanField(default=False)
+
+class Examen(models.Model):
+    curso = models.ForeignKey('Curso', on_delete=models.CASCADE, related_name='examenes')
+    titulo = models.CharField(max_length=200, verbose_name="Título de la Evaluación")
+    descripcion = models.TextField(blank=True, verbose_name="Instrucciones")
+    duracion_minutos = models.PositiveIntegerField(default=60, help_text="Tiempo límite en minutos")
+    activo = models.BooleanField(default=True, verbose_name="Disponible para alumnos")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Examen / Evaluación"
+        verbose_name_plural = "Exámenes y Evaluaciones"
+
+    def __str__(self):
+        return f"{self.titulo} - {self.curso.titulo}"
+
+class Pregunta(models.Model):
+    examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='preguntas')
+    enunciado = models.TextField(verbose_name="Enunciado de la Pregunta")
+    explicacion = models.TextField(blank=True, verbose_name="Explicación / Justificación (Feedback médico)")
+    puntaje = models.DecimalField(max_digits=4, decimal_places=2, default=1.00, verbose_name="Puntaje asignado")
+
+    class Meta:
+        verbose_name = "Pregunta de Examen"
+        verbose_name_plural = "Banco de Preguntas"
+
+    def __str__(self):
+        return f"[{self.examen.titulo}] {self.enunciado[:60]}..."
+
+class Opcion(models.Model):
+    pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE, related_name='opciones')
+    texto = models.CharField(max_length=255, verbose_name="Opción de Respuesta")
+    es_correcta = models.BooleanField(default=False, verbose_name="¿Es la respuesta correcta?")
+
+    class Meta:
+        verbose_name = "Opción de Respuesta"
+        verbose_name_plural = "Opciones de Respuesta"
+
+    def __str__(self):
+        return f"{self.texto} ({'Correcta' if self.es_correcta else 'Incorrecta'})"
+
+class IntentoExamen(models.Model):
+    alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='intentos_examen')
+    examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='intentos')
+    nota = models.DecimalField(max_digits=4, decimal_places=2, default=0.00)
+    completado = models.BooleanField(default=False)
+    fecha_inicio = models.DateTimeField(auto_now_add=True)
+    fecha_fin = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Intento de Examen"
+        verbose_name_plural = "Resultados de Alumnos"
+
+    def __str__(self):
+        return f"{self.alumno.get_full_name()} - {self.examen.titulo} (Nota: {self.nota})"

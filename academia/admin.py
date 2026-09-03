@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PeriodoAcademico, Curso, Material, Inscripcion, Calificacion, LogActividad,BannerCarrusel, ConfiguracionLanding
+from .models import PeriodoAcademico, Curso, Material, Inscripcion, Calificacion, LogActividad,BannerCarrusel, ConfiguracionLanding,Examen, Pregunta, Opcion, IntentoExamen
 
 @admin.register(PeriodoAcademico)
 class PeriodoAcademicoAdmin(admin.ModelAdmin):
@@ -42,3 +42,25 @@ class ConfiguracionLandingAdmin(admin.ModelAdmin):
         if self.model.objects.exists():
             return False
         return super().has_add_permission(request)
+
+@admin.register(Pregunta)
+class PreguntaAdmin(admin.ModelAdmin):
+    inlines = [OpcionInline]
+    list_display = ('enunciado_corto', 'examen', 'puntaje')
+    list_filter = ('examen__curso', 'examen')
+    search_fields = ('enunciado',)
+
+    def enunciado_corto(self, obj):
+        return obj.enunciado[:80] + "..." if len(obj.enunciado) > 80 else obj.enunciado
+    enunciado_corto.short_description = "Enunciado"
+
+@admin.register(Examen)
+class ExamenAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'curso', 'duracion_minutos', 'activo', 'fecha_creacion')
+    list_filter = ('curso', 'activo')
+    search_fields = ('titulo',)
+
+@admin.register(IntentoExamen)
+class IntentoExamenAdmin(admin.ModelAdmin):
+    list_display = ('alumno', 'examen', 'nota', 'completado', 'fecha_fin')
+    list_filter = ('examen', 'completado')
