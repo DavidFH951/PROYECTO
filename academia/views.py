@@ -914,3 +914,93 @@ def rendir_examen(request, examen_id):
         'preguntas': preguntas,
     }
     return render(request, 'rendir_examen.html', context)
+
+@login_required
+def descargar_plantilla_preguntas(request):
+    """Genera un archivo CSV plantilla para que los docentes solo rellenen los datos."""
+    response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+    response['Content-Disposition'] = 'attachment; filename="plantilla_preguntas_galeno.csv"'
+    
+    writer = csv.writer(response)
+    # Cabeceras
+    writer.writerow(['enunciado', 'opcion_a', 'opcion_b', 'opcion_c', 'opcion_d', 'correcta', 'puntaje', 'explicacion'])
+    # Fila de ejemplo médico
+    writer.writerow([
+        '¿Cuál es el agente causal más frecuente de la infección del tracto urinario?',
+        'Escherichia coli',
+        'Staphylococcus aureus',
+        'Klebsiella pneumoniae',
+        'Pseudomonas aeruginosa',
+        'A',
+        '2.0',
+        'E. coli es responsable de más del 80% de las ITU no complicadas.'
+    ])
+    return response
+
+@login_required
+def importar_preguntas_curso(request, curso_id):
+    """Procesa el archivo CSV y crea las preguntas y opciones en lote."""
+    curso = get_object_or_404(Curso, id=curso_id)
+
+    if not (request.user.is_staff or getattr(request.user, 'rol', None) == 'docente' or request.user.is_superuser):
+        messages.error(request, "No tienes permisos para esta acción.")
+        return redirect('detalle_curso', curso_id=curso.id)
+
+    if request.method == 'POST' and request.FILES.get('archivo_preguntas'):
+        examen_id = request.POST.get('examen_id')
+        archivo = request.FILES['archivo_preguntas']
+
+        if not examen_id:
+            messages.error(request, "Debes seleccionar una evaluación de destino.")
+            return redirect('banco_preguntas_curso', curso_id=curso.id)
+
+        examen = get_object_or_404(Examen, id=examen_id, curso=curso)
+
+        try:
+            # Soporte para UTF-8 y codificaciones de Excel (latin-1)
+            decoded_file = archivo.read().decode('utf-8-sig')
+        except UnicodeDecodeError:
+            archivo.seek(0)
+            decoded_file = archivo.read().decode('latin-1')
+
+        reader = csv.reader(decoded_file.splitlines())
+        header = next(reader, None)
+
+        creadas = 0
+        for row in reader:
+            if not row or len(row) < 6:
+                continue
+            
+            enunciado = row[0].strip()
+            op_a = row[1].strip()
+            op_b = row[2].strip()
+            op_c = row[3].strip()
+            op_d = row[4].strip()
+            correcta = row[5].strip().upper()
+            puntaje = float(row[6].strip()) if len(row) > 6 and row[6].strip() else 1.0
+            explicacion = row[7].strip() if len(row) > 7 else ""
+
+            if not enunciado or not op_a:
+                continue
+
+            # Crear la pregunta
+            pregunta = Pregunta.objects.create(
+                examen=examen,
+                enunciado=enunciado,
+                explicacion=explicacion,
+                puntaje=puntaje
+            )
+
+            # Crear las 4 alternativas
+            Opcion.objects.create(pregunta=pregunta, texto=op_a, es_correcta=(correcta == 'A'))
+            Opcion.objects.create(pregunta=pregunta, texto=op_b, es_correcta=(correcta == 'B'))
+            Opcion.objects.create(pregunta=pregunta, texto=op_c, es_correcta=(correcta == 'C'))
+            Opcion.objects.create(pregunta=pregunta, texto=op_d, es_correcta=(correcta == 'D'))
+
+            creadas += 1
+
+        messages.success(request, f"Se importaron con éxito {creadas} preguntas a la evaluación '{examen.titulo}'.")
+    else:
+        messages.error(request, "Archivo no proporcionado o formato inválido.")
+
+    return redirect('banco_preguntas_curso', curso_id=curso.id)

@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=3.0">
 </head>
+
 <body>
 
     <!-- Barra Superior de Navegación -->
@@ -16,10 +18,8 @@
         <!-- Logo y Enlaces Principales -->
         <div style="display: flex; align-items: center; gap: 25px;">
             <a href="{% url 'dashboard' %}" class="brand-container">
-                <img src="{% static 'image/logo.jpeg' %}" 
-                     alt="Logo Academia Galeno" 
-                     class="brand-logo-img" 
-                     style="height: 38px; width: auto; max-width: 45px; object-fit: contain; display: block;">
+                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img"
+                    style="height: 38px; width: auto; max-width: 45px; object-fit: contain; display: block;">
                 <div class="brand-text-block">
                     <span class="brand-title">Academia Galeno</span>
                     <span class="brand-subtitle">Aula Virtual</span>
@@ -62,11 +62,11 @@
                     </div>
                     <span class="dropdown-user-badge">
                         {% if request.user.is_staff or request.user.is_superuser %}
-                            Administrador
+                        Administrador
                         {% elif es_docente_curso %}
-                            Docente
+                        Docente
                         {% else %}
-                            Alumno
+                        Alumno
                         {% endif %}
                     </span>
                 </div>
@@ -89,55 +89,64 @@
     <!-- Contenido Central -->
     <main class="main-container">
 
-       {% if messages %}
-    <div style="margin-bottom: 20px;">
-        {% for message in messages %}
-            <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+        {% if messages %}
+        <div style="margin-bottom: 20px;">
+            {% for message in messages %}
+            <div
+                style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
                 <span>✅</span>
                 <span>{{ message }}</span>
             </div>
-        {% endfor %}
-    </div>
-{% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
 
         <!-- Encabezado Principal del Curso con Portada Dinámica -->
-        <div class="course-header-banner" style="position: relative; border-radius: 16px; overflow: hidden; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); margin-bottom: 25px; background: #0f172a;">
+        <div class="course-header-banner"
+            style="position: relative; border-radius: 16px; overflow: hidden; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); margin-bottom: 25px; background: #0f172a;">
 
             {% if curso.imagen_portada %}
-                <img src="{{ curso.imagen_portada.url }}" 
-                     alt="{{ curso.titulo }}" 
-                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)); z-index: 1;"></div>
+            <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+            <div
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)); z-index: 1;">
+            </div>
             {% else %}
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); z-index: 1;"></div>
+            <div
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); z-index: 1;">
+            </div>
             {% endif %}
 
             <div style="position: relative; z-index: 2;">
-                <span style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.3);">
+                <span
+                    style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.3);">
                     {% if curso.periodo %}
-                        Período: {{ curso.periodo.nombre }} ({{ curso.periodo.codigo }})
+                    Período: {{ curso.periodo.nombre }} ({{ curso.periodo.codigo }})
                     {% else %}
-                        Período Académico Activo
+                    Período Académico Activo
                     {% endif %}
                 </span>
 
-                <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0 0 6px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                <h1
+                    style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0 0 6px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                     {{ curso.titulo }}
                 </h1>
 
                 {% if curso.descripcion %}
-                    <p style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin: 0 0 15px 0; max-width: 800px; line-height: 1.4;">
-                        {{ curso.descripcion }}
-                    </p>
+                <p
+                    style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin: 0 0 15px 0; max-width: 800px; line-height: 1.4;">
+                    {{ curso.descripcion }}
+                </p>
                 {% endif %}
 
-                <div style="font-size: 13px; color: rgba(255, 255, 255, 0.85); font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                <div
+                    style="font-size: 13px; color: rgba(255, 255, 255, 0.85); font-weight: 500; display: flex; align-items: center; gap: 8px;">
                     <span>Plana Docente:</span>
                     <strong style="color: #ffffff;">
                         {% for doc in curso.docentes.all %}
-                            Prof. {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif %}
+                        Prof. {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif %}
                         {% empty %}
-                            Sin docente asignado
+                        Sin docente asignado
                         {% endfor %}
                     </strong>
                 </div>
@@ -145,133 +154,155 @@
         </div>
 
         <!-- Layout con Sidebar y Contenidos -->
-       <!-- Layout con Sidebar y Contenidos -->
-<div class="course-layout">
-    
-    <!-- Barra Lateral Dinámica (Índice) -->
-    <aside class="course-sidebar">
-        <div class="sidebar-section-title">Navegación</div>
-        <a href="#seccion-general" class="sidebar-nav-link active">🏠 General y Avisos</a>
-        <a href="#" class="sidebar-nav-link">📢 Avisos y Foros</a>
-        <a href="#" class="sidebar-nav-link">📄 Sílabo del Curso</a>
+        <!-- Layout con Sidebar y Contenidos -->
+        <div class="course-layout">
 
-        <div class="sidebar-section-title">Semanas del Ciclo</div>
-        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
-            {% for bloque in bloques_semanas %}
-                <a href="#semana-{{ bloque.info.numero }}" class="sidebar-nav-link" style="font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
-                    <span>🗓️ Sem. {{ bloque.info.numero }}</span>
-                    {% if bloque.total_materiales > 0 %}
-                        <span style="background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px;">
+            <!-- Barra Lateral Dinámica (Índice) -->
+            <aside class="course-sidebar">
+                <div class="sidebar-section-title">Navegación</div>
+                <a href="#seccion-general" class="sidebar-nav-link active">🏠 General y Avisos</a>
+                <a href="#" class="sidebar-nav-link">📢 Avisos y Foros</a>
+                <a href="#" class="sidebar-nav-link">📄 Sílabo del Curso</a>
+
+                <div class="sidebar-section-title">Semanas del Ciclo</div>
+                <div
+                    style="display: flex; flex-direction: column; gap: 4px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
+                    {% for bloque in bloques_semanas %}
+                    <a href="#semana-{{ bloque.info.numero }}" class="sidebar-nav-link"
+                        style="font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🗓️ Sem. {{ bloque.info.numero }}</span>
+                        {% if bloque.total_materiales > 0 %}
+                        <span
+                            style="background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px;">
                             {{ bloque.total_materiales }}
                         </span>
-                    {% endif %}
-                </a>
-            {% empty %}
-                <span style="font-size: 12px; color: #94a3b8; padding: 6px 12px;">Sin semanas configuradas</span>
-            {% endfor %}
-        </div>
-    </aside>
-
-   <!-- Área de Materiales Organizada por Semanas -->
-<section class="course-main-content">
-    <div class="content-action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y Clases</h3>
-        {% if es_docente_curso %}
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <a href="{% url 'banco_preguntas_curso' curso.id %}" style="display: inline-flex; align-items: center; gap: 6px; background-color: #0284c7; color: #ffffff; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; transition: background 0.2s ease;">
-                    <span>📝</span> Banco de Preguntas
-                </a>
-                <a href="{% url 'subir_material' curso.id %}" class="btn-upload-material" style="background-color: #059669; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                    ➕ Subir Nuevo Material
-                </a>
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- Sección General fija con ancla -->
-    <details id="seccion-general" open style="margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
-        <summary style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0;">
-            <span style="color: #059669; font-size: 12px;">▼</span> General
-        </summary>
-        <div style="padding: 14px 18px;">
-            <div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px;">
-                <span style="font-size: 22px;">📢</span>
-                <div>
-                    <div style="font-size: 14px; font-weight: 600; color: #1e293b;">Avisos del Curso</div>
-                    <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas de la temporada</div>
+                        {% endif %}
+                    </a>
+                    {% empty %}
+                    <span style="font-size: 12px; color: #94a3b8; padding: 6px 12px;">Sin semanas configuradas</span>
+                    {% endfor %}
                 </div>
-            </div>
-        </div>
-    </details>
+            </aside>
 
-    <!-- Bloques de Semanas con ID para anclaje -->
-    {% if bloques_semanas %}
-        <div style="display: flex; flex-direction: column; gap: 14px;">
-            {% for bloque in bloques_semanas %}
-                <details id="semana-{{ bloque.info.numero }}" open style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
-                    <summary style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="color: #0284c7; font-size: 12px;">▼</span>
-                            <span>
-                                Semana {{ bloque.info.numero }}
-                                {% if bloque.info.inicio and bloque.info.fin %}
+            <!-- Área de Materiales Organizada por Semanas -->
+            <section class="course-main-content">
+                <div class="content-action-bar"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y
+                        Clases</h3>
+                    {% if es_docente_curso %}
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <a href="{% url 'banco_preguntas_curso' curso.id %}"
+                            style="display: inline-flex; align-items: center; gap: 6px; background-color: #0284c7; color: #ffffff; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; transition: background 0.2s ease;">
+                            <span>📝</span> Banco de Preguntas
+                        </a>
+                        <a href="{% url 'subir_material' curso.id %}" class="btn-upload-material"
+                            style="background-color: #059669; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                            ➕ Subir Nuevo Material
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Sección General fija con ancla -->
+                <details id="seccion-general" open
+                    style="margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
+                    <summary
+                        style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0;">
+                        <span style="color: #059669; font-size: 12px;">▼</span> General
+                    </summary>
+                    <div style="padding: 14px 18px;">
+                        <div
+                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px;">
+                            <span style="font-size: 22px;">📢</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #1e293b;">Avisos del Curso</div>
+                                <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas
+                                    de la temporada</div>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Bloques de Semanas con ID para anclaje -->
+                {% if bloques_semanas %}
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    {% for bloque in bloques_semanas %}
+                    <details id="semana-{{ bloque.info.numero }}" open
+                        style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
+                        <summary
+                            style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #0284c7; font-size: 12px;">▼</span>
+                                <span>
+                                    Semana {{ bloque.info.numero }}
+                                    {% if bloque.info.inicio and bloque.info.fin %}
                                     <small style="color: #64748b; font-weight: 500; margin-left: 6px;">
                                         ({{ bloque.info.inicio|date:"d/m" }} al {{ bloque.info.fin|date:"d/m" }})
                                     </small>
-                                {% endif %}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <span
+                                style="font-size: 11px; color: #64748b; font-weight: 500; background: #edf2f7; padding: 2px 8px; border-radius: 12px;">
+                                {{ bloque.total_recursos }} recurso(s)
                             </span>
-                        </div>
-                        <span style="font-size: 11px; color: #64748b; font-weight: 500; background: #edf2f7; padding: 2px 8px; border-radius: 12px;">
-                            {{ bloque.total_recursos }} recurso(s)
-                        </span>
-                    </summary>
-                    
-                    <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
-                        
-                        <!-- Exámenes programados para esta semana -->
-{% for ex in bloque.examenes %}
-    <div style="display: flex; justify-content: space-between; align-items: center; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; margin-bottom: 6px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="background: #dbeafe; width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
-                📝
-            </div>
-            <div>
-                <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #1e3a8a;">{{ ex.titulo }}</h4>
-                <div style="font-size: 12px; color: #3b82f6; margin-top: 2px;">
-                    Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }} preguntas
-                </div>
-            </div>
-        </div>
+                        </summary>
 
-        <div>
-            {% if es_docente_curso %}
-                <!-- Acciones exclusivas para Docente y Admin -->
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <a href="{% url 'banco_preguntas_curso' curso.id %}" style="display: inline-flex; align-items: center; background-color: #0284c7; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 12px; padding: 6px 12px; border-radius: 6px;">
-                        Gestionar Preguntas
-                    </a>
-                </div>
-            {% else %}
-                <!-- Acción exclusiva para Alumnos -->
-                <a href="{% url 'rendir_examen' ex.id %}" style="display: inline-flex; align-items: center; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 6px; transition: background 0.2s ease;">
-                    Rendir Evaluación →
-                </a>
-            {% endif %}
-        </div>
-    </div>
-{% endfor %}
+                        <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
 
-                        <!-- 2. Materiales de estudio habituales -->
-                        {% for mat in bloque.materiales %}
+                            <!-- Exámenes programados para esta semana -->
+                            {% for ex in bloque.examenes %}
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div
+                                        style="background: #dbeafe; width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                        📝
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #1e3a8a;">{{
+                                            ex.titulo }}</h4>
+                                        <div style="font-size: 12px; color: #3b82f6; margin-top: 2px;">
+                                            Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }}
+                                            preguntas
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    {% if es_docente_curso %}
+                                    <!-- Acciones exclusivas para Docente y Admin -->
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <a href="{% url 'banco_preguntas_curso' curso.id %}"
+                                            style="display: inline-flex; align-items: center; background-color: #0284c7; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 12px; padding: 6px 12px; border-radius: 6px;">
+                                            Gestionar Preguntas
+                                        </a>
+                                    </div>
+                                    {% else %}
+                                    <!-- Acción exclusiva para Alumnos -->
+                                    <a href="{% url 'rendir_examen' ex.id %}"
+                                        style="display: inline-flex; align-items: center; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 6px; transition: background 0.2s ease;">
+                                        Rendir Evaluación →
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                            <!-- 2. Materiales de estudio habituales -->
+                            {% for mat in bloque.materiales %}
                             <div class="material-item-card" style="margin: 0;">
                                 <div class="material-info">
-                                    <div class="material-icon-box {% if mat.archivo %}icon-file{% else %}icon-link{% endif %}">
+                                    <div
+                                        class="material-icon-box {% if mat.archivo %}icon-file{% else %}icon-link{% endif %}">
                                         {% if mat.archivo %}📄{% else %}🔗{% endif %}
                                     </div>
                                     <div class="material-details">
                                         <h4>{{ mat.titulo }}</h4>
                                         {% if mat.contenido %}
-                                            <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido }}</p>
+                                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido
+                                            }}</p>
                                         {% endif %}
                                         <span>Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
                                     </div>
@@ -279,47 +310,50 @@
 
                                 <div class="material-actions">
                                     {% if mat.archivo %}
-                                        <a href="{{ mat.archivo.url }}" class="btn-download-mat" target="_blank" download>
-                                            📥 Descargar
-                                        </a>
+                                    <a href="{{ mat.archivo.url }}" class="btn-download-mat" target="_blank" download>
+                                        📥 Descargar
+                                    </a>
                                     {% endif %}
-                                    
+
                                     {% if mat.enlace or mat.enlace_web %}
-                                        <a href="{{ mat.enlace|default:mat.enlace_web }}" class="btn-download-mat" target="_blank" style="background: #0284c7;">
-                                            🌐 Abrir Enlace
-                                        </a>
+                                    <a href="{{ mat.enlace|default:mat.enlace_web }}" class="btn-download-mat"
+                                        target="_blank" style="background: #0284c7;">
+                                        🌐 Abrir Enlace
+                                    </a>
                                     {% endif %}
 
                                     {% if es_docente_curso %}
-                                        <a href="{% url 'eliminar_material' mat.id %}" class="btn-delete-mat" onclick="return confirm('¿Estás seguro de eliminar este material?');">
-                                            🗑️
-                                        </a>
+                                    <a href="{% url 'eliminar_material' mat.id %}" class="btn-delete-mat"
+                                        onclick="return confirm('¿Estás seguro de eliminar este material?');">
+                                        🗑️
+                                    </a>
                                     {% endif %}
                                 </div>
                             </div>
-                        {% endfor %}
+                            {% endfor %}
 
-                        {% if not bloque.materiales and not bloque.examenes %}
+                            {% if not bloque.materiales and not bloque.examenes %}
                             <div style="text-align: center; padding: 12px; color: #94a3b8; font-size: 13px;">
                                 No hay actividades ni materiales asignados para esta semana aún.
                             </div>
-                        {% endif %}
+                            {% endif %}
 
-                    </div>
-                </details>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="empty-materials-state" style="margin-top: 10px;">
-            <p style="font-size: 32px; margin-bottom: 10px;">📂</p>
-            <p>Aún no se han configurado semanas ni publicado materiales en este curso.</p>
-        </div>
-    {% endif %}
-</section>
+                        </div>
+                    </details>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-materials-state" style="margin-top: 10px;">
+                    <p style="font-size: 32px; margin-bottom: 10px;">📂</p>
+                    <p>Aún no se han configurado semanas ni publicado materiales en este curso.</p>
+                </div>
+                {% endif %}
+            </section>
 
-</div>
+        </div>
 
     </main>
 
 </body>
+
 </html>

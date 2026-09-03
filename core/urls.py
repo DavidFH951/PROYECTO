@@ -65,6 +65,8 @@ urlpatterns = [
 
 
     path('examen/<int:examen_id>/rendir/', views.rendir_examen, name='rendir_examen'),
+    path('curso/<int:curso_id>/importar-preguntas/', views.importar_preguntas_curso, name='importar_preguntas_curso'),
+    path('preguntas/descargar-plantilla/', views.descargar_plantilla_preguntas, name='descargar_plantilla_preguntas'),
 ]
 
 # Servir archivos multimedia subidos en desarrollo
