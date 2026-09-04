@@ -877,29 +877,31 @@ def banco_preguntas_curso(request, curso_id):
 def rendir_examen(request, examen_id):
     examen = get_object_or_404(Examen, id=examen_id)
 
-    # 1. Validar permisos y ventana horaria
+    # 1. Validación de disponibilidad para alumnos
     es_docente = (
         examen.curso.docentes.filter(id=request.user.id).exists()
         or request.user.is_staff
         or request.user.is_superuser
     )
+    if not es_docente and not examen.esta_disponible:
+        messages.error(request, f"Acceso restringido: {examen.estado_texto}.")
+        return redirect('detalle_curso', curso_id=examen.curso.id)
 
-    if not es_docente:
-        if not examen.esta_disponible:
-            messages.error(request, f"Acceso restringido: {examen.estado_texto}.")
-            return redirect('detalle_curso', curso_id=examen.curso.id)
+    # 2. Obtener preguntas aleatorias (Pool)
+    queryset_preguntas = examen.preguntas.order_by('?')
+    if examen.cantidad_preguntas_aleatorias > 0:
+        preguntas = list(queryset_preguntas[:examen.cantidad_preguntas_aleatorias])
+    else:
+        preguntas = list(queryset_preguntas)
 
-    # 2. Obtener preguntas en orden aleatorio
-    preguntas = list(examen.preguntas.order_by('?'))
-
-    # 3. Asignar alternativas desordenadas a cada pregunta
+    # 3. Barajar alternativas
     for pregunta in preguntas:
         pregunta.opciones_aleatorias = list(pregunta.opciones.order_by('?'))
 
-    # 4. Procesar respuestas al enviar el formulario
+    # 4. Calificación sobre las preguntas que realmente le tocaron
     if request.method == 'POST':
         puntaje_total = 0.0
-
+        # Evaluamos solo sobre las preguntas que se enviaron en el intento
         for pregunta in examen.preguntas.all():
             opcion_seleccionada_id = request.POST.get(f'pregunta_{pregunta.id}')
             if opcion_seleccionada_id:
@@ -910,23 +912,17 @@ def rendir_examen(request, examen_id):
                 except Opcion.DoesNotExist:
                     pass
 
-        # Registrar el intento y la nota del alumno
-        intento = IntentoExamen.objects.create(
+        IntentoExamen.objects.create(
             alumno=request.user,
             examen=examen,
             nota=puntaje_total,
             completado=True,
             fecha_fin=timezone.now()
         )
-
         messages.success(request, f"Examen finalizado. Tu puntaje obtenido es: {puntaje_total} puntos.")
         return redirect('detalle_curso', curso_id=examen.curso.id)
 
-    context = {
-        'examen': examen,
-        'preguntas': preguntas,
-    }
-    return render(request, 'rendir_examen.html', context)
+    return render(request, 'rendir_examen.html', {'examen': examen, 'preguntas': preguntas})
 
 @login_required
 def descargar_plantilla_preguntas(request):
@@ -1276,3 +1272,23 @@ def eliminar_examen(request, examen_id):
     examen.delete()
     messages.success(request, f"Evaluación '{titulo}' eliminada del sistema.")
     return redirect('detalle_curso', curso_id=curso_id)
+
+@login_required
+def eliminar_pregunta(request, pregunta_id):
+    """Permite al docente o administrador eliminar una pregunta específica de una evaluación."""
+    pregunta = get_object_or_404(Pregunta, id=pregunta_id)
+    curso = pregunta.examen.curso
+
+    # Validar que el usuario sea docente asignado al curso, staff o superusuario
+    es_docente = (
+        curso.docentes.filter(id=request.user.id).exists()
+        or request.user.is_staff
+        or request.user.is_superuser
+    )
+    if not es_docente:
+        return HttpResponseForbidden("No tienes permisos para eliminar preguntas de este curso.")
+
+    # Eliminar la pregunta (sus opciones asociadas se eliminan en cascada)
+    pregunta.delete()
+    messages.success(request, "Pregunta eliminada correctamente del banco de la evaluación.")
+    return redirect('banco_preguntas_curso', curso_id=curso.id)

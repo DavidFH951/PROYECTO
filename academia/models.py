@@ -247,6 +247,10 @@ class Examen(models.Model):
     fecha_cierre = models.DateTimeField(null=True, blank=True, verbose_name="Fecha y hora de cierre")
     activo = models.BooleanField(default=True, verbose_name="Habilitado")
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+    cantidad_preguntas_aleatorias = models.PositiveIntegerField(
+        default=0,
+        help_text="0 para mostrar todas las preguntas registradas, o un número (ej. 10) para extraer aleatoriamente solo esa cantidad del banco."
+    )
 
     class Meta:
         verbose_name = "Examen / Evaluación"
