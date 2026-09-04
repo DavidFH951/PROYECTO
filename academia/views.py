@@ -27,7 +27,8 @@ from .models import (
     Pregunta, 
     Opcion, 
     IntentoExamen, 
-    RespuestaEstudiante
+    RespuestaEstudiante,
+    Asistencia, HorarioCurso
 )
 from .forms import (
     RegistroUsuarioForm, 
