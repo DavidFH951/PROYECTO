@@ -1,5 +1,6 @@
 from datetime import date, datetime, timedelta
 import math
+import re
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -75,6 +76,15 @@ class Curso(models.Model):
     periodo = models.ForeignKey(PeriodoAcademico, on_delete=models.SET_NULL, related_name='cursos', null=True, blank=True)
     estado = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+    formula_evaluacion = models.CharField(
+        max_length=255,
+        default="(N1 + N2 + N3) / 3",
+        verbose_name="Fórmula de Promedio",
+        help_text="Usa las variables N1, N2, N3. Ejemplo: (N1*0.2) + (N2*0.3) + (N3*0.5)"
+    )
+    etiqueta_n1 = models.CharField(max_length=50, default="Nota 1 (Teoría)", verbose_name="Etiqueta N1")
+    etiqueta_n2 = models.CharField(max_length=50, default="Nota 2 (Práctica)", verbose_name="Etiqueta N2")
+    etiqueta_n3 = models.CharField(max_length=50, default="Nota 3 (Examen Final)", verbose_name="Etiqueta N3")
 
     class Meta:
         verbose_name = "Curso"
@@ -88,7 +98,43 @@ class Curso(models.Model):
     def docentes_nombres(self):
         nombres = [d.get_full_name() or d.username for d in self.docentes.all()]
         return ", ".join(nombres) if nombres else "Sin asignar"
+class Calificacion(models.Model):
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='calificaciones')
+    alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='calificaciones')
+    nota1 = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    nota2 = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    nota3 = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    promedio = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
 
+    def calcular_promedio(self):
+        """Evalúa la fórmula configurada en el curso de manera segura."""
+        n1 = float(self.nota1 or 0)
+        n2 = float(self.nota2 or 0)
+        n3 = float(self.nota3 or 0)
+
+        # Si no tiene ninguna nota ingresada
+        if self.nota1 is None and self.nota2 is None and self.nota3 is None:
+            self.promedio = None
+            return
+
+        formula = self.curso.formula_evaluacion.upper()
+        # Reemplazar variables por sus valores
+        formula_eval = formula.replace('N1', str(n1)).replace('N2', str(n2)).replace('N3', str(n3))
+
+        # Validar caracteres permitidos por seguridad (solo números y operadores matemáticos)
+        if re.match(r'^[0-9\.\+\-\*\/\(\)\s]+$', formula_eval):
+            try:
+                resultado = eval(formula_eval, {"__builtins__": None}, {})
+                self.promedio = round(max(0.0, min(20.0, float(resultado))), 2)
+            except Exception:
+                # Fallback en caso de división por cero o error sintáctico
+                self.promedio = round((n1 + n2 + n3) / 3, 2)
+        else:
+            self.promedio = round((n1 + n2 + n3) / 3, 2)
+
+    def save(self, *args, **kwargs):
+        self.calcular_promedio()
+        super().save(*args, **kwargs)
 
 # ----------------------------------------------------
 # 2. MODELO MATERIAL DE CLASE

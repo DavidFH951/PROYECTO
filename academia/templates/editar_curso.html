@@ -57,12 +57,12 @@
             
             <div class="card-formulario-header">
                 <h2>📚 Editar Curso: {{ curso.titulo }}</h2>
-                <p>Modifica los detalles de la materia, asignación de docentes o visibilidad en la plataforma.</p>
+                <p>Modifica los detalles de la materia, asignación de docentes, fórmulas de calificación o visibilidad.</p>
             </div>
 
             <div class="card-formulario-body">
-               <form method="POST" action="{% url 'admin_editar_curso' curso.id %}" enctype="multipart/form-data">
-    {% csrf_token %}
+                <form method="POST" action="{% url 'admin_editar_curso' curso.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
 
                     <div style="display: flex; flex-direction: column; gap: 20px;">
 
@@ -98,8 +98,42 @@
                             </div>
                         </div>
 
-                        <!-- Imagen de Portada -->
+                        <!-- Sistema de Evaluación y Fórmulas -->
+                        <div class="campo-form" style="border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                            <label class="label-form" for="formula_evaluacion">📐 Fórmula de Promedio Final *</label>
+                            <input type="text" 
+                                   id="formula_evaluacion" 
+                                   name="formula_evaluacion" 
+                                   class="input-form" 
+                                   value="{{ curso.formula_evaluacion|default:'(N1 + N2 + N3) / 3' }}" 
+                                   required 
+                                   style="font-family: monospace; font-size: 14px;">
+                            <small style="color: #64748b; font-size: 12px; display: block; margin-top: 4px;">
+                                Usa las variables <strong>N1</strong>, <strong>N2</strong>, <strong>N3</strong>. Ejemplo ponderado: <code>(N1*0.2) + (N2*0.3) + (N3*0.5)</code> o <code>(N1 + N2 + N3) / 3</code>.
+                            </small>
+                        </div>
+
+                        <!-- Nombres Personalizados de las Notas -->
                         <div class="campo-form">
+                            <label class="label-form">Etiquetas de Calificaciones (Nombres de las columnas)</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label class="label-form" for="etiqueta_n1" style="font-size: 12px; margin-bottom: 2px;">Nota 1 (N1):</label>
+                                    <input type="text" id="etiqueta_n1" name="etiqueta_n1" class="input-form" value="{{ curso.etiqueta_n1|default:'Nota 1 (Teoría)' }}" required>
+                                </div>
+                                <div>
+                                    <label class="label-form" for="etiqueta_n2" style="font-size: 12px; margin-bottom: 2px;">Nota 2 (N2):</label>
+                                    <input type="text" id="etiqueta_n2" name="etiqueta_n2" class="input-form" value="{{ curso.etiqueta_n2|default:'Nota 2 (Práctica)' }}" required>
+                                </div>
+                                <div>
+                                    <label class="label-form" for="etiqueta_n3" style="font-size: 12px; margin-bottom: 2px;">Nota 3 (N3):</label>
+                                    <input type="text" id="etiqueta_n3" name="etiqueta_n3" class="input-form" value="{{ curso.etiqueta_n3|default:'Nota 3 (Examen Final)' }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Imagen de Portada -->
+                        <div class="campo-form" style="border-top: 1px solid #e2e8f0; padding-top: 16px;">
                             <label class="label-form" for="imagen_portada">🖼️ Imagen de Portada del Curso</label>
                             {% if curso.imagen_portada %}
                                 <div style="margin-bottom: 8px;">

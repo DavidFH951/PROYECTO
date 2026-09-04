@@ -293,24 +293,28 @@ def eliminar_material(request, material_id):
 
 @login_required
 def docente_calificar_curso(request, curso_id):
-    """Planilla de notas de alumnos inscritos en el curso."""
+    """Planilla de notas de alumnos inscritos con cálculo dinámico según la fórmula del curso."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not es_docente_del_curso(request.user, curso):
         messages.error(request, "No tienes permisos para calificar en este curso.")
         return redirect('panel_docente')
 
-    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno')
+    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
 
     def parsear_nota(valor):
+        """Valida y convierte la nota asegurando el rango vigesimal (0.00 a 20.00)."""
         if valor is not None and str(valor).strip() != '':
             try:
-                return float(valor)
+                nota_float = round(float(valor.replace(',', '.')), 2)
+                return max(0.0, min(20.0, nota_float))
             except ValueError:
                 return None
         return None
 
     if request.method == 'POST':
+        alumnos_actualizados = 0
+
         for insc in inscripciones:
             alumno_id = str(insc.alumno.id)
             n1 = request.POST.get(f'nota1_{alumno_id}')
@@ -321,14 +325,20 @@ def docente_calificar_curso(request, curso_id):
             calificacion.nota1 = parsear_nota(n1)
             calificacion.nota2 = parsear_nota(n2)
             calificacion.nota3 = parsear_nota(n3)
-            calificacion.save()
+            calificacion.save()  # Ejecuta calcular_promedio() con la fórmula del curso
+            alumnos_actualizados += 1
 
-        registrar_log(request, "Registro de Calificaciones", f"Actualizó notas del curso '{curso.titulo}'")
-        messages.success(request, "Las calificaciones se guardaron correctamente.")
+        registrar_log(
+            request, 
+            "Registro de Calificaciones", 
+            f"Actualizó notas para {alumnos_actualizados} estudiante(s) en '{curso.titulo}' aplicando fórmula '{curso.formula_evaluacion}'"
+        )
+        messages.success(request, f"Las calificaciones y promedios se calcularon y guardaron exitosamente ({alumnos_actualizados} alumnos).")
         return redirect('docente_calificar_curso', curso_id=curso.id)
 
     calificaciones_dict = {c.alumno_id: c for c in Calificacion.objects.filter(curso=curso)}
     filas_calificaciones = []
+
     for insc in inscripciones:
         calif = calificaciones_dict.get(insc.alumno.id)
         filas_calificaciones.append({
@@ -336,14 +346,19 @@ def docente_calificar_curso(request, curso_id):
             'nota1': calif.nota1 if calif and calif.nota1 is not None else '',
             'nota2': calif.nota2 if calif and calif.nota2 is not None else '',
             'nota3': calif.nota3 if calif and calif.nota3 is not None else '',
-            'promedio': calif.promedio if calif and hasattr(calif, 'promedio') else None
+            'promedio': calif.promedio if calif and calif.promedio is not None else None
         })
 
-    return render(request, 'docente_calificar.html', {
+    context = {
         'curso': curso,
-        'filas_calificaciones': filas_calificaciones
-    })
+        'filas_calificaciones': filas_calificaciones,
+        'formula_evaluacion': curso.formula_evaluacion,
+        'etiqueta_n1': curso.etiqueta_n1,
+        'etiqueta_n2': curso.etiqueta_n2,
+        'etiqueta_n3': curso.etiqueta_n3,
+    }
 
+    return render(request, 'docente_calificar.html', context)
 
 # ==============================================================================
 # 5. MÓDULO DE EVALUACIONES, EXÁMENES Y BANCO DE PREGUNTAS
@@ -971,7 +986,11 @@ def admin_crear_curso(request):
             titulo=titulo,
             descripcion=descripcion,
             estado=estado,
-            imagen_portada=imagen
+            imagen_portada=imagen,
+            formula_evaluacion=request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3'),
+            etiqueta_n1=request.POST.get('etiqueta_n1', 'Nota 1'),
+            etiqueta_n2=request.POST.get('etiqueta_n2', 'Nota 2'),
+            etiqueta_n3=request.POST.get('etiqueta_n3', 'Nota 3')
         )
         
         docentes_ids = request.POST.getlist('docentes')
@@ -988,27 +1007,41 @@ def admin_crear_curso(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_editar_curso(request, curso_id):
-    """Edición de información y plana docente de un curso."""
+    """Edición de información, plana docente y sistema de evaluación/fórmulas de un curso."""
     curso = get_object_or_404(Curso, id=curso_id)
-    
+
     if request.method == 'POST':
         curso.titulo = request.POST.get('titulo')
         curso.descripcion = request.POST.get('descripcion')
         curso.estado = True if request.POST.get('estado') else False
-        
+
         if 'imagen_portada' in request.FILES:
             curso.imagen_portada = request.FILES['imagen_portada']
-            
+
+        # Asignación de plana docente
         docentes_ids = request.POST.getlist('docentes')
         curso.docentes.set(docentes_ids)
+
+        # Configuración de fórmulas y nombres de notas
+        curso.formula_evaluacion = request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3').strip()
+        curso.etiqueta_n1 = request.POST.get('etiqueta_n1', 'Nota 1 (Teoría)').strip()
+        curso.etiqueta_n2 = request.POST.get('etiqueta_n2', 'Nota 2 (Práctica)').strip()
+        curso.etiqueta_n3 = request.POST.get('etiqueta_n3', 'Nota 3 (Examen Final)').strip()
         curso.save()
-        
-        messages.success(request, f"Curso '{curso.titulo}' actualizado.")
+
+        # Recalcular automáticamente los promedios existentes con la nueva fórmula
+        for calificacion in curso.calificaciones.all():
+            calificacion.save()
+
+        messages.success(request, f"Curso '{curso.titulo}' y su sistema de evaluación se actualizaron exitosamente.")
         return redirect('admin_cursos_lista')
 
     docentes = User.objects.filter(groups__name='Docentes')
-    return render(request, 'editar_curso.html', {'curso': curso, 'docentes': docentes})
-
+    context = {
+        'curso': curso,
+        'docentes': docentes,
+    }
+    return render(request, 'editar_curso.html', context)
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
