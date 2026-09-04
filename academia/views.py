@@ -2,7 +2,7 @@ import csv
 import io
 
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -748,6 +748,28 @@ def ver_detalle_intento(request, intento_id):
     }
     return render(request, 'revision_examen.html', context)
 
+@login_required
+def finalizar_examen_docente(request, examen_id):
+    """Permite al docente o admin cerrar el examen de golpe para todos los alumnos."""
+    examen = get_object_or_404(Examen, id=examen_id)
+    if not es_docente_del_curso(request.user, examen.curso):
+        return HttpResponseForbidden("No tienes permisos para cerrar este examen.")
+
+    examen.cerrado_manualmente = True
+    examen.activo = False
+    examen.save()
+
+    messages.warning(request, f"La evaluación '{examen.titulo}' ha sido cerrada definitivamente por el docente. Las pruebas en curso se enviarán automáticamente.")
+    return redirect('detalle_curso', curso_id=examen.curso.id)
+
+
+@login_required
+def verificar_estado_examen(request, examen_id):
+    """Endpoint consultado en segundo plano por el navegador del estudiante."""
+    examen = get_object_or_404(Examen, id=examen_id)
+    return JsonResponse({
+        'cerrado': examen.cerrado_manualmente or not examen.activo
+    })
 # ==============================================================================
 # 6. MÓDULO ADMINISTRADOR (DASHBOARD, USUARIOS Y MATRÍCULAS)
 # ==============================================================================

@@ -116,6 +116,23 @@
 
         actualizarReloj();
         const intervalo = setInterval(actualizarReloj, 1000);
+
+    // Verificar cada 5 segundos si el docente dio la orden de cierre
+const urlVerificar = "{% url 'verificar_estado_examen' examen.id %}";
+
+const monitorDocente = setInterval(() => {
+    fetch(urlVerificar)
+        .then(response => response.json())
+        .then(data => {
+            if (data.cerrado) {
+                clearInterval(monitorDocente);
+                clearInterval(intervalo);
+                alert("El docente ha finalizado la evaluación. Tus respuestas se enviarán automáticamente en este momento.");
+                formulario.submit();
+            }
+        })
+        .catch(err => console.error("Error comprobando estado:", err));
+}, 5000);
     </script>
 </body>
 

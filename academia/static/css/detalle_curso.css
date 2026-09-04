@@ -689,3 +689,12 @@ body {
 .btn-eliminar-examen:hover {
     background-color: #fecaca;
 }
+.btn-finalizar-forzado {
+    background-color: #be123c;
+    color: #ffffff;
+    padding: 6px 10px;
+}
+
+.btn-finalizar-forzado:hover {
+    background-color: #9f1239;
+}

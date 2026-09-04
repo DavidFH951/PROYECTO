@@ -256,6 +256,11 @@ class Examen(models.Model):
         verbose_name="Intentos Permitidos",
         help_text="Número máximo de veces que un estudiante puede rendir esta prueba."
     )
+    cerrado_manualmente = models.BooleanField(
+        default=False,
+        verbose_name="Cerrado Manualmente por Docente",
+        help_text="Si está activo, fuerza el autoenvío de las evaluaciones en curso."
+    )
     @property
     def revision_disponible(self):
         """Permite ver respuestas correctas solo cuando ya venció la fecha de cierre."""

@@ -53,11 +53,11 @@
                     </div>
                     <span class="dropdown-user-badge">
                         {% if request.user.is_staff or request.user.is_superuser %}
-                            Administrador
+                        Administrador
                         {% elif es_docente_curso %}
-                            Docente
+                        Docente
                         {% else %}
-                            Alumno
+                        Alumno
                         {% endif %}
                     </span>
                 </div>
@@ -77,7 +77,8 @@
         {% if messages %}
         <div style="margin-bottom: 20px;">
             {% for message in messages %}
-            <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+            <div
+                style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
                 <span>✅</span>
                 <span>{{ message }}</span>
             </div>
@@ -92,37 +93,45 @@
             {% if curso.imagen_portada %}
             <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}"
                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)); z-index: 1;"></div>
+            <div
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)); z-index: 1;">
+            </div>
             {% else %}
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); z-index: 1;"></div>
+            <div
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); z-index: 1;">
+            </div>
             {% endif %}
 
             <div style="position: relative; z-index: 2;">
-                <span style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.3);">
+                <span
+                    style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.3);">
                     {% if curso.periodo %}
-                        Período: {{ curso.periodo.nombre }} ({{ curso.periodo.codigo }})
+                    Período: {{ curso.periodo.nombre }} ({{ curso.periodo.codigo }})
                     {% else %}
-                        Período Académico Activo
+                    Período Académico Activo
                     {% endif %}
                 </span>
 
-                <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0 0 6px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                <h1
+                    style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0 0 6px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                     {{ curso.titulo }}
                 </h1>
 
                 {% if curso.descripcion %}
-                <p style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin: 0 0 15px 0; max-width: 800px; line-height: 1.4;">
+                <p
+                    style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin: 0 0 15px 0; max-width: 800px; line-height: 1.4;">
                     {{ curso.descripcion }}
                 </p>
                 {% endif %}
 
-                <div style="font-size: 13px; color: rgba(255, 255, 255, 0.85); font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                <div
+                    style="font-size: 13px; color: rgba(255, 255, 255, 0.85); font-weight: 500; display: flex; align-items: center; gap: 8px;">
                     <span>Plana Docente:</span>
                     <strong style="color: #ffffff;">
                         {% for doc in curso.docentes.all %}
-                            Prof. {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif %}
+                        Prof. {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif %}
                         {% empty %}
-                            Sin docente asignado
+                        Sin docente asignado
                         {% endfor %}
                     </strong>
                 </div>
@@ -140,13 +149,15 @@
                 <a href="#" class="sidebar-nav-link">📄 Sílabo del Curso</a>
 
                 <div class="sidebar-section-title">Semanas del Ciclo</div>
-                <div style="display: flex; flex-direction: column; gap: 4px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
+                <div
+                    style="display: flex; flex-direction: column; gap: 4px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
                     {% for bloque in bloques_semanas %}
                     <a href="#semana-{{ bloque.info.numero }}" class="sidebar-nav-link"
                         style="font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
                         <span>🗓️ Sem. {{ bloque.info.numero }}</span>
                         {% if bloque.total_recursos > 0 %}
-                        <span style="background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px;">
+                        <span
+                            style="background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px;">
                             {{ bloque.total_recursos }}
                         </span>
                         {% endif %}
@@ -159,12 +170,15 @@
 
             <!-- Área de Materiales y Evaluaciones por Semanas -->
             <section class="course-main-content">
-                <div class="content-action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y Clases</h3>
-                    
+                <div class="content-action-bar"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y
+                        Clases</h3>
+
                     {% if es_docente_curso %}
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <button type="button" onclick="document.getElementById('modal-crear-examen').style.display='flex'"
+                        <button type="button"
+                            onclick="document.getElementById('modal-crear-examen').style.display='flex'"
                             style="background-color: #2563eb; color: #ffffff; padding: 8px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                             ➕ Programar Examen
                         </button>
@@ -182,57 +196,91 @@
 
                 <!-- Modal de Creación Rápida de Examen -->
                 {% if es_docente_curso %}
-                <div id="modal-crear-examen" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center;">
-                    <div style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 500px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <h4 style="margin: 0; font-size: 17px; color: #0f172a; font-weight: 700;">Programar Nueva Evaluación</h4>
-                            <button type="button" onclick="document.getElementById('modal-crear-examen').style.display='none'" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
+                <div id="modal-crear-examen"
+                    style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center;">
+                    <div
+                        style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 500px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4 style="margin: 0; font-size: 17px; color: #0f172a; font-weight: 700;">Programar Nueva
+                                Evaluación</h4>
+                            <button type="button"
+                                onclick="document.getElementById('modal-crear-examen').style.display='none'"
+                                style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
                         </div>
-                        <form action="{% url 'crear_examen_curso' curso.id %}" method="POST" style="display: flex; flex-direction: column; gap: 14px;">
+                        <form action="{% url 'crear_examen_curso' curso.id %}" method="POST"
+                            style="display: flex; flex-direction: column; gap: 14px;">
                             {% csrf_token %}
                             <div>
-                                <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Título de la Evaluación:</label>
-                                <input type="text" name="titulo" placeholder="Ej: Examen Parcial / Test Clínico" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
+                                <label
+                                    style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Título
+                                    de la Evaluación:</label>
+                                <input type="text" name="titulo" placeholder="Ej: Examen Parcial / Test Clínico"
+                                    required
+                                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
                             </div>
-                            
+
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                                 <div>
-                                    <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Semana:</label>
-                                    <select name="semana" required style="width: 100%; padding: 9px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px; background: white;">
+                                    <label
+                                        style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Semana:</label>
+                                    <select name="semana" required
+                                        style="width: 100%; padding: 9px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px; background: white;">
                                         {% for sem in cronograma %}
-                                            <option value="{{ sem.numero }}">{{ sem.etiqueta|default:"Semana" }} {{ sem.numero }}</option>
+                                        <option value="{{ sem.numero }}">{{ sem.etiqueta|default:"Semana" }} {{
+                                            sem.numero }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div>
-                                    <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Tiempo (min):</label>
-                                    <input type="number" name="duracion_minutos" value="60" min="5" required style="width: 100%; padding: 9px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
+                                    <label
+                                        style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Tiempo
+                                        (min):</label>
+                                    <input type="number" name="duracion_minutos" value="60" min="5" required
+                                        style="width: 100%; padding: 9px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">N° Intentos:</label>
-                                    <input type="number" name="intentos_permitidos" value="1" min="1" max="10" required style="width: 100%; padding: 9px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
+                                    <label
+                                        style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">N°
+                                        Intentos:</label>
+                                    <input type="number" name="intentos_permitidos" value="1" min="1" max="10" required
+                                        style="width: 100%; padding: 9px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
                                 </div>
                             </div>
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                                 <div>
-                                    <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Apertura (opcional):</label>
-                                    <input type="datetime-local" name="fecha_apertura" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
+                                    <label
+                                        style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Apertura
+                                        (opcional):</label>
+                                    <input type="datetime-local" name="fecha_apertura"
+                                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Cierre (opcional):</label>
-                                    <input type="datetime-local" name="fecha_cierre" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
+                                    <label
+                                        style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Cierre
+                                        (opcional):</label>
+                                    <input type="datetime-local" name="fecha_cierre"
+                                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
                                 </div>
                             </div>
 
                             <div>
-                                <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Instrucciones (opcional):</label>
-                                <textarea name="descripcion" rows="2" placeholder="Instrucciones para los postulantes..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;"></textarea>
+                                <label
+                                    style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Instrucciones
+                                    (opcional):</label>
+                                <textarea name="descripcion" rows="2"
+                                    placeholder="Instrucciones para los postulantes..."
+                                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;"></textarea>
                             </div>
 
                             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
-                                <button type="button" onclick="document.getElementById('modal-crear-examen').style.display='none'" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #475569;">Cancelar</button>
-                                <button type="submit" style="padding: 9px 18px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">Crear Evaluación</button>
+                                <button type="button"
+                                    onclick="document.getElementById('modal-crear-examen').style.display='none'"
+                                    style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #475569;">Cancelar</button>
+                                <button type="submit"
+                                    style="padding: 9px 18px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">Crear
+                                    Evaluación</button>
                             </div>
                         </form>
                     </div>
@@ -240,16 +288,20 @@
                 {% endif %}
 
                 <!-- Sección General fija con ancla -->
-                <details id="seccion-general" open style="margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
-                    <summary style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0;">
+                <details id="seccion-general" open
+                    style="margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
+                    <summary
+                        style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0;">
                         <span style="color: #059669; font-size: 12px;">▼</span> General
                     </summary>
                     <div style="padding: 14px 18px;">
-                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px;">
+                        <div
+                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px;">
                             <span style="font-size: 22px;">📢</span>
                             <div>
                                 <div style="font-size: 14px; font-weight: 600; color: #1e293b;">Avisos del Curso</div>
-                                <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas de la temporada</div>
+                                <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas
+                                    de la temporada</div>
                             </div>
                         </div>
                     </div>
@@ -259,8 +311,10 @@
                 {% if bloques_semanas %}
                 <div style="display: flex; flex-direction: column; gap: 14px;">
                     {% for bloque in bloques_semanas %}
-                    <details id="semana-{{ bloque.info.numero }}" open style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
-                        <summary style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
+                    <details id="semana-{{ bloque.info.numero }}" open
+                        style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; scroll-margin-top: 20px;">
+                        <summary
+                            style="padding: 14px 18px; background: #f8fafc; font-weight: 700; font-size: 14px; color: #1e293b; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span style="color: #0284c7; font-size: 12px;">▼</span>
                                 <span>
@@ -272,7 +326,8 @@
                                     {% endif %}
                                 </span>
                             </div>
-                            <span style="font-size: 11px; color: #64748b; font-weight: 500; background: #edf2f7; padding: 2px 8px; border-radius: 12px;">
+                            <span
+                                style="font-size: 11px; color: #64748b; font-weight: 500; background: #edf2f7; padding: 2px 8px; border-radius: 12px;">
                                 {{ bloque.total_recursos }} recurso(s)
                             </span>
                         </summary>
@@ -281,19 +336,25 @@
 
                             <!-- 1. Exámenes programados para esta semana específica -->
                             {% for ex in bloque.examenes %}
-                            <div class="card-examen-item {% if ex.activo %}examen-card-activa{% else %}examen-card-pausada{% endif %}">
+                            <div
+                                class="card-examen-item {% if ex.activo %}examen-card-activa{% else %}examen-card-pausada{% endif %}">
                                 <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div class="examen-icono-box {% if ex.activo %}icono-activo{% else %}icono-pausado{% endif %}">
+                                    <div
+                                        class="examen-icono-box {% if ex.activo %}icono-activo{% else %}icono-pausado{% endif %}">
                                         📝
                                     </div>
                                     <div>
                                         <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #1e3a8a;">
-                                            {{ ex.titulo }}{% if not ex.activo %}<span style="font-size: 11px; background: #fee2e2; color: #b91c1c; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600;">Pausado / Oculto</span>{% endif %}
+                                            {{ ex.titulo }}{% if not ex.activo %}<span
+                                                style="font-size: 11px; background: #fee2e2; color: #b91c1c; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600;">Pausado
+                                                / Oculto</span>{% endif %}
                                         </h4>
                                         <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
-                                            Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }} preguntas &bull; Máx. {{ ex.intentos_permitidos }} intento(s)
+                                            Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }}
+                                            preguntas &bull; Máx. {{ ex.intentos_permitidos }} intento(s)
                                             {% if ex.fecha_apertura and ex.fecha_cierre %}
-                                                &bull; {{ ex.fecha_apertura|date:"d/m H:i" }} a {{ ex.fecha_cierre|date:"d/m H:i" }}
+                                            &bull; {{ ex.fecha_apertura|date:"d/m H:i" }} a {{ ex.fecha_cierre|date:"d/m
+                                            H:i" }}
                                             {% endif %}
                                         </div>
                                     </div>
@@ -303,12 +364,22 @@
                                     {% if es_docente_curso %}
                                     <div class="examen-actions-group">
                                         <!-- Botón de Entregas y Auditoría Docente -->
-                                        <a href="{% url 'ver_intentos_examen' ex.id %}" class="btn-action-base btn-entregas" title="Ver lista de alumnos que rindieron el examen">
+                                        <a href="{% url 'ver_intentos_examen' ex.id %}"
+                                            class="btn-action-base btn-entregas"
+                                            title="Ver lista de alumnos que rindieron el examen">
                                             📊 Ver Entregas ({{ ex.intentos.count }})
                                         </a>
 
-                                        <a href="{% url 'banco_preguntas_curso' curso.id %}" class="btn-action-base btn-gestionar">
+                                        <a href="{% url 'banco_preguntas_curso' curso.id %}"
+                                            class="btn-action-base btn-gestionar">
                                             Gestionar Preguntas
+                                        </a>
+                                        <!-- Botón para forzar envío masivo -->
+                                        <a href="{% url 'finalizar_examen_docente' ex.id %}"
+                                            onclick="return confirm('¿Estás seguro de finalizar el examen ahora? Todos los alumnos que lo estén rindiendo enviarán automáticamente sus respuestas con lo que tengan avanzado.');"
+                                            class="btn-action-base btn-finalizar-forzado"
+                                            title="Finalizar evaluación y autoenviar para todos">
+                                            ⏹ Finalizar Examen
                                         </a>
 
                                         {% if ex.activo %}
@@ -328,16 +399,17 @@
                                         </a>
                                     </div>
                                     {% else %}
-                                        {% if ex.esta_disponible %}
-                                        <a href="{% url 'rendir_examen' ex.id %}"
-                                            style="display: inline-flex; align-items: center; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 6px;">
-                                            Rendir Evaluación →
-                                        </a>
-                                        {% else %}
-                                        <span style="display: inline-flex; align-items: center; gap: 4px; background-color: #f1f5f9; color: #64748b; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                                            🔒 {{ ex.estado_texto }}
-                                        </span>
-                                        {% endif %}
+                                    {% if ex.esta_disponible %}
+                                    <a href="{% url 'rendir_examen' ex.id %}"
+                                        style="display: inline-flex; align-items: center; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 6px;">
+                                        Rendir Evaluación →
+                                    </a>
+                                    {% else %}
+                                    <span
+                                        style="display: inline-flex; align-items: center; gap: 4px; background-color: #f1f5f9; color: #64748b; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                        🔒 {{ ex.estado_texto }}
+                                    </span>
+                                    {% endif %}
                                     {% endif %}
                                 </div>
                             </div>
@@ -347,13 +419,15 @@
                             {% for mat in bloque.materiales %}
                             <div class="material-item-card" style="margin: 0;">
                                 <div class="material-info">
-                                    <div class="material-icon-box {% if mat.archivo %}icon-file{% else %}icon-link{% endif %}">
+                                    <div
+                                        class="material-icon-box {% if mat.archivo %}icon-file{% else %}icon-link{% endif %}">
                                         {% if mat.archivo %}📄{% else %}🔗{% endif %}
                                     </div>
                                     <div class="material-details">
                                         <h4>{{ mat.titulo }}</h4>
                                         {% if mat.contenido %}
-                                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido }}</p>
+                                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido
+                                            }}</p>
                                         {% endif %}
                                         <span>Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
                                     </div>
