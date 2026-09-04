@@ -76,6 +76,8 @@ urlpatterns = [
     path('panel-admin/descargar-plantilla/', views.descargar_plantilla_usuarios, name='descargar_plantilla_usuarios'),
     path('panel-admin/exportar/usuarios-csv/', views.exportar_usuarios_csv, name='exportar_usuarios_csv'),
 
+    path('docente/curso/<int:curso_id>/asistencia/', views.docente_asistencia_curso, name='docente_asistencia_curso'),
+
     # Cursos y matrículas
     path('panel-admin/cursos/', views.admin_cursos_lista, name='admin_cursos_lista'),
     path('panel-admin/crear-curso/', views.admin_crear_curso, name='admin_crear_curso'),

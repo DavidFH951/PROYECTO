@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistencia: {{ curso.titulo }} | Academia Galeno</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/docente_intentos.css' %}?v=1.1">
+</head>
+<body style="background-color: #f8fafc; margin: 0;">
+
+    <div class="entregas-container" style="max-width: 900px;">
+        
+        <header class="entregas-header">
+            <div>
+                <a href="{% url 'detalle_curso' curso.id %}" class="entregas-btn-volver">
+                    ← Volver al Curso
+                </a>
+                <h2 class="entregas-titulo">Control de Asistencia Diaria</h2>
+                <p class="entregas-subtitulo">{{ curso.titulo }}</p>
+            </div>
+            
+            <!-- Selector de Fecha -->
+            <form method="GET" style="display: flex; align-items: center; gap: 8px;">
+                <label for="fecha" style="font-size: 13px; font-weight: 600; color: #475569;">Sesión:</label>
+                <input type="date" id="fecha" name="fecha" value="{{ fecha_sesion }}" onchange="this.form.submit()"
+                       style="padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+            </form>
+        </header>
+
+        {% if messages %}
+        <div style="margin-bottom: 20px;">
+            {% for message in messages %}
+            <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;">
+                ✅ {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if filas_asistencia %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="fecha_sesion" value="{{ fecha_sesion }}">
+
+            <table class="table-entregas">
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Estudiante</th>
+                        <th style="width: 55%; text-align: center;">Estado de Asistencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in filas_asistencia %}
+                    <tr>
+                        <td>
+                            <span class="alumno-nombre">{{ f.alumno.get_full_name|default:f.alumno.username }}</span>
+                            <div class="texto-secundario" style="font-size: 12px;">@{{ f.alumno.username }}</div>
+                        </td>
+                        <td style="text-align: center;">
+                            <div style="display: inline-flex; gap: 14px; align-items: center; font-size: 13px; font-weight: 600;">
+                                <label style="cursor: pointer; color: #15803d;">
+                                    <input type="radio" name="asistencia_{{ f.alumno.id }}" value="P" {% if f.estado == 'P' %}checked{% endif %}> Presente
+                                </label>
+                                <label style="cursor: pointer; color: #b45309;">
+                                    <input type="radio" name="asistencia_{{ f.alumno.id }}" value="T" {% if f.estado == 'T' %}checked{% endif %}> Tardanza
+                                </label>
+                                <label style="cursor: pointer; color: #b91c1c;">
+                                    <input type="radio" name="asistencia_{{ f.alumno.id }}" value="F" {% if f.estado == 'F' %}checked{% endif %}> Falta
+                                </label>
+                                <label style="cursor: pointer; color: #4338ca;">
+                                    <input type="radio" name="asistencia_{{ f.alumno.id }}" value="J" {% if f.estado == 'J' %}checked{% endif %}> Justificado
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                <button type="submit" class="btn-primario" style="padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer;">
+                    💾 Guardar Asistencia
+                </button>
+            </div>
+        </form>
+        {% else %}
+        <div class="empty-entregas">
+            <p class="empty-entregas-icon">👥</p>
+            <h4 class="empty-entregas-title">Sin alumnos inscritos</h4>
+            <p class="empty-entregas-text">No hay estudiantes registrados en este curso para tomar lista.</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>

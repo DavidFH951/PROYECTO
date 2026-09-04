@@ -10,6 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.utils import timezone
 from django.core.paginator import Paginator
+from datetime import date
 
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -1362,3 +1363,68 @@ def gestionar_temporada(request):
                 messages.warning(request, f"La temporada '{periodo.nombre}' ha sido culminada. El ciclo quedó cerrado.")
 
     return redirect('admin_dashboard')
+
+@login_required
+def docente_asistencia_curso(request, curso_id):
+    """Planilla diaria donde el docente pasa lista (Presente, Tardanza, Falta, Justificado)."""
+    curso = get_object_or_404(Curso, id=curso_id)
+
+    if not es_docente_del_curso(request.user, curso):
+        messages.error(request, "No tienes permisos para registrar asistencias en este curso.")
+        return redirect('panel_docente')
+
+    fecha_seleccionada_str = request.GET.get('fecha', str(date.today()))
+    try:
+        fecha_sesion = date.fromisoformat(fecha_seleccionada_str)
+    except ValueError:
+        fecha_sesion = date.today()
+
+    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
+
+    if request.method == 'POST':
+        fecha_post = request.POST.get('fecha_sesion', str(date.today()))
+        try:
+            fecha_guardar = date.fromisoformat(fecha_post)
+        except ValueError:
+            fecha_guardar = date.today()
+
+        registros_actualizados = 0
+        for insc in inscripciones:
+            alumno_id = str(insc.alumno.id)
+            estado_marcado = request.POST.get(f'asistencia_{alumno_id}', 'F')
+
+            Asistencia.objects.update_or_create(
+                curso=curso,
+                alumno=insc.alumno,
+                fecha=fecha_guardar,
+                defaults={'estado': estado_marcado}
+            )
+            registros_actualizados += 1
+
+        registrar_log(
+            request,
+            "Control de Asistencia",
+            f"Registró asistencia para {registros_actualizados} alumno(s) en '{curso.titulo}' fecha {fecha_guardar}"
+        )
+        messages.success(request, f"Asistencia guardada para la fecha {fecha_guardar}.")
+        return redirect(f"{request.path}?fecha={fecha_guardar}")
+
+    # Cargar asistencias existentes para la fecha seleccionada
+    asistencias_dia = {
+        a.alumno_id: a.estado 
+        for a in Asistencia.objects.filter(curso=curso, fecha=fecha_sesion)
+    }
+
+    filas_asistencia = []
+    for insc in inscripciones:
+        filas_asistencia.append({
+            'alumno': insc.alumno,
+            'estado': asistencias_dia.get(insc.alumno.id, 'P')  # 'P' (Presente) por defecto
+        })
+
+    context = {
+        'curso': curso,
+        'fecha_sesion': fecha_sesion.strftime('%Y-%m-%d'),
+        'filas_asistencia': filas_asistencia,
+    }
+    return render(request, 'docente_asistencia.html', context)
