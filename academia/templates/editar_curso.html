@@ -1,7 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +10,6 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=5.0">
 </head>
-
 <body>
 
     <!-- Barra Superior -->
@@ -56,11 +54,10 @@
 
     <main class="form-container-boxed">
         <div class="card-formulario">
-
+            
             <div class="card-formulario-header">
                 <h2>📚 Editar Curso: {{ curso.titulo }}</h2>
-                <p>Modifica los detalles de la materia, asignación de docentes, fórmulas de calificación o visibilidad.
-                </p>
+                <p>Modifica los detalles de la materia, asignación de docentes, fórmulas de calificación o visibilidad.</p>
             </div>
 
             <div class="card-formulario-body">
@@ -72,15 +69,13 @@
                         <!-- Título del Curso -->
                         <div class="campo-form">
                             <label class="label-form" for="titulo">Título del Curso *</label>
-                            <input type="text" id="titulo" name="titulo" class="input-form" value="{{ curso.titulo }}"
-                                required>
+                            <input type="text" id="titulo" name="titulo" class="input-form" value="{{ curso.titulo }}" required>
                         </div>
 
                         <!-- Descripción o Sumilla -->
                         <div class="campo-form">
                             <label class="label-form" for="descripcion">Descripción o Sumilla</label>
-                            <textarea id="descripcion" name="descripcion" class="textarea-form" rows="3"
-                                placeholder="Ingresa una breve descripción de los contenidos del curso...">{{ curso.descripcion|default:'' }}</textarea>
+                            <textarea id="descripcion" name="descripcion" class="textarea-form" rows="3" placeholder="Ingresa una breve descripción de los contenidos del curso...">{{ curso.descripcion|default:'' }}</textarea>
                         </div>
 
                         <!-- Asignación de Docentes -->
@@ -88,51 +83,40 @@
                             <label class="label-form">Docentes Asignados (Selecciona quiénes dictarán el curso)</label>
                             <div class="docentes-lista-card">
                                 {% for docente in docentes %}
-                                <label class="docente-item-checkbox">
-                                    <input type="checkbox" name="docentes" value="{{ docente.id }}" {% if docente.id in
-                                        docentes_asignados_ids %}checked{% endif %}>
-                                    <span>👨‍🏫 {{ docente.get_full_name|default:docente.username }} (@{{
-                                        docente.username }})</span>
-                                </label>
+                                    <label class="docente-item-checkbox">
+                                        <input type="checkbox" name="docentes" value="{{ docente.id }}" {% if docente in curso.docentes.all %}checked{% endif %}>
+                                        <span>👨‍🏫 {{ docente.get_full_name|default:docente.username }} (@{{ docente.username }})</span>
+                                    </label>
                                 {% empty %}
-                                <p
-                                    style="font-size: 13px; color: #94a3b8; margin: 0; padding: 10px; text-align: center;">
-                                    No hay docentes registrados en el sistema.
-                                </p>
+                                    <p style="font-size: 13px; color: #94a3b8; margin: 0; padding: 10px; text-align: center;">
+                                        No hay docentes registrados en el sistema.
+                                    </p>
                                 {% endfor %}
                             </div>
                         </div>
 
                         <!-- Sistema Dinámico de Calificación -->
                         <div class="campo-form" style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label class="label-form"
-                                    style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label class="label-form" style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">
                                     📝 Criterios de Evaluación (Columnas de Calificación)
                                 </label>
-                                <button type="button" onclick="agregarCriterio()" class="btn-secundario"
-                                    style="font-size: 12px; padding: 6px 12px; cursor: pointer;">
+                                <button type="button" onclick="agregarCriterio()" class="btn-secundario" style="font-size: 12px; padding: 6px 12px; cursor: pointer;">
                                     ➕ Agregar Nota
                                 </button>
                             </div>
                             <small style="color: #64748b; font-size: 12.5px; display: block; margin-bottom: 14px;">
-                                Define tantas evaluaciones como requiera el curso. Se asignarán correlativamente como
-                                <strong>N1, N2, N3, N4...</strong>
+                                Define tantas evaluaciones como requiera el curso. Se asignarán correlativamente como <strong>N1, N2, N3, N4...</strong>
                             </small>
 
                             <div id="contenedor-criterios" style="display: flex; flex-direction: column; gap: 10px;">
                                 {% for c in criterios %}
                                 <div class="criterio-fila" style="display: flex; gap: 10px; align-items: center;">
-                                    <span class="badge-codigo"
-                                        style="background: #e2e8f0; font-weight: 700; padding: 10px 14px; border-radius: 6px; font-size: 13px; color: #334155; min-width: 32px; text-align: center;">
+                                    <span class="badge-codigo" style="background: #e2e8f0; font-weight: 700; padding: 10px 14px; border-radius: 6px; font-size: 13px; color: #334155; min-width: 32px; text-align: center;">
                                         {{ c.codigo }}
                                     </span>
-                                    <input type="text" name="criterio_nombre" value="{{ c.nombre }}" required
-                                        class="input-form" placeholder="Ej: Examen Parcial / Tarea Clínica">
-                                    <button type="button" onclick="eliminarCriterio(this)"
-                                        style="background: #fee2e2; border: none; color: #dc2626; border-radius: 6px; padding: 10px 14px; cursor: pointer; font-size: 14px;"
-                                        title="Eliminar criterio">
+                                    <input type="text" name="criterio_nombre" value="{{ c.nombre }}" required class="input-form" placeholder="Ej: Examen Parcial / Tarea Clínica">
+                                    <button type="button" onclick="eliminarCriterio(this)" style="background: #fee2e2; border: none; color: #dc2626; border-radius: 6px; padding: 10px 14px; cursor: pointer; font-size: 14px;" title="Eliminar criterio">
                                         🗑️
                                     </button>
                                 </div>
@@ -142,86 +126,21 @@
 
                         <div class="campo-form" style="margin-top: 15px;">
                             <label class="label-form" for="formula_evaluacion">📐 Fórmula de Promedio Final *</label>
-                            <input type="text" id="formula_evaluacion" name="formula_evaluacion" class="input-form"
-                                value="{{ curso.formula_evaluacion }}" required
-                                style="font-family: monospace; font-size: 14px;">
+                            <input type="text" id="formula_evaluacion" name="formula_evaluacion" class="input-form" value="{{ curso.formula_evaluacion }}" required style="font-family: monospace; font-size: 14px;">
                             <small style="color: #64748b; font-size: 12px; display: block; margin-top: 4px;">
-                                Usa las variables configuradas arriba. Ejemplo: <code>(N1 + N2 + N3 + N4) / 4</code> o
-                                <code>(N1*0.1) + (N2*0.2) + (N3*0.3) + (N4*0.4)</code>
+                                Usa las variables configuradas arriba. Ejemplo: <code>(N1 + N2 + N3 + N4) / 4</code> o <code>(N1*0.2) + (N2*0.3) + (N3*0.5)</code>
                             </small>
-                        </div>
-
-                        <script>
-                            function actualizarIndicesCriterios() {
-                                const filas = document.querySelectorAll('#contenedor-criterios .criterio-fila');
-                                filas.forEach((fila, index) => {
-                                    const span = fila.querySelector('.badge-codigo');
-                                    span.textContent = `N${index + 1}`;
-                                });
-                            }
-
-                            function agregarCriterio() {
-                                const contenedor = document.getElementById('contenedor-criterios');
-                                const total = contenedor.querySelectorAll('.criterio-fila').length + 1;
-
-                                const div = document.createElement('div');
-                                div.className = 'criterio-fila';
-                                div.style = 'display: flex; gap: 10px; align-items: center;';
-                                div.innerHTML = `
-        <span class="badge-codigo" style="background: #e2e8f0; font-weight: 700; padding: 10px 14px; border-radius: 6px; font-size: 13px; color: #334155; min-width: 32px; text-align: center;">N${total}</span>
-        <input type="text" name="criterio_nombre" required class="input-form" placeholder="Nombre de la evaluación (ej: Pasito N${total})">
-        <button type="button" onclick="eliminarCriterio(this)" style="background: #fee2e2; border: none; color: #dc2626; border-radius: 6px; padding: 10px 14px; cursor: pointer; font-size: 14px;" title="Eliminar criterio">🗑️</button>
-    `;
-                                contenedor.appendChild(div);
-                            }
-
-                            function eliminarCriterio(btn) {
-                                const filas = document.querySelectorAll('#contenedor-criterios .criterio-fila');
-                                if (filas.length <= 1) {
-                                    alert("El curso debe tener al menos un criterio de evaluación.");
-                                    return;
-                                }
-                                btn.closest('.criterio-fila').remove();
-                                actualizarIndicesCriterios();
-                            }
-                        </script>
-
-                        <!-- Nombres Personalizados de las Notas -->
-                        <div class="campo-form">
-                            <label class="label-form">Etiquetas de Calificaciones (Nombres de las columnas)</label>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-                                <div>
-                                    <label class="label-form" for="etiqueta_n1"
-                                        style="font-size: 12px; margin-bottom: 2px;">Nota 1 (N1):</label>
-                                    <input type="text" id="etiqueta_n1" name="etiqueta_n1" class="input-form"
-                                        value="{{ curso.etiqueta_n1|default:'Nota 1 (Teoría)' }}" required>
-                                </div>
-                                <div>
-                                    <label class="label-form" for="etiqueta_n2"
-                                        style="font-size: 12px; margin-bottom: 2px;">Nota 2 (N2):</label>
-                                    <input type="text" id="etiqueta_n2" name="etiqueta_n2" class="input-form"
-                                        value="{{ curso.etiqueta_n2|default:'Nota 2 (Práctica)' }}" required>
-                                </div>
-                                <div>
-                                    <label class="label-form" for="etiqueta_n3"
-                                        style="font-size: 12px; margin-bottom: 2px;">Nota 3 (N3):</label>
-                                    <input type="text" id="etiqueta_n3" name="etiqueta_n3" class="input-form"
-                                        value="{{ curso.etiqueta_n3|default:'Nota 3 (Examen Final)' }}" required>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Imagen de Portada -->
                         <div class="campo-form" style="border-top: 1px solid #e2e8f0; padding-top: 16px;">
                             <label class="label-form" for="imagen_portada">🖼️ Imagen de Portada del Curso</label>
                             {% if curso.imagen_portada %}
-                            <div style="margin-bottom: 8px;">
-                                <img src="{{ curso.imagen_portada.url }}" alt="Portada actual"
-                                    style="width: 140px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
-                            </div>
+                                <div style="margin-bottom: 8px;">
+                                    <img src="{{ curso.imagen_portada.url }}" alt="Portada actual" style="width: 140px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
+                                </div>
                             {% endif %}
-                            <input type="file" id="imagen_portada" name="imagen_portada" accept="image/*"
-                                class="input-form">
+                            <input type="file" id="imagen_portada" name="imagen_portada" accept="image/*" class="input-form">
                         </div>
 
                         <!-- Visibilidad / Estado -->
@@ -229,8 +148,7 @@
                             <label class="label-form">Visibilidad</label>
                             <label class="switch-estado-box">
                                 <input type="checkbox" name="estado" {% if curso.estado %}checked{% endif %}>
-                                <span class="switch-estado-label">✅ Curso Activo / Visible para alumnos y
-                                    docentes</span>
+                                <span class="switch-estado-label">✅ Curso Activo / Visible para alumnos y docentes</span>
                             </label>
                         </div>
 
@@ -251,6 +169,40 @@
         </div>
     </main>
 
-</body>
+    <script>
+    function actualizarIndicesCriterios() {
+        const filas = document.querySelectorAll('#contenedor-criterios .criterio-fila');
+        filas.forEach((fila, index) => {
+            const span = fila.querySelector('.badge-codigo');
+            span.textContent = `N${index + 1}`;
+        });
+    }
 
+    function agregarCriterio() {
+        const contenedor = document.getElementById('contenedor-criterios');
+        const total = contenedor.querySelectorAll('.criterio-fila').length + 1;
+        
+        const div = document.createElement('div');
+        div.className = 'criterio-fila';
+        div.style = 'display: flex; gap: 10px; align-items: center;';
+        div.innerHTML = `
+            <span class="badge-codigo" style="background: #e2e8f0; font-weight: 700; padding: 10px 14px; border-radius: 6px; font-size: 13px; color: #334155; min-width: 32px; text-align: center;">N${total}</span>
+            <input type="text" name="criterio_nombre" required class="input-form" placeholder="Nombre de la evaluación (ej: Pasito N${total})">
+            <button type="button" onclick="eliminarCriterio(this)" style="background: #fee2e2; border: none; color: #dc2626; border-radius: 6px; padding: 10px 14px; cursor: pointer; font-size: 14px;" title="Eliminar criterio">🗑️</button>
+        `;
+        contenedor.appendChild(div);
+    }
+
+    function eliminarCriterio(btn) {
+        const filas = document.querySelectorAll('#contenedor-criterios .criterio-fila');
+        if (filas.length <= 1) {
+            alert("El curso debe tener al menos un criterio de evaluación.");
+            return;
+        }
+        btn.closest('.criterio-fila').remove();
+        actualizarIndicesCriterios();
+    }
+    </script>
+
+</body>
 </html>
