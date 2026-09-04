@@ -123,22 +123,43 @@ def salir(request):
     return redirect('/cuentas/login/')
 
 
-@login_required 
+@login_required
 def dashboard(request):
-    """Direcciona al panel correspondiente según el rol del usuario."""
-    if es_administrador(request.user):
+    """Portal central post-login (Intranet). Redirige o muestra métricas consolidadas."""
+    user = request.user
+
+    if user.is_staff or user.is_superuser:
         return redirect('admin_dashboard')
-    
-    if request.user.groups.filter(name='Docentes').exists():
+
+    if user.groups.filter(name='Docentes').exists():
         return redirect('panel_docente')
-    
-    # Vista por defecto: Alumno
-    mis_inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso')
+
+    # Perfil Estudiante: Cursos inscritos
+    inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
+    cursos_ids = inscripciones.values_list('curso_id', flat=True)
+
+    # 1. Calificaciones y Promedio Global
+    calificaciones = Calificacion.objects.filter(alumno=user, curso_id__in=cursos_ids)
+    promedios = [float(c.promedio) for c in calificaciones if c.promedio is not None]
+    promedio_global = round(sum(promedios) / len(promedios), 2) if promedios else None
+
+    # 2. Resumen de Asistencias
+    asistencias = Asistencia.objects.filter(alumno=user, curso_id__in=cursos_ids)
+    total_clases = asistencias.count()
+    asistencias_validas = asistencias.filter(estado__in=['P', 'T', 'J']).count()
+    porcentaje_asistencia = round((asistencias_validas / total_clases) * 100, 1) if total_clases > 0 else 100.0
+
+    # 3. Horario Semanal Ordenado
+    horarios = HorarioCurso.objects.filter(curso_id__in=cursos_ids).select_related('curso')
+
     context = {
-        'inscripciones': mis_inscripciones,
-        'es_docente': False
+        'total_cursos': inscripciones.count(),
+        'promedio_global': promedio_global,
+        'porcentaje_asistencia': porcentaje_asistencia,
+        'inscripciones': inscripciones,
+        'horarios': horarios,
     }
-    return render(request, 'dashboard.html', context)
+    return render(request, 'intranet_dashboard.html', context)
 
 
 @login_required

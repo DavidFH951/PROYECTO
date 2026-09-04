@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet | Academia Galeno</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.0">
+</head>
+<body class="intranet-body">
+
+    <div class="intranet-layout">
+        
+        <!-- Sidebar de Navegación Institucional -->
+        <aside class="intranet-sidebar">
+            <div class="intranet-sidebar-header">
+                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno">
+                <div>
+                    <span class="intranet-brand-title">Academia Galeno</span>
+                    <span class="intranet-brand-sub">Portal Académico</span>
+                </div>
+            </div>
+
+            <nav class="intranet-menu">
+                <a href="{% url 'dashboard' %}" class="intranet-nav-link active">
+                    <span>🏠</span> Inicio / Intranet
+                </a>
+                <a href="{% url 'mis_notas' %}" class="intranet-nav-link">
+                    <span>📊</span> Consulta de Notas
+                </a>
+                <a href="{% url 'mi_perfil' %}" class="intranet-nav-link">
+                    <span>👤</span> Mi Perfil
+                </a>
+                <a href="{% url 'salir' %}" class="intranet-nav-link logout" style="margin-top: auto;">
+                    <span>🚪</span> Cerrar Sesión
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Contenido Central -->
+        <div class="intranet-main">
+            
+            <header class="intranet-topbar">
+                <div class="intranet-welcome-text">
+                    Hola <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>, bienvenido a tu portal académico.
+                </div>
+                <div class="intranet-user-pill">
+                    <div class="intranet-avatar">
+                        {{ request.user.first_name|first|default:request.user.username|first }}
+                    </div>
+                    <span>{{ request.user.username }}</span>
+                </div>
+            </header>
+
+            <main class="intranet-content">
+
+                <!-- 1. Tarjetas de Resumen Rápido -->
+                <section class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Cursos Inscritos</span>
+                            <span>📚</span>
+                        </div>
+                        <p class="metric-value">{{ total_cursos }}</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Promedio Ponderado</span>
+                            <span>🎯</span>
+                        </div>
+                        <p class="metric-value">
+                            {% if promedio_global is not None %}{{ promedio_global }}{% else %}—{% endif %}
+                        </p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Asistencia Global</span>
+                            <span>⏱️</span>
+                        </div>
+                        <p class="metric-value">{{ porcentaje_asistencia }}%</p>
+                    </div>
+                </section>
+
+                <!-- 2. Acceso Principal al Aula Virtual -->
+                <section class="banner-aula-virtual">
+                    <div>
+                        <h2 style="margin: 0 0 6px 0; font-size: 20px;">🎓 Aula Virtual Academia Galeno</h2>
+                        <p style="margin: 0; opacity: 0.9; font-size: 13.5px;">Accede a tus materiales de clase, videoconferencias, foros y evaluaciones en curso.</p>
+                    </div>
+                    <div>
+                        {% if inscripciones.first %}
+                            <a href="{% url 'detalle_curso' inscripciones.first.curso.id %}" class="btn-entrar-aula">
+                                Ingresar a Mis Cursos →
+                            </a>
+                        {% else %}
+                            <span style="font-size: 13px; opacity: 0.8;">Sin cursos matriculados</span>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- 3. Cuadrícula: Horario Semanal y Cursos Matriculados -->
+                <div class="content-columns">
+                    
+                    <!-- Horario Semanal -->
+                    <div class="dashboard-card">
+                        <h3 class="dashboard-card-title">
+                            <span>📅</span> Horario Semanal de Clases
+                        </h3>
+                        {% if horarios %}
+                        <table class="table-horario">
+                            <thead>
+                                <tr>
+                                    <th>Día</th>
+                                    <th>Materia</th>
+                                    <th>Horario</th>
+                                    <th>Modalidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for h in horarios %}
+                                <tr>
+                                    <td><span class="badge-dia">{{ h.get_dia_display }}</span></td>
+                                    <td><strong>{{ h.curso.titulo }}</strong></td>
+                                    <td>{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</td>
+                                    <td style="color: #64748b;">{{ h.aula }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div style="text-align: center; padding: 25px; color: #64748b; font-size: 13px;">
+                            No hay horarios configurados para tus materias actuales.
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Cursos Matriculados Rápidos -->
+                    <div class="dashboard-card">
+                        <h3 class="dashboard-card-title">
+                            <span>📖</span> Mis Materias
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            {% for insc in inscripciones %}
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <div>
+                                    <strong style="font-size: 13px; display: block; color: #0f172a;">{{ insc.curso.titulo }}</strong>
+                                    <span style="font-size: 11.5px; color: #64748b;">
+                                        {{ insc.curso.periodo.nombre|default:"Ciclo Activo" }}
+                                    </span>
+                                </div>
+                                <a href="{% url 'detalle_curso' insc.curso.id %}" style="text-decoration: none; font-size: 12px; color: #2563eb; font-weight: 700;">
+                                    Entrar →
+                                </a>
+                            </div>
+                            {% empty %}
+                            <p style="font-size: 13px; color: #94a3b8; margin: 0;">No estás registrado en ningún curso.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

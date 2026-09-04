@@ -1,0 +1,262 @@
+* {
+    box-sizing: border-box;
+}
+
+body.intranet-body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.intranet-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Barra Lateral */
+.intranet-sidebar {
+    width: 260px;
+    background-color: #064e3b;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.intranet-sidebar-header {
+    padding: 24px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.intranet-sidebar-header img {
+    height: 38px;
+    width: auto;
+    border-radius: 6px;
+}
+
+.intranet-brand-title {
+    font-size: 15px;
+    font-weight: 700;
+    display: block;
+    line-height: 1.2;
+}
+
+.intranet-brand-sub {
+    font-size: 11px;
+    color: #a7f3d0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.intranet-menu {
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.intranet-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.intranet-nav-link:hover,
+.intranet-nav-link.active {
+    background-color: #047857;
+    color: #ffffff;
+}
+
+.intranet-nav-link.logout {
+    color: #fca5a5;
+}
+
+.intranet-nav-link.logout:hover {
+    background-color: #991b1b;
+    color: #ffffff;
+}
+
+/* Área Principal */
+.intranet-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.intranet-topbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.intranet-welcome-text {
+    font-size: 14px;
+    color: #475569;
+}
+
+.intranet-welcome-text strong {
+    color: #0f172a;
+}
+
+.intranet-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.intranet-avatar {
+    width: 34px;
+    height: 34px;
+    background-color: #059669;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.intranet-content {
+    padding: 30px;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Métricas Rápidas */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.metric-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.metric-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.metric-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+
+/* Banner de Acceso al Aula Virtual */
+.banner-aula-virtual {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    border-radius: 14px;
+    padding: 24px 28px;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.btn-entrar-aula {
+    background-color: #ffffff;
+    color: #1e3a8a;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 22px;
+    border-radius: 8px;
+    transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.btn-entrar-aula:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Cuadrícula de Contenido Inferior */
+.content-columns {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+.dashboard-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.dashboard-card-title {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Tabla de Horario */
+.table-horario {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.table-horario th {
+    background-color: #f8fafc;
+    color: #475569;
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    font-weight: 600;
+}
+
+.table-horario td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.badge-dia {
+    background-color: #e0e7ff;
+    color: #3730a3;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11.5px;
+}

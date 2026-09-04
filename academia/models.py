@@ -468,3 +468,51 @@ class RespuestaEstudiante(models.Model):
     class Meta:
         verbose_name = "Respuesta de Estudiante"
         verbose_name_plural = "Respuestas de Estudiantes"
+
+class HorarioCurso(models.Model):
+    DIAS_SEMANA = [
+        (1, 'Lunes'),
+        (2, 'Martes'),
+        (3, 'Miércoles'),
+        (4, 'Jueves'),
+        (5, 'Viernes'),
+        (6, 'Sábado'),
+        (7, 'Domingo'),
+    ]
+
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='horarios')
+    dia = models.IntegerField(choices=DIAS_SEMANA, verbose_name="Día")
+    hora_inicio = models.TimeField(verbose_name="Hora Inicio")
+    hora_fin = models.TimeField(verbose_name="Hora Fin")
+    aula = models.CharField(max_length=50, default="Aula Virtual / En Vivo", verbose_name="Aula o Modalidad")
+
+    class Meta:
+        verbose_name = "Horario de Curso"
+        verbose_name_plural = "Horarios de Cursos"
+        ordering = ['dia', 'hora_inicio']
+
+    def __str__(self):
+        return f"{self.curso.titulo} - {self.get_dia_display()} ({self.hora_inicio.strftime('%H:%M')} - {self.hora_fin.strftime('%H:%M')})"
+
+
+class Asistencia(models.Model):
+    ESTADOS = [
+        ('P', 'Presente'),
+        ('T', 'Tardanza'),
+        ('F', 'Falta'),
+        ('J', 'Justificado'),
+    ]
+
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='asistencias')
+    alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='asistencias')
+    fecha = models.DateField(default=timezone.now, verbose_name="Fecha de Sesión")
+    estado = models.CharField(max_length=1, choices=ESTADOS, default='P', verbose_name="Estado de Asistencia")
+
+    class Meta:
+        verbose_name = "Asistencia"
+        verbose_name_plural = "Asistencias"
+        unique_together = ('curso', 'alumno', 'fecha')
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"{self.alumno.username} - {self.curso.titulo} ({self.fecha}): {self.get_estado_display()}"

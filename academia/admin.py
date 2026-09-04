@@ -70,3 +70,16 @@ class ExamenAdmin(admin.ModelAdmin):
 class IntentoExamenAdmin(admin.ModelAdmin):
     list_display = ('alumno', 'examen', 'nota', 'completado', 'fecha_fin')
     list_filter = ('examen', 'completado')
+
+from .models import HorarioCurso, Asistencia
+
+@admin.register(HorarioCurso)
+class HorarioCursoAdmin(admin.ModelAdmin):
+    list_display = ('curso', 'dia', 'hora_inicio', 'hora_fin', 'aula')
+    list_filter = ('dia', 'curso')
+
+
+@admin.register(Asistencia)
+class AsistenciaAdmin(admin.ModelAdmin):
+    list_display = ('alumno', 'curso', 'fecha', 'estado')
+    list_filter = ('estado', 'fecha', 'curso')
