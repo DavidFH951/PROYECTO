@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,20 +11,23 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
     <link rel="stylesheet" href="{% static 'css/docente_intentos.css' %}?v=1.1">
 </head>
+
 <body style="background-color: #f8fafc; margin: 0;">
 
     <div class="entregas-container" style="max-width: 1050px;">
-        
+
         <header class="entregas-header">
             <div>
                 <a href="{% url 'detalle_curso' curso.id %}" class="entregas-btn-volver">
                     ← Volver al Curso: {{ curso.titulo }}
                 </a>
                 <h2 class="entregas-titulo">Registro de Calificaciones</h2>
-                <p class="entregas-subtitulo">Ingresa las notas vigesimales (0 a 20) de los estudiantes matriculados.</p>
+                <p class="entregas-subtitulo">Ingresa las notas vigesimales (0 a 20) de los estudiantes matriculados.
+                </p>
             </div>
             <div>
-                <a href="{% url 'panel_docente' %}" class="btn-secundario" style="text-decoration: none; padding: 8px 14px; font-size: 13px;">
+                <a href="{% url 'panel_docente' %}" class="btn-secundario"
+                    style="text-decoration: none; padding: 8px 14px; font-size: 13px;">
                     📚 Panel Docente
                 </a>
             </div>
@@ -32,7 +36,8 @@
         {% if messages %}
         <div style="margin-bottom: 20px;">
             {% for message in messages %}
-            <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;">
+            <div
+                style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;">
                 ✅ {{ message }}
             </div>
             {% endfor %}
@@ -40,12 +45,14 @@
         {% endif %}
 
         <!-- Banner Informativo de la Fórmula Configurada por Admin -->
-        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div
+            style="background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 22px;">📐</span>
                 <div>
                     <strong style="color: #1e40af; font-size: 13.5px;">Fórmula Oficial del Curso:</strong>
-                    <code style="background-color: #dbeafe; color: #1e3a8a; padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; margin-left: 6px;">{{ formula_evaluacion }}</code>
+                    <code
+                        style="background-color: #dbeafe; color: #1e3a8a; padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; margin-left: 6px;">{{ formula_evaluacion }}</code>
                 </div>
             </div>
             <span style="font-size: 12px; color: #64748b;">Configurado por Administración</span>
@@ -58,11 +65,11 @@
             <table class="table-entregas">
                 <thead>
                     <tr>
-                        <th style="width: 32%;">Estudiante</th>
-                        <th style="width: 17%;">{{ etiqueta_n1 }} (N1)</th>
-                        <th style="width: 17%;">{{ etiqueta_n2 }} (N2)</th>
-                        <th style="width: 17%;">{{ etiqueta_n3 }} (N3)</th>
-                        <th style="width: 17%; text-align: center;">Promedio Final</th>
+                        <th>Estudiante</th>
+                        {% for c in criterios %}
+                        <th style="text-align: center;">{{ c.nombre }} ({{ c.codigo }})</th>
+                        {% endfor %}
+                        <th style="text-align: center;">Promedio Final</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,34 +79,22 @@
                             <span class="alumno-nombre">{{ f.alumno.get_full_name|default:f.alumno.username }}</span>
                             <div class="texto-secundario" style="font-size: 12px;">@{{ f.alumno.username }}</div>
                         </td>
-                        <td>
-                            <input type="number" step="0.01" min="0" max="20" 
-                                   name="nota1_{{ f.alumno.id }}" 
-                                   value="{{ f.nota1 }}" 
-                                   placeholder="0 - 20" 
-                                   style="width: 90px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; text-align: center;">
+                        {% for col in f.columnas %}
+                        <td style="text-align: center;">
+                            <input type="number" step="0.01" min="0" max="20"
+                                name="nota_{{ col.codigo }}_{{ f.alumno.id }}" value="{{ col.valor }}"
+                                placeholder="0 - 20"
+                                style="width: 80px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; text-align: center;">
                         </td>
-                        <td>
-                            <input type="number" step="0.01" min="0" max="20" 
-                                   name="nota2_{{ f.alumno.id }}" 
-                                   value="{{ f.nota2 }}" 
-                                   placeholder="0 - 20" 
-                                   style="width: 90px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; text-align: center;">
-                        </td>
-                        <td>
-                            <input type="number" step="0.01" min="0" max="20" 
-                                   name="nota3_{{ f.alumno.id }}" 
-                                   value="{{ f.nota3 }}" 
-                                   placeholder="0 - 20" 
-                                   style="width: 90px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; text-align: center;">
-                        </td>
+                        {% endfor %}
                         <td style="text-align: center;">
                             {% if f.promedio is not None %}
-                                <span class="badge-nota {% if f.promedio >= 10.5 %}badge-nota-aprobado{% else %}badge-nota-desaprobado{% endif %}">
-                                    {{ f.promedio }}
-                                </span>
+                            <span
+                                class="badge-nota {% if f.promedio >= 10.5 %}badge-nota-aprobado{% else %}badge-nota-desaprobado{% endif %}">
+                                {{ f.promedio }}
+                            </span>
                             {% else %}
-                                <span class="texto-secundario" style="font-size: 13px;">—</span>
+                            <span class="texto-secundario">—</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -108,7 +103,8 @@
             </table>
 
             <div style="display: flex; justify-content: flex-end; margin-top: 20px; gap: 12px;">
-                <button type="submit" class="btn-primario" style="padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer;">
+                <button type="submit" class="btn-primario"
+                    style="padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer;">
                     💾 Guardar y Calcular Promedios
                 </button>
             </div>
@@ -124,4 +120,5 @@
     </div>
 
 </body>
+
 </html>

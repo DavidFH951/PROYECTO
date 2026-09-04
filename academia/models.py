@@ -73,18 +73,33 @@ class Curso(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     imagen_portada = models.ImageField(upload_to='cursos_portadas/', blank=True, null=True)
     docentes = models.ManyToManyField(User, related_name='cursos_asignados', blank=True)
-    periodo = models.ForeignKey(PeriodoAcademico, on_delete=models.SET_NULL, related_name='cursos', null=True, blank=True)
+    periodo = models.ForeignKey('PeriodoAcademico', on_delete=models.SET_NULL, related_name='cursos', null=True, blank=True)
     estado = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    # Configuración dinámica del sistema de calificación
     formula_evaluacion = models.CharField(
         max_length=255,
         default="(N1 + N2 + N3) / 3",
         verbose_name="Fórmula de Promedio",
-        help_text="Usa las variables N1, N2, N3. Ejemplo: (N1*0.2) + (N2*0.3) + (N3*0.5)"
+        help_text="Usa las variables N1, N2, N3, N4... Ejemplo: (N1*0.2) + (N2*0.3) + (N3*0.5)"
     )
-    etiqueta_n1 = models.CharField(max_length=50, default="Nota 1 (Teoría)", verbose_name="Etiqueta N1")
-    etiqueta_n2 = models.CharField(max_length=50, default="Nota 2 (Práctica)", verbose_name="Etiqueta N2")
-    etiqueta_n3 = models.CharField(max_length=50, default="Nota 3 (Examen Final)", verbose_name="Etiqueta N3")
+    # Estructura: [{"codigo": "N1", "nombre": "Teoría 1"}, {"codigo": "N2", "nombre": "Práctica 1"}, ...]
+    criterios_evaluacion = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name="Criterios y Columnas de Evaluación"
+    )
+
+    def obtener_criterios(self):
+        """Retorna los criterios configurados o un listado base si está vacío."""
+        if self.criterios_evaluacion and isinstance(self.criterios_evaluacion, list) and len(self.criterios_evaluacion) > 0:
+            return self.criterios_evaluacion
+        return [
+            {"codigo": "N1", "nombre": "Nota 1"},
+            {"codigo": "N2", "nombre": "Nota 2"},
+            {"codigo": "N3", "nombre": "Nota 3"},
+        ]
 
     class Meta:
         verbose_name = "Curso"
@@ -98,13 +113,54 @@ class Curso(models.Model):
     def docentes_nombres(self):
         nombres = [d.get_full_name() or d.username for d in self.docentes.all()]
         return ", ".join(nombres) if nombres else "Sin asignar"
+
+
 class Calificacion(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='calificaciones')
     alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='calificaciones')
-    nota1 = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
-    nota2 = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
-    nota3 = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
-    promedio = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    
+    # Almacena dinámicamente cualquier cantidad de notas: {"N1": 16.0, "N2": 14.5, "N3": 18.0, "N4": 12.0}
+    notas_detalle = models.JSONField(default=dict, blank=True, verbose_name="Detalle de Notas")
+    promedio = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name="Promedio Final")
+
+    class Meta:
+        verbose_name = "Calificación"
+        verbose_name_plural = "Calificaciones"
+        unique_together = ('curso', 'alumno')
+
+    def calcular_promedio(self):
+        """Calcula el promedio evaluando la fórmula del curso de forma segura."""
+        if not self.notas_detalle:
+            self.promedio = None
+            return
+
+        formula = self.curso.formula_evaluacion.upper()
+        criterios = self.curso.obtener_criterios()
+
+        # Reemplazar cada variable (N1, N2, ...) por el valor numérico registrado
+        formula_eval = formula
+        for item in criterios:
+            cod = item["codigo"].upper()
+            val = self.notas_detalle.get(cod)
+            val_float = float(val) if (val is not None and str(val).strip() != '') else 0.0
+            formula_eval = re.sub(rf'\b{cod}\b', str(val_float), formula_eval)
+
+        # Validar caracteres estrictamente permitidos (números, puntos decimales y operadores)
+        if re.match(r'^[0-9\.\+\-\*\/\(\)\s]+$', formula_eval):
+            try:
+                resultado = eval(formula_eval, {"__builtins__": None}, {})
+                self.promedio = round(max(0.0, min(20.0, float(resultado))), 2)
+            except Exception:
+                self.promedio = None
+        else:
+            self.promedio = None
+
+    def save(self, *args, **kwargs):
+        self.calcular_promedio()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.alumno.username} - {self.curso.titulo}: {self.promedio if self.promedio is not None else 'Sin Nota'}"
 
     def calcular_promedio(self):
         """Evalúa la fórmula configurada en el curso de manera segura."""
