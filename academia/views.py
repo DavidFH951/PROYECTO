@@ -710,6 +710,43 @@ def revision_examen(request, examen_id):
     }
     return render(request, 'revision_examen.html', context)
 
+@login_required
+def ver_intentos_examen(request, examen_id):
+    """Permite al docente y admin ver la lista de todos los alumnos que enviaron el examen."""
+    examen = get_object_or_404(Examen, id=examen_id)
+    if not es_docente_del_curso(request.user, examen.curso):
+        return HttpResponseForbidden("No tienes permiso para ver los resultados de este examen.")
+
+    intentos = IntentoExamen.objects.filter(
+        examen=examen, 
+        completado=True
+    ).select_related('alumno').order_by('-nota', 'fecha_fin')
+
+    context = {
+        'examen': examen,
+        'intentos': intentos,
+    }
+    return render(request, 'docente_intentos_examen.html', context)
+
+
+@login_required
+def ver_detalle_intento(request, intento_id):
+    """Permite al docente/admin inspeccionar exactamente qué respondió un alumno específico."""
+    intento = get_object_or_404(IntentoExamen, id=intento_id)
+    examen = intento.examen
+
+    if not es_docente_del_curso(request.user, examen.curso):
+        return HttpResponseForbidden("No tienes permiso para auditar este intento.")
+
+    respuestas = intento.respuestas.select_related('pregunta', 'opcion_seleccionada').all()
+
+    context = {
+        'examen': examen,
+        'intento': intento,
+        'respuestas': respuestas,
+        'puede_ver_solucionario': True,  # El docente siempre ve el solucionario completo
+    }
+    return render(request, 'revision_examen.html', context)
 
 # ==============================================================================
 # 6. MÓDULO ADMINISTRADOR (DASHBOARD, USUARIOS Y MATRÍCULAS)

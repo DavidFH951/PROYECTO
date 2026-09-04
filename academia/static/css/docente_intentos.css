@@ -1,0 +1,158 @@
+/* Layout General */
+.entregas-container {
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 30px;
+    font-family: 'Inter', sans-serif;
+}
+
+.entregas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.entregas-btn-volver {
+    text-decoration: none;
+    font-size: 13px;
+    color: #0284c7;
+    font-weight: 600;
+}
+
+.entregas-titulo {
+    margin: 6px 0 0 0;
+    color: #0f172a;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.entregas-subtitulo {
+    margin: 2px 0 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.entregas-badge-duracion {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* Tabla de Entregas */
+.table-entregas {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.table-entregas th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.table-entregas td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13.5px;
+    color: #1e293b;
+}
+
+.table-entregas tr:last-child td {
+    border-bottom: none;
+}
+
+.table-entregas tr:hover {
+    background-color: #f8fafc;
+}
+
+.alumno-nombre {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.texto-secundario {
+    color: #64748b;
+}
+
+.td-actions {
+    text-align: right;
+}
+
+/* Badges Dinámicos de Calificación (Adiós a los errores de VS Code) */
+.badge-nota {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+.badge-nota-aprobado {
+    color: #16a34a;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+}
+
+.badge-nota-desaprobado {
+    color: #dc2626;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+}
+
+/* Botón de Inspección */
+.btn-revisar-respuestas {
+    background-color: #2563eb;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-revisar-respuestas:hover {
+    background-color: #1d4ed8;
+}
+
+/* Estado Vacío */
+.empty-entregas {
+    background-color: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    color: #64748b;
+}
+
+.empty-entregas-icon {
+    font-size: 32px;
+    margin: 0 0 10px 0;
+}
+
+.empty-entregas-title {
+    margin: 0 0 6px 0;
+    color: #1e293b;
+}
+
+.empty-entregas-text {
+    margin: 0;
+    font-size: 13.5px;
+}

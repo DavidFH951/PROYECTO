@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entregas - {{ examen.titulo }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/docente_intentos.css' %}?v=1.0">
+</head>
+<body style="background-color: #f8fafc; margin: 0;">
+
+    <div class="entregas-container">
+        
+        <header class="entregas-header">
+            <div>
+                <a href="{% url 'detalle_curso' examen.curso.id %}" class="entregas-btn-volver">
+                    ← Volver a {{ examen.curso.titulo }}
+                </a>
+                <h2 class="entregas-titulo">Entregas y Calificaciones</h2>
+                <p class="entregas-subtitulo">Evaluación: <strong>{{ examen.titulo }}</strong> &bull; Total entregas: {{ intentos.count }}</p>
+            </div>
+            <div>
+                <span class="entregas-badge-duracion">
+                    Duración: {{ examen.duracion_minutos }} min
+                </span>
+            </div>
+        </header>
+
+        {% if intentos %}
+        <table class="table-entregas">
+            <thead>
+                <tr>
+                    <th>Estudiante</th>
+                    <th>Usuario / Correo</th>
+                    <th>Fecha y Hora de Entrega</th>
+                    <th>Nota Obtenida</th>
+                    <th class="td-actions">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in intentos %}
+                <tr>
+                    <td>
+                        <span class="alumno-nombre">{{ i.alumno.get_full_name|default:i.alumno.username }}</span>
+                    </td>
+                    <td class="texto-secundario">
+                        @{{ i.alumno.username }} &bull; {{ i.alumno.email|default:"Sin correo" }}
+                    </td>
+                    <td class="texto-secundario">
+                        {{ i.fecha_fin|date:"d/m/Y H:i:s"|default:"En proceso" }}
+                    </td>
+                    <td>
+                        <span class="badge-nota {% if i.nota >= 11 %}badge-nota-aprobado{% else %}badge-nota-desaprobado{% endif %}">
+                            {{ i.nota }} pts
+                        </span>
+                    </td>
+                    <td class="td-actions">
+                        <a href="{% url 'ver_detalle_intento' i.id %}" class="btn-revisar-respuestas">
+                            👁️ Revisar Respuestas
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-entregas">
+            <p class="empty-entregas-icon">📥</p>
+            <h4 class="empty-entregas-title">Aún no hay entregas</h4>
+            <p class="empty-entregas-text">Ningún estudiante ha enviado esta evaluación todavía.</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
