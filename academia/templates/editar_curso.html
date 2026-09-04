@@ -89,8 +89,8 @@
                             <div class="docentes-lista-card">
                                 {% for docente in docentes %}
                                 <label class="docente-item-checkbox">
-                                    <input type="checkbox" name="docentes" value="{{ docente.id }}" {% if docente in
-                                        curso.docentes.all %}checked{% endif %}>
+                                    <input type="checkbox" name="docentes" value="{{ docente.id }}" {% if docente.id in
+                                        docentes_asignados_ids %}checked{% endif %}>
                                     <span>👨‍🏫 {{ docente.get_full_name|default:docente.username }} (@{{
                                         docente.username }})</span>
                                 </label>

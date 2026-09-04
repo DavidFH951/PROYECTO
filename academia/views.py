@@ -1016,7 +1016,6 @@ def admin_editar_curso(request, curso_id):
         docentes_ids = request.POST.getlist('docentes')
         curso.docentes.set(docentes_ids)
 
-        # Procesar criterios dinámicos (N1, N2, N3, N4...)
         criterios_raw = request.POST.getlist('criterio_nombre')
         nuevos_criterios = []
         for idx, nombre in enumerate(criterios_raw, start=1):
@@ -1030,17 +1029,20 @@ def admin_editar_curso(request, curso_id):
         curso.formula_evaluacion = request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3').strip()
         curso.save()
 
-        # Recalcular calificaciones de todos los matriculados con el nuevo esquema
         for calif in curso.calificaciones.all():
             calif.save()
 
-        messages.success(request, f"Curso '{curso.titulo}' actualizado con {len(nuevos_criterios)} criterios de evaluación.")
+        messages.success(request, f"Curso '{curso.titulo}' actualizado correctamente.")
         return redirect('admin_cursos_lista')
 
     docentes = User.objects.filter(groups__name='Docentes')
+    # Extraemos los IDs como lista de enteros para evaluar limpiamente en el template
+    docentes_asignados_ids = list(curso.docentes.values_list('id', flat=True))
+
     context = {
         'curso': curso,
         'docentes': docentes,
+        'docentes_asignados_ids': docentes_asignados_ids,
         'criterios': curso.obtener_criterios(),
     }
     return render(request, 'editar_curso.html', context)
