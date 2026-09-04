@@ -21,11 +21,15 @@
                 <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno">
                 <div>
                     <span class="intranet-brand-title">Academia Galeno</span>
-                    <span class="intranet-brand-sub">{% if es_docente %}Portal Docente{% else %}Portal Estudiantil{%
-                        endif %}</span>
+                    <span class="intranet-brand-sub">
+                        {% if es_docente %}
+                        Portal Docente
+                        {% else %}
+                        Portal Estudiantil
+                        {% endif %}
+                    </span>
                 </div>
             </div>
-
             <nav class="intranet-menu">
                 <a href="{% url 'dashboard' %}" class="intranet-nav-link active">
                     <span>🏠</span> Inicio / Intranet
@@ -65,7 +69,10 @@
                     <div class="intranet-avatar {% if es_docente %}docente-avatar{% endif %}">
                         {{ request.user.first_name|first|default:request.user.username|first }}
                     </div>
-                    <span>{{ request.user.username }} ({% if es_docente %}Docente{% else %}Alumno{% endif %})</span>
+                    <span>
+                        {{ request.user.username }}
+                        ({% if es_docente %}Docente{% else %}Alumno{% endif %})
+                    </span>
                 </div>
             </header>
 
