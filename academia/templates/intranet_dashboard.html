@@ -64,13 +64,40 @@
                 <div class="intranet-welcome-text">
                     Hola <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>, bienvenido a tu portal.
                 </div>
-                <div class="intranet-user-pill">
-                    <div class="intranet-avatar {% if es_docente %}docente-avatar{% endif %}">
-                        {{ request.user.first_name|first|default:request.user.username|first }}
+
+                <!-- Dropdown de Usuario -->
+                <div class="user-dropdown-container">
+                    <button type="button" class="user-dropdown-btn" onclick="toggleUserMenu(event)">
+                        <div class="intranet-avatar {% if es_docente %}docente-avatar{% endif %}">
+                            {{ request.user.first_name|first|default:request.user.username|first }}
+                        </div>
+                        <div class="user-dropdown-info">
+                            <span class="user-dropdown-name">{{ request.user.username }}</span>
+                            <span class="user-dropdown-role">{% if es_docente %}Docente{% else %}Estudiante{% endif %}</span>
+                        </div>
+                        <span class="user-dropdown-arrow">▾</span>
+                    </button>
+
+                    <!-- Menú desplegable flotante -->
+                    <div class="user-dropdown-menu" id="userMenuDropdown">
+                        <div class="dropdown-header-box">
+                            <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                            <span class="dropdown-email">{{ request.user.email|default:"Sin correo registrado" }}</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'mi_perfil' %}" class="dropdown-item">
+                            <span>👤</span> Mi Perfil
+                        </a>
+                        {% if not es_docente %}
+                        <a href="{% url 'mis_notas' %}" class="dropdown-item">
+                            <span>📊</span> Mis Calificaciones
+                        </a>
+                        {% endif %}
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'salir' %}" class="dropdown-item dropdown-logout">
+                            <span>🚪</span> Cerrar Sesión
+                        </a>
                     </div>
-                    <span>
-                        {{ request.user.username }} ({% if es_docente %}Docente{% else %}Alumno{% endif %})
-                    </span>
                 </div>
             </header>
 
@@ -231,6 +258,21 @@
         </div>
 
     </div>
+    <script>
+    function toggleUserMenu(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('userMenuDropdown');
+        menu.classList.toggle('show');
+    }
+
+    // Cerrar el dropdown al hacer clic en cualquier otra parte de la pantalla
+    document.addEventListener('click', function (e) {
+        const menu = document.getElementById('userMenuDropdown');
+        if (menu && menu.classList.contains('show')) {
+            menu.classList.remove('show');
+        }
+    });
+    </script>
 
 </body>
 
