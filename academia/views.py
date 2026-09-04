@@ -875,19 +875,31 @@ def banco_preguntas_curso(request, curso_id):
 
 @login_required
 def rendir_examen(request, examen_id):
-    examen = get_object_or_404(Examen, id=examen_id, activo=True)
-    
-    # 1. Obtener preguntas en orden aleatorio
+    examen = get_object_or_404(Examen, id=examen_id)
+
+    # 1. Validar permisos y ventana horaria
+    es_docente = (
+        examen.curso.docentes.filter(id=request.user.id).exists()
+        or request.user.is_staff
+        or request.user.is_superuser
+    )
+
+    if not es_docente:
+        if not examen.esta_disponible:
+            messages.error(request, f"Acceso restringido: {examen.estado_texto}.")
+            return redirect('detalle_curso', curso_id=examen.curso.id)
+
+    # 2. Obtener preguntas en orden aleatorio
     preguntas = list(examen.preguntas.order_by('?'))
 
-    # 2. Asignar alternativas desordenadas a cada pregunta
+    # 3. Asignar alternativas desordenadas a cada pregunta
     for pregunta in preguntas:
         pregunta.opciones_aleatorias = list(pregunta.opciones.order_by('?'))
 
-    # 3. Procesar respuestas al enviar el formulario
+    # 4. Procesar respuestas al enviar el formulario
     if request.method == 'POST':
         puntaje_total = 0.0
-        
+
         for pregunta in examen.preguntas.all():
             opcion_seleccionada_id = request.POST.get(f'pregunta_{pregunta.id}')
             if opcion_seleccionada_id:
@@ -906,7 +918,7 @@ def rendir_examen(request, examen_id):
             completado=True,
             fecha_fin=timezone.now()
         )
-        
+
         messages.success(request, f"Examen finalizado. Tu puntaje obtenido es: {puntaje_total} puntos.")
         return redirect('detalle_curso', curso_id=examen.curso.id)
 
@@ -1227,3 +1239,40 @@ def crear_examen_curso(request, curso_id):
             messages.error(request, "Debes ingresar un título para la evaluación.")
 
     return redirect('detalle_curso', curso_id=curso.id)
+
+@login_required
+def toggle_examen(request, examen_id):
+    """Permite al docente pausar o habilitar el examen para los alumnos con un solo clic."""
+    examen = get_object_or_404(Examen, id=examen_id)
+    es_docente = (
+        examen.curso.docentes.filter(id=request.user.id).exists()
+        or request.user.is_staff
+        or request.user.is_superuser
+    )
+    if not es_docente:
+        return HttpResponseForbidden("No tienes permisos para realizar esta acción.")
+
+    examen.activo = not examen.activo
+    examen.save()
+    estado = "habilitado" if examen.activo else "pausado"
+    messages.success(request, f"Evaluación '{examen.titulo}' {estado} correctamente.")
+    return redirect('detalle_curso', curso_id=examen.curso.id)
+
+
+@login_required
+def eliminar_examen(request, examen_id):
+    """Permite al docente eliminar una evaluación programada."""
+    examen = get_object_or_404(Examen, id=examen_id)
+    curso_id = examen.curso.id
+    es_docente = (
+        examen.curso.docentes.filter(id=request.user.id).exists()
+        or request.user.is_staff
+        or request.user.is_superuser
+    )
+    if not es_docente:
+        return HttpResponseForbidden("No tienes permisos para realizar esta acción.")
+
+    titulo = examen.titulo
+    examen.delete()
+    messages.success(request, f"Evaluación '{titulo}' eliminada del sistema.")
+    return redirect('detalle_curso', curso_id=curso_id)

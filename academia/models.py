@@ -6,9 +6,7 @@ from django.db import models
 from django.utils.dateparse import parse_date
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
-
-
-
+from django.utils import timezone
 
 
 # ----------------------------------------------------
@@ -256,6 +254,30 @@ class Examen(models.Model):
 
     def __str__(self):
         return f"[Semana {self.semana}] {self.titulo} - {self.curso.titulo}"
+
+    @property
+    def esta_disponible(self):
+        """Determina si un alumno puede ingresar a rendir la prueba."""
+        if not self.activo:
+            return False
+        ahora = timezone.now()
+        if self.fecha_apertura and ahora < self.fecha_apertura:
+            return False
+        if self.fecha_cierre and ahora > self.fecha_cierre:
+            return False
+        return True
+
+    @property
+    def estado_texto(self):
+        """Mensaje legible para mostrar al alumno en la interfaz."""
+        if not self.activo:
+            return "Evaluación pausada"
+        ahora = timezone.now()
+        if self.fecha_apertura and ahora < self.fecha_apertura:
+            return f"Disponible desde {self.fecha_apertura.strftime('%d/%m %H:%M')}"
+        if self.fecha_cierre and ahora > self.fecha_cierre:
+            return "Evaluación finalizada"
+        return "Disponible ahora"
 
 class Pregunta(models.Model):
     examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='preguntas')
