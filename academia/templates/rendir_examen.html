@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,57 +9,114 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/banco_preguntas.css' %}">
 </head>
+
 <body>
 
-<div class="bp-container" style="max-width: 800px;">
-    <div class="bp-top-bar">
-        <div>
-            <h2 class="bp-title">{{ examen.titulo }}</h2>
-            <p class="bp-subtitle">Curso: <strong>{{ examen.curso.titulo }}</strong></p>
+    <div class="bp-container" style="max-width: 800px;">
+        
+        <!-- Barra Flotante Superior con Temporizador -->
+        <div style="position: sticky; top: 15px; z-index: 100; background: #0f172a; color: #ffffff; padding: 12px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 6px 18px rgba(0,0,0,0.18); margin-bottom: 20px; border: 1px solid #1e293b;">
+            <div>
+                <span style="font-size: 11.5px; color: #94a3b8; display: block; text-transform: uppercase; letter-spacing: 0.5px;">Evaluación en curso</span>
+                <strong style="font-size: 15px; color: #f8fafc;">{{ examen.titulo }}</strong>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 12.5px; color: #94a3b8;">Tiempo restante:</span>
+                <div id="reloj-timer" style="background: #1e293b; color: #38bdf8; font-family: monospace; font-size: 19px; font-weight: 700; padding: 4px 12px; border-radius: 8px; border: 1px solid #334155; min-width: 65px; text-align: center;">
+                    --:--
+                </div>
+            </div>
         </div>
-        <a href="{% url 'detalle_curso' examen.curso.id %}" class="bp-btn-volver">
-            ← Cancelar y salir
-        </a>
-    </div>
 
-    <form method="POST">
-        {% csrf_token %}
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-            {% for pregunta in preguntas %}
+        <div class="bp-top-bar">
+            <div>
+                <h2 class="bp-title">{{ examen.titulo }}</h2>
+                <p class="bp-subtitle">Curso: <strong>{{ examen.curso.titulo }}</strong></p>
+            </div>
+            <a href="{% url 'detalle_curso' examen.curso.id %}" onclick="return confirm('¿Seguro que deseas salir? El tiempo seguirá corriendo.');" class="bp-btn-volver">
+                ← Salir al Curso
+            </a>
+        </div>
+
+        <form id="form-examen" method="POST">
+            {% csrf_token %}
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                {% for pregunta in preguntas %}
                 <div class="bp-card-form" style="padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <span style="font-weight: 700; color: #0284c7;">Pregunta {{ forloop.counter }}</span>
                         <span class="bp-badge-pts">{{ pregunta.puntaje }} pts</span>
                     </div>
-                    
-                    <p style="font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 16px;">
+
+                    <p style="font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 16px; line-height: 1.45;">
                         {{ pregunta.enunciado }}
                     </p>
 
-                    <!-- Alternativas desordenadas aleatoriamente -->
+                    <!-- Alternativas ordenadas aleatoriamente -->
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         {% for op in pregunta.opciones_aleatorias %}
-                            <label style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; background: #f8fafc;">
-                                <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ op.id }}" style="width: auto;">
-                                <span style="font-size: 14px; color: #334155;">{{ op.texto }}</span>
-                            </label>
+                        <label style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; background: #f8fafc; transition: all 0.15s ease;">
+                            <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ op.id }}" style="width: auto; cursor: pointer;">
+                            <span style="font-size: 14px; color: #334155;">{{ op.texto }}</span>
+                        </label>
                         {% endfor %}
                     </div>
                 </div>
-            {% empty %}
+                {% empty %}
                 <div class="bp-empty-state">
                     Esta evaluación aún no contiene preguntas activas.
                 </div>
-            {% endfor %}
+                {% endfor %}
 
-            {% if preguntas %}
-                <button type="submit" class="bp-btn-submit" style="padding: 15px; font-size: 16px;">
+                {% if preguntas %}
+                <button type="submit" id="btn-enviar-examen" onclick="return confirm('¿Estás seguro de enviar tus respuestas de forma definitiva?');" class="bp-btn-submit" style="padding: 15px; font-size: 16px;">
                     Enviar Evaluación y Calificar
                 </button>
-            {% endif %}
-        </div>
-    </form>
-</div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
 
+    <!-- Lógica de control temporal y autoenvío -->
+    <script>
+        let tiempoRestante = parseInt("{{ tiempo_segundos|default:3600 }}", 10);        
+        const reloj = document.getElementById('reloj-timer');
+        const formulario = document.getElementById('form-examen');
+        const btnEnviar = document.getElementById('btn-enviar-examen');
+
+        function actualizarReloj() {
+            const minutos = Math.floor(tiempoRestante / 60);
+            const segundos = tiempoRestante % 60;
+
+            reloj.textContent = 
+                (minutos < 10 ? '0' : '') + minutos + ':' + 
+                (segundos < 10 ? '0' : '') + segundos;
+
+            // Alerta visual al restar 5 minutos o menos
+            if (tiempoRestante <= 300) {
+                reloj.style.borderColor = '#ef4444';
+                reloj.style.color = '#f87171';
+                reloj.style.backgroundColor = '#450a0a';
+            }
+
+            // Agotamiento del tiempo
+            if (tiempoRestante <= 0) {
+                clearInterval(intervalo);
+                reloj.textContent = "00:00";
+                if (btnEnviar) {
+                    btnEnviar.disabled = true;
+                    btnEnviar.textContent = "Tiempo agotado. Guardando evaluación...";
+                }
+                alert("¡El tiempo límite ha concluido! Tus respuestas se enviarán automáticamente.");
+                formulario.submit();
+            } else {
+                tiempoRestante--;
+            }
+        }
+
+        actualizarReloj();
+        const intervalo = setInterval(actualizarReloj, 1000);
+    </script>
 </body>
+
 </html>

@@ -71,6 +71,7 @@ urlpatterns = [
     path('examen/<int:examen_id>/toggle/', views.toggle_examen, name='toggle_examen'),
     path('examen/<int:examen_id>/eliminar/', views.eliminar_examen, name='eliminar_examen'),
     path('pregunta/<int:pregunta_id>/eliminar/', views.eliminar_pregunta, name='eliminar_pregunta'),
+    path('examen/<int:examen_id>/revision/', views.revision_examen, name='revision_examen'),
 ]
 
 # Servir archivos multimedia subidos en desarrollo

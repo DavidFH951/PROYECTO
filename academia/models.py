@@ -251,6 +251,17 @@ class Examen(models.Model):
         default=0,
         help_text="0 para mostrar todas las preguntas registradas, o un número (ej. 10) para extraer aleatoriamente solo esa cantidad del banco."
     )
+    intentos_permitidos = models.PositiveIntegerField(
+        default=1,
+        verbose_name="Intentos Permitidos",
+        help_text="Número máximo de veces que un estudiante puede rendir esta prueba."
+    )
+    @property
+    def revision_disponible(self):
+        """Permite ver respuestas correctas solo cuando ya venció la fecha de cierre."""
+        if not self.fecha_cierre:
+            return True
+        return timezone.now() > self.fecha_cierre
 
     class Meta:
         verbose_name = "Examen / Evaluación"
@@ -322,3 +333,29 @@ class IntentoExamen(models.Model):
 
     def __str__(self):
         return f"{self.alumno.get_full_name()} - {self.examen.titulo} (Nota: {self.nota})"
+
+class IntentoExamen(models.Model):
+    alumno = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='intentos_examen'
+    )
+    examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='intentos')
+    nota = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    completado = models.BooleanField(default=False)
+    fecha_inicio = models.DateTimeField(auto_now_add=True)
+    fecha_fin = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.alumno.username} - {self.examen.titulo} ({self.nota} pts)"
+
+class RespuestaEstudiante(models.Model):
+    """Guarda la alternativa que marcó el alumno para la revisión diferida."""
+    intento = models.ForeignKey(IntentoExamen, on_delete=models.CASCADE, related_name='respuestas')
+    pregunta = models.ForeignKey('Pregunta', on_delete=models.CASCADE)
+    opcion_seleccionada = models.ForeignKey('Opcion', on_delete=models.SET_NULL, null=True, blank=True)
+    es_correcta = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Respuesta de Estudiante"
+        verbose_name_plural = "Respuestas de Estudiantes"

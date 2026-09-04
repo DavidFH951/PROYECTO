@@ -1292,3 +1292,109 @@ def eliminar_pregunta(request, pregunta_id):
     pregunta.delete()
     messages.success(request, "Pregunta eliminada correctamente del banco de la evaluación.")
     return redirect('banco_preguntas_curso', curso_id=curso.id)
+
+@login_required
+def rendir_examen(request, examen_id):
+    examen = get_object_or_404(Examen, id=examen_id)
+
+    es_docente = (
+        examen.curso.docentes.filter(id=request.user.id).exists()
+        or request.user.is_staff
+        or request.user.is_superuser
+    )
+
+    # 1. Validaciones para Alumnos (Disponibilidad e Intentos)
+    if not es_docente:
+        if not examen.esta_disponible:
+            messages.error(request, f"Acceso restringido: {examen.estado_texto}.")
+            return redirect('detalle_curso', curso_id=examen.curso.id)
+
+        intentos_hechos = IntentoExamen.objects.filter(
+            alumno=request.user, 
+            examen=examen, 
+            completado=True
+        ).count()
+
+        if intentos_hechos >= examen.intentos_permitidos:
+            messages.warning(request, f"Has alcanzado el límite máximo de intentos permitidos ({examen.intentos_permitidos}).")
+            return redirect('revision_examen', examen_id=examen.id)
+
+    # 2. Obtener Preguntas (Pool aleatorio)
+    queryset_preguntas = examen.preguntas.order_by('?')
+    if getattr(examen, 'cantidad_preguntas_aleatorias', 0) > 0:
+        preguntas = list(queryset_preguntas[:examen.cantidad_preguntas_aleatorias])
+    else:
+        preguntas = list(queryset_preguntas)
+
+    for p in preguntas:
+        p.opciones_aleatorias = list(p.opciones.order_by('?'))
+
+    # 3. Procesar Envío (Manual o por agotamiento del Timer)
+    if request.method == 'POST':
+        puntaje_total = 0.0
+
+        intento = IntentoExamen.objects.create(
+            alumno=request.user,
+            examen=examen,
+            completado=True,
+            fecha_fin=timezone.now()
+        )
+
+        for pregunta in examen.preguntas.all():
+            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
+            if opcion_id:
+                try:
+                    opcion = Opcion.objects.get(id=opcion_id, pregunta=pregunta)
+                    es_correcta = opcion.es_correcta
+                    if es_correcta:
+                        puntaje_total += float(pregunta.puntaje)
+                    
+                    # Registrar respuesta para revisión diferida
+                    RespuestaEstudiante.objects.create(
+                        intento=intento,
+                        pregunta=pregunta,
+                        opcion_seleccionada=opcion,
+                        es_correcta=es_correcta
+                    )
+                except Opcion.DoesNotExist:
+                    pass
+
+        intento.nota = puntaje_total
+        intento.save()
+
+        messages.success(request, f"Evaluación finalizada. Tu nota es: {puntaje_total} puntos.")
+        return redirect('revision_examen', examen_id=examen.id)
+
+    context = {
+        'examen': examen,
+        'preguntas': preguntas,
+        'tiempo_segundos': examen.duracion_minutos * 60,
+    }
+    return render(request, 'rendir_examen.html', context)
+
+
+@login_required
+def revision_examen(request, examen_id):
+    """Permite ver el resultado y la retroalimentación médica/teórica."""
+    examen = get_object_or_404(Examen, id=examen_id)
+    
+    # Obtener el último intento realizado por el estudiante
+    ultimo_intento = IntentoExamen.objects.filter(
+        alumno=request.user, 
+        examen=examen, 
+        completado=True
+    ).order_by('-fecha_fin').first()
+
+    if not ultimo_intento and not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "No has realizado ningún intento en esta evaluación.")
+        return redirect('detalle_curso', curso_id=examen.curso.id)
+
+    respuestas = ultimo_intento.respuestas.select_related('pregunta', 'opcion_seleccionada').all() if ultimo_intento else []
+
+    context = {
+        'examen': examen,
+        'intento': ultimo_intento,
+        'respuestas': respuestas,
+        'puede_ver_solucionario': examen.revision_disponible or request.user.is_staff,
+    }
+    return render(request, 'revision_examen.html', context)

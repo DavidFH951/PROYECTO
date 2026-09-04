@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisión | {{ examen.titulo }}</title>
+    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=3.1">
+    <style>
+        .card-respuesta-correcta {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+        .card-respuesta-incorrecta {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+        .badge-status-correcta {
+            color: #16a34a;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .badge-status-incorrecta {
+            color: #dc2626;
+            font-size: 12px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body style="background: #f8fafc; font-family: 'Inter', sans-serif; padding: 30px;">
+
+    <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px;">
+            <div>
+                <h2 style="margin: 0; color: #0f172a;">Revisión de Evaluación</h2>
+                <p style="margin: 4px 0 0 0; color: #64748b; font-size: 14px;">{{ examen.titulo }} &bull; {{ examen.curso.titulo }}</p>
+            </div>
+            <a href="{% url 'detalle_curso' examen.curso.id %}" style="text-decoration: none; background: #e2e8f0; color: #334155; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 13px;">
+                ← Regresar al Curso
+            </a>
+        </div>
+
+        <!-- Tarjeta de Calificación -->
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 18px; display: flex; justify-content: space-around; margin-bottom: 25px; text-align: center;">
+            <div>
+                <span style="font-size: 12px; color: #1e40af; font-weight: 600; display: block;">ESTADO</span>
+                <strong style="color: #1e3a8a; font-size: 16px;">Completado</strong>
+            </div>
+            <div>
+                <span style="font-size: 12px; color: #1e40af; font-weight: 600; display: block;">CALIFICACIÓN OBTENIDA</span>
+                <strong style="color: #2563eb; font-size: 22px;">{{ intento.nota }} pts</strong>
+            </div>
+            <div>
+                <span style="font-size: 12px; color: #1e40af; font-weight: 600; display: block;">FECHA DE CIERRE</span>
+                <strong style="color: #1e3a8a; font-size: 14px;">{{ intento.fecha_fin|date:"d/m/Y H:i" }}</strong>
+            </div>
+        </div>
+
+        {% if puede_ver_solucionario %}
+            <h3 style="color: #1e293b; font-size: 16px; margin-bottom: 16px;">Detalle de Respuestas y Solucionario</h3>
+            
+            {% for r in respuestas %}
+            <div class="{% if r.es_correcta %}card-respuesta-correcta{% else %}card-respuesta-incorrecta{% endif %}" style="border-radius: 8px; padding: 16px; margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <strong style="color: #0f172a; font-size: 14px;">Pregunta: {{ r.pregunta.enunciado }}</strong>
+                    {% if r.es_correcta %}
+                        <span class="badge-status-correcta">✔ Correcta</span>
+                    {% else %}
+                        <span class="badge-status-incorrecta">✘ Incorrecta</span>
+                    {% endif %}
+                </div>
+                
+                <p style="font-size: 13px; color: #334155; margin: 4px 0;">
+                    <strong>Tu respuesta:</strong> {{ r.opcion_seleccionada.texto|default:"Sin responder" }}
+                </p>
+
+                {% if r.pregunta.explicacion %}
+                <div style="margin-top: 8px; padding: 8px 12px; background: rgba(255,255,255,0.85); border-radius: 6px; border-left: 3px solid #0284c7; font-size: 12px; color: #0369a1;">
+                    <strong>Justificación docente:</strong> {{ r.pregunta.explicacion }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 30px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; color: #64748b;">
+                <p style="font-size: 24px; margin-bottom: 8px;">🔒</p>
+                <h4 style="margin: 0 0 6px 0; color: #334155;">Solucionario en reserva</h4>
+                <p style="font-size: 13px; margin: 0;">Para proteger la integridad del examen, las respuestas correctas y justificaciones estarán disponibles cuando finalice el período de entrega de todos los alumnos ({% if examen.fecha_cierre %}{{ examen.fecha_cierre|date:"d/m/Y H:i" }}{% else %}al cierre del ciclo{% endif %}).</p>
+            </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
