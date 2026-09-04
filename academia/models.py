@@ -263,9 +263,11 @@ class Examen(models.Model):
     )
     @property
     def revision_disponible(self):
-        """Permite ver respuestas correctas solo cuando ya venció la fecha de cierre."""
+        """Permite ver el solucionario si venció la fecha límite o si el docente forzó el cierre."""
+        if self.cerrado_manualmente:
+           return True
         if not self.fecha_cierre:
-            return True
+           return True
         return timezone.now() > self.fecha_cierre
 
     class Meta:
