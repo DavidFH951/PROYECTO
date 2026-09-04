@@ -14,10 +14,10 @@ body.intranet-body {
     min-height: 100vh;
 }
 
-/* Barra Lateral */
+/* Sidebar en Azul Médico Institucional */
 .intranet-sidebar {
     width: 260px;
-    background-color: #064e3b;
+    background: linear-gradient(180deg, #0f4c81 0%, #0d3b66 100%); /* Azul clínico Galeno */
     color: #ffffff;
     display: flex;
     flex-direction: column;
@@ -26,38 +26,17 @@ body.intranet-body {
 
 .intranet-sidebar-header {
     padding: 24px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.intranet-sidebar-header img {
-    height: 38px;
-    width: auto;
-    border-radius: 6px;
-}
-
-.intranet-brand-title {
-    font-size: 15px;
-    font-weight: 700;
-    display: block;
-    line-height: 1.2;
-}
-
 .intranet-brand-sub {
     font-size: 11px;
-    color: #a7f3d0;
+    color: #7dd3fc; /* Celeste cielo clínico */
     text-transform: uppercase;
     letter-spacing: 0.5px;
-}
-
-.intranet-menu {
-    padding: 20px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
 }
 
 .intranet-nav-link {
@@ -65,7 +44,7 @@ body.intranet-body {
     align-items: center;
     gap: 12px;
     padding: 10px 14px;
-    color: #e2e8f0;
+    color: #e0f2fe;
     text-decoration: none;
     font-size: 13.5px;
     font-weight: 600;
@@ -75,7 +54,7 @@ body.intranet-body {
 
 .intranet-nav-link:hover,
 .intranet-nav-link.active {
-    background-color: #047857;
+    background-color: #0284c7; /* Azul médico vibrante */
     color: #ffffff;
 }
 
@@ -84,10 +63,57 @@ body.intranet-body {
 }
 
 .intranet-nav-link.logout:hover {
-    background-color: #991b1b;
+    background-color: #dc2626;
     color: #ffffff;
 }
 
+/* Avatar de Usuario */
+.intranet-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #0284c7; /* Azul clínico */
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.intranet-avatar.docente-avatar {
+    background-color: #6366f1;
+}
+
+/* Banner Central Galeno */
+.banner-aula-virtual {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border-radius: 14px;
+    padding: 24px 28px;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    box-shadow: 0 8px 20px rgba(2, 132, 199, 0.22);
+}
+
+.btn-entrar-aula {
+    background-color: #ffffff;
+    color: #0369a1;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 22px;
+    border-radius: 8px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-entrar-aula:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
 /* Área Principal */
 .intranet-main {
     flex: 1;

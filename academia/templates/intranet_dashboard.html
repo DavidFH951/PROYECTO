@@ -8,7 +8,7 @@
     <title>Intranet | Academia Galeno</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
 </head>
 
 <body class="intranet-body">
@@ -22,14 +22,11 @@
                 <div>
                     <span class="intranet-brand-title">Academia Galeno</span>
                     <span class="intranet-brand-sub">
-                        {% if es_docente %}
-                        Portal Docente
-                        {% else %}
-                        Portal Estudiantil
-                        {% endif %}
+                        {% if es_docente %}Portal Docente{% else %}Portal Estudiantil{% endif %}
                     </span>
                 </div>
             </div>
+            
             <nav class="intranet-menu">
                 <a href="{% url 'dashboard' %}" class="intranet-nav-link active">
                     <span>🏠</span> Inicio / Intranet
@@ -45,6 +42,9 @@
                 </a>
                 <a href="{% url 'mis_notas' %}" class="intranet-nav-link">
                     <span>📊</span> Consulta de Notas
+                </a>
+                <a href="{% url 'mis_asistencias' %}" class="intranet-nav-link">
+                    <span>⏱️</span> Mi Asistencia a Clases
                 </a>
                 {% endif %}
 
@@ -62,16 +62,14 @@
 
             <header class="intranet-topbar">
                 <div class="intranet-welcome-text">
-                    Hola <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>, bienvenido a
-                    tu portal.
+                    Hola <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>, bienvenido a tu portal.
                 </div>
                 <div class="intranet-user-pill">
                     <div class="intranet-avatar {% if es_docente %}docente-avatar{% endif %}">
                         {{ request.user.first_name|first|default:request.user.username|first }}
                     </div>
                     <span>
-                        {{ request.user.username }}
-                        ({% if es_docente %}Docente{% else %}Alumno{% endif %})
+                        {{ request.user.username }} ({% if es_docente %}Docente{% else %}Alumno{% endif %})
                     </span>
                 </div>
             </header>
@@ -125,8 +123,7 @@
                 <section class="banner-aula-virtual">
                     <div>
                         <h2 style="margin: 0 0 6px 0; font-size: 20px;">🎓 Aula Virtual Academia Galeno</h2>
-                        <p style="margin: 0; opacity: 0.9; font-size: 13.5px;">Accede a tus materiales de clase,
-                            conferencias y evaluaciones activas.</p>
+                        <p style="margin: 0; opacity: 0.9; font-size: 13.5px;">Accede a tus materiales de clase, conferencias y evaluaciones activas.</p>
                     </div>
                     <div>
                         <a href="{% url 'mis_cursos' %}" class="btn-entrar-aula">
@@ -142,8 +139,7 @@
                     <!-- Horario Semanal de Clases / Dictado -->
                     <div class="dashboard-card">
                         <h3 class="dashboard-card-title">
-                            <span>📅</span> {% if es_docente %}Horario de Clases a Dictar{% else %}Horario Semanal de
-                            Clases{% endif %}
+                            <span>📅</span> {% if es_docente %}Horario de Clases a Dictar{% else %}Horario Semanal de Clases{% endif %}
                         </h3>
                         {% if horarios %}
                         <table class="table-horario">
@@ -181,55 +177,49 @@
 
                         <div style="display: flex; flex-direction: column; gap: 12px;">
                             {% if es_docente %}
-                            {% for c in cursos %}
-                            <div
-                                style="padding: 14px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
-                                <strong style="font-size: 14px; display: block; color: #0f172a; margin-bottom: 4px;">{{
-                                    c.titulo }}</strong>
-                                <span style="font-size: 12px; color: #64748b; display: block; margin-bottom: 10px;">
-                                    Matriculados: {{ c.inscripciones.count }} alumno(s)
-                                </span>
-
-                                <!-- ACCIONES DOCENTES DIRECTAS DESDE LA INTRANET -->
-                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                                    <a href="{% url 'docente_asistencia_curso' c.id %}"
-                                        style="background-color: #059669; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none;">
-                                        ⏱️ Pasar Asistencia
-                                    </a>
-                                    <a href="{% url 'docente_calificar_curso' c.id %}"
-                                        style="background-color: #7c3aed; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none;">
-                                        📋 Calificar
-                                    </a>
-                                    <a href="{% url 'detalle_curso' c.id %}"
-                                        style="background-color: #2563eb; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none;">
-                                        🎓 Aula Virtual
-                                    </a>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <p style="font-size: 13px; color: #94a3b8; margin: 0;">No tienes cursos asignados como
-                                docente.</p>
-                            {% endfor %}
-                            {% else %}
-                            {% for insc in inscripciones %}
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
-                                <div>
-                                    <strong style="font-size: 13px; display: block; color: #0f172a;">{{
-                                        insc.curso.titulo }}</strong>
-                                    <span style="font-size: 11.5px; color: #64748b;">
-                                        {{ insc.curso.periodo.nombre|default:"Ciclo Activo" }}
+                                {% for c in cursos %}
+                                <div style="padding: 14px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                    <strong style="font-size: 14px; display: block; color: #0f172a; margin-bottom: 4px;">{{ c.titulo }}</strong>
+                                    <span style="font-size: 12px; color: #64748b; display: block; margin-bottom: 10px;">
+                                        Matriculados: {{ c.inscripciones.count }} alumno(s)
                                     </span>
+
+                                    <!-- ACCIONES DOCENTES DIRECTAS DESDE LA INTRANET -->
+                                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                        <a href="{% url 'docente_asistencia_curso' c.id %}" style="background-color: #059669; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none;">
+                                            ⏱️ Pasar Asistencia
+                                        </a>
+                                        <a href="{% url 'docente_calificar_curso' c.id %}" style="background-color: #0284c7; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none;">
+                                            📋 Calificar
+                                        </a>
+                                        <a href="{% url 'detalle_curso' c.id %}" style="background-color: #0f4c81; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none;">
+                                            🎓 Aula Virtual
+                                        </a>
+                                    </div>
                                 </div>
-                                <a href="{% url 'detalle_curso' insc.curso.id %}"
-                                    style="text-decoration: none; font-size: 12px; color: #2563eb; font-weight: 700;">
-                                    Entrar →
-                                </a>
-                            </div>
-                            {% empty %}
-                            <p style="font-size: 13px; color: #94a3b8; margin: 0;">No estás registrado en ningún curso.
-                            </p>
-                            {% endfor %}
+                                {% empty %}
+                                <p style="font-size: 13px; color: #94a3b8; margin: 0; text-align: center; padding: 15px;">
+                                    No tienes cursos asignados como docente.
+                                </p>
+                                {% endfor %}
+                            {% else %}
+                                {% for insc in inscripciones %}
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                    <div>
+                                        <strong style="font-size: 13.5px; display: block; color: #0f172a;">{{ insc.curso.titulo }}</strong>
+                                        <span style="font-size: 11.5px; color: #64748b;">
+                                            {{ insc.curso.periodo.nombre|default:"Ciclo Activo" }}
+                                        </span>
+                                    </div>
+                                    <a href="{% url 'detalle_curso' insc.curso.id %}" style="text-decoration: none; font-size: 12.5px; color: #0284c7; font-weight: 700;">
+                                        Entrar →
+                                    </a>
+                                </div>
+                                {% empty %}
+                                <p style="font-size: 13px; color: #94a3b8; margin: 0; text-align: center; padding: 15px;">
+                                    No estás registrado en ningún curso actualmente.
+                                </p>
+                                {% endfor %}
                             {% endif %}
                         </div>
                     </div>
