@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Asistencia a Clases | Academia Galeno</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/asistencias.css' %}?v=1.0">
+</head>
+<body class="intranet-body">
+
+    <div class="intranet-layout">
+        
+        <!-- Sidebar -->
+        <aside class="intranet-sidebar">
+            <div class="intranet-sidebar-header">
+                <img src="{% static 'image/logo.jpeg' %}" alt="Logo">
+                <div>
+                    <span class="intranet-brand-title">Academia Galeno</span>
+                    <span class="intranet-brand-sub">Portal Académico</span>
+                </div>
+            </div>
+
+            <nav class="intranet-menu">
+                <a href="{% url 'dashboard' %}" class="intranet-nav-link">
+                    <span>🏠</span> Inicio / Intranet
+                </a>
+                {% if not es_docente %}
+                    <a href="{% url 'mis_cursos' %}" class="intranet-nav-link">
+                        <span>🎓</span> Aula Virtual
+                    </a>
+                    <a href="{% url 'mis_notas' %}" class="intranet-nav-link">
+                        <span>📊</span> Consulta de Notas
+                    </a>
+                {% endif %}
+                <a href="{% url 'mis_asistencias' %}" class="intranet-nav-link active">
+                    <span>⏱️</span> Mi Asistencia a Clases
+                </a>
+                <a href="{% url 'mi_perfil' %}" class="intranet-nav-link">
+                    <span>👤</span> Mi Perfil
+                </a>
+                <a href="{% url 'salir' %}" class="intranet-nav-link logout" style="margin-top: auto;">
+                    <span>🚪</span> Cerrar Sesión
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Contenido Central -->
+        <div class="intranet-main">
+            
+            <header class="intranet-topbar">
+                <div class="intranet-welcome-text">
+                    Control de Asistencias: <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                </div>
+                <a href="{% url 'dashboard' %}" style="text-decoration: none; font-size: 13px; font-weight: 600; color: #047857;">
+                    ← Volver a Intranet
+                </a>
+            </header>
+
+            <main class="intranet-content">
+
+                <!-- Barra Título Superior -->
+                <div class="barra-titulo-negra">
+                    <span class="barra-titulo-texto">Control de asistencia a clases</span>
+                    
+                    <form method="GET" class="filtro-periodo-form">
+                        <label for="periodo" class="filtro-periodo-label">Semestre:</label>
+                        <select name="periodo" id="periodo" onchange="this.form.submit()" class="filtro-periodo-select">
+                            {% for p in periodos %}
+                                <option value="{{ p.id }}" {% if periodo_actual and periodo_actual.id == p.id %}selected{% endif %}>
+                                    {{ p.codigo }} {% if p.activo %}(Actual){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+
+                <!-- Contenedor Acordeón -->
+                <div class="contenedor-acordeon">
+                    <div class="acordeon-top-bar">
+                        <span class="acordeon-seccion-titulo">Cursos:</span>
+                        <button onclick="window.print()" class="btn-print-asistencia" title="Imprimir récord">
+                            🖨️
+                        </button>
+                    </div>
+
+                    {% for item in reporte_asistencias %}
+                    <div class="curso-acordeon-item">
+                        <button type="button" class="curso-header-btn" onclick="toggleDetalle('curso-{{ item.curso.id }}', this)">
+                            <div class="curso-header-titulo">
+                                <span>📄</span>
+                                <span>{{ item.curso.titulo }}</span>
+                                <span class="curso-header-sub">Grupo: 01-Teoría/Práctica</span>
+                            </div>
+                            <div class="curso-header-derecha">
+                                <span class="porcentaje-badge {% if item.porcentaje >= 70 %}porcentaje-optimo{% else %}porcentaje-riesgo{% endif %}">
+                                    {{ item.porcentaje }}% Asistencia
+                                </span>
+                                <span class="flecha-indicador">▼</span>
+                            </div>
+                        </button>
+
+                        <div id="curso-{{ item.curso.id }}" class="curso-body-detalle">
+                            {% if item.registros %}
+                            <table class="tabla-asistencia-ref">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Semana</th>
+                                        <th style="width: 40%;">Fecha y Hora</th>
+                                        <th style="width: 35%;">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reg in item.registros %}
+                                    <tr>
+                                        <td>Semana {{ reg.semana }}</td>
+                                        <td>{{ reg.fecha|date:"d/m/Y" }}</td>
+                                        <td>
+                                            {% if reg.estado == 'P' %}
+                                                <span class="estado-p">P</span>
+                                            {% elif reg.estado == 'T' %}
+                                                <span class="estado-t">T</span>
+                                            {% elif reg.estado == 'F' %}
+                                                <span class="estado-f">F</span>
+                                            {% elif reg.estado == 'J' %}
+                                                <span class="estado-j">J</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p class="empty-asistencia-msg">
+                                No se registran asistencias computadas para esta materia aún.
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="empty-asistencia-msg" style="padding: 30px;">
+                        No tienes cursos inscritos en el semestre seleccionado.
+                    </p>
+                    {% endfor %}
+                </div>
+
+                <!-- Leyenda Inferior -->
+                <div class="leyenda-footer">
+                    <strong>Leyenda:</strong>
+                    <span><strong style="color: #16a34a;">P</strong> = Presente</span>
+                    <span><strong style="color: #d97706;">T</strong> = Tardanza</span>
+                    <span><strong style="color: #4f46e5;">J</strong> = Justificado</span>
+                    <span><strong style="color: #dc2626;">F</strong> = Falta</span>
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <script>
+    function toggleDetalle(id, btn) {
+        const panel = document.getElementById(id);
+        const flecha = btn.querySelector('.flecha-indicador');
+        const estaAbierto = panel.style.display === 'block';
+
+        if (estaAbierto) {
+            panel.style.display = 'none';
+            flecha.textContent = '▼';
+            btn.classList.remove('activo');
+        } else {
+            panel.style.display = 'block';
+            flecha.textContent = '▲';
+            btn.classList.add('activo');
+        }
+    }
+    </script>
+
+</body>
+</html>

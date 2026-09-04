@@ -1,5 +1,9 @@
 import csv
 import io
+from datetime import date
+
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
@@ -10,10 +14,6 @@ from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.utils import timezone
 from django.core.paginator import Paginator
-from datetime import date
-
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 from .models import (
     Curso, 
@@ -29,7 +29,8 @@ from .models import (
     Opcion, 
     IntentoExamen, 
     RespuestaEstudiante,
-    Asistencia, HorarioCurso
+    Asistencia, 
+    HorarioCurso
 )
 from .forms import (
     RegistroUsuarioForm, 
@@ -136,7 +137,6 @@ def dashboard(request):
     if user.groups.filter(name='Docentes').exists():
         return redirect('panel_docente')
 
-    # Perfil Estudiante: Cursos inscritos
     inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
     cursos_ids = inscripciones.values_list('curso_id', flat=True)
 
@@ -173,6 +173,13 @@ def mi_perfil(request):
 # ==============================================================================
 # 3. MÓDULO DE CURSOS Y AULA VIRTUAL (ALUMNOS Y DOCENTES)
 # ==============================================================================
+
+@login_required
+def mis_cursos(request):
+    """Aula Virtual: Puente que lista las asignaturas matriculadas del alumno."""
+    inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso', 'curso__periodo')
+    return render(request, 'mis_cursos.html', {'inscripciones': inscripciones})
+
 
 @login_required
 def detalle_curso(request, curso_id):
@@ -223,36 +230,40 @@ def detalle_curso(request, curso_id):
 
 @login_required
 def mis_notas(request):
-    """Historial de notas del alumno agrupado por período."""
-    periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
-    periodo_id = request.GET.get('periodo')
-    
-    periodo_actual = None
-    if periodo_id:
-        periodo_actual = PeriodoAcademico.objects.filter(id=periodo_id).first()
-    if not periodo_actual:
-        periodo_actual = PeriodoAcademico.objects.filter(activo=True).first() or periodos.first()
-
-    if periodo_actual:
-        inscripciones = Inscripcion.objects.filter(
-            alumno=request.user,
-            curso__periodo=periodo_actual
-        ).select_related('curso')
-    else:
-        inscripciones = Inscripcion.objects.none()
-
-    cursos_alumno = [ins.curso for ins in inscripciones]
-
-    context = {
-        'periodos': periodos,
-        'periodo_actual': periodo_actual,
-        'cursos_alumno': cursos_alumno,
+    """Sábana consolidada de notas del alumno en la Intranet con nombres y fórmulas dinámicas."""
+    inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso', 'curso__periodo')
+    calificaciones_dict = {
+        c.curso_id: c for c in Calificacion.objects.filter(alumno=request.user)
     }
-    return render(request, 'notas.html', context)
+
+    reporte_cursos = []
+    for insc in inscripciones:
+        curso = insc.curso
+        calif = calificaciones_dict.get(curso.id)
+        criterios = curso.obtener_criterios()
+        notas_map = calif.notas_detalle if (calif and calif.notas_detalle) else {}
+
+        evaluaciones = []
+        for crit in criterios:
+            cod = crit["codigo"]
+            evaluaciones.append({
+                'nombre': crit["nombre"],
+                'codigo': cod,
+                'nota': notas_map.get(cod)
+            })
+
+        reporte_cursos.append({
+            'curso': curso,
+            'evaluaciones': evaluaciones,
+            'formula': curso.formula_evaluacion,
+            'promedio': calif.promedio if (calif and calif.promedio is not None) else None
+        })
+
+    return render(request, 'mis_notas.html', {'reporte_cursos': reporte_cursos})
 
 
 # ==============================================================================
-# 4. GESTIÓN DOCENTE (CONTENIDOS Y CALIFICACIONES)
+# 4. GESTIÓN DOCENTE (CONTENIDOS, CALIFICACIONES Y ASISTENCIAS)
 # ==============================================================================
 
 @login_required
@@ -316,6 +327,7 @@ def eliminar_material(request, material_id):
 
 @login_required
 def docente_calificar_curso(request, curso_id):
+    """Planilla dinámica donde el docente ingresa calificaciones basadas en los criterios del curso."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not es_docente_del_curso(request.user, curso):
@@ -378,6 +390,79 @@ def docente_calificar_curso(request, curso_id):
         'formula_evaluacion': curso.formula_evaluacion,
     }
     return render(request, 'docente_calificar.html', context)
+
+
+@login_required
+def docente_asistencia_curso(request, curso_id):
+    """Gestión de asistencias en Intranet Docente con selector de Semana y Fecha."""
+    curso = get_object_or_404(Curso, id=curso_id)
+
+    if not es_docente_del_curso(request.user, curso):
+        messages.error(request, "No tienes permisos para gestionar este curso.")
+        return redirect('panel_docente')
+
+    semana = int(request.GET.get('semana', 1))
+    fecha_str = request.GET.get('fecha', str(date.today()))
+    try:
+        fecha_sesion = date.fromisoformat(fecha_str)
+    except ValueError:
+        fecha_sesion = date.today()
+
+    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
+
+    if request.method == 'POST':
+        semana_post = int(request.POST.get('semana', 1))
+        fecha_post_str = request.POST.get('fecha', str(date.today()))
+        try:
+            fecha_guardar = date.fromisoformat(fecha_post_str)
+        except ValueError:
+            fecha_guardar = date.today()
+
+        total_marcados = 0
+        for insc in inscripciones:
+            alumno_id = str(insc.alumno.id)
+            estado = request.POST.get(f'asistencia_{alumno_id}', 'P')
+
+            Asistencia.objects.update_or_create(
+                curso=curso,
+                alumno=insc.alumno,
+                fecha=fecha_guardar,
+                defaults={
+                    'semana': semana_post,
+                    'estado': estado
+                }
+            )
+            total_marcados += 1
+
+        registrar_log(
+            request, 
+            "Control Asistencia", 
+            f"Registró asistencia (Sem {semana_post}, {fecha_guardar}) para {total_marcados} alumno(s) en '{curso.titulo}'"
+        )
+        messages.success(request, f"Asistencia guardada correctamente para la Semana {semana_post} ({fecha_guardar}).")
+        return redirect(f"{request.path}?semana={semana_post}&fecha={fecha_guardar}")
+
+    asistencias_existentes = {
+        a.alumno_id: a.estado
+        for a in Asistencia.objects.filter(curso=curso, fecha=fecha_sesion)
+    }
+
+    filas = []
+    for insc in inscripciones:
+        filas.append({
+            'alumno': insc.alumno,
+            'estado': asistencias_existentes.get(insc.alumno.id, 'P')
+        })
+
+    context = {
+        'curso': curso,
+        'semana': semana,
+        'fecha_sesion': fecha_sesion.strftime('%Y-%m-%d'),
+        'filas': filas,
+        'rango_semanas': range(1, 17),
+    }
+    return render(request, 'docente_asistencia.html', context)
+
 
 # ==============================================================================
 # 5. MÓDULO DE EVALUACIONES, EXÁMENES Y BANCO DE PREGUNTAS
@@ -649,7 +734,6 @@ def rendir_examen(request, examen_id):
     examen = get_object_or_404(Examen, id=examen_id)
     es_docente = es_docente_del_curso(request.user, examen.curso)
 
-    # 1. Validaciones para Alumnos (Disponibilidad e Intentos Máximos)
     if not es_docente:
         if not examen.esta_disponible:
             messages.error(request, f"Acceso restringido: {examen.estado_texto}.")
@@ -665,18 +749,15 @@ def rendir_examen(request, examen_id):
             messages.warning(request, f"Has alcanzado el límite de intentos permitidos ({examen.intentos_permitidos}).")
             return redirect('revision_examen', examen_id=examen.id)
 
-    # 2. Selección de preguntas aleatorias (Pool)
     queryset_preguntas = examen.preguntas.order_by('?')
     if getattr(examen, 'cantidad_preguntas_aleatorias', 0) > 0:
         preguntas = list(queryset_preguntas[:examen.cantidad_preguntas_aleatorias])
     else:
         preguntas = list(queryset_preguntas)
 
-    # 3. Barajar alternativas
     for p in preguntas:
         p.opciones_aleatorias = list(p.opciones.order_by('?'))
 
-    # 4. Procesar Envío
     if request.method == 'POST':
         puntaje_total = 0.0
 
@@ -744,6 +825,7 @@ def revision_examen(request, examen_id):
     }
     return render(request, 'revision_examen.html', context)
 
+
 @login_required
 def ver_intentos_examen(request, examen_id):
     """Permite al docente y admin ver la lista de todos los alumnos que enviaron el examen."""
@@ -778,9 +860,10 @@ def ver_detalle_intento(request, intento_id):
         'examen': examen,
         'intento': intento,
         'respuestas': respuestas,
-        'puede_ver_solucionario': True,  # El docente siempre ve el solucionario completo
+        'puede_ver_solucionario': True,
     }
     return render(request, 'revision_examen.html', context)
+
 
 @login_required
 def finalizar_examen_docente(request, examen_id):
@@ -804,6 +887,8 @@ def verificar_estado_examen(request, examen_id):
     return JsonResponse({
         'cerrado': examen.cerrado_manualmente or not examen.activo
     })
+
+
 # ==============================================================================
 # 6. MÓDULO ADMINISTRADOR (DASHBOARD, USUARIOS Y MATRÍCULAS)
 # ==============================================================================
@@ -1006,10 +1091,7 @@ def admin_crear_curso(request):
             descripcion=descripcion,
             estado=estado,
             imagen_portada=imagen,
-            formula_evaluacion=request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3'),
-            etiqueta_n1=request.POST.get('etiqueta_n1', 'Nota 1'),
-            etiqueta_n2=request.POST.get('etiqueta_n2', 'Nota 2'),
-            etiqueta_n3=request.POST.get('etiqueta_n3', 'Nota 3')
+            formula_evaluacion=request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3')
         )
         
         docentes_ids = request.POST.getlist('docentes')
@@ -1059,7 +1141,6 @@ def admin_editar_curso(request, curso_id):
         return redirect('admin_cursos_lista')
 
     docentes = User.objects.filter(groups__name='Docentes')
-    # Extraemos los IDs como lista de enteros para evaluar limpiamente en el template
     docentes_asignados_ids = list(curso.docentes.values_list('id', flat=True))
 
     context = {
@@ -1069,6 +1150,7 @@ def admin_editar_curso(request, curso_id):
         'criterios': curso.obtener_criterios(),
     }
     return render(request, 'editar_curso.html', context)
+
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
@@ -1365,66 +1447,60 @@ def gestionar_temporada(request):
     return redirect('admin_dashboard')
 
 @login_required
-def docente_asistencia_curso(request, curso_id):
-    """Planilla diaria donde el docente pasa lista (Presente, Tardanza, Falta, Justificado)."""
-    curso = get_object_or_404(Curso, id=curso_id)
+def mis_asistencias(request):
+    """Vista estilo acordeón que muestra el historial de asistencias por curso."""
+    user = request.user
+    periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
+    periodo_id = request.GET.get('periodo')
 
-    if not es_docente_del_curso(request.user, curso):
-        messages.error(request, "No tienes permisos para registrar asistencias en este curso.")
-        return redirect('panel_docente')
+    periodo_actual = None
+    if periodo_id:
+        periodo_actual = PeriodoAcademico.objects.filter(id=periodo_id).first()
+    if not periodo_actual:
+        periodo_actual = PeriodoAcademico.objects.filter(activo=True).first() or periodos.first()
 
-    fecha_seleccionada_str = request.GET.get('fecha', str(date.today()))
-    try:
-        fecha_sesion = date.fromisoformat(fecha_seleccionada_str)
-    except ValueError:
-        fecha_sesion = date.today()
+    # Si es docente y no alumno, lista los cursos que dicta; si es alumno, los que cursa
+    es_docente = es_docente_valido(user)
+    if es_docente:
+        cursos_qs = Curso.objects.filter(docentes=user)
+    else:
+        inscripciones = Inscripcion.objects.filter(alumno=user)
+        if periodo_actual:
+            inscripciones = inscripciones.filter(curso__periodo=periodo_actual)
+        cursos_qs = [ins.curso for ins in inscripciones.select_related('curso')]
 
-    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
+    reporte_asistencias = []
+    for curso in cursos_qs:
+        if es_docente:
+            # Para el docente muestra las sesiones generadas del curso
+            registros = Asistencia.objects.filter(curso=curso).order_by('semana', 'fecha')
+        else:
+            # Para el alumno muestra estrictamente sus asistencias
+            registros = Asistencia.objects.filter(curso=curso, alumno=user).order_by('semana', 'fecha')
 
-    if request.method == 'POST':
-        fecha_post = request.POST.get('fecha_sesion', str(date.today()))
-        try:
-            fecha_guardar = date.fromisoformat(fecha_post)
-        except ValueError:
-            fecha_guardar = date.today()
+        total = registros.count()
+        presentes = registros.filter(estado='P').count()
+        tardanzas = registros.filter(estado='T').count()
+        faltas = registros.filter(estado='F').count()
+        justificados = registros.filter(estado='J').count()
 
-        registros_actualizados = 0
-        for insc in inscripciones:
-            alumno_id = str(insc.alumno.id)
-            estado_marcado = request.POST.get(f'asistencia_{alumno_id}', 'F')
+        porcentaje = round(((presentes + tardanzas + justificados) / total) * 100, 1) if total > 0 else 100.0
 
-            Asistencia.objects.update_or_create(
-                curso=curso,
-                alumno=insc.alumno,
-                fecha=fecha_guardar,
-                defaults={'estado': estado_marcado}
-            )
-            registros_actualizados += 1
-
-        registrar_log(
-            request,
-            "Control de Asistencia",
-            f"Registró asistencia para {registros_actualizados} alumno(s) en '{curso.titulo}' fecha {fecha_guardar}"
-        )
-        messages.success(request, f"Asistencia guardada para la fecha {fecha_guardar}.")
-        return redirect(f"{request.path}?fecha={fecha_guardar}")
-
-    # Cargar asistencias existentes para la fecha seleccionada
-    asistencias_dia = {
-        a.alumno_id: a.estado 
-        for a in Asistencia.objects.filter(curso=curso, fecha=fecha_sesion)
-    }
-
-    filas_asistencia = []
-    for insc in inscripciones:
-        filas_asistencia.append({
-            'alumno': insc.alumno,
-            'estado': asistencias_dia.get(insc.alumno.id, 'P')  # 'P' (Presente) por defecto
+        reporte_asistencias.append({
+            'curso': curso,
+            'registros': registros,
+            'total': total,
+            'presentes': presentes,
+            'tardanzas': tardanzas,
+            'faltas': faltas,
+            'justificados': justificados,
+            'porcentaje': porcentaje
         })
 
     context = {
-        'curso': curso,
-        'fecha_sesion': fecha_sesion.strftime('%Y-%m-%d'),
-        'filas_asistencia': filas_asistencia,
+        'periodos': periodos,
+        'periodo_actual': periodo_actual,
+        'reporte_asistencias': reporte_asistencias,
+        'es_docente': es_docente,
     }
-    return render(request, 'docente_asistencia.html', context)
+    return render(request, 'mis_asistencias.html', context)

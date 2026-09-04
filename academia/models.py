@@ -32,7 +32,6 @@ class PeriodoAcademico(models.Model):
         inicio = self.fecha_inicio
         fin = self.fecha_fin
 
-        # Normalizar a objeto date por seguridad
         if isinstance(inicio, str):
             inicio = parse_date(inicio)
         elif isinstance(inicio, datetime):
@@ -65,6 +64,8 @@ class PeriodoAcademico(models.Model):
             num += 1
 
         return semanas
+
+
 # ----------------------------------------------------
 # 1. MODELO CURSO
 # ----------------------------------------------------
@@ -73,18 +74,16 @@ class Curso(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     imagen_portada = models.ImageField(upload_to='cursos_portadas/', blank=True, null=True)
     docentes = models.ManyToManyField(User, related_name='cursos_asignados', blank=True)
-    periodo = models.ForeignKey('PeriodoAcademico', on_delete=models.SET_NULL, related_name='cursos', null=True, blank=True)
+    periodo = models.ForeignKey(PeriodoAcademico, on_delete=models.SET_NULL, related_name='cursos', null=True, blank=True)
     estado = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
-    # Configuración dinámica del sistema de calificación
     formula_evaluacion = models.CharField(
         max_length=255,
         default="(N1 + N2 + N3) / 3",
         verbose_name="Fórmula de Promedio",
         help_text="Usa las variables N1, N2, N3, N4... Ejemplo: (N1*0.2) + (N2*0.3) + (N3*0.5)"
     )
-    # Estructura: [{"codigo": "N1", "nombre": "Teoría 1"}, {"codigo": "N2", "nombre": "Práctica 1"}, ...]
     criterios_evaluacion = models.JSONField(
         default=list,
         blank=True,
@@ -115,11 +114,12 @@ class Curso(models.Model):
         return ", ".join(nombres) if nombres else "Sin asignar"
 
 
+# ----------------------------------------------------
+# 2. MODELO CALIFICACIONES (DINÁMICO)
+# ----------------------------------------------------
 class Calificacion(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='calificaciones')
     alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='calificaciones')
-    
-    # Almacena dinámicamente cualquier cantidad de notas: {"N1": 16.0, "N2": 14.5, "N3": 18.0, "N4": 12.0}
     notas_detalle = models.JSONField(default=dict, blank=True, verbose_name="Detalle de Notas")
     promedio = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name="Promedio Final")
 
@@ -137,7 +137,6 @@ class Calificacion(models.Model):
         formula = self.curso.formula_evaluacion.upper()
         criterios = self.curso.obtener_criterios()
 
-        # Reemplazar cada variable (N1, N2, ...) por el valor numérico registrado
         formula_eval = formula
         for item in criterios:
             cod = item["codigo"].upper()
@@ -145,7 +144,6 @@ class Calificacion(models.Model):
             val_float = float(val) if (val is not None and str(val).strip() != '') else 0.0
             formula_eval = re.sub(rf'\b{cod}\b', str(val_float), formula_eval)
 
-        # Validar caracteres estrictamente permitidos (números, puntos decimales y operadores)
         if re.match(r'^[0-9\.\+\-\*\/\(\)\s]+$', formula_eval):
             try:
                 resultado = eval(formula_eval, {"__builtins__": None}, {})
@@ -162,38 +160,9 @@ class Calificacion(models.Model):
     def __str__(self):
         return f"{self.alumno.username} - {self.curso.titulo}: {self.promedio if self.promedio is not None else 'Sin Nota'}"
 
-    def calcular_promedio(self):
-        """Evalúa la fórmula configurada en el curso de manera segura."""
-        n1 = float(self.nota1 or 0)
-        n2 = float(self.nota2 or 0)
-        n3 = float(self.nota3 or 0)
-
-        # Si no tiene ninguna nota ingresada
-        if self.nota1 is None and self.nota2 is None and self.nota3 is None:
-            self.promedio = None
-            return
-
-        formula = self.curso.formula_evaluacion.upper()
-        # Reemplazar variables por sus valores
-        formula_eval = formula.replace('N1', str(n1)).replace('N2', str(n2)).replace('N3', str(n3))
-
-        # Validar caracteres permitidos por seguridad (solo números y operadores matemáticos)
-        if re.match(r'^[0-9\.\+\-\*\/\(\)\s]+$', formula_eval):
-            try:
-                resultado = eval(formula_eval, {"__builtins__": None}, {})
-                self.promedio = round(max(0.0, min(20.0, float(resultado))), 2)
-            except Exception:
-                # Fallback en caso de división por cero o error sintáctico
-                self.promedio = round((n1 + n2 + n3) / 3, 2)
-        else:
-            self.promedio = round((n1 + n2 + n3) / 3, 2)
-
-    def save(self, *args, **kwargs):
-        self.calcular_promedio()
-        super().save(*args, **kwargs)
 
 # ----------------------------------------------------
-# 2. MODELO MATERIAL DE CLASE
+# 3. MODELO MATERIAL DE CLASE
 # ----------------------------------------------------
 class Material(models.Model):
     TIPO_OPCIONES = [
@@ -223,10 +192,10 @@ class Material(models.Model):
 
 
 # ----------------------------------------------------
-# 3. MODELO INSCRIPCIÓN / MATRÍCULA
+# 4. MODELO INSCRIPCIÓN / MATRÍCULA
 # ----------------------------------------------------
 class Inscripcion(models.Model):
-    alumno = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inscripciones')
+    alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='inscripciones')
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='inscripciones')
     fecha_inscripcion = models.DateTimeField(auto_now_add=True)
 
@@ -240,31 +209,10 @@ class Inscripcion(models.Model):
 
 
 # ----------------------------------------------------
-# 4. MODELO NOTAS Y CALIFICACIONES
-# ----------------------------------------------------
-class Calificacion(models.Model):
-    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='calificaciones')
-    alumno = models.ForeignKey(User, on_delete=models.CASCADE, related_name='calificaciones')
-    nota1 = models.FloatField(null=True, blank=True, verbose_name="Examen Parcial")
-    nota2 = models.FloatField(null=True, blank=True, verbose_name="Evaluación Continua")
-    nota3 = models.FloatField(null=True, blank=True, verbose_name="Examen Final")
-
-    class Meta:
-        verbose_name = "Calificación"
-        verbose_name_plural = "Calificaciones"
-        unique_together = ('curso', 'alumno')
-
-    def __str__(self):
-        return f"{self.alumno.username} - {self.curso.titulo}"
-
-
-# ----------------------------------------------------
 # 5. MODELO LOG DE ACTIVIDAD
 # ----------------------------------------------------
-
-
 class LogActividad(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     accion = models.CharField(max_length=255)
     detalles = models.TextField(blank=True, null=True)
     ip_origen = models.GenericIPAddressField(null=True, blank=True)
@@ -280,7 +228,7 @@ class LogActividad(models.Model):
 
 
 # ----------------------------------------------------
-# 6. MODELOS DINÁMICOS DE LA PORTADA
+# 6. MODELOS LANDING Y PROSPECTOS
 # ----------------------------------------------------
 class BannerCarrusel(models.Model):
     titulo = models.CharField(max_length=150, help_text="Descripción o referencia de la foto", default="Banner Médico")
@@ -298,12 +246,10 @@ class BannerCarrusel(models.Model):
 
 
 class ConfiguracionLanding(models.Model):
-    # Textos del Hero Principal
     hero_badge = models.CharField(max_length=120, default="🩺 Especialistas en Formación y Ciencias de la Salud")
     hero_titulo = models.CharField(max_length=200, default="Formando a los Mejores Profesionales de la Salud")
     hero_subtitulo = models.TextField(default="Metodología de alto rendimiento, docentes médicos especializados y resolución de casos reales para potenciar tu nivel académico.")
-    
-    # Textos Institucionales
+
     sobre_nosotros_titulo = models.CharField(max_length=200, default="Comprometidos con la excelencia y el rigor científico")
     sobre_nosotros_texto_1 = models.TextField(default="En Academia Galeno nos dedicamos al fortalecimiento de competencias en estudiantes y profesionales de ciencias de la salud.")
     sobre_nosotros_texto_2 = models.TextField(default="Contamos con una infraestructura virtual moderna orientada a la resolución ágil de dudas y a la asimilación profunda de cada asignatura médica.")
@@ -313,7 +259,6 @@ class ConfiguracionLanding(models.Model):
     vision = models.TextField(default="Ser la academia líder de formación y actualización en ciencias médicas a nivel nacional, reconocida por el rigor de sus programas y el éxito de sus egresados.")
     valores = models.TextField(default="Rigor científico, compromiso con la salud humana, integridad profesional, innovación pedagógica constante y vocación de servicio docente.")
 
-    # Datos de Contacto Directo
     whatsapp_contacto = models.CharField(max_length=20, default="51999999999", help_text="Código de país seguido del número (ej. 51987654321)")
     correo_contacto = models.EmailField(default="informes@academiagaleno.pe")
     horario_atencion = models.CharField(max_length=100, default="Lun - Sáb: 8:00 AM - 8:00 PM")
@@ -325,6 +270,7 @@ class ConfiguracionLanding(models.Model):
     def __str__(self):
         return "Configuración General de la Portada"
 
+
 class Prospecto(models.Model):
     nombres = models.CharField(max_length=100)
     apellidos = models.CharField(max_length=100)
@@ -335,14 +281,21 @@ class Prospecto(models.Model):
     fecha_contacto = models.DateTimeField(auto_now_add=True)
     contactado = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "Prospecto"
+        verbose_name_plural = "Prospectos"
+
+    def __str__(self):
+        return f"{self.nombres} {self.apellidos} - {self.curso_interes}"
+
+
+# ----------------------------------------------------
+# 7. MODELOS DE EVALUACIONES Y EXÁMENES
+# ----------------------------------------------------
 class Examen(models.Model):
-    curso = models.ForeignKey('Curso', on_delete=models.CASCADE, related_name='examenes')
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='examenes')
     titulo = models.CharField(max_length=200, verbose_name="Título de la Evaluación")
-    semana = models.PositiveSmallIntegerField(
-        default=1,
-        verbose_name="Semana del Ciclo",
-        help_text="Semana donde se mostrará la evaluación"
-    )
+    semana = models.PositiveSmallIntegerField(default=1, verbose_name="Semana del Ciclo", help_text="Semana donde se mostrará la evaluación")
     descripcion = models.TextField(blank=True, verbose_name="Instrucciones")
     duracion_minutos = models.PositiveIntegerField(default=60, help_text="Tiempo límite en minutos")
     fecha_apertura = models.DateTimeField(null=True, blank=True, verbose_name="Fecha y hora de inicio")
@@ -351,37 +304,21 @@ class Examen(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     cantidad_preguntas_aleatorias = models.PositiveIntegerField(
         default=0,
-        help_text="0 para mostrar todas las preguntas registradas, o un número (ej. 10) para extraer aleatoriamente solo esa cantidad del banco."
+        help_text="0 para mostrar todas las preguntas registradas, o un número para extraer aleatoriamente solo esa cantidad."
     )
-    intentos_permitidos = models.PositiveIntegerField(
-        default=1,
-        verbose_name="Intentos Permitidos",
-        help_text="Número máximo de veces que un estudiante puede rendir esta prueba."
-    )
-    cerrado_manualmente = models.BooleanField(
-        default=False,
-        verbose_name="Cerrado Manualmente por Docente",
-        help_text="Si está activo, fuerza el autoenvío de las evaluaciones en curso."
-    )
+    intentos_permitidos = models.PositiveIntegerField(default=1, verbose_name="Intentos Permitidos")
+    cerrado_manualmente = models.BooleanField(default=False, verbose_name="Cerrado Manualmente por Docente")
+
     @property
     def revision_disponible(self):
-        """Permite ver el solucionario si venció la fecha límite o si el docente forzó el cierre."""
         if self.cerrado_manualmente:
-           return True
+            return True
         if not self.fecha_cierre:
-           return True
+            return True
         return timezone.now() > self.fecha_cierre
-
-    class Meta:
-        verbose_name = "Examen / Evaluación"
-        verbose_name_plural = "Exámenes y Evaluaciones"
-
-    def __str__(self):
-        return f"[Semana {self.semana}] {self.titulo} - {self.curso.titulo}"
 
     @property
     def esta_disponible(self):
-        """Determina si un alumno puede ingresar a rendir la prueba."""
         if not self.activo:
             return False
         ahora = timezone.now()
@@ -393,7 +330,6 @@ class Examen(models.Model):
 
     @property
     def estado_texto(self):
-        """Mensaje legible para mostrar al alumno en la interfaz."""
         if not self.activo:
             return "Evaluación pausada"
         ahora = timezone.now()
@@ -402,6 +338,14 @@ class Examen(models.Model):
         if self.fecha_cierre and ahora > self.fecha_cierre:
             return "Evaluación finalizada"
         return "Disponible ahora"
+
+    class Meta:
+        verbose_name = "Examen / Evaluación"
+        verbose_name_plural = "Exámenes y Evaluaciones"
+
+    def __str__(self):
+        return f"[Semana {self.semana}] {self.titulo} - {self.curso.titulo}"
+
 
 class Pregunta(models.Model):
     examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='preguntas')
@@ -416,6 +360,7 @@ class Pregunta(models.Model):
     def __str__(self):
         return f"[{self.examen.titulo}] {self.enunciado[:60]}..."
 
+
 class Opcion(models.Model):
     pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE, related_name='opciones')
     texto = models.CharField(max_length=255, verbose_name="Opción de Respuesta")
@@ -428,10 +373,11 @@ class Opcion(models.Model):
     def __str__(self):
         return f"{self.texto} ({'Correcta' if self.es_correcta else 'Incorrecta'})"
 
+
 class IntentoExamen(models.Model):
     alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='intentos_examen')
     examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='intentos')
-    nota = models.DecimalField(max_digits=4, decimal_places=2, default=0.00)
+    nota = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     completado = models.BooleanField(default=False)
     fecha_inicio = models.DateTimeField(auto_now_add=True)
     fecha_fin = models.DateTimeField(null=True, blank=True)
@@ -441,34 +387,23 @@ class IntentoExamen(models.Model):
         verbose_name_plural = "Resultados de Alumnos"
 
     def __str__(self):
-        return f"{self.alumno.get_full_name()} - {self.examen.titulo} (Nota: {self.nota})"
-
-class IntentoExamen(models.Model):
-    alumno = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE, 
-        related_name='intentos_examen'
-    )
-    examen = models.ForeignKey(Examen, on_delete=models.CASCADE, related_name='intentos')
-    nota = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    completado = models.BooleanField(default=False)
-    fecha_inicio = models.DateTimeField(auto_now_add=True)
-    fecha_fin = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
         return f"{self.alumno.username} - {self.examen.titulo} ({self.nota} pts)"
 
+
 class RespuestaEstudiante(models.Model):
-    """Guarda la alternativa que marcó el alumno para la revisión diferida."""
     intento = models.ForeignKey(IntentoExamen, on_delete=models.CASCADE, related_name='respuestas')
-    pregunta = models.ForeignKey('Pregunta', on_delete=models.CASCADE)
-    opcion_seleccionada = models.ForeignKey('Opcion', on_delete=models.SET_NULL, null=True, blank=True)
+    pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE)
+    opcion_seleccionada = models.ForeignKey(Opcion, on_delete=models.SET_NULL, null=True, blank=True)
     es_correcta = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Respuesta de Estudiante"
         verbose_name_plural = "Respuestas de Estudiantes"
 
+
+# ----------------------------------------------------
+# 8. HORARIOS Y ASISTENCIAS
+# ----------------------------------------------------
 class HorarioCurso(models.Model):
     DIAS_SEMANA = [
         (1, 'Lunes'),
@@ -505,6 +440,7 @@ class Asistencia(models.Model):
 
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='asistencias')
     alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='asistencias')
+    semana = models.PositiveIntegerField(default=1, verbose_name="Semana del Ciclo")
     fecha = models.DateField(default=timezone.now, verbose_name="Fecha de Sesión")
     estado = models.CharField(max_length=1, choices=ESTADOS, default='P', verbose_name="Estado de Asistencia")
 
@@ -512,7 +448,7 @@ class Asistencia(models.Model):
         verbose_name = "Asistencia"
         verbose_name_plural = "Asistencias"
         unique_together = ('curso', 'alumno', 'fecha')
-        ordering = ['-fecha']
+        ordering = ['-fecha', 'semana']
 
     def __str__(self):
-        return f"{self.alumno.username} - {self.curso.titulo} ({self.fecha}): {self.get_estado_display()}"
+        return f"Sem {self.semana} - {self.alumno.username} - {self.curso.titulo} ({self.fecha}): {self.get_estado_display()}"

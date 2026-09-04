@@ -1,0 +1,104 @@
+/* ==============================================================================
+   ESTILOS CUADRÍCULA AULA VIRTUAL (MIS CURSOS)
+   ============================================================================== */
+
+.cursos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 22px;
+    margin-top: 20px;
+}
+
+.curso-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.curso-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.curso-portada-box {
+    position: relative;
+    height: 140px;
+    background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+    overflow: hidden;
+}
+
+.curso-portada-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.curso-badge-periodo {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.curso-card-body {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.curso-card-titulo {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.curso-card-docente {
+    font-size: 12.5px;
+    color: #64748b;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.curso-card-footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-entrar-materia {
+    background-color: #047857;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-entrar-materia:hover {
+    background-color: #065f46;
+}

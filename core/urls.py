@@ -77,6 +77,11 @@ urlpatterns = [
     path('panel-admin/exportar/usuarios-csv/', views.exportar_usuarios_csv, name='exportar_usuarios_csv'),
 
     path('docente/curso/<int:curso_id>/asistencia/', views.docente_asistencia_curso, name='docente_asistencia_curso'),
+    path('aula-virtual/mis-cursos/', views.mis_cursos, name='mis_cursos'),
+    path('intranet/mis-notas/', views.mis_notas, name='mis_notas'),
+    path('docente/curso/<int:curso_id>/asistencia/', views.docente_asistencia_curso, name='docente_asistencia_curso'),
+    path('intranet/mis-asistencias/', views.mis_asistencias, name='mis_asistencias'),
+    path('aula-virtual/mis-cursos/', views.mis_cursos, name='mis_cursos'),
 
     # Cursos y matrículas
     path('panel-admin/cursos/', views.admin_cursos_lista, name='admin_cursos_lista'),
