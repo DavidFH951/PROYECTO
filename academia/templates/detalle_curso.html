@@ -8,7 +8,7 @@
     <title>{{ curso.titulo }} | Aula Virtual Academia Galeno</title>
 
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=3.1">
 </head>
 
 <body>
@@ -185,13 +185,11 @@
             <section class="course-main-content">
                 <div class="content-action-bar"
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y
-                        Clases</h3>
-
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y Clases</h3>
+                    
                     {% if es_docente_curso %}
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <button type="button"
-                            onclick="document.getElementById('modal-crear-examen').style.display='flex'"
+                        <button type="button" onclick="document.getElementById('modal-crear-examen').style.display='flex'"
                             style="background-color: #2563eb; color: #ffffff; padding: 8px 14px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s ease;">
                             ➕ Programar Examen
                         </button>
@@ -209,81 +207,49 @@
 
                 <!-- Modal de Creación Rápida de Examen -->
                 {% if es_docente_curso %}
-                <div id="modal-crear-examen"
-                    style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center;">
-                    <div
-                        style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 480px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <h4 style="margin: 0; font-size: 17px; color: #0f172a; font-weight: 700;">Programar Nueva
-                                Evaluación</h4>
-                            <button type="button"
-                                onclick="document.getElementById('modal-crear-examen').style.display='none'"
-                                style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
+                <div id="modal-crear-examen" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center;">
+                    <div style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 480px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4 style="margin: 0; font-size: 17px; color: #0f172a; font-weight: 700;">Programar Nueva Evaluación</h4>
+                            <button type="button" onclick="document.getElementById('modal-crear-examen').style.display='none'" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
                         </div>
-                        <form action="{% url 'crear_examen_curso' curso.id %}" method="POST"
-                            style="display: flex; flex-direction: column; gap: 14px;">
+                        <form action="{% url 'crear_examen_curso' curso.id %}" method="POST" style="display: flex; flex-direction: column; gap: 14px;">
                             {% csrf_token %}
                             <div>
-                                <label
-                                    style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Título
-                                    de la Evaluación:</label>
-                                <input type="text" name="titulo" placeholder="Ej: Examen Parcial / Test Clínico"
-                                    required
-                                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
+                                <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Título de la Evaluación:</label>
+                                <input type="text" name="titulo" placeholder="Ej: Examen Parcial / Test Clínico" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                                 <div>
-                                    <label
-                                        style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Semana
-                                        Asignada:</label>
-                                    <select name="semana" required
-                                        style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px; background: white;">
+                                    <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Semana Asignada:</label>
+                                    <select name="semana" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px; background: white;">
                                         {% for sem in cronograma %}
-                                        <option value="{{ sem.numero }}">{{ sem.etiqueta|default:"Semana" }} {{
-                                            sem.numero }}</option>
+                                            <option value="{{ sem.numero }}">{{ sem.etiqueta|default:"Semana" }} {{ sem.numero }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div>
-                                    <label
-                                        style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Tiempo
-                                        Límite (min):</label>
-                                    <input type="number" name="duracion_minutos" value="60" min="5" required
-                                        style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
+                                    <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Tiempo Límite (min):</label>
+                                    <input type="number" name="duracion_minutos" value="60" min="5" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
                                 </div>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                                 <div>
-                                    <label
-                                        style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Apertura
-                                        (opcional):</label>
-                                    <input type="datetime-local" name="fecha_apertura"
-                                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
+                                    <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Apertura (opcional):</label>
+                                    <input type="datetime-local" name="fecha_apertura" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
                                 </div>
                                 <div>
-                                    <label
-                                        style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Cierre
-                                        (opcional):</label>
-                                    <input type="datetime-local" name="fecha_cierre"
-                                        style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
+                                    <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Cierre (opcional):</label>
+                                    <input type="datetime-local" name="fecha_cierre" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 13px;">
                                 </div>
                             </div>
                             <div>
-                                <label
-                                    style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Instrucciones
-                                    (opcional):</label>
-                                <textarea name="descripcion" rows="2"
-                                    placeholder="Instrucciones para los postulantes..."
-                                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px;"></textarea>
+                                <label style="font-size: 13px; font-weight: 600; color: #334155; display: block; margin-bottom: 4px;">Instrucciones (opcional):</label>
+                                <textarea name="descripcion" rows="2" placeholder="Instrucciones para los postulantes..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px;"></textarea>
                             </div>
                             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
-                                <button type="button"
-                                    onclick="document.getElementById('modal-crear-examen').style.display='none'"
-                                    style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #475569;">Cancelar</button>
-                                <button type="submit"
-                                    style="padding: 9px 18px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">Crear
-                                    Evaluación</button>
+                                <button type="button" onclick="document.getElementById('modal-crear-examen').style.display='none'" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #475569;">Cancelar</button>
+                                <button type="submit" style="padding: 9px 18px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">Crear Evaluación</button>
                             </div>
                         </form>
                     </div>
@@ -303,8 +269,7 @@
                             <span style="font-size: 22px;">📢</span>
                             <div>
                                 <div style="font-size: 14px; font-weight: 600; color: #1e293b;">Avisos del Curso</div>
-                                <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas
-                                    de la temporada</div>
+                                <div style="font-size: 12px; color: #64748b;">Información general y novedades académicas de la temporada</div>
                             </div>
                         </div>
                     </div>
@@ -339,25 +304,19 @@
 
                             <!-- 1. Exámenes programados para esta semana específica -->
                             {% for ex in bloque.examenes %}
-                            <div
-                                class="card-examen-item {% if ex.activo %}examen-card-activa{% else %}examen-card-pausada{% endif %}">
+                            <div class="card-examen-item {% if ex.activo %}examen-card-activa{% else %}examen-card-pausada{% endif %}">
                                 <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div
-                                        class="examen-icono-box {% if ex.activo %}icono-activo{% else %}icono-pausado{% endif %}">
+                                    <div class="examen-icono-box {% if ex.activo %}icono-activo{% else %}icono-pausado{% endif %}">
                                         📝
                                     </div>
                                     <div>
                                         <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #1e3a8a;">
-                                            {{ ex.titulo }}{% if not ex.activo %}<span
-                                                style="font-size: 11px; background: #fee2e2; color: #b91c1c; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600;">Pausado
-                                                / Oculto</span>{% endif %}
+                                            {{ ex.titulo }}{% if not ex.activo %}<span style="font-size: 11px; background: #fee2e2; color: #b91c1c; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600;">Pausado / Oculto</span>{% endif %}
                                         </h4>
                                         <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
-                                            Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }}
-                                            preguntas
+                                            Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }} preguntas
                                             {% if ex.fecha_apertura and ex.fecha_cierre %}
-                                            &bull; {{ ex.fecha_apertura|date:"d/m H:i" }} a {{ ex.fecha_cierre|date:"d/m
-                                            H:i" }}
+                                                &bull; {{ ex.fecha_apertura|date:"d/m H:i" }} a {{ ex.fecha_cierre|date:"d/m H:i" }}
                                             {% endif %}
                                         </div>
                                     </div>
@@ -391,28 +350,78 @@
                                         </a>
                                     </div>
                                     {% else %}
-                                    {% if ex.esta_disponible %}
-                                    <a href="{% url 'rendir_examen' ex.id %}"
-                                        style="display: inline-flex; align-items: center; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 6px;">
-                                        Rendir Evaluación →
-                                    </a>
-                                    {% else %}
-                                    <span
-                                        style="display: inline-flex; align-items: center; gap: 4px; background-color: #f1f5f9; color: #64748b; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                                        🔒 {{ ex.estado_texto }}
-                                    </span>
-                                    {% endif %}
+                                        {% if ex.esta_disponible %}
+                                        <a href="{% url 'rendir_examen' ex.id %}"
+                                            style="display: inline-flex; align-items: center; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 6px;">
+                                            Rendir Evaluación →
+                                        </a>
+                                        {% else %}
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; background-color: #f1f5f9; color: #64748b; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                            🔒 {{ ex.estado_texto }}
+                                        </span>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </div>
                             {% endfor %}
+
+                            <!-- 2. Materiales de estudio habituales -->
+                            {% for mat in bloque.materiales %}
+                            <div class="material-item-card" style="margin: 0;">
+                                <div class="material-info">
+                                    <div
+                                        class="material-icon-box {% if mat.archivo %}icon-file{% else %}icon-link{% endif %}">
+                                        {% if mat.archivo %}📄{% else %}🔗{% endif %}
+                                    </div>
+                                    <div class="material-details">
+                                        <h4>{{ mat.titulo }}</h4>
+                                        {% if mat.contenido %}
+                                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido }}</p>
+                                        {% endif %}
+                                        <span>Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="material-actions">
+                                    {% if mat.archivo %}
+                                    <a href="{{ mat.archivo.url }}" class="btn-download-mat" target="_blank" download>
+                                        📥 Descargar
+                                    </a>
+                                    {% endif %}
+
+                                    {% if mat.enlace or mat.enlace_web %}
+                                    <a href="{{ mat.enlace|default:mat.enlace_web }}" class="btn-download-mat"
+                                        target="_blank" style="background: #0284c7;">
+                                        🌐 Abrir Enlace
+                                    </a>
+                                    {% endif %}
+
+                                    {% if es_docente_curso %}
+                                    <a href="{% url 'eliminar_material' mat.id %}" class="btn-delete-mat"
+                                        onclick="return confirm('¿Estás seguro de eliminar este material?');">
+                                        🗑️
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                            {% if not bloque.materiales and not bloque.examenes %}
+                            <div style="text-align: center; padding: 12px; color: #94a3b8; font-size: 13px;">
+                                No hay actividades ni materiales asignados para esta semana aún.
+                            </div>
+                            {% endif %}
+
                         </div>
-                        {% else %}
-                        <div class="empty-materials-state" style="margin-top: 10px;">
-                            <p style="font-size: 32px; margin-bottom: 10px;">📂</p>
-                            <p>Aún no se han configurado semanas ni publicado materiales en este curso.</p>
-                        </div>
-                        {% endif %}
+                    </details>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-materials-state" style="margin-top: 10px;">
+                    <p style="font-size: 32px; margin-bottom: 10px;">📂</p>
+                    <p>Aún no se han configurado semanas ni publicado materiales en este curso.</p>
+                </div>
+                {% endif %}
             </section>
 
         </div>
