@@ -5,229 +5,123 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calificar: {{ curso.titulo }} | Academia Galeno</title>
-    
-    <!-- Fuentes e Íconos -->
 
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Estilo CSS Externo -->
-    <link rel="stylesheet" href="{% static 'css/docente_calificar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/docente_intentos.css' %}?v=1.1">
 </head>
-<body>
+<body style="background-color: #f8fafc; margin: 0;">
 
-    <!-- Header Navbar con Menú Desplegable -->
-<header class="top-navbar">
-    <div class="brand-info">
-        <span class="brand-badge"><i class="fa-solid fa-graduation-cap"></i> Registro</span>
-        <div class="brand-title">{{ curso.titulo }}</div>
-    </div>
-
-    <!-- Menú Desplegable de Usuario -->
-    <div class="user-dropdown-container">
-        <button class="user-pill-btn" id="userMenuBtn" type="button">
-    <span class="user-avatar-pill">
-        {{ request.user.first_name|first|default:request.user.username|first|upper }}
-    </span>
-    <span class="user-pill-name">
-        Prof. {{ request.user.get_full_name|default:request.user.username }}
-    </span>
-    <i class="fa-solid fa-caret-down pill-arrow"></i>
-</button>
-
-        <div class="dropdown-menu-custom" id="userDropdownMenu">
-            <div class="dropdown-header-info">
-                <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
-                <small>@{{ request.user.username }}</small>
+    <div class="entregas-container" style="max-width: 1050px;">
+        
+        <header class="entregas-header">
+            <div>
+                <a href="{% url 'detalle_curso' curso.id %}" class="entregas-btn-volver">
+                    ← Volver al Curso: {{ curso.titulo }}
+                </a>
+                <h2 class="entregas-titulo">Registro de Calificaciones</h2>
+                <p class="entregas-subtitulo">Ingresa las notas vigesimales (0 a 20) de los estudiantes matriculados.</p>
             </div>
-            <div class="dropdown-divider"></div>
-            <a href="{% url 'mi_perfil' %}" class="dropdown-item">
-                <i class="fa-solid fa-user-gear"></i> Mi Perfil
-            </a>
-            <a href="{% url 'panel_docente' %}" class="dropdown-item">
-                <i class="fa-solid fa-chalkboard-user"></i> Mis Cursos
-            </a>
-            <div class="dropdown-divider"></div>
-            <a href="{% url 'salir' %}" class="dropdown-item logout-item">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión
-            </a>
-        </div>
-    </div>
-</header>
+            <div>
+                <a href="{% url 'panel_docente' %}" class="btn-secundario" style="text-decoration: none; padding: 8px 14px; font-size: 13px;">
+                    📚 Panel Docente
+                </a>
+            </div>
+        </header>
 
-    <main class="main-container">
-        <!-- Notificaciones -->
         {% if messages %}
-        <div class="messages-box">
+        <div style="margin-bottom: 20px;">
             {% for message in messages %}
-            <div class="alert-success">
-                <i class="fa-solid fa-circle-check"></i> {{ message }}
+            <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;">
+                ✅ {{ message }}
             </div>
             {% endfor %}
         </div>
         {% endif %}
 
-        <!-- Encabezado de Sección -->
-        <div class="page-header">
-            <div class="header-text">
-                <h1>Libreta de Calificaciones</h1>
-                <p>Ingresa o actualiza las notas de las evaluaciones (escala 0 a 20).</p>
+        <!-- Banner Informativo de la Fórmula Configurada por Admin -->
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 22px;">📐</span>
+                <div>
+                    <strong style="color: #1e40af; font-size: 13.5px;">Fórmula Oficial del Curso:</strong>
+                    <code style="background-color: #dbeafe; color: #1e3a8a; padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; margin-left: 6px;">{{ formula_evaluacion }}</code>
+                </div>
             </div>
-            <a href="{% url 'panel_docente' %}" class="btn-back">
-                <i class="fa-solid fa-arrow-left"></i> Volver a Mis Cursos
-            </a>
+            <span style="font-size: 12px; color: #64748b;">Configurado por Administración</span>
         </div>
 
-        <!-- Formulario y Tabla de Notas -->
-        <form method="POST">
+        {% if filas_calificaciones %}
+        <form method="POST" action="{% url 'docente_calificar_curso' curso.id %}">
             {% csrf_token %}
-            <div class="table-card">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>Alumno</th>
-                            <th>Correo Institucional</th>
-                            <th class="center" style="width: 110px;">Nota 1</th>
-                            <th class="center" style="width: 110px;">Nota 2</th>
-                            <th class="center" style="width: 110px;">Nota 3</th>
-                            <th class="center" style="width: 110px;">Promedio</th>
-                            <th class="center" style="width: 130px;">Condición</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for fila in filas_calificaciones %}
-                        <tr class="row-alumno" data-id="{{ fila.alumno.id }}">
-                            <td>
-                                <div class="student-cell">
-                                    <div class="student-avatar">
-                                        {{ fila.alumno.first_name|first|default:fila.alumno.username|first|upper }}
-                                    </div>
-                                    <div>
-                                        <div class="student-name">
-                                            {{ fila.alumno.get_full_name|default:fila.alumno.username }}
-                                        </div>
-                                        <div class="student-user">@{{ fila.alumno.username }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="student-email">
-                                {{ fila.alumno.email|default:"Sin registrar" }}
-                            </td>
-                            <td class="center">
-                                <input type="number" step="0.1" min="0" max="20" 
-                                       name="nota1_{{ fila.alumno.id }}" 
-                                       value="{{ fila.nota1 }}" 
-                                       class="grade-input input-n1">
-                            </td>
-                            <td class="center">
-                                <input type="number" step="0.1" min="0" max="20" 
-                                       name="nota2_{{ fila.alumno.id }}" 
-                                       value="{{ fila.nota2 }}" 
-                                       class="grade-input input-n2">
-                            </td>
-                            <td class="center">
-                                <input type="number" step="0.1" min="0" max="20" 
-                                       name="nota3_{{ fila.alumno.id }}" 
-                                       value="{{ fila.nota3 }}" 
-                                       class="grade-input input-n3">
-                            </td>
-                            <td class="center">
-                                <span class="promedio-badge span-promedio">--</span>
-                            </td>
-                            <td class="center">
-                                <span class="status-pill pendiente span-estado">Pendiente</span>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="empty-cell">
-                                <i class="fa-solid fa-user-xmark"></i>
-                                <p>No hay alumnos matriculados en este curso todavía.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
 
-            {% if filas_calificaciones %}
-            <div class="footer-action">
-                <button type="submit" class="btn-save">
-                    <i class="fa-solid fa-floppy-disk"></i> Guardar Calificaciones
+            <table class="table-entregas">
+                <thead>
+                    <tr>
+                        <th style="width: 32%;">Estudiante</th>
+                        <th style="width: 17%;">{{ etiqueta_n1 }} (N1)</th>
+                        <th style="width: 17%;">{{ etiqueta_n2 }} (N2)</th>
+                        <th style="width: 17%;">{{ etiqueta_n3 }} (N3)</th>
+                        <th style="width: 17%; text-align: center;">Promedio Final</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in filas_calificaciones %}
+                    <tr>
+                        <td>
+                            <span class="alumno-nombre">{{ f.alumno.get_full_name|default:f.alumno.username }}</span>
+                            <div class="texto-secundario" style="font-size: 12px;">@{{ f.alumno.username }}</div>
+                        </td>
+                        <td>
+                            <input type="number" step="0.01" min="0" max="20" 
+                                   name="nota1_{{ f.alumno.id }}" 
+                                   value="{{ f.nota1 }}" 
+                                   placeholder="0 - 20" 
+                                   style="width: 90px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; text-align: center;">
+                        </td>
+                        <td>
+                            <input type="number" step="0.01" min="0" max="20" 
+                                   name="nota2_{{ f.alumno.id }}" 
+                                   value="{{ f.nota2 }}" 
+                                   placeholder="0 - 20" 
+                                   style="width: 90px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; text-align: center;">
+                        </td>
+                        <td>
+                            <input type="number" step="0.01" min="0" max="20" 
+                                   name="nota3_{{ f.alumno.id }}" 
+                                   value="{{ f.nota3 }}" 
+                                   placeholder="0 - 20" 
+                                   style="width: 90px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; text-align: center;">
+                        </td>
+                        <td style="text-align: center;">
+                            {% if f.promedio is not None %}
+                                <span class="badge-nota {% if f.promedio >= 10.5 %}badge-nota-aprobado{% else %}badge-nota-desaprobado{% endif %}">
+                                    {{ f.promedio }}
+                                </span>
+                            {% else %}
+                                <span class="texto-secundario" style="font-size: 13px;">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px; gap: 12px;">
+                <button type="submit" class="btn-primario" style="padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer;">
+                    💾 Guardar y Calcular Promedios
                 </button>
             </div>
-            {% endif %}
         </form>
-    </main>
+        {% else %}
+        <div class="empty-entregas">
+            <p class="empty-entregas-icon">👥</p>
+            <h4 class="empty-entregas-title">Sin alumnos inscritos</h4>
+            <p class="empty-entregas-text">Aún no hay estudiantes matriculados en este curso para calificar.</p>
+        </div>
+        {% endif %}
 
-    <!-- Script de cálculo reactivo de promedios -->
- <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- 1. Control del Menú Desplegable de Usuario ---
-        const menuBtn = document.getElementById('userMenuBtn');
-        const dropdownMenu = document.getElementById('userDropdownMenu');
+    </div>
 
-        if (menuBtn && dropdownMenu) {
-            menuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdownMenu.classList.toggle('show');
-                menuBtn.classList.toggle('active');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!dropdownMenu.contains(e.target) && !menuBtn.contains(e.target)) {
-                    dropdownMenu.classList.remove('show');
-                    menuBtn.classList.remove('active');
-                }
-            });
-        }
-
-        // --- 2. Cálculo en Vivo de Promedios y Condición ---
-        const rows = document.querySelectorAll('.row-alumno');
-
-        function calcularFila(row) {
-            const n1 = parseFloat(row.querySelector('.input-n1')?.value);
-            const n2 = parseFloat(row.querySelector('.input-n2')?.value);
-            const n3 = parseFloat(row.querySelector('.input-n3')?.value);
-
-            const badge = row.querySelector('.span-promedio');
-            const status = row.querySelector('.span-estado');
-
-            if (!badge || !status) return;
-
-            const notasValidas = [n1, n2, n3].filter(n => !isNaN(n));
-
-            if (notasValidas.length > 0) {
-                const suma = notasValidas.reduce((acc, curr) => acc + curr, 0);
-                const prom = (suma / notasValidas.length).toFixed(1);
-                badge.textContent = prom;
-
-                if (prom >= 11) {
-                    badge.className = 'promedio-badge aprobado';
-                    status.className = 'status-pill aprobado';
-                    status.textContent = 'Aprobado';
-                } else {
-                    badge.className = 'promedio-badge desaprobado';
-                    status.className = 'status-pill desaprobado';
-                    status.textContent = 'Desaprobado';
-                }
-            } else {
-                badge.textContent = '--';
-                badge.className = 'promedio-badge';
-                status.className = 'status-pill pendiente';
-                status.textContent = 'Sin notas';
-            }
-        }
-
-        rows.forEach(row => {
-            calcularFila(row);
-            row.querySelectorAll('.grade-input').forEach(input => {
-                input.addEventListener('input', () => calcularFila(row));
-            });
-        });
-    });
-</script>
 </body>
 </html>
