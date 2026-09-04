@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico,BannerCarrusel, ConfiguracionLanding,Curso, Examen, Pregunta, Opcion,IntentoExamen
+from .models import Curso, Material, Inscripcion, Calificacion, LogActividad, PeriodoAcademico,BannerCarrusel, ConfiguracionLanding,Curso, Examen, Pregunta, Opcion,IntentoExamen,RespuestaEstudiante
 from .forms import RegistroUsuarioForm, EditarUsuarioForm, CursoForm, InscripcionForm, PreguntaForm
 
 
