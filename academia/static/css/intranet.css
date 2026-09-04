@@ -5,19 +5,22 @@
 body.intranet-body {
     margin: 0;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #f1f5f9;
+    background-color: #f8fafc;
     color: #0f172a;
 }
 
 .intranet-layout {
     display: flex;
     min-height: 100vh;
+    width: 100%;
 }
 
-/* Sidebar en Azul Médico Institucional */
+/* ==========================================================================
+   1. BARRA LATERAL (SIDEBAR)
+   ========================================================================== */
 .intranet-sidebar {
     width: 260px;
-    background: linear-gradient(180deg, #0f4c81 0%, #0d3b66 100%); /* Azul clínico Galeno */
+    background: linear-gradient(180deg, #0f4c81 0%, #0d3b66 100%);
     color: #ffffff;
     display: flex;
     flex-direction: column;
@@ -25,18 +28,46 @@ body.intranet-body {
 }
 
 .intranet-sidebar-header {
-    padding: 24px 20px;
+    padding: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
+/* Control estricto de dimensiones del logotipo */
+.intranet-sidebar-header img {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: block;
+}
+
+.intranet-brand-title {
+    font-size: 15px;
+    font-weight: 700;
+    display: block;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
 .intranet-brand-sub {
     font-size: 11px;
-    color: #7dd3fc; /* Celeste cielo clínico */
+    color: #7dd3fc;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: block;
+    margin-top: 2px;
+}
+
+.intranet-menu {
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
 }
 
 .intranet-nav-link {
@@ -54,12 +85,13 @@ body.intranet-body {
 
 .intranet-nav-link:hover,
 .intranet-nav-link.active {
-    background-color: #0284c7; /* Azul médico vibrante */
+    background-color: #0284c7;
     color: #ffffff;
 }
 
 .intranet-nav-link.logout {
     color: #fca5a5;
+    margin-top: auto;
 }
 
 .intranet-nav-link.logout:hover {
@@ -67,58 +99,15 @@ body.intranet-body {
     color: #ffffff;
 }
 
-/* Avatar de Usuario */
-.intranet-avatar {
-    width: 36px;
-    height: 36px;
-    background-color: #0284c7; /* Azul clínico */
-    color: #ffffff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 14px;
-}
-
-.intranet-avatar.docente-avatar {
-    background-color: #6366f1;
-}
-
-/* Banner Central Galeno */
-.banner-aula-virtual {
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-    border-radius: 14px;
-    padding: 24px 28px;
-    color: #ffffff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 28px;
-    box-shadow: 0 8px 20px rgba(2, 132, 199, 0.22);
-}
-
-.btn-entrar-aula {
-    background-color: #ffffff;
-    color: #0369a1;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 14px;
-    padding: 12px 22px;
-    border-radius: 8px;
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-}
-
-.btn-entrar-aula:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
-}
-/* Área Principal */
+/* ==========================================================================
+   2. ÁREA DE CONTENIDO PRINCIPAL
+   ========================================================================== */
 .intranet-main {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    background-color: #f8fafc;
 }
 
 .intranet-topbar {
@@ -148,15 +137,20 @@ body.intranet-body {
 }
 
 .intranet-avatar {
-    width: 34px;
-    height: 34px;
-    background-color: #059669;
+    width: 36px;
+    height: 36px;
+    background-color: #0284c7;
     color: #ffffff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    font-size: 14px;
+}
+
+.intranet-avatar.docente-avatar {
+    background-color: #7c3aed;
 }
 
 .intranet-content {
@@ -166,7 +160,9 @@ body.intranet-body {
     margin: 0 auto;
 }
 
-/* Métricas Rápidas */
+/* ==========================================================================
+   3. TARJETAS DE MÉTRICAS
+   ========================================================================== */
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -203,9 +199,11 @@ body.intranet-body {
     margin: 0;
 }
 
-/* Banner de Acceso al Aula Virtual */
+/* ==========================================================================
+   4. BANNER AULA VIRTUAL
+   ========================================================================== */
 .banner-aula-virtual {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
     border-radius: 14px;
     padding: 24px 28px;
     color: #ffffff;
@@ -213,30 +211,39 @@ body.intranet-body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 28px;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 8px 20px rgba(2, 132, 199, 0.22);
 }
 
 .btn-entrar-aula {
     background-color: #ffffff;
-    color: #1e3a8a;
+    color: #0369a1;
     text-decoration: none;
     font-weight: 700;
     font-size: 14px;
     padding: 12px 22px;
     border-radius: 8px;
-    transition: transform 0.1s ease, box-shadow 0.2s ease;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
 .btn-entrar-aula:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
-/* Cuadrícula de Contenido Inferior */
+/* ==========================================================================
+   5. SECCIÓN HORARIOS Y MIS MATERIAS
+   ========================================================================== */
 .content-columns {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 24px;
+}
+
+@media (max-width: 900px) {
+    .content-columns {
+        grid-template-columns: 1fr;
+    }
 }
 
 .dashboard-card {
@@ -257,7 +264,6 @@ body.intranet-body {
     gap: 8px;
 }
 
-/* Tabla de Horario */
 .table-horario {
     width: 100%;
     border-collapse: collapse;
@@ -279,13 +285,10 @@ body.intranet-body {
 }
 
 .badge-dia {
-    background-color: #e0e7ff;
-    color: #3730a3;
+    background-color: #e0f2fe;
+    color: #0369a1;
     font-weight: 700;
     padding: 3px 8px;
     border-radius: 6px;
     font-size: 11.5px;
-}
-.intranet-avatar.docente-avatar {
-    background-color: #7c3aed;
 }
