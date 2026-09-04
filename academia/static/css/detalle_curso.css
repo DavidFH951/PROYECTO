@@ -593,3 +593,99 @@ body {
 .icono-pausado {
     background-color: #e2e8f0;
 }
+.btn-ver-entregas {
+    background-color: #4f46e5;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-ver-entregas:hover {
+    background-color: #4338ca;
+}
+/* Acciones y Botones del Examen */
+.examen-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.btn-action-base {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-action-base:active {
+    transform: scale(0.98);
+}
+
+.btn-entregas {
+    background-color: #4f46e5;
+    color: #ffffff;
+}
+
+.btn-entregas:hover {
+    background-color: #4338ca;
+}
+
+.btn-gestionar {
+    background-color: #0284c7;
+    color: #ffffff;
+}
+
+.btn-gestionar:hover {
+    background-color: #0369a1;
+}
+
+.btn-pausar {
+    background-color: #d97706;
+    color: #ffffff;
+    padding: 6px 10px;
+}
+
+.btn-pausar:hover {
+    background-color: #b45309;
+}
+
+.btn-habilitar {
+    background-color: #16a34a;
+    color: #ffffff;
+    padding: 6px 10px;
+}
+
+.btn-habilitar:hover {
+    background-color: #15803d;
+}
+
+.btn-eliminar-examen {
+    background-color: #fee2e2;
+    color: #dc2626;
+    font-size: 13px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.btn-eliminar-examen:hover {
+    background-color: #fecaca;
+}
