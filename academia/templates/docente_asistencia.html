@@ -62,10 +62,10 @@
                         <td>{{ fila.alumno.get_full_name|default:fila.alumno.username }}</td>
                         <td>
                             <select name="asistencia_{{ fila.alumno.id }}">
-                                <option value="P" {% if fila.estado=='P' %}selected{% endif %}>Presente</option>
-                                <option value="T" {% if fila.estado=='T' %}selected{% endif %}>Tardanza</option>
-                                <option value="F" {% if fila.estado=='F' %}selected{% endif %}>Falta</option>
-                                <option value="J" {% if fila.estado=='J' %}selected{% endif %}>Justificado</option>
+                                <option value="P" {% if fila.estado == 'P' %}selected{% endif %}>Presente</option>
+                                <option value="T" {% if fila.estado == 'T' %}selected{% endif %}>Tardanza</option>
+                                <option value="F" {% if fila.estado == 'F' %}selected{% endif %}>Falta</option>
+                                <option value="J" {% if fila.estado == 'J' %}selected{% endif %}>Justificado</option>
                             </select>
                         </td>
                     </tr>
