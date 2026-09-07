@@ -471,6 +471,28 @@ def docente_calificar_curso(request, curso_id):
     }
     return render(request, 'docente_calificar.html', context)
 
+@login_required
+def docente_mis_calificaciones(request):
+    """Listado de asignaturas del docente para ingresar a calificar y promediar."""
+    es_docente = request.user.groups.filter(name='Docentes').exists()
+    if not es_docente and not request.user.is_staff:
+        messages.error(request, "Acceso restringido a docentes.")
+        return redirect('dashboard')
+
+    cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
+
+    cursos_data = []
+    for c in cursos:
+        cursos_data.append({
+            'curso': c,
+            'total_alumnos': Inscripcion.objects.filter(curso=c).count()
+        })
+
+    context = {
+        'cursos_data': cursos_data,
+    }
+    return render(request, 'docente_mis_calificaciones.html', context)
+
 # ==============================================================================
 # 5. MÓDULO DE ASISTENCIAS (DOCENTE Y ALUMNO)
 # ==============================================================================

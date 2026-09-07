@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Notas | Academia Galeno</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
+    <link rel="stylesheet" href="{% static 'css/docente_asistencias.css' %}?v=1.0">
+</head>
+
+<body class="intranet-body">
+
+    <div class="intranet-layout">
+
+        <!-- Sidebar -->
+        <aside class="intranet-sidebar">
+            <div class="intranet-sidebar-header">
+                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno">
+                <div>
+                    <span class="intranet-brand-title">Academia Galeno</span>
+                    <span class="intranet-brand-sub">Portal Docente</span>
+                </div>
+            </div>
+
+            <nav class="intranet-menu">
+                <a href="{% url 'dashboard' %}" class="intranet-nav-link">
+                    <span>🏠</span> Inicio / Intranet
+                </a>
+                <a href="{% url 'panel_docente' %}" class="intranet-nav-link">
+                    <span>📚</span> Mis Asignaturas
+                </a>
+                <a href="{% url 'docente_mis_calificaciones' %}" class="intranet-nav-link active">
+                    <span>📊</span> Registro de Notas
+                </a>
+                <a href="{% url 'docente_mis_asistencias' %}" class="intranet-nav-link">
+                    <span>📋</span> Control de Asistencia
+                </a>
+                <a href="{% url 'mi_perfil' %}" class="intranet-nav-link">
+                    <span>👤</span> Mi Perfil
+                </a>
+                <a href="{% url 'salir' %}" class="intranet-nav-link logout" style="margin-top: auto;">
+                    <span>🚪</span> Cerrar Sesión
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Contenido Central -->
+        <div class="intranet-main">
+
+            <header class="intranet-topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 28px;">
+                <div class="intranet-welcome-text" style="font-size: 15px; color: #334155;">
+                    Calificaciones de Asignaturas
+                </div>
+                <a href="{% url 'dashboard' %}" style="text-decoration: none; color: #0284c7; font-weight: 700; font-size: 13px;">
+                    ← Volver a Intranet
+                </a>
+            </header>
+
+            <main class="intranet-content" style="padding: 24px 28px;">
+                
+                <div style="margin-bottom: 24px;">
+                    <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0;">📊 Registro y Planilla de Calificaciones</h2>
+                    <p style="margin: 0; color: #64748b; font-size: 13.5px;">Selecciona una materia para asentar notas, borradores o calcular promedios oficiales.</p>
+                </div>
+
+                <div class="asistencias-grid">
+                    {% for item in cursos_data %}
+                    <div class="curso-card-asistencia">
+                        <div>
+                            <span class="curso-badge-ciclo">{{ item.curso.periodo.nombre|default:"Ciclo Activo" }}</span>
+                            <h3 class="curso-card-title">{{ item.curso.titulo }}</h3>
+                            <p class="curso-alumnos-count">👥 {{ item.total_alumnos }} estudiante{{ item.total_alumnos|pluralize }} matriculado{{ item.total_alumnos|pluralize }}</p>
+                        </div>
+
+                        <div style="margin-top: 14px;">
+                            <a href="{% url 'docente_calificar_curso' item.curso.id %}" class="btn-asistir-curso" style="display: block; text-align: center;">
+                                📝 Calificar Materia →
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p style="color: #64748b; font-size: 13.5px;">No tienes cursos asignados para calificar actualmente.</p>
+                    {% endfor %}
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
