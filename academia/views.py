@@ -265,7 +265,7 @@ def mis_notas(request):
             'promedio': calif.promedio if (calif and calif.promedio is not None) else None
         })
 
-    return render(request, 'mis_notas.html', {'reporte_cursos': reporte_cursos})
+    return render(request, 'notas.html', {'reporte_cursos': reporte_cursos})
 
 
 # ==============================================================================
