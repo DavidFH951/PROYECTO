@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historial de Notas | Aula Virtual Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
-    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=3.0">
 </head>
-<body>
+<body style="background-color: #f8fafc; font-family: 'Inter', sans-serif;">
 
     <!-- Barra Superior Homogénea -->
     <header class="top-nav">
@@ -26,15 +27,9 @@
             </a>
 
             <nav style="display: flex; gap: 15px; align-items: center;">
-                <a href="{% url 'dashboard' %}" class="nav-tab-item">
-                    Mis Cursos
-                </a>
-                <a href="{% url 'mis_notas' %}" class="nav-tab-item active">
-                    Historial de Notas
-                </a>
-                <a href="{% url 'mi_perfil' %}" class="nav-tab-item">
-                    Mi Perfil
-                </a>
+                <a href="{% url 'dashboard' %}" class="nav-tab-item">Mis Cursos</a>
+                <a href="{% url 'mis_notas' %}" class="nav-tab-item active">Historial de Notas</a>
+                <a href="{% url 'mi_perfil' %}" class="nav-tab-item">Mi Perfil</a>
             </nav>
         </div>
 
@@ -59,24 +54,14 @@
                         {{ request.user.email|default:"Sin correo registrado" }}
                     </div>
                     <span class="dropdown-user-badge">
-                        {% if request.user.is_staff or request.user.is_superuser %}
-                            Administrador
-                        {% else %}
-                            Alumno
-                        {% endif %}
+                        {% if request.user.is_staff or request.user.is_superuser %}Administrador{% else %}Alumno{% endif %}
                     </span>
                 </div>
 
                 <div class="dropdown-menu-list">
-                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
-                        👤 Mi Perfil
-                    </a>
-                    <a href="{% url 'dashboard' %}" class="dropdown-menu-item">
-                        📚 Mis Cursos
-                    </a>
-                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
-                        🚪 Cerrar Sesión
-                    </a>
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
+                    <a href="{% url 'dashboard' %}" class="dropdown-menu-item">📚 Mis Cursos</a>
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
                 </div>
             </div>
         </div>
@@ -90,7 +75,7 @@
             <div class="panel-header-block">
                 <div class="panel-title-area">
                     <h2>📊 Registro Académico de Evaluaciones</h2>
-                    <p>Consulta tus calificaciones y estado por asignatura en el período activo.</p>
+                    <p>Consulta tus calificaciones detalladas, promedios y estado por asignatura.</p>
                 </div>
                 
                 <div class="semester-badge-select">
@@ -101,7 +86,7 @@
                                 {{ per.nombre }}
                             </option>
                         {% empty %}
-                            <option value="" selected>Verano 2027</option>
+                            <option value="" selected>Temporada Actual</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -111,31 +96,40 @@
                 <table class="academic-table">
                     <thead>
                         <tr>
-                            <th style="width: 14%;">Código</th>
-                            <th style="width: 32%;">Área / Especialidad</th>
-                            <th style="width: 28%;">Curso Matriculado</th>
-                            <th style="width: 10%;">Grupo</th>
-                            <th style="width: 16%; text-align: center;">Acciones</th>
+                            <th style="width: 15%;">Código</th>
+                            <th style="width: 30%;">Área / Especialidad</th>
+                            <th style="width: 30%;">Curso Matriculado</th>
+                            <th style="width: 10%; text-align: center;">Grupo</th>
+                            <th style="width: 15%; text-align: center;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for curso in cursos_alumno %}
+                        {% for rep in reporte_cursos %}
                             <tr>
-                                <td><strong>{{ curso.codigo|default:"MED-0001" }}</strong></td>
-                                <td>{{ curso.area|default:"Pregrado • Medicina Humana" }}</td>
-                                <td><strong>{{ curso.titulo }}</strong></td>
-                                <td>01</td>
+                                <td><span class="badge-code">{{ rep.curso.codigo|default:"MED-0001" }}</span></td>
+                                <td style="color: #64748b; font-weight: 500;">{{ rep.curso.area|default:"Pregrado • Ciencias Médicas" }}</td>
+                                <td><strong style="color: #0f172a; font-size: 0.95rem;">{{ rep.curso.titulo }}</strong></td>
+                                <td style="text-align: center;"><span class="badge-group">01</span></td>
                                 <td style="text-align: center;">
-                                    <button type="button" class="badge-nota" onclick="abrirModalNotas('{{ curso.titulo|escapejs }}')" style="border: none; cursor: pointer;">
-                                        VER NOTAS
+                                    <button type="button" 
+                                            class="btn-ver-notas"
+                                            data-curso="{{ rep.curso.titulo }}"
+                                            data-formula="{{ rep.formula }}"
+                                            data-promedio="{{ rep.promedio }}"
+                                            data-evaluaciones='{{ rep.evaluaciones|json_script:"temp"|default:"[]" }}'
+                                            onclick="abrirModalNotas(this)">
+                                        <span>📝</span> VER NOTAS
                                     </button>
                                 </td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="5" style="text-align: center; padding: 30px; color: #64748b;">
-                                    📚 <br>
-                                    <strong>No tienes cursos matriculados en este período académico.</strong>
+                                <td colspan="5" style="text-align: center; padding: 48px 20px; color: #64748b;">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">📚</div>
+                                    <strong style="display: block; font-size: 1rem; color: #1e293b; margin-bottom: 4px;">
+                                        No tienes cursos matriculados en este período académico.
+                                    </strong>
+                                    <span style="font-size: 0.85rem;">Si crees que esto es un error, contacta con secretaría docente.</span>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -147,32 +141,40 @@
 
     </main>
 
-    <!-- Modal de Calificaciones del Curso -->
-    <div id="modalNotas" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px); z-index: 9999; align-items: center; justify-content: center;">
-        <div style="background: #ffffff; width: 90%; max-width: 550px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden; font-family: inherit;">
-            <div style="background: #0f4c81; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
-                <h3 id="modalCursoTitulo" style="margin: 0; font-size: 16px; font-weight: 700;">Evaluaciones del Curso</h3>
-                <button type="button" onclick="cerrarModalNotas()" style="background: none; border: none; color: #ffffff; font-size: 22px; cursor: pointer; line-height: 1;">×</button>
+    <!-- Modal Moderno de Evaluaciones -->
+    <div id="modalNotas" class="modal-overlay" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><span>🩺</span> <span id="modalCursoTitulo">Evaluaciones del Curso</span></h3>
+                <button type="button" class="btn-close-x" onclick="cerrarModalNotas()">×</button>
             </div>
             
-            <div style="padding: 24px;">
-                <p style="font-size: 13.5px; color: #64748b; margin: 0 0 16px 0;">
-                    El desglose detallado de las evaluaciones continuas se encuentra consolidado a continuación:
-                </p>
+            <div class="modal-body">
+                <table class="eval-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Código</th>
+                            <th style="width: 50%;">Evaluación</th>
+                            <th style="width: 25%; text-align: right;">Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalEvaluacionesBody">
+                        <!-- Llenado dinámico por JS -->
+                    </tbody>
+                </table>
+            </div>
 
-                <div class="modal-footer-box" style="margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="font-size: 12.5px;">
-                        <strong style="color: #334155;">Fórmula de Promedio:</strong><br>
-                        <span style="color: #64748b; font-size: 11.5px;">PF = (EP × 0.35) + (EF × 0.35) + (EC × 0.30)</span>
-                    </div>
-                    <button type="button" class="btn-modal-close" onclick="cerrarModalNotas()">CERRAR</button>
+            <div class="modal-footer">
+                <div class="formula-info">
+                    <strong>Fórmula:</strong> <code id="modalFormulaTexto">—</code>
                 </div>
+                <button type="button" class="btn-modal-close" onclick="cerrarModalNotas()">Cerrar</button>
             </div>
         </div>
     </div>
 
     <!-- Script Modular Externo -->
-    <script src="{% static 'js/mis_notas.js' %}?v=1.0" defer></script>
+    <script src="{% static 'js/mis_notas.js' %}?v=3.0" defer></script>
 
 </body>
 </html>
