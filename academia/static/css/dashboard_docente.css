@@ -1,0 +1,270 @@
+/* ==============================================================================
+   DASHBOARD DOCENTE: PERFIL Y CALENDARIO SEMANAL - ACADEMIA GALENO
+   ============================================================================== */
+
+/* Barra de bienvenida y perfil docente */
+.topbar-docente {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 28px;
+}
+
+.welcome-docente {
+    font-size: 15px;
+    color: #334155;
+}
+
+.user-profile-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    padding: 6px 14px 6px 8px;
+    border-radius: 30px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.user-avatar-circle {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
+}
+
+.user-info-text {
+    text-align: left;
+    line-height: 1.25;
+}
+
+.user-info-name {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.user-info-role {
+    font-size: 11.5px;
+    color: #0284c7;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Métricas del Docente */
+.metrics-docente-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.metric-card-action {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.btn-asistencia-directa {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    width: fit-content;
+    margin-top: 6px;
+    transition: background-color 0.15s ease;
+}
+
+.btn-asistencia-directa:hover {
+    background: #bae6fd;
+}
+
+/* Grilla principal: Calendario + Materias */
+.content-columns-docente {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.card-calendario-box {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.card-calendario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 12px;
+}
+
+.card-calendario-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.badge-ciclo {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+/* Rejilla de Días (Lunes a Sábado) */
+.calendar-week-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+    min-height: 280px;
+}
+
+.calendar-col {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calendar-col-header {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    text-align: center;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e2e8f0;
+    text-transform: uppercase;
+}
+
+.class-badge-card {
+    background: #ffffff;
+    border-left: 3px solid #0284c7;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    font-size: 11.5px;
+}
+
+.class-badge-time {
+    font-size: 10px;
+    font-weight: 700;
+    color: #0369a1;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.class-badge-title {
+    font-weight: 700;
+    color: #0f172a;
+    display: block;
+    line-height: 1.2;
+}
+
+.class-badge-room {
+    color: #64748b;
+    font-size: 10px;
+    margin-top: 3px;
+    display: block;
+}
+
+/* Lista de Materias */
+.card-materias-box {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.card-materias-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.card-materias-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.link-control-rapido {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0284c7;
+    text-decoration: none;
+}
+
+.materias-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.materia-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.materia-info strong {
+    font-size: 13.5px;
+    color: #0f172a;
+    display: block;
+}
+
+.materia-info span {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.materia-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-materia-asistencia {
+    font-size: 11px;
+    font-weight: 700;
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.btn-materia-entrar {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0284c7;
+    text-decoration: none;
+}
