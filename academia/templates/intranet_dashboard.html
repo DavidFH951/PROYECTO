@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
-    <link rel="stylesheet" href="{% static 'css/dashboard_docente.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/dashboard_docente.css' %}?v=1.1">
 </head>
 
 <body class="intranet-body">
@@ -69,13 +69,26 @@
                     Bienvenido, profesor <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
                 </div>
 
-                <div class="user-profile-badge">
-                    <div class="user-avatar-circle">
-                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
-                    </div>
-                    <div class="user-info-text">
-                        <span class="user-info-name">{{ request.user.get_full_name|default:request.user.username }}</span>
-                        <span class="user-info-role">{% if es_docente %}Docente Titular{% else %}Estudiante{% endif %}</span>
+                <!-- Dropdown de Usuario / Docente -->
+                <div class="user-dropdown-container">
+                    <button type="button" class="user-profile-badge-btn">
+                        <div class="user-avatar-circle">
+                            {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                        </div>
+                        <div class="user-info-text">
+                            <span class="user-info-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                            <span class="user-info-role">{% if es_docente %}Docente Titular{% else %}Estudiante{% endif %}</span>
+                        </div>
+                        <span class="dropdown-arrow-icon">▼</span>
+                    </button>
+
+                    <div id="userDropdownDocente" class="user-dropdown-menu">
+                        <a href="{% url 'mi_perfil' %}" class="user-dropdown-item">
+                            <span>👤</span> Mi Perfil
+                        </a>
+                        <a href="{% url 'salir' %}" class="user-dropdown-item logout">
+                            <span>🚪</span> Cerrar Sesión
+                        </a>
                     </div>
                 </div>
             </header>
@@ -181,15 +194,10 @@
                         </div>
                     </div>
 
-                    <!-- Lista de Materias Asignadas -->
+                    <!-- Lista de Materias (Solo botón Entrar) -->
                     <div class="card-materias-box">
                         <div class="card-materias-header">
                             <h3><span>📖</span> Mis Materias</h3>
-                            {% if es_docente %}
-                            <a href="{% url 'docente_mis_asistencias' %}" class="link-control-rapido">
-                                Control Rápido →
-                            </a>
-                            {% endif %}
                         </div>
 
                         <div class="materias-list">
@@ -199,16 +207,9 @@
                                     <strong>{{ curso.titulo }}</strong>
                                     <span>{{ curso.periodo.nombre|default:"Ciclo Activo" }}</span>
                                 </div>
-                                <div class="materia-actions">
-                                    {% if es_docente %}
-                                    <a href="{% url 'docente_asistencia_curso' curso.id %}?fecha={{ hoy }}" class="btn-materia-asistencia">
-                                        📋 Asistencia
-                                    </a>
-                                    {% endif %}
-                                    <a href="{% url 'detalle_curso' curso.id %}" class="btn-materia-entrar">
-                                        Entrar →
-                                    </a>
-                                </div>
+                                <a href="{% url 'detalle_curso' curso.id %}" class="btn-materia-entrar">
+                                    Entrar →
+                                </a>
                             </div>
                             {% empty %}
                             <p class="empty-records">No tienes materias asignadas.</p>
@@ -223,7 +224,10 @@
         </div>
 
     </div>
+
+    <!-- Scripts desacoplados -->
     <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
+    <script src="{% static 'js/dashboard_docente.js' %}?v=1.0" defer></script>
 </body>
 
 </html>
