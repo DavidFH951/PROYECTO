@@ -19,7 +19,7 @@ function abrirModalNotas(boton) {
     } else {
         evaluaciones.forEach(ev => {
             const tr = document.createElement('tr');
-            
+
             let notaBadge = `<span class="score-badge score-pending">—</span>`;
             if (ev.nota !== null && ev.nota !== undefined && ev.nota !== '') {
                 const val = parseFloat(ev.nota);
@@ -66,4 +66,14 @@ window.addEventListener('click', function (e) {
     if (modal && e.target === modal) {
         modal.style.display = 'none';
     }
+})
+function togglePeriodMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('periodMenuList');
+    if (menu) menu.classList.toggle('show');
+}
+document.addEventListener('click', function (e) {
+    const dropdown = document.getElementById('periodDropdown');
+    const menu = document.getElementById('periodMenuList');
+    if (menu && dropdown && !dropdown.contains(e.target)) menu.classList.remove('show');
 });

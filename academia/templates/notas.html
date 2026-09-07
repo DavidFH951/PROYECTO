@@ -78,17 +78,23 @@
                     <p>Consulta tus calificaciones detalladas, promedios y estado por asignatura.</p>
                 </div>
 
-                <div class="semester-badge-select">
-                    <label for="semestreSelect">Período:</label>
-                    <select id="semestreSelect" onchange="if (this.value) window.location.href='?periodo=' + this.value;">
+                <div class="custom-period-dropdown" id="periodDropdown">
+                    <button type="button" class="period-toggle-btn" onclick="togglePeriodMenu(event)">
+                        <span class="period-label">Período:</span>
+                        <span class="period-selected-name">{{ periodo_actual.nombre|default:"Temporada Actual" }}</span>
+                        <span class="period-arrow">▾</span>
+                    </button>
+
+                    <div class="period-menu-list" id="periodMenuList">
                         {% for per in periodos %}
-                        <option value="{{ per.id }}" {% if periodo_actual and per.id == periodo_actual.id %}selected{% endif %}>
+                        <a href="?periodo={{ per.id }}" 
+                           class="period-menu-item {% if periodo_actual and per.id == periodo_actual.id %}active{% endif %}">
                             {{ per.nombre }}
-                        </option>
+                        </a>
                         {% empty %}
-                        <option value="" selected>Temporada Actual</option>
+                        <span class="period-menu-item disabled">Temporada Actual</span>
                         {% endfor %}
-                    </select>
+                    </div>
                 </div>
             </div>
 

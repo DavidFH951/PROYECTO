@@ -67,7 +67,6 @@
     padding: 6px 14px;
     border-radius: 9999px;
     border: 1px solid #e2e8f0;
-    position: relative;
 }
 
 .semester-badge-select label {
@@ -82,25 +81,37 @@
     background: transparent;
     border: none;
     outline: none;
+    box-shadow: none;
     font-size: 0.85rem;
     font-weight: 700;
     color: #0f172a;
     cursor: pointer;
-    padding: 2px 4px;
+    padding: 2px 20px 2px 4px;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    padding-right: 18px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right center;
 }
 
+.semester-badge-select select:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Evitar fondo azul en las opciones del menú */
 .semester-badge-select select option {
-    background-color: #ffffff;
-    color: #0f172a;
-    font-weight: 500;
-    padding: 8px 12px;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    padding: 10px 14px;
+    font-weight: 600;
+}
+
+.semester-badge-select select option:checked {
+    background: #f1f5f9 !important;
+    color: #0284c7 !important;
+    font-weight: 700;
 }
 
 /* Tabla de Cursos */
@@ -359,3 +370,15 @@
 .btn-modal-close:hover {
     background: #cbd5e1;
 }
+.custom-period-dropdown { position: relative; display: inline-block; }
+.period-toggle-btn { display: inline-flex; align-items: center; gap: 8px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 9999px; cursor: pointer; }
+.period-toggle-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+.period-label { font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.period-selected-name { font-size: 0.85rem; font-weight: 700; color: #0f172a; }
+.period-arrow { font-size: 0.75rem; color: #64748b; }
+.period-menu-list { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1); min-width: 170px; z-index: 1000; overflow: hidden; }
+.period-menu-list.show { display: block; }
+.period-menu-item { display: block; padding: 9px 14px; font-size: 0.85rem; font-weight: 600; color: #334155; text-decoration: none; }
+.period-menu-item:hover { background: #f8fafc; color: #0284c7; }
+.period-menu-item.active { background: #f0f9ff; color: #0284c7; font-weight: 700; }
+.period-menu-item.disabled { color: #94a3b8; pointer-events: none; }
