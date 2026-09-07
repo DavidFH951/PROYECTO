@@ -236,24 +236,50 @@ def detalle_curso(request, curso_id):
 
 @login_required
 def mis_notas(request):
-    """Sábana consolidada de notas del alumno en la Intranet con nombres y fórmulas dinámicas."""
-    inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso', 'curso__periodo')
+    """Sábana consolidada de notas del alumno en la Intranet con nombres, períodos y fórmulas dinámicas."""
+    user = request.user
+    
+    # 1. Obtención de períodos / temporadas
+    periodos = Periodo.objects.all().order_by('-fecha_inicio')
+    periodo_id = request.GET.get('periodo')
+
+    if periodo_id:
+        periodo_actual = Periodo.objects.filter(id=periodo_id).first()
+    else:
+        periodo_actual = Periodo.objects.filter(activo=True).first() or periodos.first()
+
+    # 2. Inscripciones del alumno
+    inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
+
+    # Filtrar por temporada si existe
+    if periodo_actual:
+        inscripciones_periodo = inscripciones.filter(curso__periodo=periodo_actual)
+        if inscripciones_periodo.exists():
+            inscripciones = inscripciones_periodo
+
     calificaciones_dict = {
-        c.curso_id: c for c in Calificacion.objects.filter(alumno=request.user)
+        c.curso_id: c for c in Calificacion.objects.filter(alumno=user)
     }
 
     reporte_cursos = []
+    cursos_alumno = []
+
     for insc in inscripciones:
         curso = insc.curso
+        if not curso:
+            continue
+
+        cursos_alumno.append(curso)
         calif = calificaciones_dict.get(curso.id)
-        criterios = curso.obtener_criterios()
+        
+        criterios = curso.obtener_criterios() if hasattr(curso, 'obtener_criterios') else []
         notas_map = calif.notas_detalle if (calif and calif.notas_detalle) else {}
 
         evaluaciones = []
         for crit in criterios:
-            cod = crit["codigo"]
+            cod = crit.get("codigo")
             evaluaciones.append({
-                'nombre': crit["nombre"],
+                'nombre': crit.get("nombre"),
                 'codigo': cod,
                 'nota': notas_map.get(cod)
             })
@@ -261,12 +287,18 @@ def mis_notas(request):
         reporte_cursos.append({
             'curso': curso,
             'evaluaciones': evaluaciones,
-            'formula': curso.formula_evaluacion,
+            'formula': getattr(curso, 'formula_evaluacion', ''),
             'promedio': calif.promedio if (calif and calif.promedio is not None) else None
         })
 
-    return render(request, 'notas.html', {'reporte_cursos': reporte_cursos})
+    context = {
+        'periodos': periodos,
+        'periodo_actual': periodo_actual,
+        'cursos_alumno': cursos_alumno,
+        'reporte_cursos': reporte_cursos,
+    }
 
+    return render(request, 'notas.html', context)
 
 # ==============================================================================
 # 4. GESTIÓN DOCENTE (CONTENIDOS, CALIFICACIONES Y ASISTENCIAS)
