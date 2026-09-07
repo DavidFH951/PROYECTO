@@ -145,6 +145,14 @@ def dashboard(request):
         cursos_asignados = Curso.objects.filter(docentes=user).select_related('periodo').distinct()
         cursos_ids = cursos_asignados.values_list('id', flat=True)
 
+        # Mapeo con conteo de inscritos por cada curso
+        cursos_data = []
+        for c in cursos_asignados:
+            cursos_data.append({
+                'curso': c,
+                'total_alumnos': Inscripcion.objects.filter(curso=c).count()
+            })
+
         # Total de alumnos únicos matriculados en sus cursos
         total_alumnos = (
             Inscripcion.objects.filter(curso_id__in=cursos_ids)
@@ -163,9 +171,11 @@ def dashboard(request):
         context = {
             'es_docente': True,
             'cursos': cursos_asignados,
+            'cursos_data': cursos_data,
             'total_cursos': cursos_asignados.count(),
             'total_alumnos': total_alumnos,
             'horarios': horarios,
+            'hoy': date.today().strftime('%Y-%m-%d'),
         }
         return render(request, 'intranet_dashboard.html', context)
 
@@ -1579,3 +1589,25 @@ def mis_asistencias(request):
         'es_docente': es_docente,
     }
     return render(request, 'mis_asistencias.html', context)
+@login_required
+def docente_mis_asistencias(request):
+    """Lista los cursos del docente para elegir a cuál tomar asistencia."""
+    es_docente = request.user.groups.filter(name='Docentes').exists()
+    if not es_docente and not request.user.is_staff:
+        messages.error(request, "Acceso restringido a docentes.")
+        return redirect('dashboard')
+
+    cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
+
+    cursos_data = []
+    for c in cursos:
+        cursos_data.append({
+            'curso': c,
+            'total_alumnos': Inscripcion.objects.filter(curso=c).count()
+        })
+
+    context = {
+        'cursos_data': cursos_data,
+        'hoy': date.today().strftime('%Y-%m-%d'),
+    }
+    return render(request, 'docente_mis_asistencias.html', context)

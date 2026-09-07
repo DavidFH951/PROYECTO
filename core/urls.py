@@ -75,6 +75,8 @@ urlpatterns = [
     path('panel-admin/carga-masiva/', views.admin_carga_masiva_usuarios, name='admin_carga_masiva_usuarios'),
     path('panel-admin/descargar-plantilla/', views.descargar_plantilla_usuarios, name='descargar_plantilla_usuarios'),
     path('panel-admin/exportar/usuarios-csv/', views.exportar_usuarios_csv, name='exportar_usuarios_csv'),
+    path('docente/asistencias/', views.docente_mis_asistencias, name='docente_mis_asistencias'),
+    
 
     path('docente/curso/<int:curso_id>/asistencia/', views.docente_asistencia_curso, name='docente_asistencia_curso'),
     path('aula-virtual/mis-cursos/', views.mis_cursos, name='mis_cursos'),
