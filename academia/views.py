@@ -130,15 +130,20 @@ def salir(request):
 def dashboard(request):
     """Portal central post-login (Intranet). Redirige o muestra métricas consolidadas."""
     user = request.user
+    es_docente = user.groups.filter(name='Docentes').exists()
 
     if user.is_staff or user.is_superuser:
         return redirect('admin_dashboard')
 
-    if user.groups.filter(name='Docentes').exists():
+    if es_docente:
         return redirect('panel_docente')
 
+    # Obtener inscripciones activas
     inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
     cursos_ids = inscripciones.values_list('curso_id', flat=True)
+    
+    # Extraer la lista directa de cursos de esas inscripciones
+    cursos = [insc.curso for insc in inscripciones if insc.curso]
 
     # 1. Calificaciones y Promedio Global
     calificaciones = Calificacion.objects.filter(alumno=user, curso_id__in=cursos_ids)
@@ -155,14 +160,15 @@ def dashboard(request):
     horarios = HorarioCurso.objects.filter(curso_id__in=cursos_ids).select_related('curso')
 
     context = {
-        'total_cursos': inscripciones.count(),
+        'cursos': cursos,
+        'es_docente': es_docente,
+        'total_cursos': len(cursos),
         'promedio_global': promedio_global,
         'porcentaje_asistencia': porcentaje_asistencia,
         'inscripciones': inscripciones,
         'horarios': horarios,
     }
     return render(request, 'intranet_dashboard.html', context)
-
 
 @login_required
 def mi_perfil(request):
