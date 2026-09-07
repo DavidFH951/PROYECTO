@@ -258,21 +258,6 @@
         </div>
 
     </div>
-    <script>
-    function toggleUserMenu(event) {
-        event.stopPropagation();
-        const menu = document.getElementById('userMenuDropdown');
-        menu.classList.toggle('show');
-    }
-
-    // Cerrar el dropdown al hacer clic en cualquier otra parte de la pantalla
-    document.addEventListener('click', function (e) {
-        const menu = document.getElementById('userMenuDropdown');
-        if (menu && menu.classList.contains('show')) {
-            menu.classList.remove('show');
-        }
-    });
-    </script>
 
 </body>
 

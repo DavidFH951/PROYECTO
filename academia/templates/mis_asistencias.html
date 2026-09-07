@@ -161,24 +161,5 @@
         </div>
 
     </div>
-
-    <script>
-    function toggleDetalle(id, btn) {
-        const panel = document.getElementById(id);
-        const flecha = btn.querySelector('.flecha-indicador');
-        const estaAbierto = panel.style.display === 'block';
-
-        if (estaAbierto) {
-            panel.style.display = 'none';
-            flecha.textContent = '▼';
-            btn.classList.remove('activo');
-        } else {
-            panel.style.display = 'block';
-            flecha.textContent = '▲';
-            btn.classList.add('activo');
-        }
-    }
-    </script>
-
 </body>
 </html>
