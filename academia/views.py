@@ -240,13 +240,13 @@ def mis_notas(request):
     user = request.user
     
     # 1. Obtención de períodos / temporadas
-    periodos = Periodo.objects.all().order_by('-fecha_inicio')
+    periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
     periodo_id = request.GET.get('periodo')
 
     if periodo_id:
-        periodo_actual = Periodo.objects.filter(id=periodo_id).first()
+        periodo_actual = PeriodoAcademico.objects.filter(id=periodo_id).first()
     else:
-        periodo_actual = Periodo.objects.filter(activo=True).first() or periodos.first()
+        periodo_actual = PeriodoAcademico.objects.filter(activo=True).first() or periodos.first()
 
     # 2. Inscripciones del alumno
     inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
@@ -299,6 +299,8 @@ def mis_notas(request):
     }
 
     return render(request, 'notas.html', context)
+
+
 
 # ==============================================================================
 # 4. GESTIÓN DOCENTE (CONTENIDOS, CALIFICACIONES Y ASISTENCIAS)
