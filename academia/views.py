@@ -133,7 +133,6 @@ def dashboard(request):
     user = request.user
     es_docente = user.groups.filter(name='Docentes').exists()
 
-    # Redirección exclusiva a administradores de plataforma
     if user.is_staff or user.is_superuser:
         return redirect('admin_dashboard')
 
@@ -141,11 +140,9 @@ def dashboard(request):
     # VISTA PARA DOCENTE
     # =========================================================================
     if es_docente:
-        # Cursos asignados al profesor
         cursos_asignados = Curso.objects.filter(docentes=user).select_related('periodo').distinct()
         cursos_ids = cursos_asignados.values_list('id', flat=True)
 
-        # Mapeo con conteo de inscritos por cada curso
         cursos_data = []
         for c in cursos_asignados:
             cursos_data.append({
@@ -153,7 +150,6 @@ def dashboard(request):
                 'total_alumnos': Inscripcion.objects.filter(curso=c).count()
             })
 
-        # Total de alumnos únicos matriculados en sus cursos
         total_alumnos = (
             Inscripcion.objects.filter(curso_id__in=cursos_ids)
             .values('alumno')
@@ -161,7 +157,6 @@ def dashboard(request):
             .count()
         )
 
-        # Horario de clases a dictar
         horarios = (
             HorarioCurso.objects.filter(curso_id__in=cursos_ids)
             .select_related('curso')
@@ -186,18 +181,15 @@ def dashboard(request):
     cursos_ids = inscripciones.values_list('curso_id', flat=True)
     cursos = [insc.curso for insc in inscripciones if insc.curso]
 
-    # 1. Calificaciones y Promedio Global
     calificaciones = Calificacion.objects.filter(alumno=user, curso_id__in=cursos_ids)
     promedios = [float(c.promedio) for c in calificaciones if c.promedio is not None]
     promedio_global = round(sum(promedios) / len(promedios), 2) if promedios else None
 
-    # 2. Resumen de Asistencias
     asistencias = Asistencia.objects.filter(alumno=user, curso_id__in=cursos_ids)
     total_clases = asistencias.count()
     asistencias_validas = asistencias.filter(estado__in=['P', 'T', 'J']).count()
     porcentaje_asistencia = round((asistencias_validas / total_clases) * 100, 1) if total_clases > 0 else 100.0
 
-    # 3. Horario Semanal Ordenado
     horarios = (
         HorarioCurso.objects.filter(curso_id__in=cursos_ids)
         .select_related('curso')
@@ -214,6 +206,7 @@ def dashboard(request):
         'horarios': horarios,
     }
     return render(request, 'intranet_dashboard.html', context)
+
 
 @login_required
 def mi_perfil(request):
@@ -281,7 +274,7 @@ def detalle_curso(request, curso_id):
 
 @login_required
 def mis_notas(request):
-    """Sábana consolidada de notas del alumno en la Intranet con nombres, períodos y fórmulas dinámicas."""
+    """Sábana consolidada de notas del alumno en la Intranet con fórmulas dinámicas."""
     user = request.user
     
     periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
@@ -325,7 +318,7 @@ def mis_notas(request):
         reporte_cursos.append({
             'curso': curso,
             'evaluaciones': evaluaciones,
-            'evaluaciones_json': json.dumps(evaluaciones),  # <-- JSON listo para el HTML
+            'evaluaciones_json': json.dumps(evaluaciones),
             'formula': getattr(curso, 'formula_evaluacion', ''),
             'promedio': calif.promedio if (calif and calif.promedio is not None) else None
         })
@@ -335,13 +328,11 @@ def mis_notas(request):
         'periodo_actual': periodo_actual,
         'reporte_cursos': reporte_cursos,
     }
-
     return render(request, 'notas.html', context)
 
 
-
 # ==============================================================================
-# 4. GESTIÓN DOCENTE (CONTENIDOS, CALIFICACIONES Y ASISTENCIAS)
+# 4. GESTIÓN DOCENTE (CONTENIDOS Y CALIFICACIONES)
 # ==============================================================================
 
 @login_required
@@ -405,7 +396,7 @@ def eliminar_material(request, material_id):
 
 @login_required
 def docente_calificar_curso(request, curso_id):
-    """Planilla dinámica donde el docente ingresa calificaciones basadas en los criterios del curso."""
+    """Planilla dinámica donde el docente ingresa calificaciones."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not es_docente_del_curso(request.user, curso):
@@ -470,9 +461,37 @@ def docente_calificar_curso(request, curso_id):
     return render(request, 'docente_calificar.html', context)
 
 
+# ==============================================================================
+# 5. MÓDULO DE ASISTENCIAS (DOCENTE Y ALUMNO)
+# ==============================================================================
+
+@login_required
+def docente_mis_asistencias(request):
+    """Catálogo rápido de asignaturas del docente para seleccionar asistencia."""
+    es_docente = request.user.groups.filter(name='Docentes').exists()
+    if not es_docente and not request.user.is_staff:
+        messages.error(request, "Acceso restringido a docentes.")
+        return redirect('dashboard')
+
+    cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
+
+    cursos_data = []
+    for c in cursos:
+        cursos_data.append({
+            'curso': c,
+            'total_alumnos': Inscripcion.objects.filter(curso=c).count()
+        })
+
+    context = {
+        'cursos_data': cursos_data,
+        'hoy': date.today().strftime('%Y-%m-%d'),
+    }
+    return render(request, 'docente_mis_asistencias.html', context)
+
+
 @login_required
 def docente_asistencia_curso(request, curso_id):
-    """Gestión de asistencias en Intranet Docente con selector de Semana y Fecha."""
+    """Toma de lista diaria del docente con actualización de fecha y semana."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not es_docente_del_curso(request.user, curso):
@@ -486,12 +505,11 @@ def docente_asistencia_curso(request, curso_id):
     except ValueError:
         fecha_sesion = date.today()
 
-    # Obtener todas las inscripciones del curso
     inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
 
     if request.method == 'POST':
-        semana_post = int(request.POST.get('semana', 1))
-        fecha_post_str = request.POST.get('fecha', str(date.today()))
+        semana_post = int(request.POST.get('semana', semana))
+        fecha_post_str = request.POST.get('fecha', str(fecha_sesion))
         try:
             fecha_guardar = date.fromisoformat(fecha_post_str)
         except ValueError:
@@ -520,8 +538,8 @@ def docente_asistencia_curso(request, curso_id):
             "Control Asistencia", 
             f"Registró asistencia (Sem {semana_post}, {fecha_guardar}) para {total_marcados} alumno(s) en '{curso.titulo}'"
         )
-        messages.success(request, f"Asistencia guardada correctamente para la Semana {semana_post} ({fecha_guardar}).")
-        return redirect(f"{request.path}?semana={semana_post}&fecha={fecha_guardar}")
+        messages.success(request, f"Asistencia guardada correctamente para el curso '{curso.titulo}' ({fecha_guardar}).")
+        return redirect(f"{request.path}?fecha={fecha_guardar}&semana={semana_post}")
 
     asistencias_existentes = {
         a.alumno_id: a.estado
@@ -542,20 +560,61 @@ def docente_asistencia_curso(request, curso_id):
         'semana': semana,
         'fecha_sesion': fecha_sesion.strftime('%Y-%m-%d'),
         'filas': filas,
-        'alumnos': filas,            # Compatibilidad si el template evalúa {% if alumnos %}
-        'inscripciones': filas,      # Compatibilidad si evalúa {% if inscripciones %}
-        'rango_semanas': range(1, 17),
     }
     return render(request, 'docente_asistencia.html', context)
 
 
+@login_required
+def mis_asistencias(request):
+    """Consulta de asistencias exclusiva para el estudiante (Modo Solo Lectura)."""
+    user = request.user
+
+    if user.groups.filter(name='Docentes').exists() and not user.is_staff:
+        return redirect('docente_mis_asistencias')
+
+    inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
+
+    resumen_asistencias = []
+    for insc in inscripciones:
+        curso = insc.curso
+        if not curso:
+            continue
+
+        registros = Asistencia.objects.filter(curso=curso, alumno=user).order_by('-fecha')
+
+        total_sesiones = registros.count()
+        presentes = registros.filter(estado='P').count()
+        tardanzas = registros.filter(estado='T').count()
+        faltas = registros.filter(estado='F').count()
+        justificadas = registros.filter(estado='J').count()
+
+        asistencias_validas = presentes + tardanzas + justificadas
+        porcentaje = round((asistencias_validas / total_sesiones) * 100, 1) if total_sesiones > 0 else 100.0
+
+        resumen_asistencias.append({
+            'curso': curso,
+            'porcentaje': porcentaje,
+            'total_sesiones': total_sesiones,
+            'presentes': presentes,
+            'tardanzas': tardanzas,
+            'faltas': faltas,
+            'justificadas': justificadas,
+            'detalles': registros,
+        })
+
+    context = {
+        'resumen_asistencias': resumen_asistencias,
+    }
+    return render(request, 'alumno_mis_asistencia.html', context)
+
+
 # ==============================================================================
-# 5. MÓDULO DE EVALUACIONES, EXÁMENES Y BANCO DE PREGUNTAS
+# 6. MÓDULO DE EVALUACIONES, EXÁMENES Y BANCO DE PREGUNTAS
 # ==============================================================================
 
 @login_required
 def crear_examen_curso(request, curso_id):
-    """Crea una nueva evaluación con cronograma, intentos y preguntas aleatorias."""
+    """Crea una nueva evaluación para el curso."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not es_docente_del_curso(request.user, curso):
@@ -594,7 +653,7 @@ def crear_examen_curso(request, curso_id):
 
 @login_required
 def toggle_examen(request, examen_id):
-    """Pausa o habilita un examen con un clic."""
+    """Pausa o habilita un examen."""
     examen = get_object_or_404(Examen, id=examen_id)
     if not es_docente_del_curso(request.user, examen.curso):
         return HttpResponseForbidden("No tienes permisos para realizar esta acción.")
@@ -608,7 +667,7 @@ def toggle_examen(request, examen_id):
 
 @login_required
 def eliminar_examen(request, examen_id):
-    """Elimina una evaluación y sus preguntas asociadas."""
+    """Elimina una evaluación y sus preguntas."""
     examen = get_object_or_404(Examen, id=examen_id)
     curso_id = examen.curso.id
     if not es_docente_del_curso(request.user, examen.curso):
@@ -622,7 +681,7 @@ def eliminar_examen(request, examen_id):
 
 @login_required
 def banco_preguntas_curso(request, curso_id):
-    """Gestión integral del banco de preguntas del curso."""
+    """Gestión del banco de preguntas por curso."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not es_docente_del_curso(request.user, curso):
@@ -660,7 +719,7 @@ def banco_preguntas_curso(request, curso_id):
 
 @login_required
 def eliminar_pregunta(request, pregunta_id):
-    """Elimina una pregunta específica del banco."""
+    """Elimina una pregunta del banco."""
     pregunta = get_object_or_404(Pregunta, id=pregunta_id)
     curso = pregunta.examen.curso
 
@@ -668,13 +727,13 @@ def eliminar_pregunta(request, pregunta_id):
         return HttpResponseForbidden("No tienes permisos para eliminar preguntas de este curso.")
 
     pregunta.delete()
-    messages.success(request, "Pregunta eliminada correctamente del banco de la evaluación.")
+    messages.success(request, "Pregunta eliminada correctamente del banco.")
     return redirect('banco_preguntas_curso', curso_id=curso.id)
 
 
 @login_required
 def descargar_plantilla_preguntas(request):
-    """Genera y descarga la plantilla Excel (.xlsx) para la carga masiva de preguntas."""
+    """Genera la plantilla Excel (.xlsx) para preguntas."""
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "BancoPreguntas"
@@ -747,7 +806,7 @@ def descargar_plantilla_preguntas(request):
 
 @login_required
 def importar_preguntas_curso(request, curso_id):
-    """Importa preguntas desde un archivo Excel (.xlsx) a un examen determinado."""
+    """Carga masiva de preguntas desde Excel (.xlsx)."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not es_docente_del_curso(request.user, curso):
@@ -815,7 +874,7 @@ def importar_preguntas_curso(request, curso_id):
 
 @login_required
 def rendir_examen(request, examen_id):
-    """Control de rendición con temporizador, pool aleatorio y límite de intentos."""
+    """Ejecución de exámenes por estudiantes."""
     examen = get_object_or_404(Examen, id=examen_id)
     es_docente = es_docente_del_curso(request.user, examen.curso)
 
@@ -887,7 +946,7 @@ def rendir_examen(request, examen_id):
 
 @login_required
 def revision_examen(request, examen_id):
-    """Visualización diferida de resultados y justificación clínica."""
+    """Revisión de notas y respuestas de la evaluación."""
     examen = get_object_or_404(Examen, id=examen_id)
     
     ultimo_intento = IntentoExamen.objects.filter(
@@ -913,7 +972,7 @@ def revision_examen(request, examen_id):
 
 @login_required
 def ver_intentos_examen(request, examen_id):
-    """Permite al docente y admin ver la lista de todos los alumnos que enviaron el examen."""
+    """Lista de intentos rendidos para docentes."""
     examen = get_object_or_404(Examen, id=examen_id)
     if not es_docente_del_curso(request.user, examen.curso):
         return HttpResponseForbidden("No tienes permiso para ver los resultados de este examen.")
@@ -932,7 +991,7 @@ def ver_intentos_examen(request, examen_id):
 
 @login_required
 def ver_detalle_intento(request, intento_id):
-    """Permite al docente/admin inspeccionar exactamente qué respondió un alumno específico."""
+    """Inspección de las respuestas enviadas por un alumno."""
     intento = get_object_or_404(IntentoExamen, id=intento_id)
     examen = intento.examen
 
@@ -952,7 +1011,7 @@ def ver_detalle_intento(request, intento_id):
 
 @login_required
 def finalizar_examen_docente(request, examen_id):
-    """Permite al docente o admin cerrar el examen de golpe para todos los alumnos."""
+    """Cierra la evaluación manualmente."""
     examen = get_object_or_404(Examen, id=examen_id)
     if not es_docente_del_curso(request.user, examen.curso):
         return HttpResponseForbidden("No tienes permisos para cerrar este examen.")
@@ -961,13 +1020,13 @@ def finalizar_examen_docente(request, examen_id):
     examen.activo = False
     examen.save()
 
-    messages.warning(request, f"La evaluación '{examen.titulo}' ha sido cerrada definitivamente por el docente. Las pruebas en curso se enviarán automáticamente.")
+    messages.warning(request, f"La evaluación '{examen.titulo}' ha sido cerrada definitivamente por el docente.")
     return redirect('detalle_curso', curso_id=examen.curso.id)
 
 
 @login_required
 def verificar_estado_examen(request, examen_id):
-    """Endpoint consultado en segundo plano por el navegador del estudiante."""
+    """Chequeo del estado del examen para el navegador."""
     examen = get_object_or_404(Examen, id=examen_id)
     return JsonResponse({
         'cerrado': examen.cerrado_manualmente or not examen.activo
@@ -975,13 +1034,13 @@ def verificar_estado_examen(request, examen_id):
 
 
 # ==============================================================================
-# 6. MÓDULO ADMINISTRADOR (DASHBOARD, USUARIOS Y MATRÍCULAS)
+# 7. MÓDULO ADMINISTRADOR (DASHBOARD, USUARIOS Y MATRÍCULAS)
 # ==============================================================================
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_dashboard(request):
-    """Panel central de control administrativo."""
+    """Panel de administración general."""
     total_alumnos = User.objects.filter(groups__name='Alumnos').count()
     total_docentes = User.objects.filter(groups__name='Docentes').count()
     total_cursos = Curso.objects.count()
@@ -1026,7 +1085,7 @@ def admin_dashboard(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_detalle_usuario(request, user_id):
-    """Detalle de inscripciones y cursos asignados de un usuario."""
+    """Detalle de matrículas y cursos de un usuario."""
     usuario_detalle = get_object_or_404(User, id=user_id)
     inscripciones = Inscripcion.objects.filter(alumno=usuario_detalle).select_related('curso')
     cursos_docente = Curso.objects.filter(docentes=usuario_detalle)
@@ -1042,7 +1101,7 @@ def admin_detalle_usuario(request, user_id):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def registrar_usuario(request):
-    """Registro individual de usuarios."""
+    """Creación individual de usuarios."""
     if request.method == 'POST':
         form = RegistroUsuarioForm(request.POST)
         if form.is_valid():
@@ -1060,7 +1119,7 @@ def registrar_usuario(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def editar_usuario(request, user_id):
-    """Edición de credenciales y roles de usuario."""
+    """Edición de credenciales y roles."""
     usuario_editar = get_object_or_404(User, id=user_id)
     rol_actual = 'Alumno'
     if usuario_editar.is_superuser or usuario_editar.is_staff:
@@ -1108,7 +1167,7 @@ def editar_usuario(request, user_id):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def eliminar_usuario(request, user_id):
-    """Eliminación de una cuenta de usuario."""
+    """Eliminación de una cuenta."""
     usuario = get_object_or_404(User, id=user_id)
     
     if usuario == request.user:
@@ -1125,7 +1184,7 @@ def eliminar_usuario(request, user_id):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def eliminar_usuarios_masivo(request):
-    """Eliminación masiva de múltiples usuarios seleccionados."""
+    """Eliminación masiva de usuarios."""
     if request.method == 'POST':
         user_ids = request.POST.getlist('usuarios_seleccionados')
         if not user_ids:
@@ -1146,7 +1205,7 @@ def eliminar_usuarios_masivo(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_cursos_lista(request):
-    """Listado general de cursos para administración."""
+    """Listado de cursos para administración."""
     cursos = Curso.objects.prefetch_related('docentes').all()
     total_alumnos = User.objects.filter(groups__name='Alumnos').count()
     total_docentes = User.objects.filter(groups__name='Docentes').count()
@@ -1164,7 +1223,7 @@ def admin_cursos_lista(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_crear_curso(request):
-    """Creación de nuevos cursos académicos."""
+    """Creación de una nueva asignatura."""
     if request.method == 'POST':
         titulo = request.POST.get('titulo')
         descripcion = request.POST.get('descripcion')
@@ -1193,6 +1252,7 @@ def admin_crear_curso(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_editar_curso(request, curso_id):
+    """Modificación de parámetros y fórmula de evaluación del curso."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if request.method == 'POST':
@@ -1240,7 +1300,7 @@ def admin_editar_curso(request, curso_id):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_eliminar_curso(request, curso_id):
-    """Eliminación de un curso."""
+    """Eliminación definitiva de un curso."""
     curso = get_object_or_404(Curso, id=curso_id)
     titulo = curso.titulo
     registrar_log(request, "Eliminación de Curso", f"Eliminó el curso '{titulo}'")
@@ -1252,7 +1312,7 @@ def admin_eliminar_curso(request, curso_id):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_matricular(request, curso_id=None):
-    """Matrícula masiva mediante lista de selección rápida."""
+    """Matrícula masiva de estudiantes."""
     cursos = Curso.objects.filter(estado=True).order_by('titulo')
     curso_seleccionado = None
     alumnos_matriculados_ids = []
@@ -1311,7 +1371,7 @@ def admin_matricular_alumno(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_curso_alumnos(request, curso_id):
-    """Lista de estudiantes matriculados en un curso."""
+    """Estudiantes matriculados por curso."""
     curso = get_object_or_404(Curso, id=curso_id)
     inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
     
@@ -1325,7 +1385,7 @@ def admin_curso_alumnos(request, curso_id):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_desmatricular_alumno(request, inscripcion_id):
-    """Elimina la matrícula de un alumno en un curso."""
+    """Eliminación de matrícula de un alumno."""
     inscripcion = get_object_or_404(Inscripcion, id=inscripcion_id)
     curso_id = inscripcion.curso.id
     nombre_alumno = inscripcion.alumno.get_full_name() or inscripcion.alumno.username
@@ -1338,13 +1398,13 @@ def admin_desmatricular_alumno(request, inscripcion_id):
 
 
 # ==============================================================================
-# 7. CARGA MASIVA, REPORTES, AUDITORÍA Y PERÍODOS ACADÉMICOS
+# 8. CARGA MASIVA, REPORTES, AUDITORÍA Y PERÍODOS ACADÉMICOS
 # ==============================================================================
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_carga_masiva_usuarios(request):
-    """Carga masiva de usuarios a partir de un archivo CSV."""
+    """Carga masiva mediante archivo CSV."""
     if request.method == 'POST' and request.FILES.get('archivo_csv'):
         archivo = request.FILES['archivo_csv']
         
@@ -1409,7 +1469,7 @@ def admin_carga_masiva_usuarios(request):
 
 @login_required
 def descargar_plantilla_usuarios(request):
-    """Descarga de formato CSV para plantilla de usuarios."""
+    """Descarga de plantilla CSV para usuarios."""
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponseForbidden("No tienes permiso para realizar esta acción.")
 
@@ -1427,7 +1487,7 @@ def descargar_plantilla_usuarios(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def exportar_usuarios_csv(request):
-    """Exporta el consolidado general de usuarios en CSV."""
+    """Descarga consolidada de usuarios en formato CSV."""
     response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Disposition'] = 'attachment; filename="reporte_usuarios_galeno.csv"'
     response.write('\ufeff'.encode('utf8'))
@@ -1459,7 +1519,7 @@ def exportar_usuarios_csv(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_logs_actividad(request):
-    """Visor de logs y auditoría de eventos del sistema."""
+    """Historial de auditoría y actividades del sistema."""
     total_alumnos = User.objects.filter(groups__name='Alumnos').count()
     total_docentes = User.objects.filter(groups__name='Docentes').count()
     total_cursos = Curso.objects.count()
@@ -1490,7 +1550,7 @@ def admin_logs_actividad(request):
 
 @login_required
 def gestionar_temporada(request):
-    """Creación y cierre de períodos/temporadas académicas."""
+    """Control de creación y culminación de ciclos académicos."""
     if not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, "No tienes permisos para realizar esta acción.")
         return redirect('admin_dashboard')
@@ -1530,122 +1590,3 @@ def gestionar_temporada(request):
                 messages.warning(request, f"La temporada '{periodo.nombre}' ha sido culminada. El ciclo quedó cerrado.")
 
     return redirect('admin_dashboard')
-
-@login_required
-def mis_asistencias(request):
-    """Vista estilo acordeón que muestra el historial de asistencias por curso."""
-    user = request.user
-    periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
-    periodo_id = request.GET.get('periodo')
-
-    periodo_actual = None
-    if periodo_id:
-        periodo_actual = PeriodoAcademico.objects.filter(id=periodo_id).first()
-    if not periodo_actual:
-        periodo_actual = PeriodoAcademico.objects.filter(activo=True).first() or periodos.first()
-
-    # Si es docente y no alumno, lista los cursos que dicta; si es alumno, los que cursa
-    es_docente = es_docente_valido(user)
-    if es_docente:
-        cursos_qs = Curso.objects.filter(docentes=user)
-    else:
-        inscripciones = Inscripcion.objects.filter(alumno=user)
-        if periodo_actual:
-            inscripciones = inscripciones.filter(curso__periodo=periodo_actual)
-        cursos_qs = [ins.curso for ins in inscripciones.select_related('curso')]
-
-    reporte_asistencias = []
-    for curso in cursos_qs:
-        if es_docente:
-            # Para el docente muestra las sesiones generadas del curso
-            registros = Asistencia.objects.filter(curso=curso).order_by('semana', 'fecha')
-        else:
-            # Para el alumno muestra estrictamente sus asistencias
-            registros = Asistencia.objects.filter(curso=curso, alumno=user).order_by('semana', 'fecha')
-
-        total = registros.count()
-        presentes = registros.filter(estado='P').count()
-        tardanzas = registros.filter(estado='T').count()
-        faltas = registros.filter(estado='F').count()
-        justificados = registros.filter(estado='J').count()
-
-        porcentaje = round(((presentes + tardanzas + justificados) / total) * 100, 1) if total > 0 else 100.0
-
-        reporte_asistencias.append({
-            'curso': curso,
-            'registros': registros,
-            'total': total,
-            'presentes': presentes,
-            'tardanzas': tardanzas,
-            'faltas': faltas,
-            'justificados': justificados,
-            'porcentaje': porcentaje
-        })
-
-    context = {
-        'periodos': periodos,
-        'periodo_actual': periodo_actual,
-        'reporte_asistencias': reporte_asistencias,
-        'es_docente': es_docente,
-    }
-    return render(request, 'mis_asistencias.html', context)
-@login_required
-def docente_mis_asistencias(request):
-    """Lista los cursos del docente para elegir a cuál tomar asistencia."""
-    es_docente = request.user.groups.filter(name='Docentes').exists()
-    if not es_docente and not request.user.is_staff:
-        messages.error(request, "Acceso restringido a docentes.")
-        return redirect('dashboard')
-
-    cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
-
-    cursos_data = []
-    for c in cursos:
-        cursos_data.append({
-            'curso': c,
-            'total_alumnos': Inscripcion.objects.filter(curso=c).count()
-        })
-
-    context = {
-        'cursos_data': cursos_data,
-        'hoy': date.today().strftime('%Y-%m-%d'),
-    }
-    return render(request, 'docente_mis_asistencias.html', context)
-@login_required
-def mis_asistencias_alumno(request):
-    """Módulo de solo lectura para que el alumno consulte su asistencia por curso."""
-    user = request.user
-    if user.groups.filter(name='Docentes').exists() and not user.is_staff:
-        return redirect('docente_mis_asistencias')
-
-    inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
-    
-    resumen_asistencias = []
-    for insc in inscripciones:
-        curso = insc.curso
-        registros = Asistencia.objects.filter(curso=curso, alumno=user).order_by('-fecha')
-        
-        total_sesiones = registros.count()
-        presentes = registros.filter(estado='P').count()
-        tardanzas = registros.filter(estado='T').count()
-        faltas = registros.filter(estado='F').count()
-        justificadas = registros.filter(estado='J').count()
-
-        asistencias_validas = presentes + tardanzas + justificadas
-        porcentaje = round((asistencias_validas / total_sesiones) * 100, 1) if total_sesiones > 0 else 100.0
-
-        resumen_asistencias.append({
-            'curso': curso,
-            'porcentaje': porcentaje,
-            'total_sesiones': total_sesiones,
-            'presentes': presentes,
-            'tardanzas': tardanzas,
-            'faltas': faltas,
-            'justificadas': justificadas,
-            'detalles': registros,
-        })
-
-    context = {
-        'resumen_asistencias': resumen_asistencias,
-    }
-    return render(request, 'alumno_mis_asistencias.html', context)
