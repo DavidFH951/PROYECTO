@@ -62,8 +62,7 @@
 
             <header class="intranet-topbar">
                 <div class="intranet-welcome-text">
-                    Hola <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>, bienvenido a
-                    tu portal.
+                    Hola <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>, bienvenido a tu portal.
                 </div>
 
                 <!-- Dropdown de Usuario -->
@@ -74,8 +73,7 @@
                         </div>
                         <div class="user-dropdown-info">
                             <span class="user-dropdown-name">{{ request.user.username }}</span>
-                            <span class="user-dropdown-role">{% if es_docente %}Docente{% else %}Estudiante{% endif
-                                %}</span>
+                            <span class="user-dropdown-role">{% if es_docente %}Docente{% else %}Estudiante{% endif %}</span>
                         </div>
                         <span class="user-dropdown-arrow">▾</span>
                     </button>
