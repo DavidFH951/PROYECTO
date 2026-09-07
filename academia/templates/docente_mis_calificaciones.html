@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
-    <link rel="stylesheet" href="{% static 'css/docente_asistencias.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/docente_mis_calificaciones.css' %}?v=1.0">
 </head>
 
 <body class="intranet-body">
@@ -60,38 +60,57 @@
                 </a>
             </header>
 
-            <main class="intranet-content" style="padding: 24px 28px;">
-                
-                <div style="margin-bottom: 24px;">
-                    <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0;">📊 Registro y Planilla de Calificaciones</h2>
-                    <p style="margin: 0; color: #64748b; font-size: 13.5px;">Selecciona una materia para asentar notas, borradores o calcular promedios oficiales.</p>
-                </div>
-
-                <div class="asistencias-grid">
-                    {% for item in cursos_data %}
-                    <div class="curso-card-asistencia">
+            <main class="intranet-content">
+                <div class="calificaciones-docente-container">
+                    
+                    <div class="calificaciones-header-block">
                         <div>
-                            <span class="curso-badge-ciclo">{{ item.curso.periodo.nombre|default:"Ciclo Activo" }}</span>
-                            <h3 class="curso-card-title">{{ item.curso.titulo }}</h3>
-                            <p class="curso-alumnos-count">👥 {{ item.total_alumnos }} estudiante{{ item.total_alumnos|pluralize }} matriculado{{ item.total_alumnos|pluralize }}</p>
-                        </div>
-
-                        <div style="margin-top: 14px;">
-                            <a href="{% url 'docente_calificar_curso' item.curso.id %}" class="btn-asistir-curso" style="display: block; text-align: center;">
-                                📝 Calificar Materia →
-                            </a>
+                            <h2 class="calificaciones-header-title">📊 Planilla de Calificaciones</h2>
+                            <p class="calificaciones-header-subtitle">Selecciona la materia para registrar notas o promediar el acta final.</p>
                         </div>
                     </div>
-                    {% empty %}
-                    <p style="color: #64748b; font-size: 13.5px;">No tienes cursos asignados para calificar actualmente.</p>
-                    {% endfor %}
-                </div>
 
+                    <div class="calificaciones-card-wrapper">
+                        <!-- Cabecera de columnas -->
+                        <div class="calificaciones-table-header">
+                            <div>Período</div>
+                            <div>Curso / Asignatura</div>
+                            <div>Alumnos</div>
+                            <div style="text-align: right;">Acción</div>
+                        </div>
+
+                        <!-- Filas de materias -->
+                        {% for item in cursos_data %}
+                        <div class="calificacion-row-item">
+                            <div>
+                                <span class="periodo-pill">{{ item.curso.periodo.nombre|default:"Ciclo Activo" }}</span>
+                            </div>
+                            <div>
+                                <strong class="curso-nombre-strong">{{ item.curso.titulo }}</strong>
+                            </div>
+                            <div class="estudiantes-count-badge">
+                                👥 {{ item.total_alumnos }} inscrito{{ item.total_alumnos|pluralize }}
+                            </div>
+                            <div style="text-align: right;">
+                                <a href="{% url 'docente_calificar_curso' item.curso.id %}" class="btn-calificar-accion">
+                                    📝 Calificar Curso →
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-state-docente">
+                            No tienes materias asignadas actualmente.
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
             </main>
 
         </div>
 
     </div>
 
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
 </body>
 </html>
