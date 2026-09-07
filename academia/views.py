@@ -129,21 +129,51 @@ def salir(request):
 
 @login_required
 def dashboard(request):
-    """Portal central post-login (Intranet). Redirige o muestra métricas consolidadas."""
+    """Portal central post-login (Intranet). Muestra métricas para Alumnos y Docentes."""
     user = request.user
     es_docente = user.groups.filter(name='Docentes').exists()
 
+    # Redirección exclusiva a administradores de plataforma
     if user.is_staff or user.is_superuser:
         return redirect('admin_dashboard')
 
+    # =========================================================================
+    # VISTA PARA DOCENTE
+    # =========================================================================
     if es_docente:
-        return redirect('panel_docente')
+        # Cursos asignados al profesor
+        cursos_asignados = Curso.objects.filter(docente=user).select_related('periodo')
+        cursos_ids = cursos_asignados.values_list('id', flat=True)
 
-    # Obtener inscripciones activas
+        # Total de alumnos únicos matriculados en sus cursos
+        total_alumnos = (
+            Inscripcion.objects.filter(curso_id__in=cursos_ids)
+            .values('alumno')
+            .distinct()
+            .count()
+        )
+
+        # Horario de clases a dictar
+        horarios = (
+            HorarioCurso.objects.filter(curso_id__in=cursos_ids)
+            .select_related('curso')
+            .order_by('dia', 'hora_inicio')
+        )
+
+        context = {
+            'es_docente': True,
+            'cursos': cursos_asignados,
+            'total_cursos': cursos_asignados.count(),
+            'total_alumnos': total_alumnos,
+            'horarios': horarios,
+        }
+        return render(request, 'intranet_dashboard.html', context)
+
+    # =========================================================================
+    # VISTA PARA ESTUDIANTE
+    # =========================================================================
     inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
     cursos_ids = inscripciones.values_list('curso_id', flat=True)
-    
-    # Extraer la lista directa de cursos de esas inscripciones
     cursos = [insc.curso for insc in inscripciones if insc.curso]
 
     # 1. Calificaciones y Promedio Global
@@ -158,11 +188,15 @@ def dashboard(request):
     porcentaje_asistencia = round((asistencias_validas / total_clases) * 100, 1) if total_clases > 0 else 100.0
 
     # 3. Horario Semanal Ordenado
-    horarios = HorarioCurso.objects.filter(curso_id__in=cursos_ids).select_related('curso')
+    horarios = (
+        HorarioCurso.objects.filter(curso_id__in=cursos_ids)
+        .select_related('curso')
+        .order_by('dia', 'hora_inicio')
+    )
 
     context = {
+        'es_docente': False,
         'cursos': cursos,
-        'es_docente': es_docente,
         'total_cursos': len(cursos),
         'promedio_global': promedio_global,
         'porcentaje_asistencia': porcentaje_asistencia,
