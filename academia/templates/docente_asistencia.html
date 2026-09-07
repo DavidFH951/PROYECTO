@@ -7,78 +7,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistencia: {{ curso.titulo }} | Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
-    <link rel="stylesheet" href="{% static 'css/docente_intentos.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/docente_asistencia.css' %}?v=1.0">
 </head>
 
-<body style="background-color: #f8fafc; margin: 0;">
+<body>
 
-    <div class="entregas-container" style="max-width: 900px;">
+    <div class="asistencia-container">
 
-        <header class="entregas-header">
-            <div>
-                <a href="{% url 'detalle_curso' curso.id %}" class="entregas-btn-volver">
-                    ← Volver al Curso
-                </a>
-                <h2 class="entregas-titulo">Control de Asistencia Diaria</h2>
-                <p class="entregas-subtitulo">{{ curso.titulo }}</p>
+        <a href="{% url 'detalle_curso' curso.id %}" class="btn-back-link">
+            ← Volver al Curso
+        </a>
+
+        <div class="card-asistencia">
+
+            <div class="header-section">
+                <div class="title-group">
+                    <h2>📋 Control de Asistencia Diaria</h2>
+                    <p>{{ curso.titulo }}</p>
+                </div>
+
+                <form method="GET">
+                    <div class="date-picker-box">
+                        <label for="fecha">Sesión:</label>
+                        <input type="date" id="fecha" name="fecha" value="{{ fecha_sesion }}" onchange="this.form.submit()">
+                    </div>
+                </form>
             </div>
 
-            <!-- Selector de Fecha -->
-            <form method="GET" style="display: flex; align-items: center; gap: 8px;">
-                <label for="fecha" style="font-size: 13px; font-weight: 600; color: #475569;">Sesión:</label>
-                <input type="date" id="fecha" name="fecha" value="{{ fecha_sesion }}" onchange="this.form.submit()"
-                    style="padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
-            </form>
-        </header>
-
-        {% if messages %}
-        <div style="margin-bottom: 20px;">
+            {% if messages %}
             {% for message in messages %}
-            <div
-                style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;">
-                ✅ {{ message }}
+            <div class="alert-success">
+                <span>✅</span> {{ message }}
             </div>
             {% endfor %}
-        </div>
-        {% endif %}
+            {% endif %}
 
-        {% if filas %}
-        <form method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="semana" value="{{ semana }}">
-            <input type="hidden" name="fecha" value="{{ fecha_sesion }}">
+            {% if filas %}
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="semana" value="{{ semana }}">
+                <input type="hidden" name="fecha" value="{{ fecha_sesion }}">
 
-            <table class="academic-table">
-                <thead>
-                    <tr>
-                        <th>Estudiante</th>
-                        <th>Estado de Asistencia</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for fila in filas %}
-                    <tr>
-                        <td>{{ fila.alumno.get_full_name|default:fila.alumno.username }}</td>
-                        <td>
-                            <select name="asistencia_{{ fila.alumno.id }}">
-                                <option value="P" {% if fila.estado == 'P' %}selected{% endif %}>Presente</option>
-                                <option value="T" {% if fila.estado == 'T' %}selected{% endif %}>Tardanza</option>
-                                <option value="F" {% if fila.estado == 'F' %}selected{% endif %}>Falta</option>
-                                <option value="J" {% if fila.estado == 'J' %}selected{% endif %}>Justificado</option>
-                            </select>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <button type="submit" class="btn-guardar">Guardar Asistencia</button>
-        </form>
-        {% else %}
-        <div class="empty-state">
-            <p>No hay estudiantes registrados en este curso para tomar lista.</p>
+                <div class="table-responsive">
+                    <table class="table-asistencia">
+                        <thead>
+                            <tr>
+                                <th style="width: 65%;">Estudiante</th>
+                                <th style="width: 35%;">Estado de Asistencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fila in filas %}
+                            <tr>
+                                <td>
+                                    <div class="student-item">
+                                        <div class="student-avatar">
+                                            {{ fila.alumno.first_name|first|default:fila.alumno.username|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="student-name">
+                                                {{ fila.alumno.get_full_name|default:fila.alumno.username }}
+                                            </div>
+                                            <div class="student-sub">
+                                                {{ fila.alumno.email|default:"Alumno Regular" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="select-estado-wrapper">
+                                        <select name="asistencia_{{ fila.alumno.id }}" class="select-estado">
+                                            <option value="P" {% if fila.estado == 'P' %}selected{% endif %}>🟢 Presente</option>
+                                            <option value="T" {% if fila.estado == 'T' %}selected{% endif %}>🟡 Tardanza</option>
+                                            <option value="F" {% if fila.estado == 'F' %}selected{% endif %}>🔴 Falta</option>
+                                            <option value="J" {% if fila.estado == 'J' %}selected{% endif %}>🔵 Justificado</option>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit-asistencia">💾 Guardar Asistencia</button>
+                </div>
+            </form>
+            {% else %}
+            <div class="empty-state">
+                <div style="font-size: 40px; margin-bottom: 12px;">👥</div>
+                <strong style="display: block; font-size: 1.05rem; color: #1e293b; margin-bottom: 6px;">
+                    Sin alumnos inscritos
+                </strong>
+                <span>No hay estudiantes registrados en este curso para tomar lista.</span>
+            </div>
+            {% endif %}
+
         </div>
-        {% endif %}
 
     </div>
 
