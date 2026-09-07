@@ -11,7 +11,7 @@
 </head>
 <body>
 
-   <!-- Barra Superior de Navegación -->
+    <!-- Barra Superior de Navegación -->
     <header class="top-nav">
         <a href="{% url 'admin_dashboard' %}" class="brand-container">
             <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
@@ -296,23 +296,8 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script>
-        function toggleAll(source) {
-            var checkboxes = document.getElementsByClassName('user-check');
-            for(var i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].checked = source.checked;
-            }
-        }
-
-        function abrirModalTemporadas() {
-            document.getElementById('modalTemporadas').style.display = 'flex';
-        }
-
-        function cerrarModalTemporadas() {
-            document.getElementById('modalTemporadas').style.display = 'none';
-        }
-    </script>
+    <!-- Script Modular Externo -->
+    <script src="{% static 'js/admin_dashboard.js' %}?v=1.0" defer></script>
 
 </body>
 </html>
