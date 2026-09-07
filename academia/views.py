@@ -142,7 +142,7 @@ def dashboard(request):
     # =========================================================================
     if es_docente:
         # Cursos asignados al profesor
-        cursos_asignados = Curso.objects.filter(docente=user).select_related('periodo')
+        cursos_asignados = Curso.objects.filter(docentes=user).select_related('periodo').distinct()
         cursos_ids = cursos_asignados.values_list('id', flat=True)
 
         # Total de alumnos únicos matriculados en sus cursos
