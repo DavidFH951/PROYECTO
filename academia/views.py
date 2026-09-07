@@ -274,9 +274,17 @@ def detalle_curso(request, curso_id):
 
 @login_required
 def mis_notas(request):
-    """Sábana consolidada de notas del alumno en la Intranet con fórmulas dinámicas."""
+    """
+    Sábana consolidada de notas con soporte para alumnos y docentes.
+    Evita el bloqueo por períodos cuando no hay coincidencia exacta.
+    """
     user = request.user
-    
+    es_docente = es_docente_valido(user)
+
+    # Si es docente puro, lo enviamos directamente a su catálogo de calificaciones
+    if es_docente and not user.groups.filter(name='Alumnos').exists():
+        return redirect('docente_mis_calificaciones')
+
     periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
     periodo_id = request.GET.get('periodo')
 
@@ -285,8 +293,10 @@ def mis_notas(request):
     else:
         periodo_actual = PeriodoAcademico.objects.filter(activo=True).first() or periodos.first()
 
+    # Obtener inscripciones del alumno
     inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
 
+    # Solo filtrar por período si efectivamente existen materias en ese período
     if periodo_actual:
         inscripciones_periodo = inscripciones.filter(curso__periodo=periodo_actual)
         if inscripciones_periodo.exists():
@@ -328,6 +338,7 @@ def mis_notas(request):
         'periodo_actual': periodo_actual,
         'reporte_cursos': reporte_cursos,
     }
+
     return render(request, 'notas.html', context)
 
 
