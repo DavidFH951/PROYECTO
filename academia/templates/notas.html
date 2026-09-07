@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,16 +11,15 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
     <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=3.0">
 </head>
+
 <body style="background-color: #f8fafc; font-family: 'Inter', sans-serif;">
 
     <!-- Barra Superior Homogénea -->
     <header class="top-nav">
         <div style="display: flex; align-items: center; gap: 25px;">
             <a href="{% url 'dashboard' %}" class="brand-container">
-                <img src="{% static 'image/logo.jpeg' %}" 
-                     alt="Logo Academia Galeno" 
-                     class="brand-logo-img" 
-                     style="height: 38px; width: auto; max-width: 45px; object-fit: contain; display: block;">
+                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img"
+                    style="height: 38px; width: auto; max-width: 45px; object-fit: contain; display: block;">
                 <div class="brand-text-block">
                     <span class="brand-title">Academia Galeno</span>
                     <span class="brand-subtitle">Aula Virtual</span>
@@ -54,7 +54,8 @@
                         {{ request.user.email|default:"Sin correo registrado" }}
                     </div>
                     <span class="dropdown-user-badge">
-                        {% if request.user.is_staff or request.user.is_superuser %}Administrador{% else %}Alumno{% endif %}
+                        {% if request.user.is_staff or request.user.is_superuser %}Administrador{% else %}Alumno{% endif
+                        %}
                     </span>
                 </div>
 
@@ -69,24 +70,26 @@
 
     <!-- Contenido Principal -->
     <main class="portal-container">
-        
+
         <div class="card-panel">
-            
+
             <div class="panel-header-block">
                 <div class="panel-title-area">
                     <h2>📊 Registro Académico de Evaluaciones</h2>
                     <p>Consulta tus calificaciones detalladas, promedios y estado por asignatura.</p>
                 </div>
-                
+
                 <div class="semester-badge-select">
                     <label for="semestreSelect">Período:</label>
-                    <select id="semestreSelect" onchange="if (this.value) window.location.href='?periodo=' + this.value;">
+                    <select id="semestreSelect"
+                        onchange="if (this.value) window.location.href='?periodo=' + this.value;">
                         {% for per in periodos %}
-                            <option value="{{ per.id }}" {% if periodo_actual and per.id == periodo_actual.id %}selected{% endif %}>
-                                {{ per.nombre }}
-                            </option>
+                        <option value="{{ per.id }}" {% if periodo_actual and per.id==periodo_actual.id %}selected{%
+                            endif %}>
+                            {{ per.nombre }}
+                        </option>
                         {% empty %}
-                            <option value="" selected>Temporada Actual</option>
+                        <option value="" selected>Temporada Actual</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -105,33 +108,33 @@
                     </thead>
                     <tbody>
                         {% for rep in reporte_cursos %}
-                            <tr>
-                                <td><span class="badge-code">{{ rep.curso.codigo|default:"MED-0001" }}</span></td>
-                                <td style="color: #64748b; font-weight: 500;">{{ rep.curso.area|default:"Pregrado • Ciencias Médicas" }}</td>
-                                <td><strong style="color: #0f172a; font-size: 0.95rem;">{{ rep.curso.titulo }}</strong></td>
-                                <td style="text-align: center;"><span class="badge-group">01</span></td>
-                                <td style="text-align: center;">
-                                    <button type="button" 
-                                            class="btn-ver-notas"
-                                            data-curso="{{ rep.curso.titulo }}"
-                                            data-formula="{{ rep.formula }}"
-                                            data-promedio="{{ rep.promedio }}"
-                                            data-evaluaciones='{{ rep.evaluaciones|json_script:"temp"|default:"[]" }}'
-                                            onclick="abrirModalNotas(this)">
-                                        <span>📝</span> VER NOTAS
-                                    </button>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td><span class="badge-code">{{ rep.curso.codigo|default:"MED-0001" }}</span></td>
+                            <td style="color: #64748b; font-weight: 500;">{{ rep.curso.area|default:"Pregrado • Ciencias
+                                Médicas" }}</td>
+                            <td><strong style="color: #0f172a; font-size: 0.95rem;">{{ rep.curso.titulo }}</strong></td>
+                            <td style="text-align: center;"><span class="badge-group">01</span></td>
+                            <td style="text-align: center;">
+                                <button type="button" class="btn-ver-notas" data-curso="{{ rep.curso.titulo }}"
+                                    data-formula="{{ rep.formula|default:'No definida' }}"
+                                    data-promedio="{{ rep.promedio|default:'' }}"
+                                    data-evaluaciones='{{ rep.evaluaciones_json|escape }}'
+                                    onclick="abrirModalNotas(this)">
+                                    <span>📝</span> VER NOTAS
+                                </button>
+                            </td>
+                        </tr>
                         {% empty %}
-                            <tr>
-                                <td colspan="5" style="text-align: center; padding: 48px 20px; color: #64748b;">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">📚</div>
-                                    <strong style="display: block; font-size: 1rem; color: #1e293b; margin-bottom: 4px;">
-                                        No tienes cursos matriculados en este período académico.
-                                    </strong>
-                                    <span style="font-size: 0.85rem;">Si crees que esto es un error, contacta con secretaría docente.</span>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 48px 20px; color: #64748b;">
+                                <div style="font-size: 32px; margin-bottom: 8px;">📚</div>
+                                <strong style="display: block; font-size: 1rem; color: #1e293b; margin-bottom: 4px;">
+                                    No tienes cursos matriculados en este período académico.
+                                </strong>
+                                <span style="font-size: 0.85rem;">Si crees que esto es un error, contacta con secretaría
+                                    docente.</span>
+                            </td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -148,7 +151,7 @@
                 <h3><span>🩺</span> <span id="modalCursoTitulo">Evaluaciones del Curso</span></h3>
                 <button type="button" class="btn-close-x" onclick="cerrarModalNotas()">×</button>
             </div>
-            
+
             <div class="modal-body">
                 <table class="eval-table">
                     <thead>
@@ -177,4 +180,5 @@
     <script src="{% static 'js/mis_notas.js' %}?v=3.0" defer></script>
 
 </body>
+
 </html>
