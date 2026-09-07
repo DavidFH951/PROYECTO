@@ -396,7 +396,7 @@ def eliminar_material(request, material_id):
 
 @login_required
 def docente_calificar_curso(request, curso_id):
-    """Planilla dinámica donde el docente ingresa calificaciones."""
+    """Planilla dinámica con opciones de solo guardar o guardar y promediar."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not es_docente_del_curso(request.user, curso):
@@ -416,6 +416,8 @@ def docente_calificar_curso(request, curso_id):
         return None
 
     if request.method == 'POST':
+        accion = request.POST.get('accion', 'guardar_promediar')
+
         for insc in inscripciones:
             alumno_id = str(insc.alumno.id)
             detalle = {}
@@ -426,9 +428,17 @@ def docente_calificar_curso(request, curso_id):
 
             calificacion, _ = Calificacion.objects.get_or_create(curso=curso, alumno=insc.alumno)
             calificacion.notas_detalle = detalle
-            calificacion.save()
 
-        messages.success(request, "Planilla de notas actualizada y promedios recalculados exitosamente.")
+            if accion == 'guardar_promediar':
+                calificacion.save()
+            else:
+                calificacion.save(update_fields=['notas_detalle'])
+
+        if accion == 'guardar_promediar':
+            messages.success(request, "Notas guardadas y promedios recalculados exitosamente.")
+        else:
+            messages.success(request, "Notas guardadas en borrador. Los promedios se mantienen intactos.")
+
         return redirect('docente_calificar_curso', curso_id=curso.id)
 
     calificaciones_dict = {c.alumno_id: c for c in Calificacion.objects.filter(curso=curso)}
@@ -437,13 +447,14 @@ def docente_calificar_curso(request, curso_id):
     for insc in inscripciones:
         calif = calificaciones_dict.get(insc.alumno.id)
         notas_map = calif.notas_detalle if (calif and calif.notas_detalle) else {}
-        
+
         columnas_alumno = []
         for crit in criterios:
             cod = crit["codigo"]
+            val = notas_map.get(cod)
             columnas_alumno.append({
                 'codigo': cod,
-                'valor': notas_map.get(cod) if notas_map.get(cod) is not None else ''
+                'valor': f"{val:.2f}" if isinstance(val, (int, float)) else (val if val is not None else '')
             })
 
         filas.append({
@@ -459,7 +470,6 @@ def docente_calificar_curso(request, curso_id):
         'formula_evaluacion': curso.formula_evaluacion,
     }
     return render(request, 'docente_calificar.html', context)
-
 
 # ==============================================================================
 # 5. MÓDULO DE ASISTENCIAS (DOCENTE Y ALUMNO)
