@@ -1611,3 +1611,41 @@ def docente_mis_asistencias(request):
         'hoy': date.today().strftime('%Y-%m-%d'),
     }
     return render(request, 'docente_mis_asistencias.html', context)
+@login_required
+def mis_asistencias_alumno(request):
+    """Módulo de solo lectura para que el alumno consulte su asistencia por curso."""
+    user = request.user
+    if user.groups.filter(name='Docentes').exists() and not user.is_staff:
+        return redirect('docente_mis_asistencias')
+
+    inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
+    
+    resumen_asistencias = []
+    for insc in inscripciones:
+        curso = insc.curso
+        registros = Asistencia.objects.filter(curso=curso, alumno=user).order_by('-fecha')
+        
+        total_sesiones = registros.count()
+        presentes = registros.filter(estado='P').count()
+        tardanzas = registros.filter(estado='T').count()
+        faltas = registros.filter(estado='F').count()
+        justificadas = registros.filter(estado='J').count()
+
+        asistencias_validas = presentes + tardanzas + justificadas
+        porcentaje = round((asistencias_validas / total_sesiones) * 100, 1) if total_sesiones > 0 else 100.0
+
+        resumen_asistencias.append({
+            'curso': curso,
+            'porcentaje': porcentaje,
+            'total_sesiones': total_sesiones,
+            'presentes': presentes,
+            'tardanzas': tardanzas,
+            'faltas': faltas,
+            'justificadas': justificadas,
+            'detalles': registros,
+        })
+
+    context = {
+        'resumen_asistencias': resumen_asistencias,
+    }
+    return render(request, 'alumno_mis_asistencias.html', context)

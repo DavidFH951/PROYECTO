@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Asistencia | Portal Estudiante</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/alumno_mis_asistencia.css' %}?v=1.0">
+</head>
+
+<body>
+
+    <div class="asistencia-box">
+
+        <a href="{% url 'dashboard' %}" class="back-link">
+            ← Volver al Dashboard
+        </a>
+
+        <div class="page-header">
+            <h1>⏱️ Mi Control de Asistencia</h1>
+            <p>Consulta tu porcentaje de puntualidad y el registro histórico detallado por cada asignatura.</p>
+        </div>
+
+        {% for item in resumen_asistencias %}
+        <div class="card-curso">
+            <div class="card-head">
+                <div>
+                    <h2 class="curso-title">{{ item.curso.titulo }}</h2>
+                    <span class="curso-sesiones-count">
+                        {{ item.total_sesiones }} sesión{{ item.total_sesiones|pluralize:"es" }} evaluada{{ item.total_sesiones|pluralize }}
+                    </span>
+                </div>
+                <div class="porcentaje-score {% if item.porcentaje >= 70 %}score-aprobado{% else %}score-alerta{% endif %}">
+                    {{ item.porcentaje }}% Asistencia
+                </div>
+            </div>
+
+            <!-- Resumen numérico por etiquetas -->
+            <div class="stats-badges">
+                <span class="badge-pill badge-p">🟢 Presentes: {{ item.presentes }}</span>
+                <span class="badge-pill badge-t">🟡 Tardanzas: {{ item.tardanzas }}</span>
+                <span class="badge-pill badge-f">🔴 Faltas: {{ item.faltas }}</span>
+                <span class="badge-pill badge-j">🔵 Justificados: {{ item.justificadas }}</span>
+            </div>
+
+            <!-- Tabla de sesiones evaluadas (Solo lectura) -->
+            {% if item.detalles %}
+            <table class="table-log">
+                <thead>
+                    <tr>
+                        <th style="width: 35%;">Fecha</th>
+                        <th style="width: 35%;">Semana Académica</th>
+                        <th style="width: 30%;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in item.detalles %}
+                    <tr>
+                        <td>{{ reg.fecha|date:"d/m/Y" }}</td>
+                        <td>Semana {{ reg.semana }}</td>
+                        <td>
+                            {% if reg.estado == 'P' %}
+                                <span class="tag-p">Presente</span>
+                            {% elif reg.estado == 'T' %}
+                                <span class="tag-t">Tardanza</span>
+                            {% elif reg.estado == 'F' %}
+                                <span class="tag-f">Falta</span>
+                            {% elif reg.estado == 'J' %}
+                                <span class="tag-j">Justificado</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-records">
+                Aún no se han registrado asistencias para este curso.
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="card-curso card-curso-empty">
+            <div style="font-size: 38px; margin-bottom: 12px;">📚</div>
+            <strong style="display: block; font-size: 1.05rem; color: #1e293b; margin-bottom: 4px;">
+                Sin asignaturas registradas
+            </strong>
+            <span>No te encuentras matriculado en ningún curso activo en este momento.</span>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</body>
+
+</html>
