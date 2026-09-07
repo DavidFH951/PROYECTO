@@ -476,6 +476,7 @@ def docente_asistencia_curso(request, curso_id):
     except ValueError:
         fecha_sesion = date.today()
 
+    # Obtener todas las inscripciones del curso
     inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
 
     if request.method == 'POST':
@@ -488,6 +489,8 @@ def docente_asistencia_curso(request, curso_id):
 
         total_marcados = 0
         for insc in inscripciones:
+            if not insc.alumno:
+                continue
             alumno_id = str(insc.alumno.id)
             estado = request.POST.get(f'asistencia_{alumno_id}', 'P')
 
@@ -517,16 +520,20 @@ def docente_asistencia_curso(request, curso_id):
 
     filas = []
     for insc in inscripciones:
-        filas.append({
-            'alumno': insc.alumno,
-            'estado': asistencias_existentes.get(insc.alumno.id, 'P')
-        })
+        if insc.alumno:
+            filas.append({
+                'alumno': insc.alumno,
+                'inscripcion': insc,
+                'estado': asistencias_existentes.get(insc.alumno.id, 'P')
+            })
 
     context = {
         'curso': curso,
         'semana': semana,
         'fecha_sesion': fecha_sesion.strftime('%Y-%m-%d'),
         'filas': filas,
+        'alumnos': filas,            # Compatibilidad si el template evalúa {% if alumnos %}
+        'inscripciones': filas,      # Compatibilidad si evalúa {% if inscripciones %}
         'rango_semanas': range(1, 17),
     }
     return render(request, 'docente_asistencia.html', context)
