@@ -34,13 +34,18 @@
                 </a>
 
                 {% if es_docente %}
+                <!-- Menú Docente -->
                 <a href="{% url 'panel_docente' %}" class="intranet-nav-link">
                     <span>📚</span> Mis Asignaturas
+                </a>
+                <a href="{% url 'docente_mis_calificaciones' %}" class="intranet-nav-link">
+                    <span>📊</span> Registro de Notas
                 </a>
                 <a href="{% url 'docente_mis_asistencias' %}" class="intranet-nav-link">
                     <span>📋</span> Control de Asistencia
                 </a>
                 {% else %}
+                <!-- Menú Alumno -->
                 <a href="{% url 'mis_cursos' %}" class="intranet-nav-link">
                     <span>🎓</span> Aula Virtual
                 </a>
@@ -194,10 +199,15 @@
                         </div>
                     </div>
 
-                    <!-- Lista de Materias (Solo botón Entrar) -->
+                    <!-- Lista de Materias -->
                     <div class="card-materias-box">
                         <div class="card-materias-header">
                             <h3><span>📖</span> Mis Materias</h3>
+                            {% if es_docente %}
+                            <a href="{% url 'docente_mis_calificaciones' %}" class="link-control-rapido">
+                                Ver Notas →
+                            </a>
+                            {% endif %}
                         </div>
 
                         <div class="materias-list">
@@ -207,9 +217,16 @@
                                     <strong>{{ curso.titulo }}</strong>
                                     <span>{{ curso.periodo.nombre|default:"Ciclo Activo" }}</span>
                                 </div>
-                                <a href="{% url 'detalle_curso' curso.id %}" class="btn-materia-entrar">
-                                    Entrar →
-                                </a>
+                                <div class="materia-actions">
+                                    {% if es_docente %}
+                                    <a href="{% url 'docente_calificar_curso' curso.id %}" class="btn-materia-asistencia" title="Ingresar Calificaciones">
+                                        📊 Notas
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'detalle_curso' curso.id %}" class="btn-materia-entrar">
+                                        Entrar →
+                                    </a>
+                                </div>
                             </div>
                             {% empty %}
                             <p class="empty-records">No tienes materias asignadas.</p>

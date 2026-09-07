@@ -81,6 +81,7 @@ urlpatterns = [
 
     path('docente/curso/<int:curso_id>/asistencia/', views.docente_asistencia_curso, name='docente_asistencia_curso'),
     path('aula-virtual/mis-cursos/', views.mis_cursos, name='mis_cursos'),
+    path('docente/mis-calificaciones/', views.docente_mis_calificaciones, name='docente_mis_calificaciones'),
     path('intranet/mis-notas/', views.mis_notas, name='mis_notas'),
     path('docente/curso/<int:curso_id>/asistencia/', views.docente_asistencia_curso, name='docente_asistencia_curso'),
     path('intranet/mis-asistencias/', views.mis_asistencias, name='mis_asistencias'),
