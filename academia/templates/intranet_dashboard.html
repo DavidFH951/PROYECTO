@@ -66,7 +66,7 @@
                     tu portal.
                 </div>
 
-                <!-- Dropdown de Usuario -->
+              <!-- Dropdown de Usuario -->
                 <div class="user-dropdown-container">
                     <button type="button" class="user-dropdown-btn" onclick="toggleUserMenu(event)">
                         <div class="intranet-avatar {% if es_docente %}docente-avatar{% endif %}">
@@ -74,8 +74,7 @@
                         </div>
                         <div class="user-dropdown-info">
                             <span class="user-dropdown-name">{{ request.user.username }}</span>
-                            <span class="user-dropdown-role">{% if es_docente %}Docente{% else %}Estudiante{% endif
-                                %}</span>
+                            <span class="user-dropdown-role">{% if es_docente %}Docente{% else %}Estudiante{% endif %}</span>
                         </div>
                         <span class="user-dropdown-arrow">▾</span>
                     </button>
@@ -101,6 +100,7 @@
                         </a>
                     </div>
                 </div>
+        
             </header>
 
             <main class="intranet-content">
