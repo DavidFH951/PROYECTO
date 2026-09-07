@@ -33,21 +33,20 @@
                 </a>
 
                 {% if es_docente %}
+                <!-- Menú Docente -->
                 <a href="{% url 'panel_docente' %}" class="intranet-nav-link">
                     <span>📚</span> Mis Asignaturas
                 </a>
+                <a href="{% url 'docente_mis_asistencias' %}" class="intranet-nav-link">
+                    <span>📋</span> Control de Asistencia
+                </a>
                 {% else %}
+                <!-- Menú Alumno -->
                 <a href="{% url 'mis_cursos' %}" class="intranet-nav-link">
                     <span>🎓</span> Aula Virtual
                 </a>
                 <a href="{% url 'mis_notas' %}" class="intranet-nav-link">
                     <span>📊</span> Consulta de Notas
-                </a>
-                {% if es_docente %}
-                <a href="{% url 'docente_mis_asistencias' %}"
-                    class="sidebar-nav-item {% if request.resolver_match.url_name == 'docente_mis_asistencias' or request.resolver_match.url_name == 'docente_asistencia_curso' %}active{% endif %}">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-label">Control de Asistencia</span>
                 </a>
                 <a href="{% url 'mis_asistencias' %}" class="intranet-nav-link">
                     <span>⏱️</span> Mi Asistencia a Clases
