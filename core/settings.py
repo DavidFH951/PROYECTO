@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     # Cloudinary para almacenamiento persistente en la nube
     "cloudinary_storage",
     "cloudinary",
+    # Seguridad de intentos fallidos
+    'axes',
     # Apps del proyecto
     "academia",
 ]
@@ -41,6 +43,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Middleware de Axes (debe ir al final)
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -124,6 +128,12 @@ LOGIN_URL = '/cuentas/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/cuentas/login/'
 
+AUTHENTICATION_BACKENDS = [
+    # AxesStandaloneBackend debe ser el primero
+    'axes.backends.AxesStandaloneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 # Orígenes confiables para CSRF (incluyendo tu app en Render)
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
@@ -132,3 +142,11 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
+# ==============================================================================
+# CONFIGURACIÓN DE SEGURIDAD: INTENTOS DE LOGIN (DJANGO-AXES)
+# ==============================================================================
+AXES_FAILURE_LIMIT = 5                      # Bloquea al 5to intento fallido
+AXES_COOLOFF_TIME = 0.25                    # Tiempo de bloqueo en horas (0.25 = 15 minutos)
+AXES_RESET_ON_SUCCESS = True               # Reinicia el contador si inicia sesión correctamente
+AXES_LOCKOUT_TEMPLATE = 'bloqueo_login.html' # Vista amigable de bloqueo
+AXES_ENABLE_ADMIN = True                   # Permite desbloquear usuarios desde el /admin

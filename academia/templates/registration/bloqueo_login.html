@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Bloqueado Temporalmente | Academia Galeno</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/bloqueo_login.css' %}?v=1.0">
+</head>
+<body class="bloqueo-body">
+
+    <div class="bloqueo-card">
+        <div class="bloqueo-icon">🛡️</div>
+        <h1 class="bloqueo-title">Acceso Restringido</h1>
+        <p class="bloqueo-text">
+            Has superado el número máximo de intentos fallidos permitidos (<strong>5 intentos</strong>).
+        </p>
+        <p class="bloqueo-subtext">
+            Por motivos de seguridad institucional, tu dirección IP y cuenta han sido bloqueadas temporalmente durante <strong>15 minutos</strong>.
+        </p>
+        <div class="bloqueo-actions">
+            <a href="/cuentas/login/" class="btn-reintentar">Volver a Intentar</a>
+        </div>
+    </div>
+
+</body>
+</html>
