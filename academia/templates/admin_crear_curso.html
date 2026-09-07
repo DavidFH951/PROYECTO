@@ -7,9 +7,9 @@
     <title>Crear Nuevo Curso | Academia Galeno</title>
 
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=5.0">
+    <link rel="stylesheet" href="{% static 'css/curso_horarios.css' %}?v=1.0">
 </head>
 <body>
 
@@ -58,7 +58,7 @@
             
             <div class="card-formulario-header">
                 <h2>➕ Crear Nuevo Curso</h2>
-                <p>Configura los detalles de la nueva materia y asigna a los docentes a cargo.</p>
+                <p>Configura los detalles de la nueva materia, asigna docentes y define sus horarios de dictado.</p>
             </div>
 
             <div class="card-formulario-body">
@@ -105,15 +105,23 @@
                             </label>
                         </div>
 
+                        <!-- Imagen de Portada -->
                         <div class="campo-form">
-    <label class="label-form" for="imagen_portada">🖼️ Imagen de Portada del Curso</label>
-    {% if curso.imagen_portada %}
-        <div style="margin-bottom: 8px;">
-            <img src="{{ curso.imagen_portada.url }}" alt="Portada actual" style="width: 140px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
-        </div>
-    {% endif %}
-    <input type="file" id="imagen_portada" name="imagen_portada" accept="image/*" class="input-form">
-</div>
+                            <label class="label-form" for="imagen_portada">🖼️ Imagen de Portada del Curso</label>
+                            <input type="file" id="imagen_portada" name="imagen_portada" accept="image/*" class="input-form">
+                        </div>
+
+                        <!-- Horarios Semanales de Dictado -->
+                        <div class="horarios-manager">
+                            <div class="horarios-header">
+                                <h3>📅 Horario Semanal de Clases</h3>
+                                <button type="button" id="btnAddHorario" class="btn-add-horario">+ Agregar Bloque</button>
+                            </div>
+
+                            <div id="horariosContainer" class="horarios-list">
+                                <!-- Filas dinámicas administradas por curso_horarios.js -->
+                            </div>
+                        </div>
 
                     </div>
 
@@ -132,5 +140,6 @@
         </div>
     </main>
 
+    <script src="{% static 'js/curso_horarios.js' %}?v=1.0" defer></script>
 </body>
 </html>

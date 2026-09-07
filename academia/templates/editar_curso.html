@@ -9,6 +9,7 @@
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=5.0">
+    <link rel="stylesheet" href="{% static 'css/curso_horarios.css' %}?v=1.0">
 </head>
 <body>
 
@@ -57,7 +58,7 @@
             
             <div class="card-formulario-header">
                 <h2>📚 Editar Curso: {{ curso.titulo }}</h2>
-                <p>Modifica los detalles de la materia, asignación de docentes, fórmulas de calificación o visibilidad.</p>
+                <p>Modifica los detalles de la materia, docentes a cargo, horarios semanales, fórmulas de calificación o visibilidad.</p>
             </div>
 
             <div class="card-formulario-body">
@@ -91,6 +92,33 @@
                                     <p style="font-size: 13px; color: #94a3b8; margin: 0; padding: 10px; text-align: center;">
                                         No hay docentes registrados en el sistema.
                                     </p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Horarios Semanales de Dictado -->
+                        <div class="horarios-manager">
+                            <div class="horarios-header">
+                                <h3>📅 Horario Semanal de Clases</h3>
+                                <button type="button" id="btnAddHorario" class="btn-add-horario">+ Agregar Bloque</button>
+                            </div>
+
+                            <div id="horariosContainer" class="horarios-list">
+                                {% for h in horarios %}
+                                <div class="horario-row">
+                                    <select name="horario_dia[]" required>
+                                        <option value="1" {% if h.dia == 1 or h.dia == '1' %}selected{% endif %}>Lunes</option>
+                                        <option value="2" {% if h.dia == 2 or h.dia == '2' %}selected{% endif %}>Martes</option>
+                                        <option value="3" {% if h.dia == 3 or h.dia == '3' %}selected{% endif %}>Miércoles</option>
+                                        <option value="4" {% if h.dia == 4 or h.dia == '4' %}selected{% endif %}>Jueves</option>
+                                        <option value="5" {% if h.dia == 5 or h.dia == '5' %}selected{% endif %}>Viernes</option>
+                                        <option value="6" {% if h.dia == 6 or h.dia == '6' %}selected{% endif %}>Sábado</option>
+                                    </select>
+                                    <input type="time" name="horario_inicio[]" value="{{ h.hora_inicio|time:'H:i' }}" required>
+                                    <input type="time" name="horario_fin[]" value="{{ h.hora_fin|time:'H:i' }}" required>
+                                    <input type="text" name="horario_aula[]" value="{{ h.aula|default:'' }}" placeholder="Aula (ej: Lab 02, Virtual)">
+                                    <button type="button" class="btn-remove-horario" title="Eliminar">&times;</button>
+                                </div>
                                 {% endfor %}
                             </div>
                         </div>
@@ -169,7 +197,8 @@
         </div>
     </main>
 
-    <!-- Script Modular Externo -->
+    <!-- Scripts Modulares Externos -->
+    <script src="{% static 'js/curso_horarios.js' %}?v=1.0" defer></script>
     <script src="{% static 'js/admin_editar_curso.js' %}?v=1.0" defer></script>
 
 </body>

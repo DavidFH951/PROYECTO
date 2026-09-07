@@ -1223,26 +1223,43 @@ def admin_cursos_lista(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_crear_curso(request):
-    """Creación de una nueva asignatura."""
+    """Creación de un nuevo curso junto a sus horarios semanales."""
     if request.method == 'POST':
         titulo = request.POST.get('titulo')
         descripcion = request.POST.get('descripcion')
-        estado = True if request.POST.get('estado') else False
+        estado = bool(request.POST.get('estado'))
         imagen = request.FILES.get('imagen_portada')
+        formula = request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3')
         
         curso = Curso.objects.create(
             titulo=titulo,
             descripcion=descripcion,
             estado=estado,
             imagen_portada=imagen,
-            formula_evaluacion=request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3')
+            formula_evaluacion=formula
         )
         
         docentes_ids = request.POST.getlist('docentes')
         if docentes_ids:
             curso.docentes.set(docentes_ids)
+
+        # Procesar bloques de horarios dinámicos
+        dias = request.POST.getlist('horario_dia[]')
+        inicios = request.POST.getlist('horario_inicio[]')
+        fines = request.POST.getlist('horario_fin[]')
+        aulas = request.POST.getlist('horario_aula[]')
+
+        for d, ini, fin, aula in zip(dias, inicios, fines, aulas):
+            if d and ini and fin:
+                HorarioCurso.objects.create(
+                    curso=curso,
+                    dia=d,
+                    hora_inicio=ini,
+                    hora_fin=fin,
+                    aula=aula.strip() if aula else "Aula Virtual"
+                )
             
-        messages.success(request, f"Curso '{curso.titulo}' creado exitosamente.")
+        messages.success(request, f"Curso '{curso.titulo}' y sus horarios fueron creados exitosamente.")
         return redirect('admin_cursos_lista')
 
     docentes = User.objects.filter(groups__name='Docentes')
@@ -1252,7 +1269,7 @@ def admin_crear_curso(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_editar_curso(request, curso_id):
-    """Modificación de parámetros y fórmula de evaluación del curso."""
+    """Modificación de parámetros, criterios y horarios del curso."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if request.method == 'POST':
@@ -1266,6 +1283,7 @@ def admin_editar_curso(request, curso_id):
         docentes_ids = request.POST.getlist('docentes')
         curso.docentes.set(docentes_ids)
 
+        # Criterios de evaluación
         criterios_raw = request.POST.getlist('criterio_nombre')
         nuevos_criterios = []
         for idx, nombre in enumerate(criterios_raw, start=1):
@@ -1279,20 +1297,36 @@ def admin_editar_curso(request, curso_id):
         curso.formula_evaluacion = request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3').strip()
         curso.save()
 
-        for calif in curso.calificaciones.all():
-            calif.save()
+        # Actualizar Horarios: Reemplazo limpio de los horarios asignados
+        curso.horarios.all().delete()
+        dias = request.POST.getlist('horario_dia[]')
+        inicios = request.POST.getlist('horario_inicio[]')
+        fines = request.POST.getlist('horario_fin[]')
+        aulas = request.POST.getlist('horario_aula[]')
 
-        messages.success(request, f"Curso '{curso.titulo}' actualizado correctamente.")
+        for d, ini, fin, aula in zip(dias, inicios, fines, aulas):
+            if d and ini and fin:
+                HorarioCurso.objects.create(
+                    curso=curso,
+                    dia=d,
+                    hora_inicio=ini,
+                    hora_fin=fin,
+                    aula=aula.strip() if aula else "Aula Virtual"
+                )
+
+        messages.success(request, f"Curso '{curso.titulo}' actualizado con éxito.")
         return redirect('admin_cursos_lista')
 
     docentes = User.objects.filter(groups__name='Docentes')
     docentes_asignados_ids = list(curso.docentes.values_list('id', flat=True))
+    horarios = curso.horarios.all().order_by('dia', 'hora_inicio')
 
     context = {
         'curso': curso,
         'docentes': docentes,
         'docentes_asignados_ids': docentes_asignados_ids,
         'criterios': curso.obtener_criterios(),
+        'horarios': horarios,
     }
     return render(request, 'editar_curso.html', context)
 
