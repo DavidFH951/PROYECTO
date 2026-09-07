@@ -173,34 +173,7 @@
         </div>
     </main>
 
-    <!-- Script de Selección Rápida y Búsqueda en Vivo -->
-    <script>
-        // Seleccionar/Deseleccionar Todos
-        const checkTodos = document.getElementById('checkTodos');
-        if (checkTodos) {
-            checkTodos.addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('.alumno-checkbox');
-                checkboxes.forEach(cb => {
-                    if (cb.closest('tr').style.display !== 'none') {
-                        cb.checked = checkTodos.checked;
-                    }
-                });
-            });
-        }
-
-        // Buscador reactivo en vivo
-        const inputFiltro = document.getElementById('filtroAlumno');
-        if (inputFiltro) {
-            inputFiltro.addEventListener('input', function() {
-                const texto = this.value.toLowerCase();
-                const filas = document.querySelectorAll('.alumno-fila');
-
-                filas.forEach(fila => {
-                    const contenido = fila.textContent.toLowerCase();
-                    fila.style.display = contenido.includes(texto) ? '' : 'none';
-                });
-            });
-        }
-    </script>
+    <!-- Script Modular Externo -->
+    <script src="{% static 'js/admin_matricula.js' %}?v=1.0" defer></script>
 </body>
 </html>

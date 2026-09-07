@@ -87,25 +87,25 @@
         
         <div class="card-panel">
             
-           <div class="panel-header-block">
-    <div class="panel-title-area">
-        <h2>📊 Registro Académico de Evaluaciones</h2>
-        <p>Consulta tus calificaciones y estado por asignatura en el período activo.</p>
-    </div>
-    
-    <div class="semester-badge-select">
-        <label for="semestreSelect">Período:</label>
-        <select id="semestreSelect" onchange="if (this.value) window.location.href='?periodo=' + this.value;">
-            {% for per in periodos %}
-                <option value="{{ per.id }}" {% if periodo_actual and per.id == periodo_actual.id %}selected{% endif %}>
-                    {{ per.nombre }}
-                </option>
-            {% empty %}
-                <option value="" selected>Verano 2027</option>
-            {% endfor %}
-        </select>
-    </div>
-</div>
+            <div class="panel-header-block">
+                <div class="panel-title-area">
+                    <h2>📊 Registro Académico de Evaluaciones</h2>
+                    <p>Consulta tus calificaciones y estado por asignatura en el período activo.</p>
+                </div>
+                
+                <div class="semester-badge-select">
+                    <label for="semestreSelect">Período:</label>
+                    <select id="semestreSelect" onchange="if (this.value) window.location.href='?periodo=' + this.value;">
+                        {% for per in periodos %}
+                            <option value="{{ per.id }}" {% if periodo_actual and per.id == periodo_actual.id %}selected{% endif %}>
+                                {{ per.nombre }}
+                            </option>
+                        {% empty %}
+                            <option value="" selected>Verano 2027</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
 
             <div class="table-responsive-wrapper">
                 <table class="academic-table">
@@ -119,56 +119,60 @@
                         </tr>
                     </thead>
                     <tbody>
-    {% for curso in cursos_alumno %}
-        <tr>
-            <td><strong>{{ curso.codigo|default:"MED-0001" }}</strong></td>
-            <td>{{ curso.area|default:"Pregrado • Medicina Humana" }}</td>
-            <td><strong>{{ curso.titulo }}</strong></td>
-            <td>01</td>
-            <td>
-                <span class="badge-nota">NOTA</span>
-            </td>
-        </tr>
-    {% empty %}
-        <tr>
-            <td colspan="5" style="text-align: center; padding: 30px; color: #64748b;">
-                📚 <br>
-                <strong>No tienes cursos matriculados en este período académico.</strong>
-            </td>
-        </tr>
-    {% endfor %}
-</tbody>
+                        {% for curso in cursos_alumno %}
+                            <tr>
+                                <td><strong>{{ curso.codigo|default:"MED-0001" }}</strong></td>
+                                <td>{{ curso.area|default:"Pregrado • Medicina Humana" }}</td>
+                                <td><strong>{{ curso.titulo }}</strong></td>
+                                <td>01</td>
+                                <td style="text-align: center;">
+                                    <button type="button" class="badge-nota" onclick="abrirModalNotas('{{ curso.titulo|escapejs }}')" style="border: none; cursor: pointer;">
+                                        VER NOTAS
+                                    </button>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 30px; color: #64748b;">
+                                    📚 <br>
+                                    <strong>No tienes cursos matriculados en este período académico.</strong>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
+            </div>
 
-                <div class="modal-footer-box">
+        </div>
+
+    </main>
+
+    <!-- Modal de Calificaciones del Curso -->
+    <div id="modalNotas" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: #ffffff; width: 90%; max-width: 550px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden; font-family: inherit;">
+            <div style="background: #0f4c81; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 id="modalCursoTitulo" style="margin: 0; font-size: 16px; font-weight: 700;">Evaluaciones del Curso</h3>
+                <button type="button" onclick="cerrarModalNotas()" style="background: none; border: none; color: #ffffff; font-size: 22px; cursor: pointer; line-height: 1;">×</button>
+            </div>
+            
+            <div style="padding: 24px;">
+                <p style="font-size: 13.5px; color: #64748b; margin: 0 0 16px 0;">
+                    El desglose detallado de las evaluaciones continuas se encuentra consolidado a continuación:
+                </p>
+
+                <div class="modal-footer-box" style="margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
                     <div style="font-size: 12.5px;">
                         <strong style="color: #334155;">Fórmula de Promedio:</strong><br>
                         <span style="color: #64748b; font-size: 11.5px;">PF = (EP × 0.35) + (EF × 0.35) + (EC × 0.30)</span>
                     </div>
-                    <button class="btn-modal-close" onclick="cerrarModalNotas()">CERRAR</button>
+                    <button type="button" class="btn-modal-close" onclick="cerrarModalNotas()">CERRAR</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Control del Modal -->
-    <script>
-        function abrirModalNotas(nombreCurso) {
-            document.getElementById('modalCursoTitulo').innerText = 'Evaluaciones: ' + nombreCurso;
-            document.getElementById('modalNotas').style.display = 'flex';
-        }
-
-        function cerrarModalNotas() {
-            document.getElementById('modalNotas').style.display = 'none';
-        }
-
-        window.onclick = function(e) {
-            const modal = document.getElementById('modalNotas');
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
-    </script>
+    <!-- Script Modular Externo -->
+    <script src="{% static 'js/mis_notas.js' %}?v=1.0" defer></script>
 
 </body>
 </html>
