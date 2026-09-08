@@ -36,12 +36,6 @@
 
                 <div class="asistencia-container" style="max-width: 100%; margin: 0; padding: 0;">
 
-                    <div style="margin-bottom: 20px;">
-                        <a href="{% url 'detalle_curso' curso.id %}" class="btn-back-link">
-                            ← Volver al Curso: {{ curso.titulo }}
-                        </a>
-                    </div>
-
                     <div class="card-asistencia">
 
                         <div class="header-section">
@@ -53,7 +47,8 @@
                             <form method="GET">
                                 <div class="date-picker-box">
                                     <label for="fecha">Sesión:</label>
-                                    <input type="date" id="fecha" name="fecha" value="{{ fecha_sesion }}" onchange="this.form.submit()">
+                                    <input type="date" id="fecha" name="fecha" value="{{ fecha_sesion }}"
+                                        onchange="this.form.submit()">
                                 </div>
                             </form>
                         </div>
@@ -78,7 +73,9 @@
                                             <td>
                                                 <div class="student-item">
                                                     <div class="student-avatar">
-                                                        {{ fila.alumno.first_name|first|default:fila.alumno.username|first|upper }}
+                                                        {{
+                                                        fila.alumno.first_name|first|default:fila.alumno.username|first|upper
+                                                        }}
                                                     </div>
                                                     <div>
                                                         <div class="student-name">
@@ -92,11 +89,16 @@
                                             </td>
                                             <td>
                                                 <div class="select-estado-wrapper">
-                                                    <select name="asistencia_{{ fila.alumno.id }}" class="select-estado">
-                                                        <option value="P" {% if fila.estado == 'P' %}selected{% endif %}>🟢 Presente</option>
-                                                        <option value="T" {% if fila.estado == 'T' %}selected{% endif %}>🟡 Tardanza</option>
-                                                        <option value="F" {% if fila.estado == 'F' %}selected{% endif %}>🔴 Falta</option>
-                                                        <option value="J" {% if fila.estado == 'J' %}selected{% endif %}>🔵 Justificado</option>
+                                                    <select name="asistencia_{{ fila.alumno.id }}"
+                                                        class="select-estado">
+                                                        <option value="P" {% if fila.estado=='P' %}selected{% endif %}>
+                                                            🟢 Presente</option>
+                                                        <option value="T" {% if fila.estado=='T' %}selected{% endif %}>
+                                                            🟡 Tardanza</option>
+                                                        <option value="F" {% if fila.estado=='F' %}selected{% endif %}>
+                                                            🔴 Falta</option>
+                                                        <option value="J" {% if fila.estado=='J' %}selected{% endif %}>
+                                                            🔵 Justificado</option>
                                                     </select>
                                                 </div>
                                             </td>
