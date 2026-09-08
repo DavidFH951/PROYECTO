@@ -105,3 +105,9 @@ urlpatterns = [
 # Servir archivos multimedia subidos en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+# proyecto/urls.py (o academia/urls.py)
+handler403 = 'academia.views.error_403_view'
+handler404 = 'academia.views.error_404_view'
+handler500 = 'academia.views.error_500_view'

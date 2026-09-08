@@ -100,13 +100,10 @@
                         <div class="campo-form">
                             <label class="label-form" for="rol">Rol en el Sistema</label>
                             <select id="rol" name="rol" class="select-form" required>
-                                <option value="Alumno" {% if rol_actual=='Alumno' or not rol_actual %}selected{% endif
-                                    %}>Alumno</option>
-                                <option value="Docente" {% if rol_actual=='Docente' or rol_actual=='Docentes'
-                                    %}selected{% endif %}>Docente</option>
-                                <option value="Administrador" {% if rol_actual=='Administrador' or
-                                    usuario_editar.is_superuser or usuario_editar.is_staff %}selected{% endif %}>
-                                    Administrador</option>
+                                <option value="Alumno" {% if es_alumno %}selected{% endif %}>Alumno</option>
+                                <option value="Docente" {% if es_docente %}selected{% endif %}>Docente</option>
+                                <option value="Administrador" {% if es_admin %}selected{% endif %}>Administrador
+                                </option>
                             </select>
                         </div>
 

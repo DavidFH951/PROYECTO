@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso Restringido | Academia Galeno</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body style="background: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; font-family: sans-serif;">
+    <div style="max-width: 480px; padding: 30px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <div style="font-size: 48px; margin-bottom: 12px;">🚫</div>
+        <h2 style="color: #0f172a; margin-bottom: 8px;">Acceso no autorizado</h2>
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
+            No tienes los permisos necesarios para interactuar con este recurso o curso institucional.
+        </p>
+        <a href="{% url 'dashboard' %}" class="btn-primario" style="display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 6px; background: #0284c7; color: white; font-weight: 600;">
+            Volver al Panel Principal
+        </a>
+    </div>
+</body>
+</html>

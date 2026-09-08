@@ -166,6 +166,10 @@ SESSION_COOKIE_AGE = 1800
 # Renueva el tiempo de la cookie en cada petición activa
 SESSION_SAVE_EVERY_REQUEST = True
 
+# Prevenir acceso a cookies desde JavaScript (mitiga robo de sesión vía XSS)
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
+
 # settings.py (ej. límite de 10 MB)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760

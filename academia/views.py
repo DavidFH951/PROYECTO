@@ -10,6 +10,7 @@ from datetime import date
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from .validators import validar_archivo_material
+from functools import wraps
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -53,6 +54,20 @@ from .forms import (
     InscripcionForm, 
     PreguntaForm
 )
+
+# 1. Definición del decorador (PRIMERO)
+def requerir_2fa_si_esta_activo(view_func):
+    """Verifica que el usuario haya completado el desafío 2FA si su cuenta lo tiene configurado."""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        user = request.user
+        if user.is_authenticated:
+            tiene_dispositivo = TOTPDevice.objects.filter(user=user, confirmed=True).exists()
+            if tiene_dispositivo and not getattr(user, 'is_verified', lambda: False)():
+                messages.warning(request, "Debes completar la verificación de dos pasos para acceder.")
+                return redirect('verificar_2fa')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 
 # ==============================================================================
@@ -1254,6 +1269,7 @@ def verificar_estado_examen(request, examen_id):
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
+@requerir_2fa_si_esta_activo
 def admin_dashboard(request):
     """Panel de administración general."""
     total_alumnos = User.objects.filter(groups__name='Alumnos').count()
@@ -1372,12 +1388,16 @@ def editar_usuario(request, user_id):
         registrar_log(request, "Edición de Usuario", f"Actualizó datos/rol de '{usuario_editar.username}'")
         messages.success(request, f"Usuario @{usuario_editar.username} actualizado correctamente.")
         return redirect('admin_dashboard')
+
     tiene_2fa = TOTPDevice.objects.filter(user=usuario_editar, confirmed=True).exists()
 
     context = {
         'usuario_editar': usuario_editar,
         'rol_actual': rol_actual,
         'tiene_2fa': tiene_2fa,
+        'es_alumno': rol_actual == 'Alumno',
+        'es_docente': rol_actual == 'Docente',
+        'es_admin': rol_actual == 'Administrador',
     }
     return render(request, 'editar_usuario.html', context)
 
@@ -1953,3 +1973,13 @@ def admin_resetear_2fa(request, user_id):
             messages.info(request, f"El usuario @{usuario_objetivo.username} no tenía ningún 2FA activo.")
 
     return redirect('editar_usuario', user_id=usuario_objetivo.id)
+
+
+def error_403_view(request, exception=None):
+    return render(request, 'errores/403.html', status=403)
+
+def error_404_view(request, exception=None):
+    return render(request, 'errores/404.html', status=404)
+
+def error_500_view(request):
+    return render(request, 'errores/500.html', status=500)
