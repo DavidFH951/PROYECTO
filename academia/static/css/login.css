@@ -86,3 +86,28 @@ body {
     border-radius: 4px;
     border-left: 4px solid #e74c3c;
 }
+.login-logo-img {
+    max-width: 85px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.login-alerts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.login-alert-box {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: left;
+}

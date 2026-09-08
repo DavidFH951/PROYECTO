@@ -11,6 +11,8 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth import logout
+from django.contrib.auth.views import LoginView
+from axes.helpers import get_remaining_failures
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.utils import timezone
@@ -45,6 +47,19 @@ from .forms import (
 # ==============================================================================
 # 1. UTILIDADES DEL SISTEMA Y CONTROL DE ACCESO
 # ==============================================================================
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        intentos = get_remaining_failures(self.request)
+        
+        if intentos > 0:
+            messages.error(
+                self.request,
+                f"Credenciales incorrectas. Te queda(n) {intentos} intento(s) antes del bloqueo temporal."
+            )
+        return response
 
 def registrar_log(request, accion, detalles=""):
     """Registra una acción en la tabla de auditoría con la IP del usuario."""

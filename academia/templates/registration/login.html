@@ -3,20 +3,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Acceso al Sistema - Academia de Medicina</title>
-    <!-- Hoja de estilos externa -->
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema - Academia Galeno</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}?v=1.1">
 </head>
 <body>
 
     <div class="login-card">
         <div class="login-header">
             <div class="icon">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Médica" style="max-width: 85px; height: auto; border-radius: 8px; margin-bottom: 10px;">
+                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Médica" class="login-logo-img">
             </div>
             <h2>Academia Galeno</h2>
             <p>Ingresa tus credenciales institucionales</p>
         </div>
+
+        {% if messages %}
+            <div class="login-alerts-container">
+                {% for message in messages %}
+                    <div class="login-alert-box">
+                        ⚠️ {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
         
         <form method="post">
             {% csrf_token %}
@@ -24,12 +35,12 @@
             {{ form.non_field_errors }}
 
             <div class="form-group">
-                <label>Usuario</label>
+                <label for="id_username">Usuario</label>
                 {{ form.username }}
             </div>
 
             <div class="form-group">
-                <label>Contraseña</label>
+                <label for="id_password">Contraseña</label>
                 {{ form.password }}
             </div>
 
