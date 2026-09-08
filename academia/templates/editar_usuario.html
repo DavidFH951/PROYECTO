@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=3.0">
 </head>
+
 <body>
 
     <!-- Barra Superior -->
@@ -54,51 +56,83 @@
 
     <main class="form-container-boxed">
         <div class="card-formulario">
-            
+
             <div class="card-formulario-header">
                 <h2>✏️ Editar Usuario: @{{ usuario_editar.username }}</h2>
                 <p>Modifica los datos del usuario o actualiza sus credenciales y permisos en el sistema.</p>
             </div>
+
+            {% if messages %}
+            <div style="padding: 15px 30px 0 30px;">
+                {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <div
+                    style="padding: 12px 16px; border-radius: 6px; font-size: 13.5px; margin-bottom: 12px; background: #fee2e2; color: #991b1b; border: 1px solid #f87171;">
+                    {{ message }}
+                </div>
+                {% elif message.tags == 'success' %}
+                <div
+                    style="padding: 12px 16px; border-radius: 6px; font-size: 13.5px; margin-bottom: 12px; background: #dcfce7; color: #166534; border: 1px solid #86efac;">
+                    {{ message }}
+                </div>
+                {% else %}
+                <div
+                    style="padding: 12px 16px; border-radius: 6px; font-size: 13.5px; margin-bottom: 12px; background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc;">
+                    {{ message }}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
 
             <div class="card-formulario-body">
                 <form method="POST">
                     {% csrf_token %}
 
                     <div class="grid-dos-columnas">
-                        
+
                         <div class="campo-form">
                             <label class="label-form" for="username">Usuario (Login)</label>
-                            <input type="text" id="username" name="username" class="input-form" value="{{ usuario_editar.username }}" required>
+                            <input type="text" id="username" name="username" class="input-form"
+                                value="{{ usuario_editar.username }}" required>
                         </div>
 
                         <div class="campo-form">
                             <label class="label-form" for="rol">Rol en el Sistema</label>
                             <select id="rol" name="rol" class="select-form" required>
-                                <option value="Alumno" {% if rol_actual == 'Alumno' or not rol_actual %}selected{% endif %}>Alumno</option>
-                                <option value="Docente" {% if rol_actual == 'Docente' or rol_actual == 'Docentes' %}selected{% endif %}>Docente</option>
-                                <option value="Administrador" {% if rol_actual == 'Administrador' or usuario_editar.is_superuser or usuario_editar.is_staff %}selected{% endif %}>Administrador</option>
+                                <option value="Alumno" {% if rol_actual=='Alumno' or not rol_actual %}selected{% endif
+                                    %}>Alumno</option>
+                                <option value="Docente" {% if rol_actual=='Docente' or rol_actual=='Docentes'
+                                    %}selected{% endif %}>Docente</option>
+                                <option value="Administrador" {% if rol_actual=='Administrador' or
+                                    usuario_editar.is_superuser or usuario_editar.is_staff %}selected{% endif %}>
+                                    Administrador</option>
                             </select>
                         </div>
 
                         <div class="campo-form">
                             <label class="label-form" for="first_name">Nombres</label>
-                            <input type="text" id="first_name" name="first_name" class="input-form" value="{{ usuario_editar.first_name }}" required>
+                            <input type="text" id="first_name" name="first_name" class="input-form"
+                                value="{{ usuario_editar.first_name }}" required>
                         </div>
 
                         <div class="campo-form">
                             <label class="label-form" for="last_name">Apellidos</label>
-                            <input type="text" id="last_name" name="last_name" class="input-form" value="{{ usuario_editar.last_name }}" required>
+                            <input type="text" id="last_name" name="last_name" class="input-form"
+                                value="{{ usuario_editar.last_name }}" required>
                         </div>
 
                         <div class="campo-form ancho-completo">
                             <label class="label-form" for="email">Correo Electrónico</label>
-                            <input type="email" id="email" name="email" class="input-form" value="{{ usuario_editar.email }}" required>
+                            <input type="email" id="email" name="email" class="input-form"
+                                value="{{ usuario_editar.email }}" required>
                         </div>
 
                         <div class="campo-form ancho-completo">
                             <div class="caja-password-info">
                                 <p>🔒 Cambio de Contraseña (Opcional)</p>
-                                <input type="password" id="password" name="password" class="input-form" placeholder="Dejar en blanco para mantener la contraseña actual">
+                                <input type="password" id="password" name="password" class="input-form"
+                                    placeholder="Dejar en blanco para mantener la contraseña actual">
                             </div>
                         </div>
 
@@ -114,10 +148,51 @@
                     </div>
 
                 </form>
+
+                <!-- MÓDULO EXCLUSIVO DE ADMINISTRACIÓN: CONTROL 2FA -->
+                <div style="margin-top: 35px; padding-top: 25px; border-top: 1px dashed #cbd5e1;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                <span style="font-size: 18px;">🛡️</span>
+                                <h4 style="margin: 0; color: #0f172a; font-size: 15px; font-weight: 700;">Doble Factor
+                                    de Autenticación (2FA)</h4>
+                            </div>
+                            {% if tiene_2fa %}
+                            <p style="margin: 0; color: #15803d; font-size: 13.5px; font-weight: 600;">
+                                ● 2FA Activo: El usuario debe ingresar el código de Authenticator al iniciar sesión.
+                            </p>
+                            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 12.5px;">
+                                Si el docente extravió su dispositivo o no puede acceder, restablece su configuración
+                                aquí.
+                            </p>
+                            {% else %}
+                            <p style="margin: 0; color: #64748b; font-size: 13.5px;">
+                                ○ Inactivo: Este usuario aún no ha configurado ningún dispositivo de autenticación
+                                móvil.
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        {% if tiene_2fa %}
+                        <form method="POST" action="{% url 'admin_resetear_2fa' usuario_editar.id %}"
+                            onsubmit="return confirm('¿Seguro que deseas desactivar el 2FA de @{{ usuario_editar.username }}? Su cuenta ya no solicitará código hasta que vuelva a escanear un nuevo QR.');">
+                            {% csrf_token %}
+                            <button type="submit"
+                                style="background: #dc2626; color: #ffffff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s ease;">
+                                🔄 Restablecer / Quitar 2FA
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+
             </div>
 
         </div>
     </main>
 
 </body>
+
 </html>

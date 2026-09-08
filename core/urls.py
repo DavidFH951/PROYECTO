@@ -68,6 +68,7 @@ urlpatterns = [
     path('panel-admin/', views.admin_dashboard, name='admin_dashboard'),
     path('panel-admin/auditoria/', views.admin_logs_actividad, name='admin_logs_actividad'),
     path('admin-panel/gestionar-temporada/', views.gestionar_temporada, name='gestionar_temporada'),
+    path('admin/usuarios/<int:user_id>/reset-2fa/', views.admin_resetear_2fa, name='admin_resetear_2fa'),
 
     # Gestión de usuarios
     path('panel-admin/registrar-usuario/', views.registrar_usuario, name='registrar_usuario'),

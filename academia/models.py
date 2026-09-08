@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 import math
 import re
+from .validators import validar_archivo_material
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -452,3 +453,13 @@ class Asistencia(models.Model):
 
     def __str__(self):
         return f"Sem {self.semana} - {self.alumno.username} - {self.curso.titulo} ({self.fecha}): {self.get_estado_display()}"
+
+
+class Material(models.Model):
+    # ... tus campos actuales ...
+    archivo = models.FileField(
+        upload_to='materiales/', 
+        blank=True, 
+        null=True,
+        validators=[validar_archivo_material]
+    )

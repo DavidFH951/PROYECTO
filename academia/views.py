@@ -3,14 +3,16 @@ import json
 import io
 import uuid
 import base64
+import os
 import qrcode
 from datetime import date
 
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from .validators import validar_archivo_material
 
 from django.shortcuts import render, get_object_or_404, redirect
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
@@ -451,7 +453,6 @@ def panel_docente(request):
 
     return render(request, 'panel_docente.html', {'cursos': cursos})
 
-
 @login_required
 def subir_material(request, curso_id):
     """Permite al docente subir archivos o enlaces para una semana específica."""
@@ -467,20 +468,44 @@ def subir_material(request, curso_id):
         semana = request.POST.get('semana', 1)
         archivo = request.FILES.get('archivo')
         enlace = request.POST.get('enlace') or request.POST.get('enlace_web')
-        
-        if titulo:
-            Material.objects.create(
-                curso=curso,
-                titulo=titulo,
-                semana=semana,
-                archivo=archivo,
-                enlace_web=enlace
-            )
-            registrar_log(request, "Subida de Material", f"Subió '{titulo}' (Semana {semana}) al curso '{curso.titulo}'")
-            messages.success(request, f"Material '{titulo}' publicado exitosamente en la Semana {semana}.")
-            return redirect('detalle_curso', curso_id=curso.id)
-        else:
+
+        if not titulo:
             messages.error(request, "El título del material es obligatorio.")
+            return render(request, 'subir_material.html', {'curso': curso})
+
+        # =====================================================================
+        # VALIDACIÓN DE SEGURIDAD DEL ARCHIVO (EXTENSIÓN Y TAMAÑO MÁXIMO)
+        # =====================================================================
+        if archivo:
+            # 1. Límite de tamaño: 15 MB
+            max_bytes = 15 * 1024 * 1024
+            if archivo.size > max_bytes:
+                messages.error(request, "El archivo excede el tamaño máximo permitido de 15 MB.")
+                return render(request, 'subir_material.html', {'curso': curso})
+
+            # 2. Whitelist de extensiones seguras
+            extensiones_permitidas = {
+                '.pdf', '.docx', '.doc', '.xlsx', '.xls', 
+                '.pptx', '.ppt', '.zip', '.rar', '.jpg', '.jpeg', '.png'
+            }
+            _, ext = os.path.splitext(archivo.name)
+            if ext.lower() not in extensiones_permitidas:
+                messages.error(
+                    request, 
+                    f"Tipo de archivo no permitido ({ext}). Solo se admiten PDFs, Office, imágenes y comprimidos."
+                )
+                return render(request, 'subir_material.html', {'curso': curso})
+
+        Material.objects.create(
+            curso=curso,
+            titulo=titulo,
+            semana=semana,
+            archivo=archivo,
+            enlace_web=enlace
+        )
+        registrar_log(request, "Subida de Material", f"Subió '{titulo}' (Semana {semana}) al curso '{curso.titulo}'")
+        messages.success(request, f"Material '{titulo}' publicado exitosamente en la Semana {semana}.")
+        return redirect('detalle_curso', curso_id=curso.id)
             
     return render(request, 'subir_material.html', {'curso': curso})
 
@@ -1347,10 +1372,12 @@ def editar_usuario(request, user_id):
         registrar_log(request, "Edición de Usuario", f"Actualizó datos/rol de '{usuario_editar.username}'")
         messages.success(request, f"Usuario @{usuario_editar.username} actualizado correctamente.")
         return redirect('admin_dashboard')
+    tiene_2fa = TOTPDevice.objects.filter(user=usuario_editar, confirmed=True).exists()
 
     context = {
         'usuario_editar': usuario_editar,
         'rol_actual': rol_actual,
+        'tiene_2fa': tiene_2fa,
     }
     return render(request, 'editar_usuario.html', context)
 
@@ -1901,3 +1928,28 @@ def verificar_2fa(request):
             messages.error(request, "Código de 6 dígitos inválido. Revisa tu aplicación Authenticator.")
 
     return render(request, 'verificar_2fa.html')
+
+@login_required
+@user_passes_test(es_administrador, login_url='/cuentas/login/')
+def admin_resetear_2fa(request, user_id):
+    """Permite exclusivamente al administrador revocar el 2FA de cualquier usuario."""
+    usuario_objetivo = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        # Elimina cualquier dispositivo OTP configurado para este usuario
+        dispositivos = TOTPDevice.objects.filter(user=usuario_objetivo)
+        total_eliminados = dispositivos.count()
+        dispositivos.delete()
+
+        registrar_log(
+            request,
+            "Reseteo de Seguridad 2FA",
+            f"El administrador revocó el 2FA del usuario '{usuario_objetivo.username}'"
+        )
+
+        if total_eliminados > 0:
+            messages.success(request, f"Se desactivó el Doble Factor (2FA) para el usuario @{usuario_objetivo.username}.")
+        else:
+            messages.info(request, f"El usuario @{usuario_objetivo.username} no tenía ningún 2FA activo.")
+
+    return redirect('editar_usuario', user_id=usuario_objetivo.id)
