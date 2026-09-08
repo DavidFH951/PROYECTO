@@ -1702,3 +1702,105 @@ body {
     margin: 25px auto 40px auto;
     padding: 0 20px;
 }
+
+/* ==========================================================================
+   SIDEBAR MODULAR INTRANET (ESTUDIANTES)
+   ========================================================================== */
+.sidebar-student {
+    width: 260px;
+    min-width: 260px;
+    background: #0284c7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #ffffff;
+    padding: 24px 16px;
+    box-sizing: border-box;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #ffffff;
+    margin-bottom: 32px;
+    padding: 0 8px;
+}
+
+.sidebar-logo-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #ffffff;
+}
+
+.sidebar-brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-brand-title {
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.sidebar-brand-subtitle {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.85;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #ffffff;
+    opacity: 0.9;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.sidebar-item:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-item.active {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.25);
+    font-weight: 700;
+}
+
+.sidebar-icon {
+    font-size: 16px;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+.sidebar-item.logout-link {
+    color: #fecdd3;
+    font-weight: 700;
+}
+
+.sidebar-item.logout-link:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ffffff;
+}
