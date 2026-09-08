@@ -1,0 +1,66 @@
+/* ==============================================================================
+   PANTALLA DE BLOQUEO POR INTENTOS FALLIDOS - ACADEMIA GALENO
+   ============================================================================== */
+
+.bloqueo-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8fafc;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.bloqueo-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 40px 32px;
+    max-width: 460px;
+    text-align: center;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+}
+
+.bloqueo-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.bloqueo-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 12px 0;
+}
+
+.bloqueo-text {
+    font-size: 14px;
+    color: #334155;
+    line-height: 1.5;
+    margin: 0 0 8px 0;
+}
+
+.bloqueo-subtext {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0 0 24px 0;
+}
+
+.btn-reintentar {
+    display: inline-block;
+    background-color: #0284c7;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.btn-reintentar:hover {
+    background-color: #0369a1;
+}

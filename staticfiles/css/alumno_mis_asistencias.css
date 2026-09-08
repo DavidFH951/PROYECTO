@@ -1,0 +1,190 @@
+/* ==============================================================================
+   CONSULTA DE ASISTENCIA ALUMNO - ACADEMIA GALENO
+   ============================================================================== */
+
+body {
+    background-color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    color: #0f172a;
+    margin: 0;
+    padding: 30px 24px;
+}
+
+.asistencia-box {
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0284c7;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 16px;
+    transition: color 0.15s ease;
+}
+
+.back-link:hover {
+    color: #0369a1;
+    text-decoration: underline;
+}
+
+.page-header {
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+}
+
+.page-header p {
+    color: #64748b;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.card-curso {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+}
+
+.curso-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.curso-sesiones-count {
+    font-size: 0.82rem;
+    color: #64748b;
+    display: block;
+    margin-top: 4px;
+}
+
+.porcentaje-score {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.score-aprobado {
+    color: #15803d;
+}
+
+.score-alerta {
+    color: #b91c1c;
+}
+
+.stats-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+
+.badge-pill {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.badge-p {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.badge-t {
+    background: #fefce8;
+    color: #a16207;
+}
+
+.badge-f {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.badge-j {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.table-log {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 0.88rem;
+}
+
+.table-log th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.table-log td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.tag-p {
+    color: #047857;
+    font-weight: 700;
+}
+
+.tag-t {
+    color: #a16207;
+    font-weight: 700;
+}
+
+.tag-f {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.tag-j {
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+.empty-records {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.88rem;
+    padding: 20px;
+    font-style: italic;
+}
+
+.card-curso-empty {
+    text-align: center;
+    color: #64748b;
+    padding: 40px 20px;
+}
