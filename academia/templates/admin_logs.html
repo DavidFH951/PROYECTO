@@ -12,66 +12,14 @@
 </head>
 <body>
 
-    <!-- Barra Superior de Navegación -->
-    <header class="top-nav">
-        <a href="{% url 'admin_dashboard' %}" class="brand-container">
-            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
-            <div class="brand-text-block">
-                <span class="brand-title">Academia Galeno</span>
-                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
-            </div>
-        </a>
+    <!-- 1. Barra Superior Modular -->
+    {% include 'componentes/navbar.html' %}
 
-        <!-- Menú de Usuario con Avatar -->
-        <div class="user-dropdown-container">
-            <div class="user-profile-trigger">
-                <div class="user-avatar-circle">
-                    {{ request.user.first_name|first|default:request.user.username|first }}
-                </div>
-                <span class="user-trigger-text">
-                    {{ request.user.first_name|default:request.user.username }} {{ request.user.last_name|default:"" }}
-                </span>
-                <span class="dropdown-arrow">▼</span>
-            </div>
-
-            <div class="user-dropdown-menu">
-                <div class="dropdown-user-info">
-                    <div class="dropdown-user-name">
-                        {{ request.user.get_full_name|default:request.user.username }}
-                    </div>
-                    <div class="dropdown-user-email">
-                        {{ request.user.email|default:"Sin correo registrado" }}
-                    </div>
-                    <span class="dropdown-user-badge">
-                        Administrador
-                    </span>
-                </div>
-
-                <div class="dropdown-menu-list">
-                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
-                        👤 Mi Perfil
-                    </a>
-                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
-                        ⚙️ Panel de Control
-                    </a>
-                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
-                        🚪 Cerrar Sesión
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Contenido Principal -->
+    <!-- Contenedor Principal -->
     <div class="main-container">
         
-        {% if messages %}
-            {% for message in messages %}
-                <div class="{% if message.tags == 'error' %}alert-box-error{% else %}alert-box-success{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
+        <!-- 2. Alertas Modulares -->
+        {% include 'componentes/mensajes.html' %}
 
         <!-- Tarjetas de Métricas -->
         <div class="stats-grid">
@@ -89,14 +37,10 @@
             </div>
         </div>
 
-        <!-- Navbar de Secciones -->
-        <div class="nav-tabs-container">
-            <a href="{% url 'admin_dashboard' %}" class="nav-tab-item">👥 Usuarios</a>
-            <a href="{% url 'admin_cursos_lista' %}" class="nav-tab-item">📚 Cursos Registrados</a>
-            <a href="{% url 'admin_logs_actividad' %}" class="nav-tab-item active">📋 Auditoría y Logs</a>
-        </div>
+        <!-- 3. Pestañas de Navegación (Marcando 'logs' como activa) -->
+        {% include 'componentes/admin_tabs.html' with pestana_activa='logs' %}
 
-        <!-- Barra de Búsqueda Estilizada -->
+        <!-- 4. Barra de Búsqueda Estilizada -->
         <div class="control-toolbar">
             <form method="GET" action="{% url 'admin_logs_actividad' %}" class="search-filter-box" style="max-width: 500px;">
                 <span style="padding-left: 8px; color: #94a3b8; font-size: 14px;">🔍</span>
@@ -177,6 +121,9 @@
         {% endif %}
 
     </div>
+
+    <!-- Script Modular Externo -->
+    <script src="{% static 'js/admin_dashboard.js' %}?v=1.0" defer></script>
 
 </body>
 </html>

@@ -11,66 +11,14 @@
 </head>
 <body>
 
-    <!-- Barra Superior de Navegación -->
-    <header class="top-nav">
-        <a href="{% url 'admin_dashboard' %}" class="brand-container">
-            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
-            <div class="brand-text-block">
-                <span class="brand-title">Academia Galeno</span>
-                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
-            </div>
-        </a>
-
-        <!-- Menú de Usuario con Avatar -->
-        <div class="user-dropdown-container">
-            <div class="user-profile-trigger">
-                <div class="user-avatar-circle">
-                    {{ request.user.first_name|first|default:request.user.username|first }}
-                </div>
-                <span class="user-trigger-text">
-                    {{ request.user.first_name|default:request.user.username }} {{ request.user.last_name|default:"" }}
-                </span>
-                <span class="dropdown-arrow">▼</span>
-            </div>
-
-            <div class="user-dropdown-menu">
-                <div class="dropdown-user-info">
-                    <div class="dropdown-user-name">
-                        {{ request.user.get_full_name|default:request.user.username }}
-                    </div>
-                    <div class="dropdown-user-email">
-                        {{ request.user.email|default:"Sin correo registrado" }}
-                    </div>
-                    <span class="dropdown-user-badge">
-                        Administrador
-                    </span>
-                </div>
-
-                <div class="dropdown-menu-list">
-                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
-                        👤 Mi Perfil
-                    </a>
-                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
-                        ⚙️ Panel de Control
-                    </a>
-                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
-                        🚪 Cerrar Sesión
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
+    <!-- 1. Barra Superior Modular -->
+    {% include 'componentes/navbar.html' %}
 
     <!-- Contenido Principal -->
     <div class="main-container">
         
-        {% if messages %}
-            {% for message in messages %}
-                <div class="{% if message.tags == 'error' %}alert-box-error{% else %}alert-box-success{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
+        <!-- 2. Alertas Modulares -->
+        {% include 'componentes/mensajes.html' %}
 
         <!-- Tarjetas de Métricas -->
         <div class="stats-grid">
@@ -88,19 +36,11 @@
             </div>
         </div>
 
-        <!-- Navbar de Secciones -->
-        <div class="nav-tabs-container">
-            <a href="{% url 'admin_dashboard' %}" class="nav-tab-item active">👥 Usuarios</a>
-            <a href="{% url 'admin_cursos_lista' %}" class="nav-tab-item">📚 Cursos Registrados</a>
-            <button type="button" class="nav-tab-item" onclick="abrirModalTemporadas()" style="background:none; border:none; cursor:pointer; font-size:inherit; font-family:inherit;">
-                🗓️ Temporadas / Períodos
-            </button>
-            <a href="{% url 'admin_logs_actividad' %}" class="nav-tab-item">📋 Auditoría y Logs</a>
-        </div>
+        <!-- 3. Pestañas de Navegación Modulares -->
+        {% include 'componentes/admin_tabs.html' with pestana_activa='usuarios' %}
 
         <!-- Barra de Control Estilizada -->
         <div class="control-toolbar">
-            <!-- Buscador y Filtro Integrados en una sola barra -->
             <form method="GET" action="{% url 'admin_dashboard' %}" class="search-filter-box">
                 <span style="padding-left: 8px; color: #94a3b8; font-size: 14px;">🔍</span>
                 <input type="text" name="q" value="{{ query }}" placeholder="Buscar por nombre, usuario, correo..." class="search-input-field">
@@ -118,7 +58,6 @@
                 {% endif %}
             </form>
 
-            <!-- Botones de Acción Agrupados -->
             <div class="action-buttons-group">
                 <a href="{% url 'exportar_usuarios_csv' %}" class="btn-pill-secondary">
                     <span>📥</span> Exportar
@@ -198,25 +137,8 @@
             </table>
         </form>
 
-        <!-- Paginación -->
-        {% if usuarios.has_other_pages %}
-        <div class="pagination-container">
-            <span>Página {{ usuarios.number }} de {{ usuarios.paginator.num_pages }} (Total: {{ usuarios.paginator.count }} usuarios)</span>
-            <div class="pagination-links">
-                {% if usuarios.has_previous %}
-                    <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">&laquo; Primero</a>
-                    <a href="?page={{ usuarios.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">Anterior</a>
-                {% endif %}
-
-                <span class="page-btn active">{{ usuarios.number }}</span>
-
-                {% if usuarios.has_next %}
-                    <a href="?page={{ usuarios.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">Siguiente</a>
-                    <a href="?page={{ usuarios.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">Último &raquo;</a>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
+        <!-- 4. Paginación Modular -->
+        {% include 'componentes/paginador.html' %}
 
     </div>
 
@@ -230,7 +152,6 @@
             </div>
 
             <div style="padding:24px;">
-                <!-- Sección: Temporada Activa / Culminar -->
                 <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:20px;">
                     <span style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Temporada Vigente</span>
                     {% if periodo_activo %}
@@ -255,7 +176,6 @@
 
                 <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
 
-                <!-- Formulario: Abrir Nueva Temporada -->
                 <h4 style="margin:0 0 14px 0; font-size:14px; color:#1e293b; font-weight:700;">➕ Abrir Nueva Temporada</h4>
                 <form method="POST" action="{% url 'gestionar_temporada' %}">
                     {% csrf_token %}

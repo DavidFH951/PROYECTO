@@ -13,39 +13,11 @@
 </head>
 <body>
 
-    <!-- Barra Superior -->
-    <header class="top-nav">
-        <a href="{% url 'admin_dashboard' %}" class="brand-container">
-            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
-            <div class="brand-text-block">
-                <span class="brand-title">Academia Galeno</span>
-                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
-            </div>
-        </a>
+    <!-- 1. Barra Superior Modular Institucional -->
+    {% include 'componentes/navbar.html' %}
 
-        <div class="user-dropdown-container">
-            <div class="user-profile-trigger">
-                <div class="user-avatar-circle">
-                    {{ request.user.username|make_list|first|upper }}
-                </div>
-                <span class="user-trigger-text">{{ request.user.username }}</span>
-                <span class="dropdown-arrow">▼</span>
-            </div>
-            
-            <div class="user-dropdown-menu">
-                <div class="dropdown-user-info">
-                    <div class="dropdown-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
-                    <div class="dropdown-user-email">{{ request.user.email|default:"Sin correo" }}</div>
-                    <span class="dropdown-user-badge">ADMIN</span>
-                </div>
-                <div class="dropdown-menu-list">
-                    <a href="{% url 'logout' %}" class="dropdown-menu-item logout-danger">
-                        <span>🚪</span> Cerrar Sesión
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
+    <!-- 2. Alertas y Mensajes Modulares -->
+    {% include 'componentes/mensajes.html' %}
 
     <!-- Contenedor Principal -->
     <div class="main-container">
@@ -125,6 +97,9 @@
             
         </div>
     </div>
+
+    <!-- Script Modular Externo -->
+    <script src="{% static 'js/admin_dashboard.js' %}?v=1.0" defer></script>
 
 </body>
 </html>

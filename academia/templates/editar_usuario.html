@@ -1,7 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,50 +9,14 @@
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=2.0">
 </head>
-
 <body>
 
-    <!-- Barra Superior -->
-    <header class="top-nav">
-        <a href="{% url 'admin_dashboard' %}" class="brand-container">
-            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
-            <div class="brand-text-block">
-                <span class="brand-title">Academia Galeno</span>
-                <span class="brand-subtitle">PANEL ADMINISTRADOR</span>
-            </div>
-        </a>
+    <!-- 1. Barra Superior Modular Institucional -->
+    {% include 'componentes/navbar.html' %}
 
-        <div class="user-dropdown-container">
-            <div class="user-profile-trigger">
-                <div class="user-avatar-circle">
-                    {{ request.user.first_name|first|default:request.user.username|first }}
-                </div>
-                <span class="user-trigger-text">
-                    {{ request.user.first_name|default:request.user.username }}
-                </span>
-                <span class="dropdown-arrow">▼</span>
-            </div>
-
-            <div class="user-dropdown-menu">
-                <div class="dropdown-user-info">
-                    <div class="dropdown-user-name">
-                        {{ request.user.get_full_name|default:request.user.username }}
-                    </div>
-                    <div class="dropdown-user-email">
-                        {{ request.user.email|default:"Sin correo registrado" }}
-                    </div>
-                    <span class="dropdown-user-badge">Administrador</span>
-                </div>
-                <div class="dropdown-menu-list">
-                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
-                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">⚙️ Panel Principal</a>
-                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
-                </div>
-            </div>
-        </div>
-    </header>
-
+    <!-- Contenedor Principal -->
     <main class="form-container-boxed">
         <div class="card-formulario">
 
@@ -62,31 +25,15 @@
                 <p>Modifica los datos del usuario o actualiza sus credenciales y permisos en el sistema.</p>
             </div>
 
-            {% if messages %}
+            <!-- 2. Alertas y Mensajes Modulares -->
             <div style="padding: 15px 30px 0 30px;">
-                {% for message in messages %}
-                {% if message.tags == 'error' %}
-                <div
-                    style="padding: 12px 16px; border-radius: 6px; font-size: 13.5px; margin-bottom: 12px; background: #fee2e2; color: #991b1b; border: 1px solid #f87171;">
-                    {{ message }}
-                </div>
-                {% elif message.tags == 'success' %}
-                <div
-                    style="padding: 12px 16px; border-radius: 6px; font-size: 13.5px; margin-bottom: 12px; background: #dcfce7; color: #166534; border: 1px solid #86efac;">
-                    {{ message }}
-                </div>
-                {% else %}
-                <div
-                    style="padding: 12px 16px; border-radius: 6px; font-size: 13.5px; margin-bottom: 12px; background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc;">
-                    {{ message }}
-                </div>
-                {% endif %}
-                {% endfor %}
+                {% include 'componentes/mensajes.html' %}
             </div>
-            {% endif %}
 
             <div class="card-formulario-body">
-                <form method="POST">
+                
+                <!-- Formulario Principal de Datos -->
+                <form method="POST" id="form-editar-usuario">
                     {% csrf_token %}
 
                     <div class="grid-dos-columnas">
@@ -102,8 +49,7 @@
                             <select id="rol" name="rol" class="select-form" required>
                                 <option value="Alumno" {% if es_alumno %}selected{% endif %}>Alumno</option>
                                 <option value="Docente" {% if es_docente %}selected{% endif %}>Docente</option>
-                                <option value="Administrador" {% if es_admin %}selected{% endif %}>Administrador
-                                </option>
+                                <option value="Administrador" {% if es_admin %}selected{% endif %}>Administrador</option>
                             </select>
                         </div>
 
@@ -134,50 +80,8 @@
                         </div>
 
                     </div>
-                    <!-- MÓDULO EXCLUSIVO DE ADMINISTRACIÓN: CONTROL 2FA -->
-                    <div style="margin-top: 35px; padding-top: 25px; border-top: 1px dashed #cbd5e1;">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                            <div>
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                    <span style="font-size: 18px;">🛡️</span>
-                                    <h4 style="margin: 0; color: #0f172a; font-size: 15px; font-weight: 700;">Doble
-                                        Factor
-                                        de Autenticación (2FA)</h4>
-                                </div>
-                                {% if tiene_2fa %}
-                                <p style="margin: 0; color: #15803d; font-size: 13.5px; font-weight: 600;">
-                                    ● 2FA Activo: El usuario debe ingresar el código de Authenticator al iniciar
-                                    sesión.
-                                </p>
-                                <p style="margin: 4px 0 0 0; color: #64748b; font-size: 12.5px;">
-                                    Si el docente extravió su dispositivo o no puede acceder, restablece su
-                                    configuración
-                                    aquí.
-                                </p>
-                                {% else %}
-                                <p style="margin: 0; color: #64748b; font-size: 13.5px;">
-                                    ○ Inactivo: Este usuario aún no ha configurado ningún dispositivo de
-                                    autenticación
-                                    móvil.
-                                </p>
-                                {% endif %}
-                            </div>
 
-                            {% if tiene_2fa %}
-                            <form method="POST" action="{% url 'admin_resetear_2fa' usuario_editar.id %}"
-                                onsubmit="return confirm('¿Seguro que deseas desactivar el 2FA de @{{ usuario_editar.username }}? Su cuenta ya no solicitará código hasta que vuelva a escanear un nuevo QR.');">
-                                {% csrf_token %}
-                                <button type="submit"
-                                    style="background: #dc2626; color: #ffffff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s ease;">
-                                    🔄 Restablecer / Quitar 2FA
-                                </button>
-                            </form>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="footer-botones-form">
+                    <div class="footer-botones-form" style="margin-top: 25px;">
                         <a href="{% url 'admin_dashboard' %}" class="btn-secundario">
                             ← Cancelar
                         </a>
@@ -188,11 +92,48 @@
 
                 </form>
 
+                <!-- MÓDULO EXCLUSIVO DE ADMINISTRACIÓN: CONTROL 2FA -->
+                <div style="margin-top: 35px; padding-top: 25px; border-top: 1px dashed #cbd5e1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                <span style="font-size: 18px;">🛡️</span>
+                                <h4 style="margin: 0; color: #0f172a; font-size: 15px; font-weight: 700;">Doble Factor de Autenticación (2FA)</h4>
+                            </div>
+                            {% if tiene_2fa %}
+                                <p style="margin: 0; color: #15803d; font-size: 13.5px; font-weight: 600;">
+                                    ● 2FA Activo: El usuario debe ingresar el código de Authenticator al iniciar sesión.
+                                </p>
+                                <p style="margin: 4px 0 0 0; color: #64748b; font-size: 12.5px;">
+                                    Si el docente extravió su dispositivo o no puede acceder, restablece su configuración aquí.
+                                </p>
+                            {% else %}
+                                <p style="margin: 0; color: #64748b; font-size: 13.5px;">
+                                    ○ Inactivo: Este usuario aún no ha configurado ningún dispositivo de autenticación móvil.
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        {% if tiene_2fa %}
+                        <form method="POST" action="{% url 'admin_resetear_2fa' usuario_editar.id %}"
+                            onsubmit="return confirm('¿Seguro que deseas desactivar el 2FA de @{{ usuario_editar.username }}? Su cuenta ya no solicitará código hasta que vuelva a escanear un nuevo QR.');">
+                            {% csrf_token %}
+                            <button type="submit"
+                                style="background: #dc2626; color: #ffffff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s ease;">
+                                🔄 Restablecer / Quitar 2FA
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+
             </div>
 
         </div>
     </main>
 
-</body>
+    <!-- Script Modular Externo -->
+    <script src="{% static 'js/admin_dashboard.js' %}?v=1.0" defer></script>
 
+</body>
 </html>
