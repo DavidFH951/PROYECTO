@@ -1834,7 +1834,7 @@ def configurar_2fa(request):
         if dispositivo_temp and dispositivo_temp.verify_token(token):
             dispositivo_temp.confirmed = True
             dispositivo_temp.save()
-            # Elimina registros previos confirmados
+            # Eliminar dispositivos antiguos confirmados
             TOTPDevice.objects.filter(user=user, confirmed=True).exclude(id=dispositivo_temp.id).delete()
             registrar_log(request, "Seguridad 2FA", "Activó el doble factor de autenticación")
             messages.success(request, "Doble factor de autenticación (2FA) activado correctamente.")
@@ -1842,7 +1842,7 @@ def configurar_2fa(request):
         else:
             messages.error(request, "Código incorrecto o expirado. Inténtalo nuevamente.")
 
-    # Generar o reutilizar el dispositivo temporal no confirmado
+    # Obtener o crear dispositivo temporal no confirmado
     dispositivo_temp = TOTPDevice.objects.filter(user=user, confirmed=False).last()
     if not dispositivo_temp:
         dispositivo_temp = TOTPDevice.objects.create(
@@ -1851,28 +1851,29 @@ def configurar_2fa(request):
             confirmed=False
         )
 
-    # Identificador de cuenta: usa su correo institucional o su nombre de usuario
+    # Convertir la clave binaria a Base32 limpia para el protocolo OTP
+    secret_b32 = base64.b32encode(dispositivo_temp.bin_key).decode('ascii').replace('=', '')
+
+    # Identificadores para la aplicación autenticadora
     identificador = user.email if user.email else user.username
     emisor = "Academia Galeno"
 
-    # Construir el URI estándar otpauth://totp/ con formato Issuer:Account?issuer=Issuer
-    # Ejemplo: otpauth://totp/Academia%20Galeno:usuario@galeno.pe?secret=...&issuer=Academia%20Galeno
-    secret_b32 = dispositivo_temp.bin_key.decode('utf-8') if hasattr(dispositivo_temp, 'bin_key') else dispositivo_temp.key
-    # En django-otp el URI estándar se arma con config_url:
+    # URI estándar compatible con Google Authenticator / Microsoft Authenticator / Authy
     otp_url = (
         f"otpauth://totp/{quote(emisor)}:{quote(identificador)}"
-        f"?secret={dispositivo_temp.key}&issuer={quote(emisor)}&digits=6&period=30"
+        f"?secret={secret_b32}&issuer={quote(emisor)}&digits=6&period=30"
     )
 
+    # Generar imagen QR en memoria
     qr = qrcode.make(otp_url)
     buffer = io.BytesIO()
     qr.save(buffer, format="PNG")
-    qr_b64 = base4_str = base64.b64encode(buffer.getvalue()).decode()
+    qr_b64 = base64.b64encode(buffer.getvalue()).decode('ascii')
 
     context = {
         'tiene_2fa': dispositivo_confirmado is not None,
         'qr_b64': qr_b64,
-        'secret_key': dispositivo_temp.key,
+        'secret_key': secret_b32,
         'emisor': emisor,
         'identificador': identificador,
     }
