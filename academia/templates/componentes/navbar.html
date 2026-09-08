@@ -1,17 +1,18 @@
 {% load static %}
 <!-- Barra Superior Global -->
 <header class="top-nav">
-    <a href="{% if request.user.is_superuser or request.user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'mis_cursos' %}{% endif %}" class="brand-container">
+    <a href="{% if request.user.is_superuser or request.user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'mis_cursos' %}{% endif %}"
+        class="brand-container">
         <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
         <div class="brand-text-block">
             <span class="brand-title">Academia Galeno</span>
             <span class="brand-subtitle">
                 {% if request.user.is_superuser or request.user.is_staff %}
-                    PANEL ADMINISTRADOR
+                PANEL ADMINISTRADOR
                 {% elif request.user.groups.all.0.name == 'Docentes' %}
-                    PORTAL DOCENTE
+                PORTAL DOCENTE
                 {% else %}
-                    AULA VIRTUAL
+                AULA VIRTUAL
                 {% endif %}
             </span>
         </div>
@@ -19,25 +20,23 @@
 
     <!-- Menú Central de Enlaces -->
     <nav class="nav-links-center">
-    <!-- Solo para estudiantes -->
-    {% if not request.user.is_superuser and not request.user.is_staff and request.user.groups.all.0.name != 'Docentes' %}
-        <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'mis_cursos' %}active{% endif %}">
+        {% if not request.user.is_superuser and not request.user.is_staff and request.user.groups.all.0.name !=
+        'Docentes' %}
+        <a href="{% url 'dashboard' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'mis_cursos' %}active{% endif %}">
             Mis Cursos
         </a>
-        <a href="{% url 'mis_notas' %}" class="nav-link {% if request.resolver_match.url_name == 'mis_notas' %}active{% endif %}">
+        <a href="{% url 'mis_notas' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'mis_notas' %}active{% endif %}">
             Historial de Notas
         </a>
-    {% elif request.user.is_superuser or request.user.is_staff %}
-        <!-- Enlace rápido para Administradores -->
-        <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-            Panel Admin
-        </a>
-    {% endif %}
+        {% endif %}
 
-    <a href="{% url 'mi_perfil' %}" class="nav-link {% if request.resolver_match.url_name == 'mi_perfil' %}active{% endif %}">
-        Mi Perfil
-    </a>
-</nav>
+        <a href="{% url 'mi_perfil' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'mi_perfil' %}active{% endif %}">
+            Mi Perfil
+        </a>
+    </nav>
     <!-- Menú de Usuario con Avatar -->
     <div class="user-dropdown-container">
         <div class="user-profile-trigger">
@@ -60,11 +59,11 @@
                 </div>
                 <span class="dropdown-user-badge">
                     {% if request.user.is_superuser or request.user.is_staff %}
-                        Administrador
+                    Administrador
                     {% elif request.user.groups.all.0.name == 'Docentes' %}
-                        Docente
+                    Docente
                     {% else %}
-                        Alumno
+                    Alumno
                     {% endif %}
                 </span>
             </div>
@@ -75,13 +74,13 @@
                 </a>
 
                 {% if request.user.is_superuser or request.user.is_staff %}
-                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
-                        ⚙️ Panel de Control
-                    </a>
+                <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
+                    ⚙️ Panel de Control
+                </a>
                 {% else %}
-                    <a href="{% url 'mis_cursos' %}" class="dropdown-menu-item">
-                        📚 Mis Cursos
-                    </a>
+                <a href="{% url 'mis_cursos' %}" class="dropdown-menu-item">
+                    📚 Mis Cursos
+                </a>
                 {% endif %}
 
                 <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
