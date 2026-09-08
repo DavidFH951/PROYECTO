@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
     <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
-    <link rel="stylesheet" href="{% static 'css/docente_asistencia.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/docente_asistencia.css' %}?v=1.2">
 </head>
 
 <body class="intranet-body">
@@ -63,8 +63,11 @@
                                 <table class="table-asistencia">
                                     <thead>
                                         <tr>
-                                            <th style="width: 65%;">Estudiante</th>
-                                            <th style="width: 35%;">Estado de Asistencia</th>
+                                            <th style="width: 44%;">Estudiante</th>
+                                            <th style="width: 14%; text-align: center;">🟢 Presente</th>
+                                            <th style="width: 14%; text-align: center;">🟡 Tardanza</th>
+                                            <th style="width: 14%; text-align: center;">🔴 Falta</th>
+                                            <th style="width: 14%; text-align: center;">🔵 Justificado</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -85,15 +88,29 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div class="select-estado-wrapper">
-                                                    <select name="asistencia_{{ fila.alumno.id }}" class="select-estado">
-                                                        <option value="P" {% if fila.estado == 'P' %}selected{% endif %}>🟢 Presente</option>
-                                                        <option value="T" {% if fila.estado == 'T' %}selected{% endif %}>🟡 Tardanza</option>
-                                                        <option value="F" {% if fila.estado == 'F' %}selected{% endif %}>🔴 Falta</option>
-                                                        <option value="J" {% if fila.estado == 'J' %}selected{% endif %}>🔵 Justificado</option>
-                                                    </select>
-                                                </div>
+                                            <td style="text-align: center;">
+                                                <label class="radio-custom-label radio-p" title="Presente">
+                                                    <input type="radio" name="asistencia_{{ fila.alumno.id }}" value="P" {% if fila.estado == 'P' %}checked{% endif %}>
+                                                    <span class="radio-mark"></span>
+                                                </label>
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <label class="radio-custom-label radio-t" title="Tardanza">
+                                                    <input type="radio" name="asistencia_{{ fila.alumno.id }}" value="T" {% if fila.estado == 'T' %}checked{% endif %}>
+                                                    <span class="radio-mark"></span>
+                                                </label>
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <label class="radio-custom-label radio-f" title="Falta">
+                                                    <input type="radio" name="asistencia_{{ fila.alumno.id }}" value="F" {% if fila.estado == 'F' %}checked{% endif %}>
+                                                    <span class="radio-mark"></span>
+                                                </label>
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <label class="radio-custom-label radio-j" title="Justificado">
+                                                    <input type="radio" name="asistencia_{{ fila.alumno.id }}" value="J" {% if fila.estado == 'J' %}checked{% endif %}>
+                                                    <span class="radio-mark"></span>
+                                                </label>
                                             </td>
                                         </tr>
                                         {% endfor %}
@@ -101,7 +118,7 @@
                                 </table>
                             </div>
 
-                            <div class="form-actions" style="margin-top: 20px;">
+                            <div class="form-actions" style="margin-top: 24px;">
                                 <button type="submit" class="btn-submit-asistencia">💾 Guardar Asistencia</button>
                             </div>
                         </form>
