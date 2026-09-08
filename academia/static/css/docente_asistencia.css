@@ -1,5 +1,5 @@
 /* ==============================================================================
-   MÓDULO DE ASISTENCIA DOCENTE (CATÁLOGO Y TOMA DE LISTA) - ACADEMIA GALENO
+   MÓDULO DE ASISTENCIA DOCENTE - ACADEMIA GALENO
    ============================================================================== */
 
 body {
@@ -144,8 +144,29 @@ body {
 }
 
 /* ------------------------------------------------------------------------------
-   2. VISTA TOMA DE LISTA (CONTROL DIARIO)
+   2. VISTA TOMA DE LISTA (CONTROL DE SESIÓN)
    ------------------------------------------------------------------------------ */
+.btn-nueva-sesion {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    color: #0284c7;
+    border: 1.5px solid #0284c7;
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
+}
+
+.btn-nueva-sesion:hover {
+    background: #0284c7;
+    color: #ffffff;
+}
+
 .card-asistencia {
     background: #ffffff;
     border-radius: 16px;
@@ -179,49 +200,47 @@ body {
     font-weight: 500;
 }
 
-.date-picker-box {
+/* Selector desplegable de sesiones */
+.sesiones-select-box {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 4px;
     background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    padding: 8px 16px;
-    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 6px 14px;
+    min-width: 240px;
 }
 
-.date-picker-box label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #64748b;
+.sesiones-select-box label {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #0284c7;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
-.date-picker-box input[type="date"] {
+.select-sesiones-dropdown {
     background: transparent;
     border: none;
     outline: none;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 13.5px;
+    font-weight: 700;
     color: #0f172a;
     cursor: pointer;
     font-family: inherit;
+    padding: 2px 0;
 }
 
-.alert-success {
-    background-color: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #15803d;
-    padding: 12px 18px;
-    border-radius: 10px;
-    font-size: 0.9rem;
+.select-sesiones-dropdown option {
     font-weight: 600;
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    color: #0f172a;
+    padding: 6px;
 }
 
+/* ------------------------------------------------------------------------------
+   3. TABLA Y BOTONES CIRCULARES (RADIO BUTTONS)
+   ------------------------------------------------------------------------------ */
 .table-responsive {
     margin-top: 24px;
     overflow-x: auto;
@@ -295,9 +314,7 @@ body {
     margin-top: 1px;
 }
 
-/* ------------------------------------------------------------------------------
-   3. BOTONES CIRCULARES (RADIO BUTTONS) DE ASISTENCIA
-   ------------------------------------------------------------------------------ */
+/* Círculos interactivos */
 .radio-custom-label {
     display: inline-flex;
     align-items: center;
@@ -334,7 +351,6 @@ body {
     background-color: #f1f5f9;
 }
 
-/* Círculo interior blanco al activar */
 .radio-mark::after {
     content: "";
     width: 8px;
@@ -348,7 +364,6 @@ body {
     display: block;
 }
 
-/* Estados por color */
 .radio-p input:checked ~ .radio-mark {
     background-color: #16a34a;
     border-color: #15803d;
@@ -401,114 +416,4 @@ body {
 
 .btn-submit-asistencia:active {
     transform: scale(0.98);
-}
-/* ==========================================================================
-   NAVEGACIÓN POR PESTAÑAS DE SESIONES
-   ========================================================================== */
-.sesiones-nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.sesiones-scroll-list {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    flex: 1;
-}
-
-.sesion-tab-item {
-    display: flex;
-    flex-direction: column;
-    padding: 8px 16px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.sesion-tab-item:hover {
-    border-color: #0284c7;
-    background: #f8fafc;
-}
-
-.sesion-tab-item.active {
-    background: #0284c7;
-    border-color: #0284c7;
-    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
-}
-
-.sesion-tab-num {
-    font-size: 12.5px;
-    font-weight: 700;
-    color: #334155;
-}
-
-.sesion-tab-item.active .sesion-tab-num {
-    color: #ffffff;
-}
-
-.sesion-tab-date {
-    font-size: 11px;
-    color: #64748b;
-    margin-top: 1px;
-}
-
-.sesion-tab-item.active .sesion-tab-date {
-    color: #e0f2fe;
-}
-
-.btn-nueva-sesion {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #ffffff;
-    color: #0284c7;
-    border: 1.5px dashed #0284c7;
-    padding: 9px 18px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.15s ease;
-    white-space: nowrap;
-}
-
-.btn-nueva-sesion:hover {
-    background: #f0f9ff;
-    border-style: solid;
-}
-
-.fecha-inline-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    padding: 6px 12px;
-    border-radius: 8px;
-}
-
-.fecha-inline-box label {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: #64748b;
-}
-
-.fecha-inline-box input[type="date"] {
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 12px;
-    color: #0f172a;
-    font-family: inherit;
-    cursor: pointer;
 }

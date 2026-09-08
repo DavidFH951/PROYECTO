@@ -27,23 +27,13 @@
                 {% include 'componentes/mensajes.html' %}
             </div>
 
-            <main class="intranet-content" style="padding-top: 14px;">
+           <!-- Contenido de Asistencia -->
+            <main class="intranet-content" style="padding-top: 20px;">
 
                 <div class="asistencia-container">
 
-                    <!-- Barra de Sesiones -->
-                    <div class="sesiones-nav-container">
-                        <div class="sesiones-scroll-list">
-                            {% for s in sesiones_existentes %}
-                            <a href="?fecha={{ s.fecha_str }}" 
-                               class="sesion-tab-item {% if s.fecha_str == fecha_sesion %}active{% endif %}">
-                                <span class="sesion-tab-num">Sesión {{ s.numero }}</span>
-                                <span class="sesion-tab-date">{{ s.fecha_formateada }}</span>
-                            </a>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Botón para iniciar la sesión de hoy -->
+                    <!-- Barra superior de acción: solo el botón Nueva Sesión a la derecha -->
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
                         <a href="?fecha={{ hoy_str }}" class="btn-nueva-sesion">
                             <span>➕</span> Nueva Sesión
                         </a>
@@ -51,16 +41,31 @@
 
                     <div class="card-asistencia">
 
+                        <!-- Encabezado con título a la izquierda y selector de SESIONES a la derecha -->
                         <div class="header-section">
                             <div class="title-group">
                                 <h2>Sesión {{ sesion_actual_num }} — {{ curso.titulo }}</h2>
-                                <p>Fecha programada: <strong>{{ fecha_sesion }}</strong></p>
+                                <p>Fecha de la sesión: <strong>{{ fecha_sesion }}</strong></p>
                             </div>
 
-                            <!-- Selector secundario discreto por si necesita cambiar la fecha puntual -->
-                            <form method="GET" class="fecha-inline-box">
-                                <label for="fecha">Cambiar fecha:</label>
-                                <input type="date" id="fecha" name="fecha" value="{{ fecha_sesion }}" onchange="this.form.submit()">
+                            <!-- Desplegable SESIONES (como en tu boceto) -->
+                            <form method="GET" class="sesiones-select-box">
+                                <label for="sesion_select">SESIONES</label>
+                                <select id="sesion_select" name="fecha" onchange="this.form.submit()" class="select-sesiones-dropdown">
+                                    {% for s in sesiones_existentes %}
+                                    <option value="{{ s.fecha_str }}" {% if s.fecha_str == fecha_sesion %}selected{% endif %}>
+                                        Sesión {{ s.numero }}: {{ s.fecha_formateada }}
+                                    </option>
+                                    {% empty %}
+                                    <option value="{{ hoy_str }}">Sesión 1: {{ hoy_str }}</option>
+                                    {% endfor %}
+
+                                    {% if sesion_actual_num > sesiones_existentes|length %}
+                                    <option value="{{ fecha_sesion }}" selected>
+                                        Sesión {{ sesion_actual_num }} (Nueva): {{ fecha_sesion }}
+                                    </option>
+                                    {% endif %}
+                                </select>
                             </form>
                         </div>
 
@@ -129,7 +134,7 @@
                                 </table>
                             </div>
 
-                            <div class="form-actions">
+                            <div class="form-actions" style="margin-top: 24px;">
                                 <button type="submit" class="btn-submit-asistencia">💾 Guardar Asistencia de la Sesión</button>
                             </div>
                         </form>
