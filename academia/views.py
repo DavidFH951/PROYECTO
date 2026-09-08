@@ -1,6 +1,9 @@
 import csv
 import json
 import io
+import uuid
+import base64
+import qrcode
 from datetime import date
 
 import openpyxl
@@ -20,6 +23,8 @@ from axes.models import AccessAttempt
 from django.db.models import Q
 from django.utils import timezone
 from django.core.paginator import Paginator
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from django_otp import login as otp_login
 
 from .models import (
     Curso, 
@@ -53,6 +58,17 @@ from .forms import (
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
 
+    def form_valid(self, form):
+        """Si las credenciales son correctas, evalúa si requiere verificación 2FA."""
+        response = super().form_valid(form)
+        user = self.request.user
+
+        # Si el usuario tiene un dispositivo 2FA confirmado, redirigir al desafío OTP
+        if TOTPDevice.objects.filter(user=user, confirmed=True).exists():
+            return redirect('verificar_2fa')
+
+        return response
+
     def form_invalid(self, form):
         response = super().form_invalid(form)
         
@@ -77,7 +93,6 @@ class CustomLoginView(LoginView):
             )
             
         return response
-
 
 def registrar_log(request, accion, detalles=""):
     """Registra una acción en la tabla de auditoría con la IP del usuario."""
@@ -173,8 +188,34 @@ def salir(request):
 
 
 @login_required
-def dashboard(request):
-    """Portal central post-login (Intranet). Muestra métricas para Alumnos y Docentes."""
+def redirigir_dashboard(request):
+    """Obtiene o crea un token UUID en sesión y redirige a la URL segura."""
+    token = request.session.get('dashboard_token')
+    if not token:
+        token = str(uuid.uuid4())
+        request.session['dashboard_token'] = token
+        request.session.modified = True
+    return redirect('dashboard_token', token=token)
+
+
+@login_required
+def dashboard(request, token=None):
+    """Portal central post-login protegido por token."""
+    token_sesion = request.session.get('dashboard_token')
+    token_str = str(token) if token else None
+
+    # Si la sesión no tiene token aún, lo asignamos directamente al actual
+    if not token_sesion:
+        if token_str:
+            request.session['dashboard_token'] = token_str
+            token_sesion = token_str
+        else:
+            return redirect('dashboard')
+
+    # Si el token de la URL no coincide con la sesión, enviar a la ruta base
+    if token_str != token_sesion:
+        return redirect('dashboard')
+
     user = request.user
     es_docente = user.groups.filter(name='Docentes').exists()
 
@@ -1778,3 +1819,63 @@ def gestionar_temporada(request):
                 messages.warning(request, f"La temporada '{periodo.nombre}' ha sido culminada. El ciclo quedó cerrado.")
 
     return redirect('admin_dashboard')
+
+@login_required
+def configurar_2fa(request):
+    """Permite al docente o administrador vincular Google Authenticator."""
+    user = request.user
+    dispositivo_confirmado = TOTPDevice.objects.filter(user=user, confirmed=True).first()
+
+    if request.method == 'POST':
+        token = request.POST.get('token', '').strip()
+        dispositivo_temp = TOTPDevice.objects.filter(user=user, confirmed=False).last()
+
+        if dispositivo_temp and dispositivo_temp.verify_token(token):
+            dispositivo_temp.confirmed = True
+            dispositivo_temp.save()
+            TOTPDevice.objects.filter(user=user, confirmed=True).exclude(id=dispositivo_temp.id).delete()
+            registrar_log(request, "Seguridad 2FA", "Activó el doble factor de autenticación")
+            messages.success(request, "Doble factor de autenticación (2FA) activado correctamente.")
+            return redirect('mi_perfil')
+        else:
+            messages.error(request, "Código incorrecto o expirado. Inténtalo nuevamente.")
+
+    dispositivo_temp = TOTPDevice.objects.filter(user=user, confirmed=False).last()
+    if not dispositivo_temp:
+        dispositivo_temp = TOTPDevice.objects.create(user=user, name="Default", confirmed=False)
+
+    qr = qrcode.make(dispositivo_temp.config_url)
+    buffer = io.BytesIO()
+    qr.save(buffer, format="PNG")
+    qr_b64 = base64.b64encode(buffer.getvalue()).decode()
+
+    context = {
+        'tiene_2fa': dispositivo_confirmado is not None,
+        'qr_b64': qr_b64,
+        'secret_key': dispositivo_temp.key,
+    }
+    return render(request, 'configurar_2fa.html', context)
+
+
+@login_required
+def verificar_2fa(request):
+    """Solicita el código de 6 dígitos si la cuenta tiene 2FA activado."""
+    user = request.user
+    tiene_dispositivo = TOTPDevice.objects.filter(user=user, confirmed=True).exists()
+
+    # Si ya completó el paso OTP o no tiene 2FA configurado, pasa directo
+    if getattr(user, 'is_verified', lambda: False)() or not tiene_dispositivo:
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        token = request.POST.get('token', '').strip()
+        dispositivo = TOTPDevice.objects.filter(user=user, confirmed=True).first()
+
+        if dispositivo and dispositivo.verify_token(token):
+            otp_login(request, dispositivo)
+            registrar_log(request, "Inicio de Sesión 2FA", "Verificación TOTP exitosa")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Código de 6 dígitos inválido. Revisa tu aplicación Authenticator.")
+
+    return render(request, 'verificar_2fa.html')

@@ -9,11 +9,14 @@ urlpatterns = [
     # ==============================================================================
     # 1. CORE, AUTENTICACIÓN Y NAVEGACIÓN PRINCIPAL
     # ==============================================================================
-    path('admin/', admin.site.urls),
+    path('panel-k8f9a2b71c4e90d/', admin.site.urls),
     path('', views.inicio_publico, name='inicio_publico'),
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/<uuid:token>/', views.dashboard, name='dashboard_token'),
+    path('dashboard/', views.redirigir_dashboard, name='dashboard'),
     path('perfil/', views.mi_perfil, name='mi_perfil'),
     path('salir/', views.salir, name='salir'),
+    path('seguridad/2fa/configurar/', views.configurar_2fa, name='configurar_2fa'),
+    path('seguridad/2fa/verificar/', views.verificar_2fa, name='verificar_2fa'),
 
     # Autenticación estándar
     path('cuentas/login/', views.CustomLoginView.as_view(), name='login'),

@@ -145,6 +145,18 @@
                         <div class="profile-field-label">✉️ Correo Electrónico</div>
                         <div class="profile-field-value">{{ request.user.email|default:"Sin correo registrado" }}</div>
                     </div>
+                    <div class="seguridad-card"
+                        style="margin-top: 20px; padding: 18px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;">
+                        <h3 style="margin-top: 0; font-size: 16px; color: #0f172a;">🔐 Seguridad de la Cuenta</h3>
+                        <p style="font-size: 13.5px; color: #64748b; margin-bottom: 15px;">
+                            Protege tu acceso institucional añadiendo una capa extra de verificación por código
+                            temporal.
+                        </p>
+                        <a href="{% url 'configurar_2fa' %}" class="btn-submit"
+                            style="display: inline-block; padding: 8px 16px; text-decoration: none; font-size: 13.5px; width: auto;">
+                            Configurar Doble Factor (2FA)
+                        </a>
+                    </div>
 
                 </div>
 

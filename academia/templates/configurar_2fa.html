@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar 2FA | Academia Galeno</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body style="background: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
+
+    <div style="max-width: 480px; width: 100%; background: #ffffff; border-radius: 12px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="margin: 0 0 8px 0; color: #0f172a; font-size: 22px;">🛡️ Configurar Doble Factor (2FA)</h2>
+            <p style="color: #64748b; font-size: 14px; margin: 0; line-height: 1.5;">
+                Escanea este código QR con <strong>Google Authenticator</strong> o <strong>Microsoft Authenticator</strong> en tu celular.
+            </p>
+        </div>
+
+        {% if messages %}
+            <div class="login-alerts-container">
+                {% for message in messages %}
+                    <div class="login-alert-box">⚠️ {{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="data:image/png;base64,{{ qr_b64 }}" alt="Código QR 2FA" style="border: 2px solid #cbd5e1; border-radius: 10px; padding: 10px; width: 200px; height: 200px;">
+            
+            <div style="margin-top: 10px;">
+                <span style="font-size: 12px; color: #94a3b8;">Clave manual alternativa:</span>
+                <p style="font-family: monospace; font-size: 13px; color: #334155; font-weight: bold; margin: 4px 0;">{{ secret_key }}</p>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label for="token" style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; text-align: center;">
+                    Ingresa el código temporal de 6 dígitos que muestra tu app:
+                </label>
+                <input 
+                    type="text" 
+                    name="token" 
+                    id="token" 
+                    maxlength="6" 
+                    inputmode="numeric" 
+                    pattern="[0-9]*" 
+                    required 
+                    placeholder="000000"
+                    style="width: 100%; box-sizing: border-box; text-align: center; font-size: 20px; letter-spacing: 5px; font-weight: bold; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;"
+                >
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'mi_perfil' %}" style="flex: 1; text-align: center; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; text-decoration: none; color: #475569; font-weight: 600; font-size: 14px;">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn-submit" style="flex: 2; margin: 0; padding: 10px;">
+                    Activar 2FA
+                </button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

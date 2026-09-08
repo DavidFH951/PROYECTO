@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Seguridad (2FA) | Academia Galeno</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}?v=1.2">
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="login-header">
+            <div style="font-size: 38px; margin-bottom: 8px;">🔐</div>
+            <h2>Doble Factor de Seguridad</h2>
+            <p>Ingresa el código de 6 dígitos generado por tu aplicación autenticadora (Google Authenticator o Authy).</p>
+        </div>
+
+        {% if messages %}
+            <div class="login-alerts-container">
+                {% for message in messages %}
+                    <div class="login-alert-box">
+                        ⚠️ {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="token">Código de 6 dígitos</label>
+                <input 
+                    type="text" 
+                    id="token" 
+                    name="token" 
+                    maxlength="6" 
+                    inputmode="numeric" 
+                    pattern="[0-9]*" 
+                    placeholder="000000" 
+                    required 
+                    autofocus 
+                    autocomplete="off"
+                    style="font-size: 22px; letter-spacing: 6px; text-align: center; font-weight: bold;"
+                >
+            </div>
+
+            <button type="submit" class="btn-submit">Confirmar Acceso</button>
+
+            <div style="margin-top: 18px; text-align: center;">
+                <a href="{% url 'salir' %}" style="font-size: 13px; color: #64748b; text-decoration: none;">
+                    Cancelar e iniciar con otra cuenta
+                </a>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
