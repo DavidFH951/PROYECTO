@@ -456,6 +456,12 @@ class Asistencia(models.Model):
 
 
 class Material(models.Model):
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='materiales')
+    titulo = models.CharField(max_length=200)
+    semana = models.IntegerField(default=1)
+    archivo = models.FileField(upload_to='materiales/', blank=True, null=True)
+    enlace_web = models.URLField(blank=True, null=True)
+    fecha_subida = models.DateTimeField(auto_now_add=True)
     # ... tus campos actuales ...
     archivo = models.FileField(
         upload_to='materiales/', 
@@ -463,3 +469,5 @@ class Material(models.Model):
         null=True,
         validators=[validar_archivo_material]
     )
+    def __str__(self):
+        return f"{self.titulo} - {self.curso.titulo}"
