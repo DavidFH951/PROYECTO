@@ -1,187 +1,94 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de Notas | Aula Virtual Academia Galeno</title>
+    <title>Consulta de Notas | Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
-    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.0">
 </head>
+<body class="intranet-layout">
 
-<body style="background-color: #f8fafc; font-family: 'Inter', sans-serif;">
+    <!-- 1. Sidebar Modular Inyectado -->
+    {% include 'componentes/sidebar_estudiante.html' with seccion_activa='notas' %}
 
-    <!-- Barra Superior Homogénea -->
-    <header class="top-nav">
-        <div style="display: flex; align-items: center; gap: 25px;">
-            <a href="{% url 'dashboard' %}" class="brand-container">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img"
-                    style="height: 38px; width: auto; max-width: 45px; object-fit: contain; display: block;">
-                <div class="brand-text-block">
-                    <span class="brand-title">Academia Galeno</span>
-                    <span class="brand-subtitle">Aula Virtual</span>
-                </div>
-            </a>
-
-            <nav style="display: flex; gap: 15px; align-items: center;">
-                <a href="{% url 'dashboard' %}" class="nav-tab-item">Mis Cursos</a>
-                <a href="{% url 'mis_notas' %}" class="nav-tab-item active">Historial de Notas</a>
-                <a href="{% url 'mi_perfil' %}" class="nav-tab-item">Mi Perfil</a>
-            </nav>
-        </div>
-
-        <!-- Perfil y Menú Desplegable -->
-        <div class="user-dropdown-container">
-            <div class="user-profile-trigger">
+    <!-- Contenedor Principal Derecho -->
+    <div class="intranet-main-content">
+        
+        <!-- Header superior de bienvenida / usuario -->
+        <header class="intranet-topbar">
+            <div class="topbar-welcome">
+                Bienvenido/a <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+            </div>
+            
+            <div class="user-dropdown-container">
                 <div class="user-avatar-circle">
                     {{ request.user.first_name|first|default:request.user.username|first }}
                 </div>
                 <span class="user-trigger-text">
                     {{ request.user.get_full_name|default:request.user.username }}
+                    <small>ESTUDIANTE</small>
                 </span>
-                <span class="dropdown-arrow">▼</span>
             </div>
+        </header>
 
-            <div class="user-dropdown-menu">
-                <div class="dropdown-user-info">
-                    <div class="dropdown-user-name">
-                        {{ request.user.get_full_name|default:request.user.username }}
+        <!-- Mensajes del sistema -->
+        {% include 'componentes/mensajes.html' %}
+
+        <!-- Bloque de Registro Académico de Evaluaciones -->
+        <main class="intranet-body">
+            <div class="academic-card">
+                <div class="academic-card-header">
+                    <div>
+                        <h2>📊 Registro Académico de Evaluaciones</h2>
+                        <p>Consulta tus calificaciones detalladas, promedios y estado por asignatura.</p>
                     </div>
-                    <div class="dropdown-user-email">
-                        {{ request.user.email|default:"Sin correo registrado" }}
-                    </div>
-                    <span class="dropdown-user-badge">
-                        {% if request.user.is_staff or request.user.is_superuser %}Administrador{% else %}Alumno{% endif %}
-                    </span>
-                </div>
-
-                <div class="dropdown-menu-list">
-                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
-                    <a href="{% url 'dashboard' %}" class="dropdown-menu-item">📚 Mis Cursos</a>
-                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Contenido Principal -->
-    <main class="portal-container">
-
-        <div class="card-panel">
-
-            <div class="panel-header-block">
-                <div class="panel-title-area">
-                    <h2>📊 Registro Académico de Evaluaciones</h2>
-                    <p>Consulta tus calificaciones detalladas, promedios y estado por asignatura.</p>
-                </div>
-
-                <div class="custom-period-dropdown" id="periodDropdown">
-                    <button type="button" class="period-toggle-btn" onclick="togglePeriodMenu(event)">
-                        <span class="period-label">Período:</span>
-                        <span class="period-selected-name">{{ periodo_actual.nombre|default:"Temporada Actual" }}</span>
-                        <span class="period-arrow">▾</span>
-                    </button>
-
-                    <div class="period-menu-list" id="periodMenuList">
-                        {% for per in periodos %}
-                        <a href="?periodo={{ per.id }}" 
-                           class="period-menu-item {% if periodo_actual and per.id == periodo_actual.id %}active{% endif %}">
-                            {{ per.nombre }}
-                        </a>
-                        {% empty %}
-                        <span class="period-menu-item disabled">Temporada Actual</span>
-                        {% endfor %}
+                    <div class="periodo-badge">
+                        PERÍODO: <strong>{{ periodo_activo.nombre|default:"Ciclo Regular" }}</strong>
                     </div>
                 </div>
-            </div>
 
-            <div class="table-responsive-wrapper">
-                <table class="academic-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%;">Código</th>
-                            <th style="width: 30%;">Área / Especialidad</th>
-                            <th style="width: 30%;">Curso Matriculado</th>
-                            <th style="width: 10%; text-align: center;">Grupo</th>
-                            <th style="width: 15%; text-align: center;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rep in reporte_cursos %}
-                        <tr>
-                            <td><span class="badge-code">{{ rep.curso.codigo|default:"MED-0001" }}</span></td>
-                            <td style="color: #64748b; font-weight: 500;">{{ rep.curso.area|default:"Pregrado • Ciencias Médicas" }}</td>
-                            <td><strong style="color: #0f172a; font-size: 0.95rem;">{{ rep.curso.titulo }}</strong></td>
-                            <td style="text-align: center;"><span class="badge-group">01</span></td>
-                            <td style="text-align: center;">
-                                <button type="button" 
-                                    class="btn-ver-notas" 
-                                    data-curso="{{ rep.curso.titulo }}"
-                                    data-formula="{{ rep.formula|default:'No definida' }}"
-                                    data-promedio="{{ rep.promedio|default:'' }}"
-                                    data-evaluaciones="{{ rep.evaluaciones_json|default:'[]' }}"
-                                    onclick="abrirModalNotas(this)">
-                                    <span>📝</span> VER NOTAS
-                                </button>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 48px 20px; color: #64748b;">
-                                <div style="font-size: 32px; margin-bottom: 8px;">📚</div>
-                                <strong style="display: block; font-size: 1rem; color: #1e293b; margin-bottom: 4px;">
-                                    No tienes cursos matriculados en este período académico.
-                                </strong>
-                                <span style="font-size: 0.85rem;">Si crees que esto es un error, contacta con secretaría docente.</span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-
-    </main>
-
-    <!-- Modal Moderno de Evaluaciones -->
-    <div id="modalNotas" class="modal-overlay" style="display: none;">
-        <div class="modal-dialog">
-            <div class="modal-header">
-                <h3><span>🩺</span> <span id="modalCursoTitulo">Evaluaciones del Curso</span></h3>
-                <button type="button" class="btn-close-x" onclick="cerrarModalNotas()">×</button>
-            </div>
-
-            <div class="modal-body">
-                <table class="eval-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 25%;">Código</th>
-                            <th style="width: 50%;">Evaluación</th>
-                            <th style="width: 25%; text-align: right;">Nota</th>
-                        </tr>
-                    </thead>
-                    <tbody id="modalEvaluacionesBody">
-                        <!-- Llenado dinámico por JS -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="modal-footer">
-                <div class="formula-info">
-                    <strong>Fórmula:</strong> <code id="modalFormulaTexto">—</code>
+                <!-- Tabla de notas -->
+                <div class="table-responsive">
+                    <table class="academic-table">
+                        <thead>
+                            <tr>
+                                <th>CÓDIGO</th>
+                                <th>ÁREA / ESPECIALIDAD</th>
+                                <th>CURSO MATRICULADO</th>
+                                <th>GRUPO</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for matricula in matriculas %}
+                            <tr>
+                                <td><span class="badge-code">{{ matricula.curso.codigo }}</span></td>
+                                <td>Pregrado • {{ matricula.curso.especialidad|default:"Ciencias Médicas" }}</td>
+                                <td><strong>{{ matricula.curso.nombre }}</strong></td>
+                                <td><span class="badge-group">{{ matricula.grupo|default:"01" }}</span></td>
+                                <td>
+                                    <a href="{% url 'detalle_notas_curso' matricula.curso.id %}" class="btn-ver-notas">
+                                        📝 VER NOTAS
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 20px; color: #64748b;">
+                                    No tienes asignaturas matriculadas en el período vigente.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <button type="button" class="btn-modal-close" onclick="cerrarModalNotas()">Cerrar</button>
             </div>
-        </div>
+        </main>
+
     </div>
 
-    <!-- Script Modular Externo -->
-    <script src="{% static 'js/mis_notas.js' %}?v=3.0" defer></script>
-
 </body>
-
 </html>

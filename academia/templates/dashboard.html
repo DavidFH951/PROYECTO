@@ -11,60 +11,15 @@
 </head>
 <body>
 
-    <!-- Barra de Navegación Superior Unificada -->
-    <header class="top-nav" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; background: #ffffff; border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-        
-        <!-- Logo Institucional -->
-        <div style="display: flex; align-items: center; gap: 30px;">
-            <a href="{% url 'dashboard' %}" class="brand-container" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img" style="height: 38px; width: auto; object-fit: contain;">
-                <div class="brand-text-block" style="display: flex; flex-direction: column;">
-                    <span class="brand-title" style="font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.1;">Academia Galeno</span>
-                    <span class="brand-subtitle" style="font-size: 11px; font-weight: 700; color: #2563eb; letter-spacing: 0.5px;">AULA VIRTUAL ALUMNO</span>
-                </div>
-            </a>
-
-            <!-- Enlaces de navegación -->
-            <nav class="nav-links" style="display: flex; gap: 18px; margin-left: 10px;">
-                <a href="{% url 'dashboard' %}" class="active" style="color: #2563eb; font-weight: 700; text-decoration: none; font-size: 13.5px; border-bottom: 2px solid #2563eb; padding-bottom: 4px;">Mis Cursos</a>
-                <a href="{% url 'mis_notas' %}" style="color: #64748b; font-weight: 600; text-decoration: none; font-size: 13.5px;">Historial de Notas</a>
-                <a href="{% url 'mi_perfil' %}" style="color: #64748b; font-weight: 600; text-decoration: none; font-size: 13.5px;">Mi Perfil</a>
-            </nav>
-        </div>
-
-        <!-- Menú Desplegable de Usuario -->
-        <div class="user-dropdown-container">
-            <div class="user-profile-trigger">
-                <div class="user-avatar-circle">
-                    {{ request.user.first_name|first|default:request.user.username|first }}
-                </div>
-                <span class="user-trigger-text">
-                    {{ request.user.first_name|default:request.user.username }}
-                </span>
-                <span class="dropdown-arrow">▼</span>
-            </div>
-
-            <div class="user-dropdown-menu">
-                <div class="dropdown-user-info">
-                    <div class="dropdown-user-name">
-                        {{ request.user.get_full_name|default:request.user.username }}
-                    </div>
-                    <div class="dropdown-user-email">
-                        {{ request.user.email|default:"Sin correo registrado" }}
-                    </div>
-                    <span class="dropdown-user-badge" style="background: #e0f2fe; color: #0369a1;">Estudiante</span>
-                </div>
-                <div class="dropdown-menu-list">
-                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
-                    <a href="{% url 'mis_notas' %}" class="dropdown-menu-item">📊 Mis Notas</a>
-                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
-                </div>
-            </div>
-        </div>
-    </header>
+    <!-- 1. Barra Superior Modular Institucional -->
+    {% include 'componentes/navbar.html' %}
 
     <!-- Contenedor Principal -->
     <main class="main-container">
+
+        <!-- 2. Alertas Modulares -->
+        {% include 'componentes/mensajes.html' %}
+
         <h1 class="welcome-title">¡Bienvenido(a) de nuevo, {{ request.user.first_name|default:request.user.username }}! 👋</h1>
 
         <h3 style="color: #64748b; margin-bottom: 25px; font-size: 17px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 10px; font-weight: 700;">
@@ -74,15 +29,13 @@
         <div class="courses-grid">
             {% for inscripcion in inscripciones %}
                 <div class="course-card">
-                    
-                   <!-- Portada del Curso: Si tiene imagen la muestra con background-image, si no, usa el color de respaldo -->
-<div class="course-banner {% if not inscripcion.curso.imagen_portada %}{% cycle 'bg-fallback-1' 'bg-fallback-2' 'bg-fallback-3' %}{% endif %}"
-     {% if inscripcion.curso.imagen_portada %}style="background-image: url('{{ inscripcion.curso.imagen_portada.url }}') !important;"{% endif %}>
-    
-    {% if inscripcion.curso.estado %}
-        <span class="badge-status">ACTIVO</span>
-    {% endif %}
-</div>
+                    <!-- Portada del Curso -->
+                    <div class="course-banner {% if not inscripcion.curso.imagen_portada %}{% cycle 'bg-fallback-1' 'bg-fallback-2' 'bg-fallback-3' %}{% endif %}"
+                         {% if inscripcion.curso.imagen_portada %}style="background-image: url('{{ inscripcion.curso.imagen_portada.url }}') !important;"{% endif %}>
+                        {% if inscripcion.curso.estado %}
+                            <span class="badge-status">ACTIVO</span>
+                        {% endif %}
+                    </div>
 
                     <div class="course-info">
                         <div>
@@ -112,6 +65,9 @@
             {% endfor %}
         </div>
     </main>
+
+    <!-- Script Modular Externo para Menús y Acciones -->
+    <script src="{% static 'js/admin_dashboard.js' %}?v=1.0" defer></script>
 
 </body>
 </html>
