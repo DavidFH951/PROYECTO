@@ -10,53 +10,64 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
     <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
-    <link rel="stylesheet" href="{% static 'css/docente_asistencia.css' %}?v=1.2">
+    <link rel="stylesheet" href="{% static 'css/docente_asistencia.css' %}?v=1.3">
 </head>
 
 <body class="intranet-body">
 
     <div class="intranet-layout">
 
-        <!-- 1. Barra Lateral Modular de la Intranet -->
         {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencia_docente' es_docente=True %}
 
-        <!-- 2. Área Principal Derecha -->
         <div class="intranet-main">
 
-            <!-- Barra Superior Modular -->
             {% include 'componentes/topbar_intranet.html' with es_docente=True %}
 
-            <!-- Alertas del Sistema -->
             <div style="padding: 18px 32px 0 32px;">
                 {% include 'componentes/mensajes.html' %}
             </div>
 
-            <!-- Contenido de Asistencia -->
             <main class="intranet-content" style="padding-top: 14px;">
 
-                <div class="asistencia-container" style="max-width: 100%; margin: 0; padding: 0;">
+                <div class="asistencia-container">
+
+                    <!-- Barra de Sesiones -->
+                    <div class="sesiones-nav-container">
+                        <div class="sesiones-scroll-list">
+                            {% for s in sesiones_existentes %}
+                            <a href="?fecha={{ s.fecha_str }}" 
+                               class="sesion-tab-item {% if s.fecha_str == fecha_sesion %}active{% endif %}">
+                                <span class="sesion-tab-num">Sesión {{ s.numero }}</span>
+                                <span class="sesion-tab-date">{{ s.fecha_formateada }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Botón para iniciar la sesión de hoy -->
+                        <a href="?fecha={{ hoy_str }}" class="btn-nueva-sesion">
+                            <span>➕</span> Nueva Sesión
+                        </a>
+                    </div>
 
                     <div class="card-asistencia">
 
                         <div class="header-section">
                             <div class="title-group">
-                                <h2>📋 Control de Asistencia Diaria</h2>
-                                <p>{{ curso.titulo }}</p>
+                                <h2>Sesión {{ sesion_actual_num }} — {{ curso.titulo }}</h2>
+                                <p>Fecha programada: <strong>{{ fecha_sesion }}</strong></p>
                             </div>
 
-                            <form method="GET">
-                                <div class="date-picker-box">
-                                    <label for="fecha">Sesión:</label>
-                                    <input type="date" id="fecha" name="fecha" value="{{ fecha_sesion }}"
-                                        onchange="this.form.submit()">
-                                </div>
+                            <!-- Selector secundario discreto por si necesita cambiar la fecha puntual -->
+                            <form method="GET" class="fecha-inline-box">
+                                <label for="fecha">Cambiar fecha:</label>
+                                <input type="date" id="fecha" name="fecha" value="{{ fecha_sesion }}" onchange="this.form.submit()">
                             </form>
                         </div>
 
                         {% if filas %}
                         <form method="POST">
                             {% csrf_token %}
-                            <input type="hidden" name="semana" value="{{ semana }}">
+                            <input type="hidden" name="semana" value="{{ sesion_actual_num }}">
                             <input type="hidden" name="fecha" value="{{ fecha_sesion }}">
 
                             <div class="table-responsive">
@@ -118,8 +129,8 @@
                                 </table>
                             </div>
 
-                            <div class="form-actions" style="margin-top: 24px;">
-                                <button type="submit" class="btn-submit-asistencia">💾 Guardar Asistencia</button>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-submit-asistencia">💾 Guardar Asistencia de la Sesión</button>
                             </div>
                         </form>
                         {% else %}

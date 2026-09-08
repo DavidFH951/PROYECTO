@@ -679,7 +679,7 @@ def docente_mis_asistencias(request):
 
 @login_required
 def docente_asistencia_curso(request, curso_id):
-    """Toma de lista diaria del docente con actualización de fecha y semana."""
+    """Toma de lista por sesiones ordenadas del docente."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     # Blindaje Anti-IDOR
@@ -687,15 +687,57 @@ def docente_asistencia_curso(request, curso_id):
         messages.error(request, "No tienes permisos para gestionar este curso.")
         return redirect('panel_docente')
 
-    semana = int(request.GET.get('semana', 1))
-    fecha_str = request.GET.get('fecha', str(date.today()))
-    try:
-        fecha_sesion = date.fromisoformat(fecha_str)
-    except ValueError:
+    # 1. Obtener todas las fechas con asistencia registrada en este curso (ordenadas)
+    fechas_qs = (
+        Asistencia.objects.filter(curso=curso)
+        .values_list('fecha', flat=True)
+        .distinct()
+        .order_by('fecha')
+    )
+    
+    sesiones_existentes = []
+    for idx, f in enumerate(fechas_qs, start=1):
+        sesiones_existentes.append({
+            'numero': idx,
+            'fecha': f,
+            'fecha_str': f.strftime('%Y-%m-%d'),
+            'fecha_formateada': f.strftime('%d/%m/%Y'),
+        })
+
+    # 2. Determinar la fecha activa
+    fecha_param = request.GET.get('fecha')
+    if fecha_param:
+        try:
+            fecha_sesion = date.fromisoformat(fecha_param)
+        except ValueError:
+            fecha_sesion = date.today()
+    elif sesiones_existentes:
+        # Por defecto abre la última sesión registrada
+        fecha_sesion = sesiones_existentes[-1]['fecha']
+    else:
+        # Si no hay ninguna creada, toma la fecha de hoy
         fecha_sesion = date.today()
 
-    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
+    # Identificar el número de sesión actual
+    sesion_actual_num = None
+    for s in sesiones_existentes:
+        if s['fecha'] == fecha_sesion:
+            sesion_actual_num = s['numero']
+            break
 
+    # Si la fecha actual no está registrada aún, es una sesión nueva (última + 1)
+    if sesion_actual_num is None:
+        sesion_actual_num = len(sesiones_existentes) + 1
+
+    semana = int(request.GET.get('semana', sesion_actual_num))
+
+    inscripciones = (
+        Inscripcion.objects.filter(curso=curso)
+        .select_related('alumno')
+        .order_by('alumno__last_name', 'alumno__first_name')
+    )
+
+    # 3. Guardar asistencias
     if request.method == 'POST':
         semana_post = int(request.POST.get('semana', semana))
         fecha_post_str = request.POST.get('fecha', str(fecha_sesion))
@@ -725,11 +767,12 @@ def docente_asistencia_curso(request, curso_id):
         registrar_log(
             request, 
             "Control Asistencia", 
-            f"Registró asistencia (Sem {semana_post}, {fecha_guardar}) para {total_marcados} alumno(s) en '{curso.titulo}'"
+            f"Registró asistencia (Sesión {sesion_actual_num} - {fecha_guardar}) para {total_marcados} alumno(s) en '{curso.titulo}'"
         )
-        messages.success(request, f"Asistencia guardada correctamente para el curso '{curso.titulo}' ({fecha_guardar}).")
+        messages.success(request, f"Asistencia guardada para la Sesión {sesion_actual_num} ({fecha_guardar.strftime('%d/%m/%Y')}).")
         return redirect(f"{request.path}?fecha={fecha_guardar}&semana={semana_post}")
 
+    # 4. Cargar asistencias existentes para la fecha seleccionada
     asistencias_existentes = {
         a.alumno_id: a.estado
         for a in Asistencia.objects.filter(curso=curso, fecha=fecha_sesion)
@@ -744,11 +787,16 @@ def docente_asistencia_curso(request, curso_id):
                 'estado': asistencias_existentes.get(insc.alumno.id, 'P')
             })
 
+    hoy_str = date.today().strftime('%Y-%m-%d')
+
     context = {
         'curso': curso,
         'semana': semana,
         'fecha_sesion': fecha_sesion.strftime('%Y-%m-%d'),
+        'sesiones_existentes': sesiones_existentes,
+        'sesion_actual_num': sesion_actual_num,
         'filas': filas,
+        'hoy_str': hoy_str,
     }
     return render(request, 'docente_asistencia.html', context)
 
