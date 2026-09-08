@@ -1,24 +1,24 @@
 {% load static %}
 <!-- Barra Superior Global -->
 <header class="top-nav">
-    <a href="{% if request.user.is_superuser or request.user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'mis_cursos' %}{% endif %}"
+    <a href="{% if request.user.is_superuser or request.user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}"
         class="brand-container">
         <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
         <div class="brand-text-block">
             <span class="brand-title">Academia Galeno</span>
             <span class="brand-subtitle">
                 {% if request.user.is_superuser or request.user.is_staff %}
-                PANEL ADMINISTRADOR
+                    PANEL ADMINISTRADOR
                 {% elif request.user.groups.all.0.name == 'Docentes' %}
-                PORTAL DOCENTE
+                    PORTAL DOCENTE
                 {% else %}
-                AULA VIRTUAL
+                    AULA VIRTUAL
                 {% endif %}
             </span>
         </div>
     </a>
 
-    <!-- Menú Central de Enlaces -->
+    <!-- Menú Central de Enlaces (Exclusivo para Alumnos) -->
     <nav class="nav-links-center" style="display: flex; gap: 15px; align-items: center;">
         {% if not request.user.is_superuser and not request.user.is_staff %}
             {% if request.user.groups.all.0.name != 'Docentes' %}
@@ -29,7 +29,9 @@
                     Historial de Notas
                 </a>
             {% endif %}
+        {% endif %}
     </nav>
+
     <!-- Menú de Usuario con Avatar -->
     <div class="user-dropdown-container">
         <div class="user-profile-trigger">
@@ -52,11 +54,11 @@
                 </div>
                 <span class="dropdown-user-badge">
                     {% if request.user.is_superuser or request.user.is_staff %}
-                    Administrador
+                        Administrador
                     {% elif request.user.groups.all.0.name == 'Docentes' %}
-                    Docente
+                        Docente
                     {% else %}
-                    Alumno
+                        Alumno
                     {% endif %}
                 </span>
             </div>
@@ -67,13 +69,13 @@
                 </a>
 
                 {% if request.user.is_superuser or request.user.is_staff %}
-                <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
-                    ⚙️ Panel de Control
-                </a>
-                {% else %}
-                <a href="{% url 'mis_cursos' %}" class="dropdown-menu-item">
-                    📚 Mis Cursos
-                </a>
+                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
+                        ⚙️ Panel de Control
+                    </a>
+                {% elif request.user.groups.all.0.name != 'Docentes' %}
+                    <a href="{% url 'dashboard' %}" class="dropdown-menu-item">
+                        📚 Mis Cursos
+                    </a>
                 {% endif %}
 
                 <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
