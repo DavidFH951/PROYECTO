@@ -1,7 +1,0 @@
-{% if messages %}
-    {% for message in messages %}
-        <div class="{% if message.tags == 'error' %}alert-box-error{% elif message.tags == 'warning' %}alert-box-warning{% elif message.tags == 'info' %}alert-box-info{% else %}alert-box-success{% endif %}">
-            {{ message }}
-        </div>
-    {% endfor %}
-{% endif %}

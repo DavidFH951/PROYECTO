@@ -5,7 +5,8 @@
         Usuarios</a>
     <a href="{% url 'admin_cursos_lista' %}"
         class="nav-tab-item {% if pestana_activa == 'cursos' %}active{% endif %}">📚 Cursos Registrados</a>
-    <button type="button" class="nav-tab-item" onclick="abrirModalTemporadas()"
+
+    <button type="button" class="nav-tab-item" id="btnAbrirTemporadas" onclick="abrirModalTemporadas()"
         style="background:none; border:none; cursor:pointer; font-size:inherit; font-family:inherit;">
         🗓️ Temporadas / Períodos
     </button>
