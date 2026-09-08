@@ -3,9 +3,10 @@
    ============================================================================== */
 
 .calificaciones-docente-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px 32px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .calificaciones-header-block {
@@ -39,7 +40,7 @@
 
 .calificaciones-table-header {
     display: grid;
-    grid-template-columns: 120px 1fr 140px 160px;
+    grid-template-columns: 140px 1fr 140px 170px;
     padding: 12px 20px;
     background: #f8fafc;
     border-bottom: 1px solid #e2e8f0;
@@ -52,7 +53,7 @@
 
 .calificacion-row-item {
     display: grid;
-    grid-template-columns: 120px 1fr 140px 160px;
+    grid-template-columns: 140px 1fr 140px 170px;
     align-items: center;
     padding: 14px 20px;
     border-bottom: 1px solid #f1f5f9;
@@ -69,12 +70,12 @@
 
 .periodo-pill {
     display: inline-block;
-    background: #f1f5f9;
-    color: #475569;
+    background: #e0f2fe;
+    color: #0369a1;
     font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 6px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 9999px;
     width: fit-content;
 }
 
@@ -97,12 +98,12 @@
     gap: 6px;
     background: #0284c7;
     color: #ffffff;
-    padding: 7px 14px;
-    border-radius: 6px;
-    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12.5px;
     font-weight: 700;
     text-decoration: none;
-    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    transition: background-color 0.15s ease, transform 0.1s ease;
     box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
 }
 
@@ -111,9 +112,29 @@
     color: #ffffff;
 }
 
+.btn-calificar-accion:active {
+    transform: scale(0.98);
+}
+
 .empty-state-docente {
     text-align: center;
     padding: 40px 20px;
     color: #94a3b8;
     font-size: 13.5px;
+}
+
+@media (max-width: 768px) {
+    .calificaciones-table-header {
+        display: none;
+    }
+
+    .calificacion-row-item {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 16px;
+    }
+
+    .btn-calificar-accion {
+        width: 100%;
+    }
 }

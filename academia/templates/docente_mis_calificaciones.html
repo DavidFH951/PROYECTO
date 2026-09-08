@@ -8,6 +8,7 @@
     <title>Registro de Notas | Academia Galeno</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
     <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
     <link rel="stylesheet" href="{% static 'css/docente_mis_calificaciones.css' %}?v=1.0">
 </head>
@@ -16,52 +17,23 @@
 
     <div class="intranet-layout">
 
-        <!-- Sidebar -->
-        <aside class="intranet-sidebar">
-            <div class="intranet-sidebar-header">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno">
-                <div>
-                    <span class="intranet-brand-title">Academia Galeno</span>
-                    <span class="intranet-brand-sub">Portal Docente</span>
-                </div>
-            </div>
+        <!-- 1. Barra Lateral Modular -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='notas_docente' es_docente=True %}
 
-            <nav class="intranet-menu">
-                <a href="{% url 'dashboard' %}" class="intranet-nav-link">
-                    <span>🏠</span> Inicio / Intranet
-                </a>
-                <a href="{% url 'panel_docente' %}" class="intranet-nav-link">
-                    <span>📚</span> Mis Asignaturas
-                </a>
-                <a href="{% url 'docente_mis_calificaciones' %}" class="intranet-nav-link active">
-                    <span>📊</span> Registro de Notas
-                </a>
-                <a href="{% url 'docente_mis_asistencias' %}" class="intranet-nav-link">
-                    <span>📋</span> Control de Asistencia
-                </a>
-                <a href="{% url 'mi_perfil' %}" class="intranet-nav-link">
-                    <span>👤</span> Mi Perfil
-                </a>
-                <a href="{% url 'salir' %}" class="intranet-nav-link logout" style="margin-top: auto;">
-                    <span>🚪</span> Cerrar Sesión
-                </a>
-            </nav>
-        </aside>
-
-        <!-- Contenido Central -->
+        <!-- 2. Área Principal Derecha -->
         <div class="intranet-main">
 
-            <header class="intranet-topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 28px;">
-                <div class="intranet-welcome-text" style="font-size: 15px; color: #334155;">
-                    Calificaciones de Asignaturas
-                </div>
-                <a href="{% url 'dashboard' %}" style="text-decoration: none; color: #0284c7; font-weight: 700; font-size: 13px;">
-                    ← Volver a Intranet
-                </a>
-            </header>
+            <!-- Barra Superior Modular -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=True %}
 
-            <main class="intranet-content">
-                <div class="calificaciones-docente-container">
+            <!-- Alertas del Sistema -->
+            <div style="padding: 18px 32px 0 32px;">
+                {% include 'componentes/mensajes.html' %}
+            </div>
+
+            <!-- Contenido Principal -->
+            <main class="intranet-content" style="padding-top: 14px;">
+                <div class="calificaciones-docente-container" style="max-width: 100%; margin: 0; padding: 0;">
                     
                     <div class="calificaciones-header-block">
                         <div>
