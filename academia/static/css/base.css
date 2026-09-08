@@ -253,12 +253,12 @@ body {
 }
 
 /* ====================================================
-   4. SIDEBAR MODULAR INTRANET (ESTUDIANTES)
+   4. SIDEBAR MODULAR INTRANET (ESTUDIANTES) - EXACTO
    ==================================================== */
 .sidebar-student {
     width: 250px;
     min-width: 250px;
-    background-color: var(--sidebar-bg);
+    background-color: #004b87 !important; /* Azul exacto de la Intranet */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -275,7 +275,7 @@ body {
     text-decoration: none;
     color: #ffffff;
     margin-bottom: 28px;
-    padding: 0 6px;
+    padding: 0 8px;
 }
 
 .sidebar-logo-img {
@@ -310,7 +310,7 @@ body {
 .sidebar-menu {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .sidebar-item {
@@ -318,24 +318,25 @@ body {
     align-items: center;
     gap: 12px;
     padding: 11px 16px;
-    border-radius: 8px;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 13.5px;
-    font-weight: 600;
-    color: #cbd5e1;
-    transition: all 0.2s ease;
+    font-weight: 500;
+    color: #e0edff;
+    transition: all 0.15s ease-in-out;
 }
 
 .sidebar-item:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.12);
 }
 
+/* Pastilla activa idéntica a la vista original */
 .sidebar-item.active {
-    background-color: #0284c7;
-    color: #ffffff;
+    background-color: #0088cc !important; /* Azul eléctrico original */
+    color: #ffffff !important;
     font-weight: 700;
-    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+    box-shadow: none;
 }
 
 .sidebar-icon {
@@ -347,17 +348,16 @@ body {
 .sidebar-footer {
     margin-top: auto;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-item.logout-link {
-    color: #f87171;
+    color: #ff8a80;
     font-weight: 700;
 }
 
 .sidebar-item.logout-link:hover {
-    background: rgba(239, 68, 68, 0.15);
-    color: #fca5a5;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ff5252;
 }
 
 /* ====================================================
