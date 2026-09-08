@@ -24,9 +24,9 @@
                     <span class="intranet-brand-title">Academia Galeno</span>
                     <span class="intranet-brand-sub">
                         {% if es_docente %}
-                            Portal Docente
+                        Portal Docente
                         {% else %}
-                            Portal Estudiantil
+                        Portal Estudiantil
                         {% endif %}
                     </span>
                 </div>
@@ -74,8 +74,9 @@
         <div class="intranet-main">
 
             <header class="intranet-topbar topbar-docente">
-                <div class="intranet-welcome-text welcome-docente">
-                    Bienvenido, profesor <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                <div class="intranet-welcome-text {% if es_docente %}welcome-docente{% endif %}">
+                    Bienvenido{% if es_docente %}, profesor{% endif %} <strong>{{
+                        request.user.get_full_name|default:request.user.username }}</strong>
                 </div>
 
                 <!-- Dropdown de Usuario / Docente -->
@@ -85,7 +86,8 @@
                             {{ request.user.first_name|first|default:request.user.username|first|upper }}
                         </div>
                         <div class="user-info-text">
-                            <span class="user-info-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                            <span class="user-info-name">{{ request.user.get_full_name|default:request.user.username
+                                }}</span>
                             <span class="user-info-role">
                                 {% if es_docente %}Docente Titular{% else %}Estudiante{% endif %}
                             </span>
@@ -132,7 +134,7 @@
                     <!-- Calendario Semanal -->
                     <div class="card-calendario-box">
                         <div class="card-calendario-header">
-                            <h3><span>📅</span> Calendario Semanal de Dictado</h3>
+                            <h3><span>📅</span> {% if es_docente %}Calendario Semanal de Dictado{% else %}Horario Semanal de Clases{% endif %}</h3>
                             <span class="badge-ciclo">Ciclo Regular</span>
                         </div>
 
@@ -141,13 +143,14 @@
                             <div class="calendar-col">
                                 <div class="calendar-col-header">Lun</div>
                                 {% for h in horarios %}
-                                    {% if h.dia == 1 or h.dia == '1' %}
-                                    <div class="class-badge-card">
-                                        <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
-                                        <span class="class-badge-title">{{ h.curso.titulo }}</span>
-                                        <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
-                                    </div>
-                                    {% endif %}
+                                {% if h.dia == 1 or h.dia == '1' %}
+                                <div class="class-badge-card">
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-title">{{ h.curso.titulo }}</span>
+                                    <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
+                                </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
 
@@ -155,13 +158,14 @@
                             <div class="calendar-col">
                                 <div class="calendar-col-header">Mar</div>
                                 {% for h in horarios %}
-                                    {% if h.dia == 2 or h.dia == '2' %}
-                                    <div class="class-badge-card">
-                                        <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
-                                        <span class="class-badge-title">{{ h.curso.titulo }}</span>
-                                        <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
-                                    </div>
-                                    {% endif %}
+                                {% if h.dia == 2 or h.dia == '2' %}
+                                <div class="class-badge-card">
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-title">{{ h.curso.titulo }}</span>
+                                    <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
+                                </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
 
@@ -169,13 +173,14 @@
                             <div class="calendar-col">
                                 <div class="calendar-col-header">Mié</div>
                                 {% for h in horarios %}
-                                    {% if h.dia == 3 or h.dia == '3' %}
-                                    <div class="class-badge-card">
-                                        <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
-                                        <span class="class-badge-title">{{ h.curso.titulo }}</span>
-                                        <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
-                                    </div>
-                                    {% endif %}
+                                {% if h.dia == 3 or h.dia == '3' %}
+                                <div class="class-badge-card">
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-title">{{ h.curso.titulo }}</span>
+                                    <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
+                                </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
 
@@ -183,13 +188,14 @@
                             <div class="calendar-col">
                                 <div class="calendar-col-header">Jue</div>
                                 {% for h in horarios %}
-                                    {% if h.dia == 4 or h.dia == '4' %}
-                                    <div class="class-badge-card">
-                                        <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
-                                        <span class="class-badge-title">{{ h.curso.titulo }}</span>
-                                        <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
-                                    </div>
-                                    {% endif %}
+                                {% if h.dia == 4 or h.dia == '4' %}
+                                <div class="class-badge-card">
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-title">{{ h.curso.titulo }}</span>
+                                    <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
+                                </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
 
@@ -197,13 +203,14 @@
                             <div class="calendar-col">
                                 <div class="calendar-col-header">Vie</div>
                                 {% for h in horarios %}
-                                    {% if h.dia == 5 or h.dia == '5' %}
-                                    <div class="class-badge-card">
-                                        <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
-                                        <span class="class-badge-title">{{ h.curso.titulo }}</span>
-                                        <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
-                                    </div>
-                                    {% endif %}
+                                {% if h.dia == 5 or h.dia == '5' %}
+                                <div class="class-badge-card">
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-title">{{ h.curso.titulo }}</span>
+                                    <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
+                                </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
 
@@ -211,13 +218,14 @@
                             <div class="calendar-col">
                                 <div class="calendar-col-header">Sáb</div>
                                 {% for h in horarios %}
-                                    {% if h.dia == 6 or h.dia == '6' %}
-                                    <div class="class-badge-card">
-                                        <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
-                                        <span class="class-badge-title">{{ h.curso.titulo }}</span>
-                                        <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
-                                    </div>
-                                    {% endif %}
+                                {% if h.dia == 6 or h.dia == '6' %}
+                                <div class="class-badge-card">
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-title">{{ h.curso.titulo }}</span>
+                                    <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
+                                </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
