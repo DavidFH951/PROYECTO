@@ -8,66 +8,33 @@
     <title>Historial de Notas | Aula Virtual Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
-    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.4">
+    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=3.1">
 </head>
 
-<body style="background-color: #f8fafc; font-family: 'Inter', sans-serif; margin: 0; padding: 0;">
+<body class="intranet-body">
 
-    <!-- Layout Principal: Sidebar a la izquierda + Contenido a la derecha -->
-    <div style="display: flex; min-height: 100vh; width: 100%;">
+    <div class="intranet-layout">
 
-        <!-- 1. Barra Lateral Azul Modular -->
+        <!-- 1. Barra Lateral Modular -->
         {% include 'componentes/sidebar_intranet.html' with seccion_activa='notas' %}
 
         <!-- 2. Área de Contenido Principal -->
-        <div style="flex: 1; display: flex; flex-direction: column; overflow-x: hidden;">
+        <div class="intranet-main">
             
-            <!-- Barra Superior Intranet con saludo y avatar -->
-            <header style="height: 65px; background: #ffffff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 32px; box-sizing: border-box;">
-                <div style="font-size: 14px; color: #475569;">
-                    Bienvenido(a) <strong style="color: #0f172a;">{{ request.user.get_full_name|default:request.user.username }}</strong>
-                </div>
-
-                <div class="user-dropdown-container">
-                    <div class="user-profile-trigger">
-                        <div class="user-avatar-circle">
-                            {{ request.user.first_name|first|default:request.user.username|first }}
-                        </div>
-                        <span class="user-trigger-text">
-                            {{ request.user.get_full_name|default:request.user.username }}
-                        </span>
-                        <span class="dropdown-arrow">▼</span>
-                    </div>
-
-                    <div class="user-dropdown-menu">
-                        <div class="dropdown-user-info">
-                            <div class="dropdown-user-name">
-                                {{ request.user.get_full_name|default:request.user.username }}
-                            </div>
-                            <div class="dropdown-user-email">
-                                {{ request.user.email|default:"Sin correo registrado" }}
-                            </div>
-                            <span class="dropdown-user-badge">Alumno</span>
-                        </div>
-                        <div class="dropdown-menu-list">
-                            <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
-                            <a href="{% url 'dashboard' %}" class="dropdown-menu-item">📚 Mis Cursos</a>
-                            <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <!-- Barra Superior Intranet Modular -->
+            {% include 'componentes/topbar_intranet.html' %}
 
             <!-- Alertas Modulares del Sistema -->
-            <div style="padding: 10px 32px 0 32px;">
+            <div style="padding: 18px 32px 0 32px;">
                 {% include 'componentes/mensajes.html' %}
             </div>
 
             <!-- Tabla de Registro Académico -->
-            <main class="portal-container" style="padding: 24px 32px; box-sizing: border-box; width: 100%; max-width: 100%;">
+            <main class="intranet-content" style="padding-top: 14px;">
 
-                <div class="card-panel">
+                <div class="card-panel" style="width: 100%; max-width: 100%; margin: 0;">
 
                     <div class="panel-header-block">
                         <div class="panel-title-area">
@@ -181,7 +148,7 @@
     </div>
 
     <!-- Scripts Modulares -->
-    <script src="{% static 'js/admin_dashboard.js' %}?v=1.0" defer></script>
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
     <script src="{% static 'js/mis_notas.js' %}?v=3.0" defer></script>
 
 </body>
