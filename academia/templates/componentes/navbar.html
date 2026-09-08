@@ -20,8 +20,8 @@
 
     <!-- Menú Central de Enlaces -->
     <nav class="nav-links-center">
-        {% if not request.user.is_superuser and not request.user.is_staff and request.user.groups.all.0.name !=
-        'Docentes' %}
+        {% if not request.user.is_superuser and not request.user.is_staff %}
+        {% if request.user.groups.all.0.name != 'Docentes' %}
         <a href="{% url 'dashboard' %}"
             class="nav-link {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'mis_cursos' %}active{% endif %}">
             Mis Cursos
@@ -30,6 +30,7 @@
             class="nav-link {% if request.resolver_match.url_name == 'mis_notas' %}active{% endif %}">
             Historial de Notas
         </a>
+        {% endif %}
         {% endif %}
 
         <a href="{% url 'mi_perfil' %}"
