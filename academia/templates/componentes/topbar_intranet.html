@@ -1,0 +1,46 @@
+{% load static %}
+<!-- Barra Superior Modular para Intranet -->
+<header class="intranet-topbar {% if es_docente or request.user.groups.all.0.name == 'Docentes' %}topbar-docente{% endif %}">
+    <div class="intranet-welcome-text {% if es_docente or request.user.groups.all.0.name == 'Docentes' %}welcome-docente{% endif %}">
+        Bienvenido{% if es_docente or request.user.groups.all.0.name == 'Docentes' %}, profesor{% endif %}
+        <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+    </div>
+
+    <!-- Dropdown de Usuario -->
+    <div class="user-dropdown-container">
+        <button type="button" class="user-profile-badge-btn">
+            <div class="user-avatar-circle">
+                {{ request.user.first_name|first|default:request.user.username|first|upper }}
+            </div>
+            <div class="user-info-text">
+                <span class="user-info-name">
+                    {{ request.user.get_full_name|default:request.user.username }}
+                </span>
+                <span class="user-info-role">
+                    {% if request.user.is_superuser or request.user.is_staff %}
+                        ADMINISTRADOR
+                    {% elif es_docente or request.user.groups.all.0.name == 'Docentes' %}
+                        DOCENTE TITULAR
+                    {% else %}
+                        ESTUDIANTE
+                    {% endif %}
+                </span>
+            </div>
+            <span class="dropdown-arrow-icon">▼</span>
+        </button>
+
+        <div id="userDropdownDocente" class="user-dropdown-menu">
+            <a href="{% url 'mi_perfil' %}" class="user-dropdown-item">
+                <span>👤</span> Mi Perfil
+            </a>
+            {% if request.user.is_superuser or request.user.is_staff %}
+                <a href="{% url 'admin_dashboard' %}" class="user-dropdown-item">
+                    <span>⚙️</span> Panel de Control
+                </a>
+            {% endif %}
+            <a href="{% url 'salir' %}" class="user-dropdown-item logout">
+                <span>🚪</span> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</header>

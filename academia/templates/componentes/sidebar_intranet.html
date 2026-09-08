@@ -1,40 +1,57 @@
 {% load static %}
-<!-- Sidebar Modular de Intranet -->
-<aside class="sidebar-student">
-    <div>
-        <!-- Logo e Institución -->
-        <a href="{% url 'dashboard' %}" class="sidebar-brand">
-            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="sidebar-logo-img">
-            <div class="sidebar-brand-text">
-                <span class="sidebar-brand-title">Academia Galeno</span>
-                <span class="sidebar-brand-subtitle">PORTAL ESTUDIANTIL</span>
-            </div>
-        </a>
-
-        <!-- Menú de Enlaces -->
-        <nav class="sidebar-menu">
-            <a href="{% url 'dashboard' %}" class="sidebar-item {% if seccion_activa == 'intranet' %}active{% endif %}">
-                <span class="sidebar-icon">🏠</span> Inicio / Intranet
-            </a>
-
-            <a href="{% url 'dashboard' %}" class="sidebar-item {% if seccion_activa == 'aula' %}active{% endif %}">
-                <span class="sidebar-icon">🎓</span> Aula Virtual
-            </a>
-
-            <a href="{% url 'mis_notas' %}" class="sidebar-item {% if seccion_activa == 'notas' %}active{% endif %}">
-                <span class="sidebar-icon">📊</span> Consulta de Notas
-            </a>
-
-            <a href="{% url 'mi_perfil' %}" class="sidebar-item {% if seccion_activa == 'perfil' %}active{% endif %}">
-                <span class="sidebar-icon">👤</span> Mi Perfil
-            </a>
-        </nav>
+<!-- Barra Lateral Modular de Intranet -->
+<aside class="intranet-sidebar">
+    <div class="intranet-sidebar-header">
+        <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno">
+        <div>
+            <span class="intranet-brand-title">Academia Galeno</span>
+            <span class="intranet-brand-sub">
+                {% if es_docente or request.user.groups.all.0.name == 'Docentes' %}
+                    Portal Docente
+                {% elif request.user.is_superuser or request.user.is_staff %}
+                    Portal Administrador
+                {% else %}
+                    Portal Estudiantil
+                {% endif %}
+            </span>
+        </div>
     </div>
 
-    <!-- Botón Cerrar Sesión -->
-    <div class="sidebar-footer">
-        <a href="{% url 'salir' %}" class="sidebar-item logout-link">
-            <span class="sidebar-icon">🚪</span> Cerrar Sesión
+    <nav class="intranet-menu">
+        <a href="{% url 'dashboard' %}" class="intranet-nav-link {% if seccion_activa == 'intranet' %}active{% endif %}">
+            <span>🏠</span> Inicio / Intranet
         </a>
-    </div>
+
+        {% if es_docente or request.user.groups.all.0.name == 'Docentes' %}
+            <!-- Accesos Docente -->
+            <a href="{% url 'panel_docente' %}" class="intranet-nav-link {% if seccion_activa == 'asignaturas' %}active{% endif %}">
+                <span>📚</span> Mis Asignaturas
+            </a>
+            <a href="{% url 'docente_mis_calificaciones' %}" class="intranet-nav-link {% if seccion_activa == 'notas_docente' %}active{% endif %}">
+                <span>📊</span> Registro de Notas
+            </a>
+            <a href="{% url 'docente_mis_asistencias' %}" class="intranet-nav-link {% if seccion_activa == 'asistencia_docente' %}active{% endif %}">
+                <span>📋</span> Control de Asistencia
+            </a>
+        {% elif not request.user.is_superuser and not request.user.is_staff %}
+            <!-- Accesos Estudiante -->
+            <a href="{% url 'mis_cursos' %}" class="intranet-nav-link {% if seccion_activa == 'aula' %}active{% endif %}">
+                <span>🎓</span> Aula Virtual
+            </a>
+            <a href="{% url 'mis_notas' %}" class="intranet-nav-link {% if seccion_activa == 'notas' %}active{% endif %}">
+                <span>📊</span> Consulta de Notas
+            </a>
+            <a href="{% url 'mis_asistencias' %}" class="intranet-nav-link {% if seccion_activa == 'asistencia' %}active{% endif %}">
+                <span>⏱️</span> Mi Asistencia a Clases
+            </a>
+        {% endif %}
+
+        <a href="{% url 'mi_perfil' %}" class="intranet-nav-link {% if seccion_activa == 'perfil' %}active{% endif %}">
+            <span>👤</span> Mi Perfil
+        </a>
+
+        <a href="{% url 'salir' %}" class="intranet-nav-link logout" style="margin-top: auto;">
+            <span>🚪</span> Cerrar Sesión
+        </a>
+    </nav>
 </aside>

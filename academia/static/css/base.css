@@ -753,3 +753,45 @@ body {
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
 }
+/* ====================================================
+   TOPBAR INTRANET (LAYOUT CON SIDEBAR)
+   ==================================================== */
+.intranet-topbar {
+    height: 65px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 32px;
+    box-sizing: border-box;
+}
+
+.intranet-topbar-welcome {
+    font-size: 14.5px;
+    color: #475569;
+}
+
+.intranet-topbar-welcome strong {
+    color: #0f172a;
+}
+
+.intranet-user-meta {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.intranet-user-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+.intranet-user-role {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #0284c7;
+    letter-spacing: 0.5px;
+}

@@ -8,6 +8,7 @@
     <title>Intranet | Academia Galeno</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
     <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
     <link rel="stylesheet" href="{% static 'css/dashboard_docente.css' %}?v=1.1">
 </head>
@@ -16,106 +17,17 @@
 
     <div class="intranet-layout">
 
-        <!-- Barra Lateral -->
-        <aside class="intranet-sidebar">
-            <div class="intranet-sidebar-header">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno">
-                <div>
-                    <span class="intranet-brand-title">Academia Galeno</span>
-                    <span class="intranet-brand-sub">
-                        {% if es_docente %}
-                        Portal Docente
-                        {% else %}
-                        Portal Estudiantil
-                        {% endif %}
-                    </span>
-                </div>
-            </div>
-
-            <nav class="intranet-menu">
-                <a href="{% url 'dashboard' %}" class="intranet-nav-link active">
-                    <span>🏠</span> Inicio / Intranet
-                </a>
-
-                {% if es_docente %}
-                <!-- Accesos Docente -->
-                <a href="{% url 'panel_docente' %}" class="intranet-nav-link">
-                    <span>📚</span> Mis Asignaturas
-                </a>
-                <a href="{% url 'docente_mis_calificaciones' %}" class="intranet-nav-link">
-                    <span>📊</span> Registro de Notas
-                </a>
-                <a href="{% url 'docente_mis_asistencias' %}" class="intranet-nav-link">
-                    <span>📋</span> Control de Asistencia
-                </a>
-                {% else %}
-                <!-- Accesos Estudiante -->
-                <a href="{% url 'mis_cursos' %}" class="intranet-nav-link">
-                    <span>🎓</span> Aula Virtual
-                </a>
-                <a href="{% url 'mis_notas' %}" class="intranet-nav-link">
-                    <span>📊</span> Consulta de Notas
-                </a>
-                <a href="{% url 'mis_asistencias' %}" class="intranet-nav-link">
-                    <span>⏱️</span> Mi Asistencia a Clases
-                </a>
-                {% endif %}
-
-                <a href="{% url 'mi_perfil' %}" class="intranet-nav-link">
-                    <span>👤</span> Mi Perfil
-                </a>
-                <a href="{% url 'salir' %}" class="intranet-nav-link logout" style="margin-top: auto;">
-                    <span>🚪</span> Cerrar Sesión
-                </a>
-            </nav>
-        </aside>
+        <!-- 1. Barra Lateral Modular -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='intranet' %}
 
         <!-- Contenedor Principal -->
         <div class="intranet-main">
 
-            <header class="intranet-topbar {% if es_docente %}topbar-docente{% endif %}">
-                <div class="intranet-welcome-text {% if es_docente %}welcome-docente{% endif %}">
-                    Bienvenido{% if es_docente %}, profesor{% endif %}
-                    <strong>
-                        {% if request.user.first_name %}
-                        {{ request.user.first_name }} {{ request.user.last_name }}
-                        {% else %}
-                        {{ request.user.username }}
-                        {% endif %}
-                    </strong>
-                </div>
+            <!-- 2. Barra Superior Modular -->
+            {% include 'componentes/topbar_intranet.html' %}
 
-                <!-- Dropdown de Usuario -->
-                <div class="user-dropdown-container">
-                    <button type="button" class="user-profile-badge-btn">
-                        <div class="user-avatar-circle">
-                            {{ request.user.first_name|default:request.user.username|make_list|first|upper }}
-                        </div>
-                        <div class="user-info-text">
-                            <span class="user-info-name">
-                                {% if request.user.first_name %}
-                                {{ request.user.first_name }} {{ request.user.last_name }}
-                                {% else %}
-                                {{ request.user.username }}
-                                {% endif %}
-                            </span>
-                            <span class="user-info-role">
-                                {% if es_docente %}DOCENTE TITULAR{% else %}ESTUDIANTE{% endif %}
-                            </span>
-                        </div>
-                        <span class="dropdown-arrow-icon">▼</span>
-                    </button>
-
-                    <div id="userDropdownDocente" class="user-dropdown-menu">
-                        <a href="{% url 'mi_perfil' %}" class="user-dropdown-item">
-                            <span>👤</span> Mi Perfil
-                        </a>
-                        <a href="{% url 'salir' %}" class="user-dropdown-item logout">
-                            <span>🚪</span> Cerrar Sesión
-                        </a>
-                    </div>
-                </div>
-            </header>
+            <!-- Mensajes Globales del Sistema -->
+            {% include 'componentes/mensajes.html' %}
 
             <main class="intranet-content">
 
@@ -145,8 +57,10 @@
                     <!-- Calendario Semanal -->
                     <div class="card-calendario-box">
                         <div class="card-calendario-header">
-                            <h3><span>📅</span> {% if es_docente %}Calendario Semanal de Dictado{% else %}Horario
-                                Semanal de Clases{% endif %}</h3>
+                            <h3>
+                                <span>📅</span> 
+                                {% if es_docente %}Calendario Semanal de Dictado{% else %}Horario Semanal de Clases{% endif %}
+                            </h3>
                             <span class="badge-ciclo">Ciclo Regular</span>
                         </div>
 
@@ -237,7 +151,7 @@
                         </div>
                     </div>
 
-                    <!-- Lista de Materias (Solo con botón Entrar) -->
+                    <!-- Lista de Materias -->
                     <div class="card-materias-box">
                         <div class="card-materias-header">
                             <h3><span>📖</span> Mis Materias</h3>
