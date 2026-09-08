@@ -71,7 +71,8 @@
                         <div class="profile-field-value">{{ request.user.email|default:"Sin correo registrado" }}</div>
                     </div>
 
-                    <div class="seguridad-card full-width"
+                </div>
+                <div class="seguridad-card full-width"
                         style="margin-top: 10px; padding: 18px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;">
                         <h3 style="margin-top: 0; font-size: 16px; color: #0f172a;">🔐 Seguridad de la Cuenta</h3>
                         <p style="font-size: 13.5px; color: #64748b; margin-bottom: 15px;">
@@ -82,8 +83,6 @@
                             Configurar Doble Factor (2FA)
                         </a>
                     </div>
-
-                </div>
 
                 <div class="profile-footer">
                     {% if request.user.is_superuser or request.user.is_staff %}
