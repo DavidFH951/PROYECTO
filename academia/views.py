@@ -7,8 +7,10 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 from django.shortcuts import render, get_object_or_404, redirect
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
@@ -46,7 +48,7 @@ from .forms import (
 
 
 # ==============================================================================
-# 1. UTILIDADES DEL SISTEMA Y CONTROL DE ACCESO
+# 1. UTILIDADES DEL SISTEMA Y CONTROL DE ACCESO (ANTI-IDOR Y AUDITORÍA)
 # ==============================================================================
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
@@ -69,13 +71,13 @@ class CustomLoginView(LoginView):
                     f"Credenciales incorrectas. Te queda(n) {restantes} intento(s) antes del bloqueo temporal."
                 )
         else:
-            # Si es el primer intento fallido y aún no se sincronizó el registro
             messages.error(
                 self.request,
                 f"Credenciales incorrectas. Te queda(n) {limite - 1} intento(s) antes del bloqueo temporal."
             )
             
         return response
+
 
 def registrar_log(request, accion, detalles=""):
     """Registra una acción en la tabla de auditoría con la IP del usuario."""
@@ -113,15 +115,27 @@ def es_docente_valido(user):
 
 
 def es_docente_del_curso(user, curso):
-    """Valida si el usuario es docente asignado al curso específico o administrador."""
+    """Valida si el usuario es docente asignado al curso específico o administrador del sistema."""
     if not user.is_authenticated:
         return False
-    return (
-        curso.docentes.filter(id=user.id).exists() or 
-        user.is_staff or 
-        user.is_superuser or 
-        user.groups.filter(name='Docentes').exists()
-    )
+    
+    # 1. Los administradores (staff o superuser) tienen acceso global
+    if user.is_staff or user.is_superuser:
+        return True
+        
+    # 2. El docente DEBE estar asignado específicamente a este curso
+    return curso.docentes.filter(id=user.id).exists()
+
+
+def es_alumno_del_curso(user, curso):
+    """Valida si el estudiante está formalmente matriculado en el curso."""
+    if not user.is_authenticated:
+        return False
+        
+    if user.is_staff or user.is_superuser:
+        return True
+        
+    return Inscripcion.objects.filter(curso=curso, alumno=user).exists()
 
 
 # ==============================================================================
@@ -260,11 +274,14 @@ def mis_cursos(request):
 def detalle_curso(request, curso_id):
     """Visualización de materiales, semanas y evaluaciones dentro de un curso."""
     curso = get_object_or_404(Curso, id=curso_id)
-    es_docente_curso = es_docente_del_curso(request.user, curso)
-    esta_matriculado = Inscripcion.objects.filter(alumno=request.user, curso=curso).exists()
     
-    if not (esta_matriculado or es_docente_curso):
-        return HttpResponseForbidden("No tienes permiso para ver este curso.")
+    es_docente = es_docente_del_curso(request.user, curso)
+    es_alumno = es_alumno_del_curso(request.user, curso)
+    
+    # Blindaje Anti-IDOR: Si no es docente ni alumno matriculado, denegar
+    if not (es_docente or es_alumno):
+        messages.error(request, "No tienes autorización para acceder a los contenidos de este curso.")
+        return redirect('dashboard')
     
     periodo = curso.periodo or PeriodoAcademico.objects.filter(activo=True).first()
 
@@ -289,7 +306,8 @@ def detalle_curso(request, curso_id):
             'total_recursos': len(mats_semana) + len(exams_semana)
         })
 
-    notas = Calificacion.objects.filter(alumno=request.user, curso=curso)
+    # Si es alumno cargamos su registro; si es docente o admin no hace falta buscar su calificación
+    notas = Calificacion.objects.filter(alumno=request.user, curso=curso) if not es_docente else None
     
     context = {
         'curso': curso,
@@ -298,7 +316,7 @@ def detalle_curso(request, curso_id):
         'cronograma': cronograma,
         'notas': notas,
         'periodo': periodo,
-        'es_docente_curso': es_docente_curso,
+        'es_docente_curso': es_docente,
     }
     return render(request, 'detalle_curso.html', context)
 
@@ -381,7 +399,8 @@ def mis_notas(request):
 def panel_docente(request):
     """Panel principal donde el docente visualiza los cursos asignados."""
     if not es_docente_valido(request.user):
-        return HttpResponseForbidden("Acceso exclusivo para docentes.")
+        messages.error(request, "Acceso exclusivo para docentes.")
+        return redirect('dashboard')
 
     if request.user.is_superuser or request.user.is_staff:
         cursos = Curso.objects.prefetch_related('docentes', 'inscripciones', 'materiales').all()
@@ -396,11 +415,13 @@ def subir_material(request, curso_id):
     """Permite al docente subir archivos o enlaces para una semana específica."""
     curso = get_object_or_404(Curso, id=curso_id)
 
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
-        return HttpResponseForbidden("No tienes permiso para subir material a este curso.")
+        messages.error(request, "No tienes permiso para subir material a este curso.")
+        return redirect('dashboard')
     
     if request.method == 'POST':
-        titulo = request.POST.get('titulo')
+        titulo = request.POST.get('titulo', '').strip()
         semana = request.POST.get('semana', 1)
         archivo = request.FILES.get('archivo')
         enlace = request.POST.get('enlace') or request.POST.get('enlace_web')
@@ -416,18 +437,22 @@ def subir_material(request, curso_id):
             registrar_log(request, "Subida de Material", f"Subió '{titulo}' (Semana {semana}) al curso '{curso.titulo}'")
             messages.success(request, f"Material '{titulo}' publicado exitosamente en la Semana {semana}.")
             return redirect('detalle_curso', curso_id=curso.id)
+        else:
+            messages.error(request, "El título del material es obligatorio.")
             
     return render(request, 'subir_material.html', {'curso': curso})
 
 
 @login_required
 def eliminar_material(request, material_id):
-    """Permite eliminar un material publicado."""
+    """Permite eliminar un material publicado (protegido contra IDOR y POST verificado)."""
     material = get_object_or_404(Material, id=material_id)
     curso = material.curso
 
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
-        return HttpResponseForbidden("No tienes permiso para eliminar este material.")
+        messages.error(request, "No tienes permiso para eliminar este material.")
+        return redirect('dashboard')
 
     titulo_mat = material.titulo
     material.delete()
@@ -441,10 +466,11 @@ def docente_calificar_curso(request, curso_id):
     """Planilla dinámica con opciones de solo guardar o guardar y promediar."""
     curso = get_object_or_404(Curso, id=curso_id)
 
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
-        messages.error(request, "No tienes permisos para calificar este curso.")
-        return redirect('panel_docente')
-
+        messages.error(request, "No tienes autorización para calificar esta materia.")
+        return redirect('docente_mis_calificaciones')
+    
     inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
     criterios = curso.obtener_criterios()
 
@@ -513,15 +539,18 @@ def docente_calificar_curso(request, curso_id):
     }
     return render(request, 'docente_calificar.html', context)
 
+
 @login_required
 def docente_mis_calificaciones(request):
     """Listado de asignaturas del docente para ingresar a calificar y promediar."""
-    es_docente = request.user.groups.filter(name='Docentes').exists()
-    if not es_docente and not request.user.is_staff:
+    if not es_docente_valido(request.user):
         messages.error(request, "Acceso restringido a docentes.")
         return redirect('dashboard')
 
-    cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
+    if request.user.is_superuser or request.user.is_staff:
+        cursos = Curso.objects.all().select_related('periodo').distinct()
+    else:
+        cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
 
     cursos_data = []
     for c in cursos:
@@ -535,6 +564,7 @@ def docente_mis_calificaciones(request):
     }
     return render(request, 'docente_mis_calificaciones.html', context)
 
+
 # ==============================================================================
 # 5. MÓDULO DE ASISTENCIAS (DOCENTE Y ALUMNO)
 # ==============================================================================
@@ -542,12 +572,14 @@ def docente_mis_calificaciones(request):
 @login_required
 def docente_mis_asistencias(request):
     """Catálogo rápido de asignaturas del docente para seleccionar asistencia."""
-    es_docente = request.user.groups.filter(name='Docentes').exists()
-    if not es_docente and not request.user.is_staff:
+    if not es_docente_valido(request.user):
         messages.error(request, "Acceso restringido a docentes.")
         return redirect('dashboard')
 
-    cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
+    if request.user.is_superuser or request.user.is_staff:
+        cursos = Curso.objects.all().select_related('periodo').distinct()
+    else:
+        cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
 
     cursos_data = []
     for c in cursos:
@@ -568,6 +600,7 @@ def docente_asistencia_curso(request, curso_id):
     """Toma de lista diaria del docente con actualización de fecha y semana."""
     curso = get_object_or_404(Curso, id=curso_id)
 
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
         messages.error(request, "No tienes permisos para gestionar este curso.")
         return redirect('panel_docente')
@@ -691,12 +724,13 @@ def crear_examen_curso(request, curso_id):
     """Crea una nueva evaluación para el curso."""
     curso = get_object_or_404(Curso, id=curso_id)
 
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
         messages.error(request, "No tienes permisos para programar evaluaciones.")
         return redirect('detalle_curso', curso_id=curso.id)
 
     if request.method == 'POST':
-        titulo = request.POST.get('titulo')
+        titulo = request.POST.get('titulo', '').strip()
         semana = request.POST.get('semana', 1)
         duracion = request.POST.get('duracion_minutos', 60)
         intentos = request.POST.get('intentos_permitidos', 1)
@@ -706,7 +740,7 @@ def crear_examen_curso(request, curso_id):
         descripcion = request.POST.get('descripcion', '')
 
         if titulo:
-            Examen.objects.create(
+            examen = Examen.objects.create(
                 curso=curso,
                 titulo=titulo,
                 semana=int(semana),
@@ -718,6 +752,7 @@ def crear_examen_curso(request, curso_id):
                 descripcion=descripcion,
                 activo=True
             )
+            registrar_log(request, "Creación de Examen", f"Creó examen '{titulo}' para el curso '{curso.titulo}'")
             messages.success(request, f"Evaluación '{titulo}' programada exitosamente para la Semana {semana}.")
         else:
             messages.error(request, "Debes ingresar un título para la evaluación.")
@@ -729,8 +764,11 @@ def crear_examen_curso(request, curso_id):
 def toggle_examen(request, examen_id):
     """Pausa o habilita un examen."""
     examen = get_object_or_404(Examen, id=examen_id)
+    
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, examen.curso):
-        return HttpResponseForbidden("No tienes permisos para realizar esta acción.")
+        messages.error(request, "No tienes permisos para realizar esta acción.")
+        return redirect('dashboard')
 
     examen.activo = not examen.activo
     examen.save()
@@ -744,11 +782,15 @@ def eliminar_examen(request, examen_id):
     """Elimina una evaluación y sus preguntas."""
     examen = get_object_or_404(Examen, id=examen_id)
     curso_id = examen.curso.id
+    
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, examen.curso):
-        return HttpResponseForbidden("No tienes permisos para realizar esta acción.")
+        messages.error(request, "No tienes permisos para realizar esta acción.")
+        return redirect('dashboard')
 
     titulo = examen.titulo
     examen.delete()
+    registrar_log(request, "Eliminación de Examen", f"Eliminó examen '{titulo}' del curso ID {curso_id}")
     messages.success(request, f"Evaluación '{titulo}' eliminada del sistema.")
     return redirect('detalle_curso', curso_id=curso_id)
 
@@ -758,8 +800,9 @@ def banco_preguntas_curso(request, curso_id):
     """Gestión del banco de preguntas por curso."""
     curso = get_object_or_404(Curso, id=curso_id)
 
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
-        messages.error(request, "No tienes permisos para gestionar el banco de preguntas.")
+        messages.error(request, "No tienes permisos para gestionar el banco de preguntas de este curso.")
         return redirect('detalle_curso', curso_id=curso.id)
 
     examenes_curso = Examen.objects.filter(curso=curso)
@@ -797,8 +840,10 @@ def eliminar_pregunta(request, pregunta_id):
     pregunta = get_object_or_404(Pregunta, id=pregunta_id)
     curso = pregunta.examen.curso
 
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
-        return HttpResponseForbidden("No tienes permisos para eliminar preguntas de este curso.")
+        messages.error(request, "No tienes permisos para eliminar preguntas de este curso.")
+        return redirect('dashboard')
 
     pregunta.delete()
     messages.success(request, "Pregunta eliminada correctamente del banco.")
@@ -808,6 +853,10 @@ def eliminar_pregunta(request, pregunta_id):
 @login_required
 def descargar_plantilla_preguntas(request):
     """Genera la plantilla Excel (.xlsx) para preguntas."""
+    if not es_docente_valido(request.user):
+        messages.error(request, "Acceso restringido a personal docente.")
+        return redirect('dashboard')
+
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "BancoPreguntas"
@@ -883,6 +932,7 @@ def importar_preguntas_curso(request, curso_id):
     """Carga masiva de preguntas desde Excel (.xlsx)."""
     curso = get_object_or_404(Curso, id=curso_id)
 
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
         messages.error(request, "No tienes permisos para esta acción.")
         return redirect('detalle_curso', curso_id=curso.id)
@@ -937,6 +987,7 @@ def importar_preguntas_curso(request, curso_id):
 
                 creadas += 1
 
+            registrar_log(request, "Importación Masiva", f"Cargó {creadas} preguntas al examen '{examen.titulo}'")
             messages.success(request, f"Se importaron con éxito {creadas} preguntas a la evaluación '{examen.titulo}'.")
         except Exception as e:
             messages.error(request, f"Error al procesar el archivo Excel: {str(e)}")
@@ -948,9 +999,15 @@ def importar_preguntas_curso(request, curso_id):
 
 @login_required
 def rendir_examen(request, examen_id):
-    """Ejecución de exámenes por estudiantes."""
+    """Ejecución de exámenes por estudiantes con control estricto de matrícula."""
     examen = get_object_or_404(Examen, id=examen_id)
     es_docente = es_docente_del_curso(request.user, examen.curso)
+    es_alumno = es_alumno_del_curso(request.user, examen.curso)
+
+    # Blindaje Anti-IDOR: Si no está matriculado y no es docente del curso, fuera
+    if not (es_docente or es_alumno):
+        messages.error(request, "No estás matriculado en el curso correspondiente a este examen.")
+        return redirect('dashboard')
 
     if not es_docente:
         if not examen.esta_disponible:
@@ -1007,6 +1064,7 @@ def rendir_examen(request, examen_id):
         intento.nota = puntaje_total
         intento.save()
 
+        registrar_log(request, "Rendición de Examen", f"Completó '{examen.titulo}' con nota {puntaje_total}")
         messages.success(request, f"Evaluación finalizada. Tu nota es: {puntaje_total} puntos.")
         return redirect('revision_examen', examen_id=examen.id)
 
@@ -1020,8 +1078,15 @@ def rendir_examen(request, examen_id):
 
 @login_required
 def revision_examen(request, examen_id):
-    """Revisión de notas y respuestas de la evaluación."""
+    """Revisión de notas y respuestas de la evaluación con validación de acceso."""
     examen = get_object_or_404(Examen, id=examen_id)
+    es_docente = es_docente_del_curso(request.user, examen.curso)
+    es_alumno = es_alumno_del_curso(request.user, examen.curso)
+
+    # Blindaje Anti-IDOR
+    if not (es_docente or es_alumno):
+        messages.error(request, "No estás autorizado a ver revisiones de este examen.")
+        return redirect('dashboard')
     
     ultimo_intento = IntentoExamen.objects.filter(
         alumno=request.user, 
@@ -1048,8 +1113,11 @@ def revision_examen(request, examen_id):
 def ver_intentos_examen(request, examen_id):
     """Lista de intentos rendidos para docentes."""
     examen = get_object_or_404(Examen, id=examen_id)
+    
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, examen.curso):
-        return HttpResponseForbidden("No tienes permiso para ver los resultados de este examen.")
+        messages.error(request, "No tienes permiso para ver los resultados de este examen.")
+        return redirect('dashboard')
 
     intentos = IntentoExamen.objects.filter(
         examen=examen, 
@@ -1069,8 +1137,10 @@ def ver_detalle_intento(request, intento_id):
     intento = get_object_or_404(IntentoExamen, id=intento_id)
     examen = intento.examen
 
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, examen.curso):
-        return HttpResponseForbidden("No tienes permiso para auditar este intento.")
+        messages.error(request, "No tienes permiso para auditar este intento de examen.")
+        return redirect('dashboard')
 
     respuestas = intento.respuestas.select_related('pregunta', 'opcion_seleccionada').all()
 
@@ -1087,13 +1157,17 @@ def ver_detalle_intento(request, intento_id):
 def finalizar_examen_docente(request, examen_id):
     """Cierra la evaluación manualmente."""
     examen = get_object_or_404(Examen, id=examen_id)
+    
+    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, examen.curso):
-        return HttpResponseForbidden("No tienes permisos para cerrar este examen.")
+        messages.error(request, "No tienes permisos para cerrar este examen.")
+        return redirect('dashboard')
 
     examen.cerrado_manualmente = True
     examen.activo = False
     examen.save()
 
+    registrar_log(request, "Cierre de Examen", f"Cerró manualmente el examen '{examen.titulo}'")
     messages.warning(request, f"La evaluación '{examen.titulo}' ha sido cerrada definitivamente por el docente.")
     return redirect('detalle_curso', curso_id=examen.curso.id)
 
@@ -1228,6 +1302,7 @@ def editar_usuario(request, user_id):
             usuario_editar.groups.add(grupo_alumnos)
 
         usuario_editar.save()
+        registrar_log(request, "Edición de Usuario", f"Actualizó datos/rol de '{usuario_editar.username}'")
         messages.success(request, f"Usuario @{usuario_editar.username} actualizado correctamente.")
         return redirect('admin_dashboard')
 
@@ -1333,6 +1408,7 @@ def admin_crear_curso(request):
                     aula=aula.strip() if aula else "Aula Virtual"
                 )
             
+        registrar_log(request, "Creación de Curso", f"Creó el curso '{curso.titulo}'")
         messages.success(request, f"Curso '{curso.titulo}' y sus horarios fueron creados exitosamente.")
         return redirect('admin_cursos_lista')
 
@@ -1388,6 +1464,7 @@ def admin_editar_curso(request, curso_id):
                     aula=aula.strip() if aula else "Aula Virtual"
                 )
 
+        registrar_log(request, "Edición de Curso", f"Actualizó parámetros de '{curso.titulo}'")
         messages.success(request, f"Curso '{curso.titulo}' actualizado con éxito.")
         return redirect('admin_cursos_lista')
 
@@ -1579,7 +1656,8 @@ def admin_carga_masiva_usuarios(request):
 def descargar_plantilla_usuarios(request):
     """Descarga de plantilla CSV para usuarios."""
     if not (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseForbidden("No tienes permiso para realizar esta acción.")
+        messages.error(request, "No tienes permiso para realizar esta acción.")
+        return redirect('dashboard')
 
     response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
     response['Content-Disposition'] = 'attachment; filename="plantilla_carga_usuarios.csv"'
@@ -1687,6 +1765,7 @@ def gestionar_temporada(request):
                 fecha_fin=fecha_fin,
                 activo=activar_inmediato
             )
+            registrar_log(request, "Gestión de Ciclo", f"Creó el ciclo académico '{nombre}'")
             messages.success(request, f"Temporada '{nombre}' creada exitosamente.")
 
         elif accion == 'culminar':
@@ -1695,6 +1774,7 @@ def gestionar_temporada(request):
             if periodo:
                 periodo.activo = False
                 periodo.save()
+                registrar_log(request, "Gestión de Ciclo", f"Culminó el ciclo académico '{periodo.nombre}'")
                 messages.warning(request, f"La temporada '{periodo.nombre}' ha sido culminada. El ciclo quedó cerrado.")
 
     return redirect('admin_dashboard')
