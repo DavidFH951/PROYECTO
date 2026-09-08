@@ -14,88 +14,15 @@
 
 <body>
 
-    <!-- Barra Superior de Navegación -->
-    <header class="top-nav">
-        <div style="display: flex; align-items: center; gap: 25px;">
-            <a href="{% url 'dashboard' %}" class="brand-container">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
-                <div class="brand-text-block">
-                    <span class="brand-title">Academia Galeno</span>
-                    <span class="brand-subtitle">
-                        {% if request.user.is_staff or request.user.is_superuser %}
-                        PANEL ADMINISTRADOR
-                        {% elif request.user.groups.all.0.name == 'Docentes' %}
-                        AULA VIRTUAL DOCENTE
-                        {% else %}
-                        AULA VIRTUAL
-                        {% endif %}
-                    </span>
-                </div>
-            </a>
-
-            <nav style="display: flex; gap: 15px; align-items: center;">
-                <a href="{% url 'dashboard' %}" class="nav-tab-item">
-                    Mis Cursos
-                </a>
-                {% if not request.user.is_staff and not request.user.is_superuser %}
-                <a href="{% url 'mis_notas' %}" class="nav-tab-item">
-                    Historial de Notas
-                </a>
-                {% endif %}
-                <a href="{% url 'mi_perfil' %}" class="nav-tab-item active">
-                    Mi Perfil
-                </a>
-            </nav>
-        </div>
-
-        <!-- Menú de Usuario con Avatar -->
-        <div class="user-dropdown-container">
-            <div class="user-profile-trigger">
-                <div class="user-avatar-circle">
-                    {{ request.user.first_name|first|default:request.user.username|first }}
-                </div>
-                <span class="user-trigger-text">
-                    {{ request.user.first_name|default:request.user.username }} {{ request.user.last_name|default:"" }}
-                </span>
-                <span class="dropdown-arrow">▼</span>
-            </div>
-
-            <div class="user-dropdown-menu">
-                <div class="dropdown-user-info">
-                    <div class="dropdown-user-name">
-                        {{ request.user.get_full_name|default:request.user.username }}
-                    </div>
-                    <div class="dropdown-user-email">
-                        {{ request.user.email|default:"Sin correo registrado" }}
-                    </div>
-                    <span class="dropdown-user-badge">
-                        {% if request.user.is_staff or request.user.is_superuser %}
-                        Administrador
-                        {% elif request.user.groups.all.0.name %}
-                        {{ request.user.groups.all.0.name }}
-                        {% else %}
-                        Alumno
-                        {% endif %}
-                    </span>
-                </div>
-
-                <div class="dropdown-menu-list">
-                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
-                        👤 Mi Perfil
-                    </a>
-                    <a href="{% url 'dashboard' %}" class="dropdown-menu-item">
-                        📚 Panel Principal
-                    </a>
-                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
-                        🚪 Cerrar Sesión
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
+    <!-- 1. Barra Superior Modular Institucional -->
+    {% include 'componentes/navbar.html' %}
 
     <!-- Tarjeta de Perfil -->
     <main class="main-container">
+
+        <!-- 2. Alertas Modulares -->
+        {% include 'componentes/mensajes.html' %}
+
         <div class="profile-wrapper">
 
             <div class="profile-banner"></div>
@@ -108,11 +35,11 @@
                     <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
                     <span class="profile-role-badge">
                         {% if request.user.is_staff or request.user.is_superuser %}
-                        Administrador del Sistema
-                        {% elif request.user.groups.all.0.name %}
-                        Docente Académico
+                            Administrador del Sistema
+                        {% elif request.user.groups.all.0.name == 'Docentes' %}
+                            Docente Académico
                         {% else %}
-                        Estudiante Activo
+                            Estudiante Activo
                         {% endif %}
                     </span>
                 </div>
@@ -145,15 +72,15 @@
                         <div class="profile-field-label">✉️ Correo Electrónico</div>
                         <div class="profile-field-value">{{ request.user.email|default:"Sin correo registrado" }}</div>
                     </div>
-                    <div class="seguridad-card"
-                        style="margin-top: 20px; padding: 18px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;">
+
+                    <div class="seguridad-card full-width"
+                        style="margin-top: 10px; padding: 18px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;">
                         <h3 style="margin-top: 0; font-size: 16px; color: #0f172a;">🔐 Seguridad de la Cuenta</h3>
                         <p style="font-size: 13.5px; color: #64748b; margin-bottom: 15px;">
-                            Protege tu acceso institucional añadiendo una capa extra de verificación por código
-                            temporal.
+                            Protege tu acceso institucional añadiendo una capa extra de verificación por código temporal.
                         </p>
                         <a href="{% url 'configurar_2fa' %}" class="btn-submit"
-                            style="display: inline-block; padding: 8px 16px; text-decoration: none; font-size: 13.5px; width: auto;">
+                            style="display: inline-block; padding: 8px 16px; text-decoration: none; font-size: 13.5px; width: auto; background: #0284c7; color: #fff; border-radius: 6px; font-weight: 600;">
                             Configurar Doble Factor (2FA)
                         </a>
                     </div>
@@ -161,14 +88,23 @@
                 </div>
 
                 <div class="profile-footer">
-                    <a href="{% url 'dashboard' %}" class="btn-profile-back">
-                        ← Volver al Panel Principal
-                    </a>
+                    {% if request.user.is_superuser or request.user.is_staff %}
+                        <a href="{% url 'admin_dashboard' %}" class="btn-profile-back">
+                            ← Volver al Panel de Control
+                        </a>
+                    {% else %}
+                        <a href="{% url 'dashboard' %}" class="btn-profile-back">
+                            ← Volver al Aula Virtual
+                        </a>
+                    {% endif %}
                 </div>
             </div>
 
         </div>
     </main>
+
+    <!-- Script Modular Externo -->
+    <script src="{% static 'js/admin_dashboard.js' %}?v=1.0" defer></script>
 
 </body>
 
