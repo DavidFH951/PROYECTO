@@ -73,9 +73,7 @@
                                             <td>
                                                 <div class="student-item">
                                                     <div class="student-avatar">
-                                                        {{
-                                                        fila.alumno.first_name|first|default:fila.alumno.username|first|upper
-                                                        }}
+                                                        {{ fila.alumno.first_name|first|default:fila.alumno.username|first|upper }}
                                                     </div>
                                                     <div>
                                                         <div class="student-name">
@@ -89,16 +87,11 @@
                                             </td>
                                             <td>
                                                 <div class="select-estado-wrapper">
-                                                    <select name="asistencia_{{ fila.alumno.id }}"
-                                                        class="select-estado">
-                                                        <option value="P" {% if fila.estado=='P' %}selected{% endif %}>
-                                                            🟢 Presente</option>
-                                                        <option value="T" {% if fila.estado=='T' %}selected{% endif %}>
-                                                            🟡 Tardanza</option>
-                                                        <option value="F" {% if fila.estado=='F' %}selected{% endif %}>
-                                                            🔴 Falta</option>
-                                                        <option value="J" {% if fila.estado=='J' %}selected{% endif %}>
-                                                            🔵 Justificado</option>
+                                                    <select name="asistencia_{{ fila.alumno.id }}" class="select-estado">
+                                                        <option value="P" {% if fila.estado == 'P' %}selected{% endif %}>🟢 Presente</option>
+                                                        <option value="T" {% if fila.estado == 'T' %}selected{% endif %}>🟡 Tardanza</option>
+                                                        <option value="F" {% if fila.estado == 'F' %}selected{% endif %}>🔴 Falta</option>
+                                                        <option value="J" {% if fila.estado == 'J' %}selected{% endif %}>🔵 Justificado</option>
                                                     </select>
                                                 </div>
                                             </td>
