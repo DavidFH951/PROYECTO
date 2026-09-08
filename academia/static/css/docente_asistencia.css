@@ -7,12 +7,14 @@ body {
     font-family: 'Inter', sans-serif;
     color: #1e293b;
     margin: 0;
-    padding: 30px 20px;
+    padding: 0;
 }
 
 .asistencia-container {
-    max-width: 900px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .btn-back-link {
@@ -240,4 +242,334 @@ body {
     text-align: center;
     padding: 48px 20px;
     color: #64748b;
+}
+
+/* ==============================================================================
+   MÓDULO DE ASISTENCIA DOCENTE (CATÁLOGO Y TOMA DE LISTA) - ACADEMIA GALENO
+   ============================================================================== */
+
+body {
+    background-color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    color: #0f172a;
+    margin: 0;
+    padding: 0;
+}
+
+.main-container,
+.asistencia-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.btn-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0284c7;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 16px;
+    transition: color 0.15s ease;
+}
+
+.btn-back-link:hover {
+    color: #0369a1;
+    text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------------------
+   1. VISTA CATÁLOGO (MIS ASISTENCIAS)
+   ------------------------------------------------------------------------------ */
+.header-title-box {
+    margin-bottom: 24px;
+}
+
+.header-title-box h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+}
+
+.header-title-box p {
+    color: #64748b;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.curso-asistencia-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.curso-asistencia-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+}
+
+.card-top {
+    margin-bottom: 20px;
+}
+
+.badge-periodo {
+    display: inline-block;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    margin-bottom: 10px;
+}
+
+.curso-titulo {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+    line-height: 1.35;
+}
+
+.curso-meta {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-tomar-asistencia {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btn-tomar-asistencia:hover {
+    background: #0369a1;
+}
+
+.empty-courses,
+.empty-state {
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 48px 20px;
+    text-align: center;
+    color: #64748b;
+}
+
+/* ------------------------------------------------------------------------------
+   2. VISTA TOMA DE LISTA (DETALLE POR CURSO)
+   ------------------------------------------------------------------------------ */
+.card-asistencia {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    padding: 28px 32px;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.title-group h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.02em;
+}
+
+.title-group p {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin: 0;
+    font-weight: 500;
+}
+
+.date-picker-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 8px 16px;
+    border-radius: 12px;
+}
+
+.date-picker-box label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.date-picker-box input[type="date"] {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f172a;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.table-responsive {
+    margin-top: 24px;
+    overflow-x: auto;
+}
+
+.table-asistencia {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: left;
+}
+
+.table-asistencia th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 14px 18px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.table-asistencia th:first-child {
+    border-top-left-radius: 10px;
+}
+
+.table-asistencia th:last-child {
+    border-top-right-radius: 10px;
+    text-align: center;
+}
+
+.table-asistencia td {
+    padding: 16px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.92rem;
+    vertical-align: middle;
+}
+
+.student-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.student-avatar {
+    width: 38px;
+    height: 38px;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-weight: 700;
+    font-size: 0.88rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.student-name {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.student-sub {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 1px;
+}
+
+.select-estado-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.select-estado {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 32px 8px 14px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.select-estado:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.form-actions {
+    margin-top: 28px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-submit-asistencia {
+    background-color: #0284c7;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-submit-asistencia:hover {
+    background-color: #0369a1;
 }

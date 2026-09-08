@@ -16,11 +16,12 @@ body.intranet-body {
 }
 
 /* ==========================================================================
-   1. BARRA LATERAL (SIDEBAR)
+   1. BARRA LATERAL (SIDEBAR INSTITUCIONAL)
    ========================================================================== */
 .intranet-sidebar {
     width: 260px;
-    background: linear-gradient(180deg, #0f4c81 0%, #0d3b66 100%);
+    min-width: 260px;
+    background: #004b87;
     color: #ffffff;
     display: flex;
     flex-direction: column;
@@ -35,7 +36,6 @@ body.intranet-body {
     gap: 12px;
 }
 
-/* Control estricto de dimensiones del logotipo */
 .intranet-sidebar-header img {
     width: 44px;
     height: 44px;
@@ -43,6 +43,8 @@ body.intranet-body {
     border-radius: 8px;
     flex-shrink: 0;
     display: block;
+    background: #ffffff;
+    padding: 2px;
 }
 
 .intranet-brand-title {
@@ -55,11 +57,12 @@ body.intranet-body {
 
 .intranet-brand-sub {
     font-size: 11px;
-    color: #7dd3fc;
+    color: #38bdf8;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     display: block;
     margin-top: 2px;
+    font-weight: 700;
 }
 
 .intranet-menu {
@@ -75,32 +78,38 @@ body.intranet-body {
     align-items: center;
     gap: 12px;
     padding: 10px 14px;
-    color: #e0f2fe;
+    color: #e0edff;
     text-decoration: none;
     font-size: 13.5px;
-    font-weight: 600;
+    font-weight: 500;
     border-radius: 8px;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.intranet-nav-link:hover,
-.intranet-nav-link.active {
-    background-color: #0284c7;
+.intranet-nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.12);
     color: #ffffff;
 }
 
+.intranet-nav-link.active {
+    background-color: #0088cc !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
 .intranet-nav-link.logout {
-    color: #fca5a5;
+    color: #ff8a80;
     margin-top: auto;
+    font-weight: 700;
 }
 
 .intranet-nav-link.logout:hover {
-    background-color: #dc2626;
+    background-color: rgba(239, 68, 68, 0.2);
     color: #ffffff;
 }
 
 /* ==========================================================================
-   2. ÁREA DE CONTENIDO PRINCIPAL
+   2. ÁREA PRINCIPAL Y TOPBAR
    ========================================================================== */
 .intranet-main {
     flex: 1;
@@ -111,16 +120,18 @@ body.intranet-body {
 }
 
 .intranet-topbar {
+    height: 65px;
     background-color: #ffffff;
     border-bottom: 1px solid #e2e8f0;
-    padding: 14px 30px;
+    padding: 0 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-sizing: border-box;
 }
 
 .intranet-welcome-text {
-    font-size: 14px;
+    font-size: 14.5px;
     color: #475569;
 }
 
@@ -128,46 +139,164 @@ body.intranet-body {
     color: #0f172a;
 }
 
-.intranet-user-pill {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    font-weight: 600;
+/* ==========================================================================
+   3. PASTILLA DE PERFIL Y DROPDOWN (COMPATIBLE CON AMBOS NOMBRES)
+   ========================================================================== */
+.user-dropdown-container {
+    position: relative;
+    display: inline-block;
 }
 
+/* Pastilla interactiva redondeada */
+.user-profile-badge-btn,
+.user-dropdown-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 5px 14px 5px 6px;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    outline: none;
+    font-family: inherit;
+}
+
+.user-profile-badge-btn:hover,
+.user-dropdown-btn:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+/* Círculo del avatar */
+.user-profile-badge-btn .user-avatar-circle,
 .intranet-avatar {
-    width: 36px;
-    height: 36px;
-    background-color: #0284c7;
-    color: #ffffff;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    background-color: #0088cc;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 13px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+/* Texto de nombre y rol */
+.user-info-text,
+.user-dropdown-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    line-height: 1.15;
+}
+
+.user-info-name,
+.user-dropdown-name {
+    font-size: 13px;
     font-weight: 700;
-    font-size: 14px;
+    color: #0f172a;
 }
 
-.intranet-avatar.docente-avatar {
-    background-color: #7c3aed;
+.user-info-role,
+.user-dropdown-role {
+    font-size: 10px;
+    font-weight: 700;
+    color: #0284c7;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
 }
 
-.intranet-content {
-    padding: 30px;
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
+.dropdown-arrow-icon,
+.user-dropdown-arrow {
+    font-size: 9px;
+    color: #64748b;
+    margin-left: 2px;
+    transition: transform 0.2s ease;
+}
+
+.user-dropdown-container:hover .dropdown-arrow-icon,
+.user-dropdown-container:hover .user-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Menú flotante */
+.user-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 210px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    z-index: 1000;
+    padding: 6px 0;
+}
+
+.user-dropdown-container:hover .user-dropdown-menu,
+.user-dropdown-container:focus-within .user-dropdown-menu,
+.user-dropdown-menu.show,
+.user-dropdown-menu.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-dropdown-item,
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    font-size: 13px;
+    color: #334155;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.user-dropdown-item:hover,
+.dropdown-item:hover {
+    background-color: #f8fafc;
+    color: #0284c7;
+}
+
+.user-dropdown-item.logout,
+.dropdown-item.dropdown-logout {
+    color: #dc2626;
+    border-top: 1px solid #f1f5f9;
+}
+
+.user-dropdown-item.logout:hover,
+.dropdown-item.dropdown-logout:hover {
+    background-color: #fef2f2;
+    color: #b91c1c;
 }
 
 /* ==========================================================================
-   3. TARJETAS DE MÉTRICAS
+   4. CONTENIDO, TARJETAS Y MÉTRICAS
    ========================================================================== */
+.intranet-content {
+    padding: 24px 32px;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 18px;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 
 .metric-card {
@@ -199,41 +328,6 @@ body.intranet-body {
     margin: 0;
 }
 
-/* ==========================================================================
-   4. BANNER AULA VIRTUAL
-   ========================================================================== */
-.banner-aula-virtual {
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-    border-radius: 14px;
-    padding: 24px 28px;
-    color: #ffffff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 28px;
-    box-shadow: 0 8px 20px rgba(2, 132, 199, 0.22);
-}
-
-.btn-entrar-aula {
-    background-color: #ffffff;
-    color: #0369a1;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 14px;
-    padding: 12px 22px;
-    border-radius: 8px;
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-}
-
-.btn-entrar-aula:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
-}
-
-/* ==========================================================================
-   5. SECCIÓN HORARIOS Y MIS MATERIAS
-   ========================================================================== */
 .content-columns {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -244,167 +338,4 @@ body.intranet-body {
     .content-columns {
         grid-template-columns: 1fr;
     }
-}
-
-.dashboard-card {
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 22px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-.dashboard-card-title {
-    margin: 0 0 16px 0;
-    font-size: 16px;
-    font-weight: 700;
-    color: #0f172a;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.table-horario {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-
-.table-horario th {
-    background-color: #f8fafc;
-    color: #475569;
-    text-align: left;
-    padding: 10px 12px;
-    border-bottom: 1px solid #e2e8f0;
-    font-weight: 600;
-}
-
-.table-horario td {
-    padding: 12px;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.badge-dia {
-    background-color: #e0f2fe;
-    color: #0369a1;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 11.5px;
-}
-/* ==========================================================================
-   DROPDOWN USUARIO (TOPBAR)
-   ========================================================================== */
-.user-dropdown-container {
-    position: relative;
-}
-
-.user-dropdown-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: transparent;
-    border: 1px solid transparent;
-    padding: 4px 10px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    font-family: inherit;
-}
-
-.user-dropdown-btn:hover {
-    background-color: #f1f5f9;
-    border-color: #e2e8f0;
-}
-
-.user-dropdown-info {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-.user-dropdown-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: #0f172a;
-    line-height: 1.2;
-}
-
-.user-dropdown-role {
-    font-size: 11px;
-    color: #64748b;
-}
-
-.user-dropdown-arrow {
-    font-size: 12px;
-    color: #64748b;
-    margin-left: 2px;
-}
-
-.user-dropdown-menu {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
-    width: 220px;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    display: none;
-    flex-direction: column;
-    z-index: 1000;
-    padding: 6px 0;
-}
-
-.user-dropdown-menu.show {
-    display: flex;
-}
-
-.dropdown-header-box {
-    padding: 10px 16px;
-    display: flex;
-    flex-direction: column;
-}
-
-.dropdown-header-box strong {
-    font-size: 13px;
-    color: #0f172a;
-}
-
-.dropdown-email {
-    font-size: 11px;
-    color: #64748b;
-    word-break: break-all;
-}
-
-.dropdown-divider {
-    height: 1px;
-    background-color: #f1f5f9;
-    margin: 4px 0;
-}
-
-.dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #334155;
-    text-decoration: none;
-    transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.dropdown-item:hover {
-    background-color: #f8fafc;
-    color: #0284c7;
-}
-
-.dropdown-item.dropdown-logout {
-    color: #dc2626;
-}
-
-.dropdown-item.dropdown-logout:hover {
-    background-color: #fef2f2;
-    color: #b91c1c;
 }
