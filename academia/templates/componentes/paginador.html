@@ -1,0 +1,18 @@
+{% if usuarios.has_other_pages %}
+<div class="pagination-container">
+    <span>Página {{ usuarios.number }} de {{ usuarios.paginator.num_pages }} (Total: {{ usuarios.paginator.count }} usuarios)</span>
+    <div class="pagination-links">
+        {% if usuarios.has_previous %}
+            <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">&laquo; Primero</a>
+            <a href="?page={{ usuarios.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">Anterior</a>
+        {% endif %}
+
+        <span class="page-btn active">{{ usuarios.number }}</span>
+
+        {% if usuarios.has_next %}
+            <a href="?page={{ usuarios.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">Siguiente</a>
+            <a href="?page={{ usuarios.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if rol_filtro %}&rol={{ rol_filtro }}{% endif %}" class="page-btn">Último &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

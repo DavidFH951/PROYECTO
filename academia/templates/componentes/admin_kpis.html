@@ -1,0 +1,15 @@
+<!-- Tarjetas KPI del Administrador -->
+<div class="kpi-grid">
+    <div class="kpi-card border-blue">
+        <span class="kpi-title">TOTAL ALUMNOS</span>
+        <span class="kpi-value text-blue">{{ total_alumnos|default:"0" }}</span>
+    </div>
+    <div class="kpi-card border-green">
+        <span class="kpi-title">TOTAL DOCENTES</span>
+        <span class="kpi-value text-green">{{ total_docentes|default:"0" }}</span>
+    </div>
+    <div class="kpi-card border-purple">
+        <span class="kpi-title">CURSOS ACTIVOS</span>
+        <span class="kpi-value text-purple">{{ total_cursos|default:"0" }}</span>
+    </div>
+</div>
