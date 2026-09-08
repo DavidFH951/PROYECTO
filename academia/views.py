@@ -23,6 +23,7 @@ from axes.models import AccessAttempt
 from django.db.models import Q
 from django.utils import timezone
 from django.core.paginator import Paginator
+from urllib.parse import quote
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django_otp import login as otp_login
 
@@ -1822,7 +1823,7 @@ def gestionar_temporada(request):
 
 @login_required
 def configurar_2fa(request):
-    """Permite al docente o administrador vincular Google Authenticator."""
+    """Permite al docente o administrador vincular Google Authenticator con emisor personalizado."""
     user = request.user
     dispositivo_confirmado = TOTPDevice.objects.filter(user=user, confirmed=True).first()
 
@@ -1833,6 +1834,7 @@ def configurar_2fa(request):
         if dispositivo_temp and dispositivo_temp.verify_token(token):
             dispositivo_temp.confirmed = True
             dispositivo_temp.save()
+            # Elimina registros previos confirmados
             TOTPDevice.objects.filter(user=user, confirmed=True).exclude(id=dispositivo_temp.id).delete()
             registrar_log(request, "Seguridad 2FA", "Activó el doble factor de autenticación")
             messages.success(request, "Doble factor de autenticación (2FA) activado correctamente.")
@@ -1840,22 +1842,41 @@ def configurar_2fa(request):
         else:
             messages.error(request, "Código incorrecto o expirado. Inténtalo nuevamente.")
 
+    # Generar o reutilizar el dispositivo temporal no confirmado
     dispositivo_temp = TOTPDevice.objects.filter(user=user, confirmed=False).last()
     if not dispositivo_temp:
-        dispositivo_temp = TOTPDevice.objects.create(user=user, name="Default", confirmed=False)
+        dispositivo_temp = TOTPDevice.objects.create(
+            user=user, 
+            name="Academia Galeno", 
+            confirmed=False
+        )
 
-    qr = qrcode.make(dispositivo_temp.config_url)
+    # Identificador de cuenta: usa su correo institucional o su nombre de usuario
+    identificador = user.email if user.email else user.username
+    emisor = "Academia Galeno"
+
+    # Construir el URI estándar otpauth://totp/ con formato Issuer:Account?issuer=Issuer
+    # Ejemplo: otpauth://totp/Academia%20Galeno:usuario@galeno.pe?secret=...&issuer=Academia%20Galeno
+    secret_b32 = dispositivo_temp.bin_key.decode('utf-8') if hasattr(dispositivo_temp, 'bin_key') else dispositivo_temp.key
+    # En django-otp el URI estándar se arma con config_url:
+    otp_url = (
+        f"otpauth://totp/{quote(emisor)}:{quote(identificador)}"
+        f"?secret={dispositivo_temp.key}&issuer={quote(emisor)}&digits=6&period=30"
+    )
+
+    qr = qrcode.make(otp_url)
     buffer = io.BytesIO()
     qr.save(buffer, format="PNG")
-    qr_b64 = base64.b64encode(buffer.getvalue()).decode()
+    qr_b64 = base4_str = base64.b64encode(buffer.getvalue()).decode()
 
     context = {
         'tiene_2fa': dispositivo_confirmado is not None,
         'qr_b64': qr_b64,
         'secret_key': dispositivo_temp.key,
+        'emisor': emisor,
+        'identificador': identificador,
     }
     return render(request, 'configurar_2fa.html', context)
-
 
 @login_required
 def verificar_2fa(request):
