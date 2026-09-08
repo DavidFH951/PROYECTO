@@ -133,6 +133,49 @@
                             </div>
                         </div>
 
+                        <!-- MÓDULO EXCLUSIVO DE ADMINISTRACIÓN: CONTROL 2FA -->
+                        <div style="margin-top: 35px; padding-top: 25px; border-top: 1px dashed #cbd5e1;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                        <span style="font-size: 18px;">🛡️</span>
+                                        <h4 style="margin: 0; color: #0f172a; font-size: 15px; font-weight: 700;">Doble
+                                            Factor
+                                            de Autenticación (2FA)</h4>
+                                    </div>
+                                    {% if tiene_2fa %}
+                                    <p style="margin: 0; color: #15803d; font-size: 13.5px; font-weight: 600;">
+                                        ● 2FA Activo: El usuario debe ingresar el código de Authenticator al iniciar
+                                        sesión.
+                                    </p>
+                                    <p style="margin: 4px 0 0 0; color: #64748b; font-size: 12.5px;">
+                                        Si el docente extravió su dispositivo o no puede acceder, restablece su
+                                        configuración
+                                        aquí.
+                                    </p>
+                                    {% else %}
+                                    <p style="margin: 0; color: #64748b; font-size: 13.5px;">
+                                        ○ Inactivo: Este usuario aún no ha configurado ningún dispositivo de
+                                        autenticación
+                                        móvil.
+                                    </p>
+                                    {% endif %}
+                                </div>
+
+                                {% if tiene_2fa %}
+                                <form method="POST" action="{% url 'admin_resetear_2fa' usuario_editar.id %}"
+                                    onsubmit="return confirm('¿Seguro que deseas desactivar el 2FA de @{{ usuario_editar.username }}? Su cuenta ya no solicitará código hasta que vuelva a escanear un nuevo QR.');">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                        style="background: #dc2626; color: #ffffff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s ease;">
+                                        🔄 Restablecer / Quitar 2FA
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="footer-botones-form">
@@ -145,45 +188,6 @@
                     </div>
 
                 </form>
-
-                <!-- MÓDULO EXCLUSIVO DE ADMINISTRACIÓN: CONTROL 2FA -->
-                <div style="margin-top: 35px; padding-top: 25px; border-top: 1px dashed #cbd5e1;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                        <div>
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                <span style="font-size: 18px;">🛡️</span>
-                                <h4 style="margin: 0; color: #0f172a; font-size: 15px; font-weight: 700;">Doble Factor
-                                    de Autenticación (2FA)</h4>
-                            </div>
-                            {% if tiene_2fa %}
-                            <p style="margin: 0; color: #15803d; font-size: 13.5px; font-weight: 600;">
-                                ● 2FA Activo: El usuario debe ingresar el código de Authenticator al iniciar sesión.
-                            </p>
-                            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 12.5px;">
-                                Si el docente extravió su dispositivo o no puede acceder, restablece su configuración
-                                aquí.
-                            </p>
-                            {% else %}
-                            <p style="margin: 0; color: #64748b; font-size: 13.5px;">
-                                ○ Inactivo: Este usuario aún no ha configurado ningún dispositivo de autenticación
-                                móvil.
-                            </p>
-                            {% endif %}
-                        </div>
-
-                        {% if tiene_2fa %}
-                        <form method="POST" action="{% url 'admin_resetear_2fa' usuario_editar.id %}"
-                            onsubmit="return confirm('¿Seguro que deseas desactivar el 2FA de @{{ usuario_editar.username }}? Su cuenta ya no solicitará código hasta que vuelva a escanear un nuevo QR.');">
-                            {% csrf_token %}
-                            <button type="submit"
-                                style="background: #dc2626; color: #ffffff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s ease;">
-                                🔄 Restablecer / Quitar 2FA
-                            </button>
-                        </form>
-                        {% endif %}
-                    </div>
-                </div>
 
             </div>
 
