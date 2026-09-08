@@ -12,8 +12,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
-from axes.helpers import get_remaining_failures
 from django.contrib.auth.models import User, Group
+from django.conf import settings
+from axes.models import AccessAttempt
 from django.db.models import Q
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -52,13 +53,28 @@ class CustomLoginView(LoginView):
 
     def form_invalid(self, form):
         response = super().form_invalid(form)
-        intentos = get_remaining_failures(self.request)
         
-        if intentos > 0:
+        username = form.data.get('username', '').strip()
+        limite = getattr(settings, 'AXES_FAILURE_LIMIT', 5)
+        
+        # Buscar el intento registrado para este usuario
+        intento = AccessAttempt.objects.filter(username=username).first()
+        
+        if intento:
+            fallos = intento.failures_since_start
+            restantes = max(0, limite - fallos)
+            if restantes > 0:
+                messages.error(
+                    self.request,
+                    f"Credenciales incorrectas. Te queda(n) {restantes} intento(s) antes del bloqueo temporal."
+                )
+        else:
+            # Si es el primer intento fallido y aún no se sincronizó el registro
             messages.error(
                 self.request,
-                f"Credenciales incorrectas. Te queda(n) {intentos} intento(s) antes del bloqueo temporal."
+                f"Credenciales incorrectas. Te queda(n) {limite - 1} intento(s) antes del bloqueo temporal."
             )
+            
         return response
 
 def registrar_log(request, accion, detalles=""):
