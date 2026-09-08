@@ -8,53 +8,82 @@
     <title>Control de Asistencia | Portal Docente</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
     <link rel="stylesheet" href="{% static 'css/docente_mis_asistencias.css' %}?v=1.0">
 </head>
 
-<body>
+<body class="intranet-body">
 
-    <div class="main-container">
+    <div class="intranet-layout">
 
-        <a href="{% url 'dashboard' %}" class="btn-back-link">
-            ← Volver al Dashboard
-        </a>
+        <!-- 1. Barra Lateral Modular de la Intranet -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencia_docente' es_docente=True %}
 
-        <div class="header-title-box">
-            <h1>📋 Control Rápido de Asistencias</h1>
-            <p>Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los módulos del aula virtual.</p>
-        </div>
+        <!-- 2. Área Principal Derecha -->
+        <div class="intranet-main">
 
-        {% if cursos_data %}
-        <div class="cards-grid">
-            {% for item in cursos_data %}
-            <div class="curso-asistencia-card">
-                <div class="card-top">
-                    <span class="badge-periodo">{{ item.curso.periodo.nombre|default:"Ciclo Activo" }}</span>
-                    <h2 class="curso-titulo">{{ item.curso.titulo }}</h2>
-                    <div class="curso-meta">
-                        <span>👥</span> {{ item.total_alumnos }} estudiante{{ item.total_alumnos|pluralize }} matriculado{{ item.total_alumnos|pluralize }}
+            <!-- Barra Superior Modular -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=True %}
+
+            <!-- Alertas del Sistema -->
+            <div style="padding: 18px 32px 0 32px;">
+                {% include 'componentes/mensajes.html' %}
+            </div>
+
+            <!-- Contenido Principal -->
+            <main class="intranet-content" style="padding-top: 14px;">
+
+                <div class="main-container" style="max-width: 100%; margin: 0; padding: 0;">
+
+                    <div style="margin-bottom: 20px;">
+                        <a href="{% url 'dashboard' %}" class="btn-back-link">
+                            ← Volver al Dashboard
+                        </a>
                     </div>
+
+                    <div class="header-title-box">
+                        <h1>📋 Control Rápido de Asistencias</h1>
+                        <p>Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los módulos del aula virtual.</p>
+                    </div>
+
+                    {% if cursos_data %}
+                    <div class="cards-grid">
+                        {% for item in cursos_data %}
+                        <div class="curso-asistencia-card">
+                            <div class="card-top">
+                                <span class="badge-periodo">{{ item.curso.periodo.nombre|default:"Ciclo Activo" }}</span>
+                                <h2 class="curso-titulo">{{ item.curso.titulo }}</h2>
+                                <div class="curso-meta">
+                                    <span>👥</span> {{ item.total_alumnos }} estudiante{{ item.total_alumnos|pluralize }} matriculado{{ item.total_alumnos|pluralize }}
+                                </div>
+                            </div>
+
+                            <a href="{% url 'docente_asistencia_curso' item.curso.id %}?fecha={{ hoy }}" class="btn-tomar-asistencia">
+                                <span>✍️</span> Registrar Asistencia
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-courses">
+                        <div style="font-size: 38px; margin-bottom: 12px;">📚</div>
+                        <strong style="display: block; font-size: 1.05rem; color: #1e293b; margin-bottom: 4px;">
+                            Sin asignaturas registradas
+                        </strong>
+                        <span>No tienes cursos asignados como docente titular en este periodo.</span>
+                    </div>
+                    {% endif %}
+
                 </div>
 
-                <a href="{% url 'docente_asistencia_curso' item.curso.id %}?fecha={{ hoy }}" class="btn-tomar-asistencia">
-                    <span>✍️</span> Registrar Asistencia
-                </a>
-            </div>
-            {% endfor %}
+            </main>
+
         </div>
-        {% else %}
-        <div class="empty-courses">
-            <div style="font-size: 38px; margin-bottom: 12px;">📚</div>
-            <strong style="display: block; font-size: 1.05rem; color: #1e293b; margin-bottom: 4px;">
-                Sin asignaturas registradas
-            </strong>
-            <span>No tienes cursos asignados como docente titular en este periodo.</span>
-        </div>
-        {% endif %}
 
     </div>
 
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
 </body>
 
 </html>
