@@ -12,17 +12,29 @@
 </head>
 <body>
 
-    <!-- Barra Superior con Logo Institucional y Menú Desplegable -->
+    <!-- Barra Superior con Logo, Pestañas de Navegación y Menú Desplegable -->
     <header class="top-nav" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; background: #ffffff; border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
         
-        <!-- Logo y Nombre de la Academia -->
-        <a href="{% url 'dashboard' %}" class="brand-container">
+        <!-- Logo y Nombre -->
+        <a href="{% url 'panel_docente' %}" class="brand-container">
             <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
             <div class="brand-text-block">
                 <span class="brand-title">Academia Galeno</span>
                 <span class="brand-subtitle">Aula Virtual Docente</span>
             </div>
         </a>
+
+        <!-- Pestañas centrales: Alternar entre Aula Virtual y Panel Intranet -->
+        <nav style="display: flex; align-items: center; gap: 8px;">
+            <a href="{% url 'panel_docente' %}" 
+               style="text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; background: #eff6ff; color: #1d4ed8; display: inline-flex; align-items: center; gap: 6px;">
+                🎓 Cursos a Cargo
+            </a>
+            <a href="{% url 'dashboard' %}" 
+               style="text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s ease;">
+                🏛️ Ir al Intranet
+            </a>
+        </nav>
 
         <!-- Menú Desplegable de Usuario -->
         <div class="user-dropdown-container">
@@ -36,7 +48,7 @@
                 <span class="dropdown-arrow">▼</span>
             </div>
 
-            <!-- Menú Flotante -->
+            <!-- Menú Flotante con Enlaces Completos -->
             <div class="user-dropdown-menu">
                 <div class="dropdown-user-info">
                     <div class="dropdown-user-name">
@@ -51,6 +63,12 @@
                 <div class="dropdown-menu-list">
                     <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
                         👤 Ver Mi Perfil
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="dropdown-menu-item">
+                        🏛️ Panel Intranet
+                    </a>
+                    <a href="{% url 'panel_docente' %}" class="dropdown-menu-item">
+                        🎓 Mis Cursos
                     </a>
                     <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
                         🚪 Cerrar Sesión
@@ -114,6 +132,7 @@
                             <span>📁 <strong>{{ curso.materiales.count }}</strong> Materiales</span>
                         </div>
 
+                        <!-- Botones de Acción: Aula redirige al aula virtual tipo Moodle -->
                         <div class="course-card-actions">
                             <a href="{% url 'detalle_curso' curso.id %}" class="btn-card-main">📖 Aula</a>
                             <a href="{% url 'subir_material' curso.id %}" class="btn-card-sub">+ Material</a>
