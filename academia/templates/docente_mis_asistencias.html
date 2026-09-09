@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Asistencia | Portal Docente</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.2">
+    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
 </head>
 
@@ -16,9 +16,13 @@
 
     <div class="intranet-container">
 
+        <!-- Sidebar Global Unificado -->
         {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencias' es_docente=True %}
+
+        <!-- Contenido Principal Derecho -->
         <div class="content-wrapper">
 
+            <!-- Topbar Institucional -->
             <header class="top-navbar">
                 <div class="top-welcome-text">
                     Bienvenido, profesor <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
@@ -35,61 +39,57 @@
                 </div>
             </header>
 
+            <!-- Alertas del Sistema -->
             {% if messages %}
             <div style="padding: 18px 32px 0 32px;">
                 {% for message in messages %}
-                {% if message.tags == 'error' %}
-                <div
-                    style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                    ⚠️ {{ message }}
-                </div>
-                {% else %}
-                <div
-                    style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                    ✅ {{ message }}
-                </div>
-                {% endif %}
+                    {% if message.tags == 'error' %}
+                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ⚠️ {{ message }}
+                    </div>
+                    {% else %}
+                    <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ✅ {{ message }}
+                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
             {% endif %}
 
+            <!-- Grilla de Asignaturas para Asistencia -->
             <main class="main-stage">
-
+                
                 <h2 class="page-header-title">
                     <span>📋</span> Control Rápido de Asistencias
                 </h2>
                 <p class="page-header-subtitle">
-                    Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los módulos del
-                    aula virtual.
+                    Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los módulos del aula virtual.
                 </p>
 
                 <div class="courses-grid">
                     {% for item in cursos_data %}
-                    <div class="course-card-clean"
-                        style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
+                    <div class="course-card-clean" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
                         <div>
-                            <span class="course-status-tag"
-                                style="position: static; display: inline-block; margin-bottom: 10px;">
-                                {% if item.curso.periodo %}{{ item.curso.periodo.nombre }}{% else %}Ciclo Activo{% endif
-                                %}
+                            <span class="course-status-tag" style="position: static; display: inline-block; margin-bottom: 10px;">
+                                {{ item.curso.periodo.nombre|default:"Ciclo Activo" }}
                             </span>
-                            <h3 class="course-title-clean" style="font-size: 16px; margin: 0 0 8px 0;">{{
-                                item.curso.titulo }}</h3>
+                            <h3 class="course-title-clean" style="font-size: 16px; margin: 0 0 8px 0;">
+                                {{ item.curso.titulo }}
+                            </h3>
                             <div class="course-students-meta" style="margin-bottom: 14px;">
                                 <span>👥</span>
-                                <span>{{ item.total_alumnos }} estudiante(s) matriculado(s)</span>
+                                <span>{{ item.total_alumnos }} estudiante{{ item.total_alumnos|pluralize }} matriculado{{ item.total_alumnos|pluralize }}</span>
                             </div>
                         </div>
 
-                        <a href="{% url 'docente_asistencia_curso' item.curso.id %}" class="btn-admin-curso"
-                            style="background: #0284c7; justify-content: center; text-align: center;">
+                        <a href="{% url 'docente_asistencia_curso' item.curso.id %}" class="btn-admin-curso" style="background: #0284c7; justify-content: center; text-align: center;">
                             ✍️ Registrar Asistencia
                         </a>
                     </div>
                     {% empty %}
                     <div class="empty-state-courses">
                         <p>📚</p>
-                        <p>No tienes cursos asignados en este periodo académico.</p>
+                        <p>No tienes asignaturas asignadas en este ciclo académico.</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -101,5 +101,4 @@
     </div>
 
 </body>
-
 </html>

@@ -8,90 +8,144 @@
     <title>Mi Perfil | Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.4">
-    <link rel="stylesheet" href="{% static 'css/perfil.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.2">
+    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
+    <link rel="stylesheet" href="{% static 'css/perfil.css' %}?v=1.1">
 </head>
 
-<body class="intranet-body">
+<body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
 
-    <div class="intranet-layout">
+    <div class="intranet-container">
 
-        <!-- Sidebar Modular -->
-        {% include 'componentes/sidebar_intranet.html' with seccion_activa='perfil' es_docente=es_docente %}
+        <!-- 1. Sidebar Modular Institucional Unificado -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='perfil' %}
 
-        <!-- Área Central -->
-        <div class="intranet-main">
+        <!-- 2. Contenedor Principal Derecho -->
+        <div class="content-wrapper">
 
-            <!-- Topbar Modular -->
-            {% include 'componentes/topbar_intranet.html' with es_docente=es_docente %}
+            <!-- Barra Superior Topbar Institucional -->
+            <header class="top-navbar">
+                <div class="top-welcome-text">
+                    Bienvenido, {% if request.user.is_superuser or request.user.is_staff or request.user.docente_cursos.exists or es_docente %}profesor{% else %}alumno{% endif %} 
+                    <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                </div>
+
+                <div class="user-pill">
+                    <div class="user-circle">
+                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                    </div>
+                    <div class="user-text-info">
+                        <div class="user-text-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                        <div class="user-text-role">
+                            {% if request.user.is_superuser or request.user.is_staff %}
+                                Administrador
+                            {% elif request.user.docente_cursos.exists or es_docente %}
+                                Docente Titular
+                            {% else %}
+                                Estudiante Regular
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </header>
 
             <!-- Alertas del Sistema -->
-            <div style="padding: 14px 32px 0 32px;">
-                {% include 'componentes/mensajes.html' %}
+            {% if messages %}
+            <div style="padding: 18px 32px 0 32px;">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ⚠️ {{ message }}
+                    </div>
+                    {% else %}
+                    <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ✅ {{ message }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
             </div>
+            {% endif %}
 
             <!-- Contenido Principal -->
-            <main class="intranet-content" style="padding: 28px 32px;">
+            <main class="main-stage">
 
-                <div class="perfil-card-wrapper">
-                    <div class="perfil-banner">
-                        <div class="perfil-avatar-circle">
+                <div class="perfil-card-wrapper" style="max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);">
+                    
+                    <!-- Banner Azul Superior -->
+                    <div class="perfil-banner" style="height: 120px; background: linear-gradient(135deg, #02529c 0%, #0284c7 100%); position: relative;">
+                        <div class="perfil-avatar-circle" style="width: 84px; height: 84px; border-radius: 50%; background: #ffffff; color: #02529c; font-size: 32px; font-weight: 800; display: flex; align-items: center; justify-content: center; position: absolute; bottom: -42px; left: 36px; border: 4px solid #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
                             {{ request.user.first_name|first|default:request.user.username|first|upper }}
                         </div>
                     </div>
 
-                    <div class="perfil-card-body">
-                        <div class="perfil-header-title">
-                            <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
-                            <span class="badge-rol">
+                    <div class="perfil-card-body" style="padding: 56px 36px 36px 36px;">
+                        
+                        <!-- Cabecera de Datos -->
+                        <div class="perfil-header-title" style="margin-bottom: 28px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                            <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #0f172a;">
+                                {{ request.user.get_full_name|default:request.user.username }}
+                            </h2>
+                            <span class="badge-rol" style="padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; background: #e0f2fe; color: #0284c7; text-transform: uppercase;">
                                 {% if request.user.is_superuser or request.user.is_staff %}
                                     Administrador
-                                {% elif es_docente %}
+                                {% elif request.user.docente_cursos.exists or es_docente %}
                                     Docente Titular
                                 {% else %}
-                                    Estudiante Activo
+                                    Estudiante Regular
                                 {% endif %}
                             </span>
                         </div>
 
-                        <div class="perfil-grid">
-                            <div class="perfil-field-box">
-                                <div class="perfil-field-label">👤 Usuario (Login)</div>
-                                <div class="perfil-field-val">@{{ request.user.username }}</div>
+                        <!-- Grilla de Información -->
+                        <div class="perfil-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                            
+                            <div class="perfil-field-box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px;">
+                                <div class="perfil-field-label" style="font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">👤 Usuario (Login)</div>
+                                <div class="perfil-field-val" style="font-size: 14.5px; font-weight: 700; color: #0f172a;">@{{ request.user.username }}</div>
                             </div>
 
-                            <div class="perfil-field-box">
-                                <div class="perfil-field-label">📅 Miembro Desde</div>
-                                <div class="perfil-field-val">{{ request.user.date_joined|date:"d M Y" }}</div>
+                            <div class="perfil-field-box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px;">
+                                <div class="perfil-field-label" style="font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">📅 Miembro Desde</div>
+                                <div class="perfil-field-val" style="font-size: 14.5px; font-weight: 700; color: #0f172a;">{{ request.user.date_joined|date:"d M Y" }}</div>
                             </div>
 
-                            <div class="perfil-field-box">
-                                <div class="perfil-field-label">🏷️ Nombres</div>
-                                <div class="perfil-field-val">{{ request.user.first_name|default:"—" }}</div>
+                            <div class="perfil-field-box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px;">
+                                <div class="perfil-field-label" style="font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">🏷️ Nombres</div>
+                                <div class="perfil-field-val" style="font-size: 14.5px; font-weight: 700; color: #0f172a;">{{ request.user.first_name|default:"—" }}</div>
                             </div>
 
-                            <div class="perfil-field-box">
-                                <div class="perfil-field-label">🏷️ Apellidos</div>
-                                <div class="perfil-field-val">{{ request.user.last_name|default:"—" }}</div>
+                            <div class="perfil-field-box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px;">
+                                <div class="perfil-field-label" style="font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">🏷️ Apellidos</div>
+                                <div class="perfil-field-val" style="font-size: 14.5px; font-weight: 700; color: #0f172a;">{{ request.user.last_name|default:"—" }}</div>
                             </div>
 
-                            <div class="perfil-field-box perfil-field-full">
-                                <div class="perfil-field-label">✉️ Correo Electrónico</div>
-                                <div class="perfil-field-val">{{ request.user.email|default:"Sin correo registrado" }}</div>
+                            <div class="perfil-field-box perfil-field-full" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; grid-column: 1 / -1;">
+                                <div class="perfil-field-label" style="font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">✉️ Correo Electrónico</div>
+                                <div class="perfil-field-val" style="font-size: 14.5px; font-weight: 700; color: #0f172a;">{{ request.user.email|default:"Sin correo registrado" }}</div>
                             </div>
+
                         </div>
 
-                        {% if request.user.is_superuser or request.user.is_staff or es_docente %}
-                        <div class="seguridad-box">
-                            <h3>🔐 Seguridad de la Cuenta</h3>
-                            <p>Protege tu acceso institucional añadiendo una capa extra de verificación por código temporal.</p>
-                            <a href="{% url 'configurar_2fa' %}" class="btn-2fa">
+                        <!-- Seguridad y 2FA -->
+                        {% if request.user.is_superuser or request.user.is_staff or request.user.docente_cursos.exists or es_docente %}
+                        <div class="seguridad-box" style="margin-top: 28px; padding: 20px 24px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                            <div>
+                                <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 8px;">
+                                    🔐 Seguridad de la Cuenta
+                                </h3>
+                                <p style="margin: 0; font-size: 13px; color: #15803d;">
+                                    Protege tu acceso institucional añadiendo una capa extra de verificación por código temporal.
+                                </p>
+                            </div>
+                            <a href="{% url 'configurar_2fa' %}" class="btn-2fa" style="background: #16a34a; color: #ffffff; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; transition: background 0.15s ease;">
                                 Configurar Doble Factor (2FA)
                             </a>
                         </div>
                         {% endif %}
+
                     </div>
+
                 </div>
 
             </main>
