@@ -199,6 +199,25 @@ class Material(models.Model):
     def __str__(self):
         return f"[Semana {self.semana}] {self.titulo}"
 
+    # En academia/models.py dentro de la clase Material:
+
+    @property
+    def es_video(self):
+        """Verifica si el material corresponde a un video (subido o embebido)."""
+        url_archivo = str(self.archivo.url if self.archivo else '').lower()
+        nombre_archivo = str(self.archivo.name if self.archivo else '').lower()
+        enlace = str(self.enlace_web or '').lower()
+
+        # Comprobar si es un archivo de video
+        if any(ext in url_archivo or ext in nombre_archivo for ext in ['.mp4', '.webm', '/video/upload/']):
+            return True
+
+        # Comprobar si es un enlace de video externo
+        if any(prov in enlace for prov in ['youtube.com', 'youtu.be', 'vimeo.com']):
+            return True
+
+        return False
+
 
 # ----------------------------------------------------
 # 4. MODELO INSCRIPCIÓN / MATRÍCULA
