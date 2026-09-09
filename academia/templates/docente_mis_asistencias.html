@@ -7,109 +7,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Asistencia | Portal Docente</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
     <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=1.0">
-    <link rel="stylesheet" href="{% static 'css/docente_asistencia.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
 </head>
 
-<body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
+<body>
 
-    <div style="display: flex; min-height: 100vh; width: 100%;">
+    <div class="intranet-container">
 
-        <!-- 1. Sidebar Centralizado con enlace correcto a Registro de Notas -->
         {% include 'componentes/sidebar_docente.html' with seccion_activa='asistencias' %}
 
-        <!-- 2. Área Principal Derecha -->
-        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+        <div class="content-wrapper">
 
-            <!-- Barra Superior Blanca Institucional -->
-            <header
-                style="background: #ffffff; height: 62px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 40;">
-                <div style="font-size: 13px; color: #475569;">
+            <header class="top-navbar">
+                <div class="top-welcome-text">
                     Bienvenido, profesor <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
                 </div>
 
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div
-                        style="width: 34px; height: 34px; border-radius: 50%; background: #0284c7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;">
+                <div class="user-pill">
+                    <div class="user-circle">
                         {{ request.user.first_name|first|default:request.user.username|first|upper }}
                     </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 13px; font-weight: 700; color: #0f172a;">{{
-                            request.user.get_full_name|default:request.user.username }}</div>
-                        <div style="font-size: 10.5px; font-weight: 700; color: #0284c7; text-transform: uppercase;">
-                            Docente Titular</div>
+                    <div class="user-text-info">
+                        <div class="user-text-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                        <div class="user-text-role">Docente Titular</div>
                     </div>
                 </div>
             </header>
 
-            <!-- Alertas del Sistema -->
             {% if messages %}
             <div style="padding: 18px 32px 0 32px;">
                 {% for message in messages %}
-                {% if message.tags == 'error' %}
-                <div
-                    style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                    ⚠️ {{ message }}
-                </div>
-                {% else %}
-                <div
-                    style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                    ✅ {{ message }}
-                </div>
-                {% endif %}
+                    {% if message.tags == 'error' %}
+                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ⚠️ {{ message }}
+                    </div>
+                    {% else %}
+                    <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ✅ {{ message }}
+                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
             {% endif %}
 
-            <!-- Contenido Principal -->
-            <main style="padding: 24px 32px 60px 32px;">
+            <main class="main-stage">
+                
+                <h2 class="page-header-title">
+                    <span>📋</span> Control Rápido de Asistencias
+                </h2>
+                <p class="page-header-subtitle">
+                    Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los módulos del aula virtual.
+                </p>
 
-                <div class="main-container" style="max-width: 100%; margin: 0; padding: 0;">
-
-                    <div class="header-title-box" style="margin-bottom: 24px;">
-                        <h1
-                            style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
-                            📋 Control Rápido de Asistencias
-                        </h1>
-                        <p style="font-size: 13.5px; color: #64748b; margin: 0;">
-                            Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los
-                            módulos del aula virtual.
-                        </p>
-                    </div>
-
-                    {% if cursos_data %}
-                    <div class="cards-grid">
-                        {% for item in cursos_data %}
-                        <div class="curso-asistencia-card">
-                            <div class="card-top">
-                                <span class="badge-periodo">{{ item.curso.periodo.nombre|default:"Ciclo Activo"
-                                    }}</span>
-                                <h2 class="curso-titulo">{{ item.curso.titulo }}</h2>
-                                <div class="curso-meta">
-                                    <span>👥</span> {{ item.total_alumnos }} estudiante{{ item.total_alumnos|pluralize
-                                    }} matriculado{{ item.total_alumnos|pluralize }}
-                                </div>
+                <div class="courses-grid">
+                    {% for item in cursos_data %}
+                    <div class="course-card-clean" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
+                        <div>
+                            <span class="course-status-tag" style="position: static; display: inline-block; margin-bottom: 10px;">
+                                {% if item.curso.periodo %}{{ item.curso.periodo.nombre }}{% else %}Ciclo Activo{% endif %}
+                            </span>
+                            <h3 class="course-title-clean" style="font-size: 16px; margin: 0 0 8px 0;">{{ item.curso.titulo }}</h3>
+                            <div class="course-students-meta" style="margin-bottom: 14px;">
+                                <span>👥</span>
+                                <span>{{ item.total_alumnos }} estudiante(s) matriculado(s)</span>
                             </div>
-
-                            <a href="{% url 'docente_asistencia_curso' item.curso.id %}?fecha={{ hoy }}"
-                                class="btn-tomar-asistencia">
-                                <span>✍️</span> Registrar Asistencia
-                            </a>
                         </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="empty-courses">
-                        <div style="font-size: 38px; margin-bottom: 12px;">📚</div>
-                        <strong style="display: block; font-size: 1.05rem; color: #1e293b; margin-bottom: 4px;">
-                            Sin asignaturas registradas
-                        </strong>
-                        <span>No tienes cursos asignados como docente titular en este periodo.</span>
-                    </div>
-                    {% endif %}
 
+                        <a href="{% url 'docente_asistencia_curso' item.curso.id %}" class="btn-admin-curso" style="background: #0284c7; justify-content: center; text-align: center;">
+                            ✍️ Registrar Asistencia
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state-courses">
+                        <p>📚</p>
+                        <p>No tienes cursos asignados en este periodo académico.</p>
+                    </div>
+                    {% endfor %}
                 </div>
 
             </main>
@@ -118,7 +93,5 @@
 
     </div>
 
-    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
 </body>
-
 </html>
