@@ -82,6 +82,7 @@
                             </div>
                         </div>
 
+                        {% if request.user.is_superuser or request.user.is_staff or es_docente %}
                         <div class="seguridad-box">
                             <h3>🔐 Seguridad de la Cuenta</h3>
                             <p>Protege tu acceso institucional añadiendo una capa extra de verificación por código temporal.</p>
@@ -89,6 +90,7 @@
                                 Configurar Doble Factor (2FA)
                             </a>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
 

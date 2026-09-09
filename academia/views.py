@@ -203,8 +203,14 @@ def salir(request):
 
 @login_required
 def configurar_2fa(request):
-    """Vincular aplicación autenticadora (Google Authenticator / Authy)."""
+    """Permite vincular 2FA exclusivamente a Administradores y Docentes."""
     user = request.user
+    
+    # Bloqueo para alumnos
+    if not (user.is_staff or user.is_superuser or es_docente_valido(user)):
+        messages.error(request, "Esta opción de seguridad no está habilitada para cuentas de estudiantes.")
+        return redirect('mi_perfil')
+
     dispositivo_confirmado = TOTPDevice.objects.filter(user=user, confirmed=True).first()
 
     if request.method == 'POST':
