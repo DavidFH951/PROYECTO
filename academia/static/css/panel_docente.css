@@ -1,184 +1,6 @@
 /* ==============================================================================
-   PORTAL DOCENTE - ESTILO INTRANET INSTITUCIONAL (AZUL CONTINUO)
+   MÓDULO PANEL DOCENTE / CATÁLOGO DE ASIGNATURAS (ACADEMIA GALENO)
    ============================================================================== */
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f8fafc;
-    color: #0f172a;
-}
-
-.intranet-container {
-    display: flex;
-    min-height: 100vh;
-    width: 100%;
-}
-
-/* Sidebar Institucional Azul Galeno */
-.sidebar-galeno {
-    width: 240px;
-    min-width: 240px;
-    background: #02529c;
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    z-index: 50;
-}
-
-.sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 18px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    text-decoration: none;
-    color: #ffffff;
-}
-
-.sidebar-logo {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #ffffff;
-    padding: 2px;
-    object-fit: contain;
-}
-
-.sidebar-brand-title {
-    font-size: 14px;
-    font-weight: 800;
-    line-height: 1.2;
-    display: block;
-}
-
-.sidebar-brand-sub {
-    font-size: 10px;
-    font-weight: 700;
-    color: #93c5fd;
-    letter-spacing: 0.5px;
-    display: block;
-}
-
-.sidebar-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 20px 12px;
-    flex: 1;
-}
-
-.sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    color: #e0f2fe;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: background 0.15s ease, color 0.15s ease;
-}
-
-.sidebar-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-}
-
-.sidebar-link.active {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    font-weight: 700;
-}
-
-/* Área de Contenido Derecho */
-.content-wrapper {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Topbar Superior Blanco */
-.top-navbar {
-    background: #ffffff;
-    height: 62px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 32px;
-}
-
-.top-welcome-text {
-    font-size: 13px;
-    color: #475569;
-}
-
-.user-pill {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.user-circle {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #0284c7;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.user-text-info {
-    text-align: right;
-}
-
-.user-text-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: #0f172a;
-}
-
-.user-text-role {
-    font-size: 10.5px;
-    font-weight: 700;
-    color: #0284c7;
-    text-transform: uppercase;
-}
-
-/* Grid de Asignaturas */
-.main-stage {
-    padding: 30px 36px 60px 36px;
-}
-
-.page-header-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 20px;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 0 0 6px 0;
-}
-
-.page-header-subtitle {
-    margin: 0 0 26px 0;
-    font-size: 13.5px;
-    color: #64748b;
-}
 
 .courses-grid {
     display: grid;
@@ -200,6 +22,7 @@ body {
 .course-card-clean:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e1;
 }
 
 .course-thumb-box {
@@ -218,20 +41,21 @@ body {
 .course-thumb-fallback {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, #02529c 0%, #0284c7 100%);
 }
 
 .course-status-tag {
     position: absolute;
     top: 10px;
     left: 12px;
-    background: #1e293b;
+    background: rgba(15, 23, 42, 0.85);
     color: #ffffff;
     font-size: 10px;
     font-weight: 700;
     padding: 3px 8px;
     border-radius: 4px;
     letter-spacing: 0.5px;
+    backdrop-filter: blur(2px);
 }
 
 .course-body-clean {
@@ -247,6 +71,7 @@ body {
     font-weight: 800;
     color: #0f172a;
     margin: 0 0 8px 0;
+    line-height: 1.3;
 }
 
 .course-students-meta {
@@ -269,6 +94,7 @@ body {
 .course-type-label {
     font-size: 11.5px;
     color: #94a3b8;
+    font-weight: 500;
 }
 
 .btn-admin-curso {
@@ -282,19 +108,24 @@ body {
     padding: 7px 14px;
     border-radius: 6px;
     text-decoration: none;
-    transition: background 0.15s ease;
+    transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
 .btn-admin-curso:hover {
     background: #047857;
+    color: #ffffff;
+}
+
+.btn-admin-curso:active {
+    transform: scale(0.98);
 }
 
 .empty-state-courses {
     grid-column: 1 / -1;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: 1px dashed #cbd5e1;
     border-radius: 12px;
-    padding: 48px;
+    padding: 48px 20px;
     text-align: center;
     color: #94a3b8;
 }
@@ -306,7 +137,7 @@ body {
 
 .empty-state-courses p:last-child {
     margin: 0;
-    font-size: 15px;
+    font-size: 14.5px;
     font-weight: 600;
     color: #475569;
 }

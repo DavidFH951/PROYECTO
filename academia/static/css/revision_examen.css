@@ -1,75 +1,72 @@
-/* Contenedor y Layout General */
-.revision-body {
-    background-color: #f8fafc;
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 30px;
-}
+/* ==============================================================================
+   MÓDULO REVISIÓN DE EXAMEN / SOLUCIONARIO - ACADEMIA GALENO
+   ============================================================================== */
 
 .revision-container {
-    max-width: 800px;
+    max-width: 860px;
     margin: 0 auto;
     background-color: #ffffff;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 14px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
     border: 1px solid #e2e8f0;
 }
 
-/* Encabezado */
 .revision-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
     padding-bottom: 16px;
     margin-bottom: 20px;
+    gap: 16px;
 }
 
 .revision-title {
-    margin: 0;
+    margin: 0 0 4px 0;
     color: #0f172a;
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 800;
 }
 
 .revision-subtitle {
-    margin: 4px 0 0 0;
+    margin: 0;
     color: #64748b;
-    font-size: 14px;
+    font-size: 13.5px;
 }
 
 .btn-volver-curso {
     text-decoration: none;
-    background-color: #e2e8f0;
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
     color: #334155;
     padding: 8px 14px;
     border-radius: 6px;
-    font-weight: 600;
-    font-size: 13px;
-    transition: background-color 0.2s ease;
+    font-weight: 700;
+    font-size: 12.5px;
+    transition: background-color 0.15s ease;
 }
 
 .btn-volver-curso:hover {
-    background-color: #cbd5e1;
+    background-color: #e2e8f0;
+    color: #0f172a;
 }
 
-/* Tarjeta de Resumen / Calificación */
 .resumen-calificacion-card {
-    background-color: #eff6ff;
-    border: 1px solid #bfdbfe;
+    background-color: #f0f9ff;
+    border: 1px solid #bae6fd;
     border-radius: 10px;
-    padding: 18px;
+    padding: 16px;
     display: flex;
     justify-content: space-around;
-    margin-bottom: 25px;
+    margin-bottom: 24px;
     text-align: center;
 }
 
 .resumen-label {
-    font-size: 12px;
-    color: #1e40af;
-    font-weight: 600;
+    font-size: 11px;
+    color: #0369a1;
+    font-weight: 700;
     display: block;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -77,29 +74,28 @@
 }
 
 .resumen-valor-estado {
-    color: #1e3a8a;
-    font-size: 16px;
+    color: #0c4a6e;
+    font-size: 15px;
     font-weight: 700;
 }
 
 .resumen-valor-nota {
-    color: #2563eb;
-    font-size: 24px;
+    color: #0284c7;
+    font-size: 22px;
     font-weight: 800;
 }
 
 .resumen-valor-fecha {
-    color: #1e3a8a;
-    font-size: 14px;
+    color: #0c4a6e;
+    font-size: 13.5px;
     font-weight: 600;
 }
 
-/* Solucionario y Preguntas */
 .solucionario-title {
-    color: #1e293b;
+    color: #0f172a;
     font-size: 16px;
     margin: 0 0 16px 0;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .card-pregunta-revision {
@@ -158,47 +154,10 @@
 .justificacion-box {
     margin-top: 10px;
     padding: 10px 14px;
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 6px;
     border-left: 3px solid #0284c7;
     font-size: 12.5px;
     color: #0369a1;
     line-height: 1.45;
-}
-
-/* Estados de Alerta y Reserva */
-.empty-respuestas-box {
-    text-align: center;
-    padding: 30px;
-    background-color: #ffffff;
-    border: 1px dashed #cbd5e1;
-    border-radius: 8px;
-    color: #64748b;
-    font-size: 13.5px;
-}
-
-.reserva-solucionario-box {
-    text-align: center;
-    padding: 35px 20px;
-    background-color: #f8fafc;
-    border: 1px dashed #cbd5e1;
-    border-radius: 8px;
-    color: #64748b;
-}
-
-.reserva-icono {
-    font-size: 28px;
-    margin: 0 0 8px 0;
-}
-
-.reserva-titulo {
-    margin: 0 0 6px 0;
-    color: #334155;
-    font-size: 16px;
-}
-
-.reserva-mensaje {
-    font-size: 13px;
-    margin: 0;
-    line-height: 1.5;
 }

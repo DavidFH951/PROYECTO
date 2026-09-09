@@ -1,12 +1,9 @@
 /* ==============================================================================
-   CATÁLOGO DE CALIFICACIONES DOCENTE - ACADEMIA GALENO
+   MÓDULO CATÁLOGO DE CALIFICACIONES DOCENTE - ACADEMIA GALENO
    ============================================================================== */
 
 .calificaciones-docente-container {
     width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
 }
 
 .calificaciones-header-block {
@@ -16,20 +13,6 @@
     margin-bottom: 24px;
 }
 
-.calificaciones-header-title {
-    margin: 0 0 4px 0;
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #0f172a;
-}
-
-.calificaciones-header-subtitle {
-    margin: 0;
-    color: #64748b;
-    font-size: 13.5px;
-}
-
-/* Contenedor tipo lista/tabla de cursos */
 .calificaciones-card-wrapper {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -71,7 +54,7 @@
 .periodo-pill {
     display: inline-block;
     background: #e0f2fe;
-    color: #0369a1;
+    color: #0284c7;
     font-size: 11px;
     font-weight: 700;
     padding: 4px 10px;
