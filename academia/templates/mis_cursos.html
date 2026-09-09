@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,10 +11,11 @@
     <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.1">
     <link rel="stylesheet" href="{% static 'css/mis_cursos.css' %}?v=1.0">
 </head>
+
 <body class="intranet-body">
 
     <div class="intranet-layout">
-        
+
         <!-- Sidebar -->
         <aside class="intranet-sidebar">
             <div class="intranet-sidebar-header">
@@ -48,21 +50,14 @@
 
         <!-- Contenido Central -->
         <div class="intranet-main">
-            
-            <header class="intranet-topbar">
-                <div class="intranet-welcome-text">
-                    Estudiante: <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
-                </div>
-                <a href="{% url 'dashboard' %}" style="text-decoration: none; font-size: 13px; font-weight: 600; color: #047857;">
-                    ← Volver a Intranet
-                </a>
-            </header>
-
+            <!-- REEMPLAZAR POR: -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=False %}
             <main class="intranet-content">
-                
+
                 <div style="margin-bottom: 24px;">
                     <h2 style="margin: 0 0 6px 0; font-size: 22px; color: #0f172a;">🎓 Asignaturas Matriculadas</h2>
-                    <p style="margin: 0; color: #64748b; font-size: 13.5px;">Selecciona un curso para acceder al material didáctico, videoconferencias, foros y evaluaciones.</p>
+                    <p style="margin: 0; color: #64748b; font-size: 13.5px;">Selecciona un curso para acceder al
+                        material didáctico, videoconferencias, foros y evaluaciones.</p>
                 </div>
 
                 <div class="cursos-grid">
@@ -70,7 +65,7 @@
                     <div class="curso-card">
                         <div class="curso-portada-box">
                             {% if insc.curso.imagen_portada %}
-                                <img src="{{ insc.curso.imagen_portada.url }}" alt="{{ insc.curso.titulo }}">
+                            <img src="{{ insc.curso.imagen_portada.url }}" alt="{{ insc.curso.titulo }}">
                             {% endif %}
                             <span class="curso-badge-periodo">
                                 {{ insc.curso.periodo.codigo|default:"Ciclo Activo" }}
@@ -92,8 +87,10 @@
                         </div>
                     </div>
                     {% empty %}
-                    <div class="dashboard-card" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748b;">
-                        <p style="font-size: 15px; margin: 0 0 8px 0;">No estás matriculado en ninguna asignatura activa.</p>
+                    <div class="dashboard-card"
+                        style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748b;">
+                        <p style="font-size: 15px; margin: 0 0 8px 0;">No estás matriculado en ninguna asignatura
+                            activa.</p>
                         <small>Comunícate con el área de administración académica para gestionar tu matrícula.</small>
                     </div>
                     {% endfor %}
@@ -106,4 +103,5 @@
     </div>
 
 </body>
+
 </html>
