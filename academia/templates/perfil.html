@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,29 +10,88 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
     <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.4">
-    <link rel="stylesheet" href="{% static 'css/perfil.css' %}">
+    <link rel="stylesheet" href="{% static 'css/perfil.css' %}?v=1.0">
 </head>
+
 <body class="intranet-body">
 
     <div class="intranet-layout">
-        
+
         <!-- Sidebar Modular -->
         {% include 'componentes/sidebar_intranet.html' with seccion_activa='perfil' es_docente=es_docente %}
 
+        <!-- Área Central -->
         <div class="intranet-main">
-            
-            <!-- Topbar Modular estándar -->
+
+            <!-- Topbar Modular -->
             {% include 'componentes/topbar_intranet.html' with es_docente=es_docente %}
 
+            <!-- Alertas del Sistema -->
             <div style="padding: 14px 32px 0 32px;">
                 {% include 'componentes/mensajes.html' %}
             </div>
 
-            <main class="intranet-content" style="padding-top: 20px;">
-                <!-- Aquí colocas la tarjeta azul con la información del usuario y el botón 2FA -->
-                <div class="perfil-card-container">
-                    <!-- Tu contenido actual de la tarjeta de perfil -->
+            <!-- Contenido Principal -->
+            <main class="intranet-content" style="padding: 28px 32px;">
+
+                <div class="perfil-card-wrapper">
+                    <div class="perfil-banner">
+                        <div class="perfil-avatar-circle">
+                            {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                        </div>
+                    </div>
+
+                    <div class="perfil-card-body">
+                        <div class="perfil-header-title">
+                            <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
+                            <span class="badge-rol">
+                                {% if request.user.is_superuser or request.user.is_staff %}
+                                    Administrador
+                                {% elif es_docente %}
+                                    Docente Titular
+                                {% else %}
+                                    Estudiante Activo
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="perfil-grid">
+                            <div class="perfil-field-box">
+                                <div class="perfil-field-label">👤 Usuario (Login)</div>
+                                <div class="perfil-field-val">@{{ request.user.username }}</div>
+                            </div>
+
+                            <div class="perfil-field-box">
+                                <div class="perfil-field-label">📅 Miembro Desde</div>
+                                <div class="perfil-field-val">{{ request.user.date_joined|date:"d M Y" }}</div>
+                            </div>
+
+                            <div class="perfil-field-box">
+                                <div class="perfil-field-label">🏷️ Nombres</div>
+                                <div class="perfil-field-val">{{ request.user.first_name|default:"—" }}</div>
+                            </div>
+
+                            <div class="perfil-field-box">
+                                <div class="perfil-field-label">🏷️ Apellidos</div>
+                                <div class="perfil-field-val">{{ request.user.last_name|default:"—" }}</div>
+                            </div>
+
+                            <div class="perfil-field-box perfil-field-full">
+                                <div class="perfil-field-label">✉️ Correo Electrónico</div>
+                                <div class="perfil-field-val">{{ request.user.email|default:"Sin correo registrado" }}</div>
+                            </div>
+                        </div>
+
+                        <div class="seguridad-box">
+                            <h3>🔐 Seguridad de la Cuenta</h3>
+                            <p>Protege tu acceso institucional añadiendo una capa extra de verificación por código temporal.</p>
+                            <a href="{% url 'configurar_2fa' %}" class="btn-2fa">
+                                Configurar Doble Factor (2FA)
+                            </a>
+                        </div>
+                    </div>
                 </div>
+
             </main>
 
         </div>
@@ -40,4 +100,5 @@
 
     <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
 </body>
+
 </html>
