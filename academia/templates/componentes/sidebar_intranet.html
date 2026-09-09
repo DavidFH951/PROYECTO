@@ -1,10 +1,10 @@
 {% load static %}
-<aside class="intranet-sidebar">
-    <div class="intranet-sidebar-header">
+<aside class="sidebar-galeno">
+    <a href="{% url 'dashboard' %}" class="sidebar-brand">
         <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="sidebar-logo">
         <div class="sidebar-title-group">
-            <span class="intranet-brand-title">Academia Galeno</span>
-            <span class="intranet-brand-sub">
+            <span class="sidebar-brand-title">Academia Galeno</span>
+            <span class="sidebar-brand-sub">
                 {% if es_docente %}
                     PORTAL DOCENTE
                 {% elif request.user.is_superuser or request.user.is_staff %}
@@ -14,41 +14,45 @@
                 {% endif %}
             </span>
         </div>
-    </div>
+    </a>
 
-    <nav class="intranet-menu">
-        <a href="{% url 'dashboard' %}" class="intranet-nav-link {% if seccion_activa == 'inicio' %}active{% endif %}">
+    <nav class="sidebar-menu">
+        <!-- Inicio común -->
+        <a href="{% url 'dashboard' %}" class="sidebar-link {% if seccion_activa == 'inicio' %}active{% endif %}">
             <span>🏠</span> Inicio / Intranet
         </a>
 
         {% if es_docente %}
-            <a href="{% url 'mis_cursos' %}" class="intranet-nav-link {% if seccion_activa == 'cursos_docente' %}active{% endif %}">
+            <!-- Menú Docente (Rutas Corregidas) -->
+            <a href="{% url 'panel_docente' %}" class="sidebar-link {% if seccion_activa == 'asignaturas' or seccion_activa == 'cursos_docente' %}active{% endif %}">
                 <span>📚</span> Mis Asignaturas
             </a>
-            <a href="{% url 'panel_docente' %}" class="intranet-nav-link {% if seccion_activa == 'notas_docente' %}active{% endif %}">
+            <a href="{% url 'docente_mis_calificaciones' %}" class="sidebar-link {% if seccion_activa == 'notas' or seccion_activa == 'notas_docente' %}active{% endif %}">
                 <span>📊</span> Registro de Notas
             </a>
-            <a href="{% url 'docente_mis_asistencias' %}" class="intranet-nav-link {% if seccion_activa == 'asistencia_docente' %}active{% endif %}">
+            <a href="{% url 'docente_mis_asistencias' %}" class="sidebar-link {% if seccion_activa == 'asistencias' or seccion_activa == 'asistencia_docente' %}active{% endif %}">
                 <span>📋</span> Control de Asistencia
             </a>
         {% else %}
-            <!-- Menú Alumno Unificado -->
-            <a href="{% url 'mis_cursos' %}" class="intranet-nav-link {% if seccion_activa == 'mis_cursos' or seccion_activa == 'aula_virtual' %}active{% endif %}">
+            <!-- Menú Estudiante -->
+            <a href="{% url 'mis_cursos' %}" class="sidebar-link {% if seccion_activa == 'mis_cursos' or seccion_activa == 'aula_virtual' %}active{% endif %}">
                 <span>🎓</span> Aula Virtual (Mis Cursos)
             </a>
-            <a href="{% url 'mis_notas' %}" class="intranet-nav-link {% if seccion_activa == 'notas' %}active{% endif %}">
+            <a href="{% url 'mis_notas' %}" class="sidebar-link {% if seccion_activa == 'notas' %}active{% endif %}">
                 <span>📊</span> Consulta de Notas
             </a>
-            <a href="{% url 'mis_asistencias' %}" class="intranet-nav-link {% if seccion_activa == 'asistencias' %}active{% endif %}">
+            <a href="{% url 'mis_asistencias' %}" class="sidebar-link {% if seccion_activa == 'asistencias' %}active{% endif %}">
                 <span>⏱️</span> Mi Asistencia a Clases
             </a>
         {% endif %}
 
-        <a href="{% url 'mi_perfil' %}" class="intranet-nav-link {% if seccion_activa == 'perfil' %}active{% endif %}">
+        <!-- Cuenta común -->
+        <a href="{% url 'mi_perfil' %}" class="sidebar-link {% if seccion_activa == 'perfil' %}active{% endif %}">
             <span>👤</span> Mi Perfil
         </a>
 
-        <a href="{% url 'salir' %}" class="intranet-nav-link logout" style="margin-top: auto;">
+        <!-- Salir -->
+        <a href="{% url 'salir' %}" class="sidebar-logout">
             <span>🚪</span> Cerrar Sesión
         </a>
     </nav>
