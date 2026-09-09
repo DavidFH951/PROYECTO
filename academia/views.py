@@ -494,7 +494,7 @@ def mis_notas(request, token=None):
         'token': token_sesion,
         'es_docente': False,
     }
-    return render(request, 'alumno_mis_notas.html', context)
+    return render(request, 'notas.html', context)
 
 
 @login_required
