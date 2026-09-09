@@ -784,13 +784,16 @@ def panel_docente(request):
 
 @login_required
 def subir_material(request, curso_id):
-    """Subida de material didáctico validado."""
+    """Subida de material didáctico validado con soporte para videos MP4/WebM y enlaces."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if not es_docente_del_curso(request.user, curso):
         messages.error(request, "No tienes permiso para subir material a este curso.")
         return redirect('dashboard')
-    
+
+    periodo = curso.periodo or PeriodoAcademico.objects.filter(activo=True).first()
+    cronograma = periodo.obtener_cronograma_semanas() if periodo else []
+
     if request.method == 'POST':
         titulo = request.POST.get('titulo', '').strip()
         semana = request.POST.get('semana', 1)
@@ -798,22 +801,36 @@ def subir_material(request, curso_id):
         enlace = request.POST.get('enlace') or request.POST.get('enlace_web')
 
         if not titulo:
-            messages.error(request, "El título del material es obligatorio.")
-            return render(request, 'subir_material.html', {'curso': curso})
+            messages.error(request, "El título del contenido es obligatorio.")
+            return render(request, 'subir_material.html', {'curso': curso, 'cronograma': cronograma})
 
         if archivo:
-            if archivo.size > 15 * 1024 * 1024:
-                messages.error(request, "El archivo excede el tamaño máximo permitido de 15 MB.")
-                return render(request, 'subir_material.html', {'curso': curso})
+            # Límite ampliado a 60 MB para videos cortos y documentos pesados
+            max_bytes = 60 * 1024 * 1024
+            if archivo.size > max_bytes:
+                messages.error(request, "El archivo excede el tamaño máximo permitido de 60 MB.")
+                return render(request, 'subir_material.html', {'curso': curso, 'cronograma': cronograma})
 
             extensiones_permitidas = {
                 '.pdf', '.docx', '.doc', '.xlsx', '.xls', 
-                '.pptx', '.ppt', '.zip', '.rar', '.jpg', '.jpeg', '.png'
+                '.pptx', '.ppt', '.zip', '.rar', '.jpg', '.jpeg', '.png',
+                '.mp4', '.webm'
             }
             _, ext = os.path.splitext(archivo.name)
             if ext.lower() not in extensiones_permitidas:
-                messages.error(request, f"Extensión {ext} no admitida.")
-                return render(request, 'subir_material.html', {'curso': curso})
+                messages.error(
+                    request, 
+                    f"Tipo de archivo no permitido ({ext}). Formatos admitidos: PDF, Office, comprimidos, imágenes y video MP4/WebM."
+                )
+                return render(request, 'subir_material.html', {'curso': curso, 'cronograma': cronograma})
+
+        # Normalización automática si pegan enlaces de YouTube estándar (watch?v= -> embed/)
+        if enlace and 'youtube.com/watch?v=' in enlace:
+            video_id = enlace.split('v=')[-1].split('&')[0]
+            enlace = f"https://www.youtube-nocookie.com/embed/{video_id}"
+        elif enlace and 'youtu.be/' in enlace:
+            video_id = enlace.split('youtu.be/')[-1].split('?')[0]
+            enlace = f"https://www.youtube-nocookie.com/embed/{video_id}"
 
         Material.objects.create(
             curso=curso,
@@ -822,11 +839,11 @@ def subir_material(request, curso_id):
             archivo=archivo,
             enlace_web=enlace
         )
-        registrar_log(request, "Subida de Material", f"Subió '{titulo}' al curso '{curso.titulo}'")
-        messages.success(request, f"Material '{titulo}' publicado exitosamente.")
+        registrar_log(request, "Subida de Contenido", f"Publicó '{titulo}' en la semana {semana} del curso '{curso.titulo}'")
+        messages.success(request, f"Contenido '{titulo}' publicado exitosamente.")
         return redirect('detalle_curso', curso_id=curso.id)
-            
-    return render(request, 'subir_material.html', {'curso': curso})
+
+    return render(request, 'subir_material.html', {'curso': curso, 'cronograma': cronograma})
 
 
 @login_required

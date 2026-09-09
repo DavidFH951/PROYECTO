@@ -1,14 +1,16 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subir Material de Estudio | Panel Docente</title>
+    <title>Subir Material o Video | Panel Docente</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}?v=2.0">
 </head>
+
 <body>
 
     <!-- Barra Superior -->
@@ -29,7 +31,7 @@
                 <span class="user-trigger-text">{{ request.user.get_full_name|default:request.user.username }}</span>
                 <span class="dropdown-arrow">▼</span>
             </div>
-            
+
             <div class="user-dropdown-menu">
                 <div class="dropdown-user-info">
                     <div class="dropdown-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
@@ -37,7 +39,7 @@
                     <span class="dropdown-user-badge">DOCENTE</span>
                 </div>
                 <div class="dropdown-menu-list">
-                    <a href="{% url 'logout' %}" class="dropdown-menu-item logout-danger">
+                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
                         <span>🚪</span> Cerrar Sesión
                     </a>
                 </div>
@@ -48,79 +50,98 @@
     <!-- Formulario Centrado -->
     <main class="form-container-boxed">
         <section class="card-formulario">
-            
+
             <div class="card-formulario-header">
-                <h2>📁 Subir Material de Estudio</h2>
-                <p>Curso: <strong>{{ curso.nombre|default:curso.titulo|default:"Curso Activo" }}</strong></p>
+                <h2>📁 Subir Contenido Académico</h2>
+                <p>Curso: <strong>{{ curso.titulo|default:curso.nombre|default:"Curso Activo" }}</strong></p>
             </div>
 
             <div class="card-formulario-body">
-                {% if form.errors %}
-                    <div class="alert-box-error" style="background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 18px;">
-                        Por favor, revisa los campos requeridos.
+                {% if messages %}
+                <div style="margin-bottom: 18px;">
+                    {% for message in messages %}
+                    <div
+                        style="background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 8px;">
+                        {{ message }}
                     </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
 
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
-                    
+
                     <div style="display: flex; flex-direction: column; gap: 18px;">
 
                         <!-- Selector de Semana -->
                         <div class="campo-form">
                             <label class="label-form" for="semana">Semana / Sesión Académica</label>
-                            {% if form.semana %}
-                                {{ form.semana }}
-                            {% else %}
-                                <select name="semana" id="semana" class="input-form" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #ffffff;" required>
-                                    <option value="1">Semana 01</option>
-                                    <option value="2">Semana 02</option>
-                                    <option value="3">Semana 03</option>
-                                    <option value="4">Semana 04</option>
-                                    <option value="5">Semana 05</option>
-                                    <option value="6">Semana 06</option>
-                                    <option value="7">Semana 07</option>
-                                    <option value="8">Semana 08</option>
-                                </select>
-                            {% endif %}
+                            <select name="semana" id="semana" class="input-form"
+                                style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #ffffff;"
+                                required>
+                                {% if cronograma %}
+                                {% for sem in cronograma %}
+                                <option value="{{ sem.numero }}">Semana {{ sem.numero }} {% if sem.inicio and sem.fin
+                                    %}({{ sem.inicio|date:"d/m" }} - {{ sem.fin|date:"d/m" }}){% endif %}</option>
+                                {% endfor %}
+                                {% else %}
+                                <option value="1">Semana 01</option>
+                                <option value="2">Semana 02</option>
+                                <option value="3">Semana 03</option>
+                                <option value="4">Semana 04</option>
+                                <option value="5">Semana 05</option>
+                                <option value="6">Semana 06</option>
+                                <option value="7">Semana 07</option>
+                                <option value="8">Semana 08</option>
+                                <option value="9">Semana 09</option>
+                                <option value="10">Semana 10</option>
+                                {% endif %}
+                            </select>
                         </div>
-                        
+
                         <!-- Título -->
                         <div class="campo-form">
-                            <label class="label-form" for="{{ form.titulo.id_for_label|default:'titulo' }}">Título del Material</label>
-                            {% if form.titulo %}
-                                {{ form.titulo }}
-                            {% else %}
-                                <input type="text" name="titulo" id="titulo" class="input-form" placeholder="Ej. Diapositivas - Sesión 01" required>
-                            {% endif %}
+                            <label class="label-form" for="titulo">Título del Contenido</label>
+                            <input type="text" name="titulo" id="titulo" class="input-form"
+                                placeholder="Ej. Clase 01: Introducción a la Anatomía / Diapositivas" required>
                         </div>
 
-                        <!-- Archivo -->
+                        <!-- Archivo (Documento o Video MP4) -->
                         <div class="campo-form">
-                            <label class="label-form" for="{{ form.archivo.id_for_label|default:'archivo' }}">Archivo (PDF, Word, Diapositivas)</label>
-                            {% if form.archivo %}
-                                {{ form.archivo }}
-                            {% else %}
-                                <input type="file" name="archivo" id="archivo" class="input-form">
-                            {% endif %}
+                            <label class="label-form" for="archivo">
+                                Archivo adjunto (PDF, Word, PPTX o Video MP4/WebM)
+                            </label>
+                            <input type="file" name="archivo" id="archivo" class="input-form"
+                                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.png,.jpg,.jpeg,.mp4,.webm">
+                            <small style="display: block; color: #64748b; font-size: 12px; margin-top: 4px;">
+                                Los videos en formato .mp4 se reproducirán de forma protegida contra descarga directa.
+                                Máx. 50 MB.
+                            </small>
                         </div>
 
-                        <!-- Enlace Web -->
+                        <!-- Enlace Web / Video Externo -->
                         <div class="campo-form">
-                            <label class="label-form" for="{{ form.enlace_web.id_for_label|default:'enlace_web' }}">O Enlace Web (Opcional)</label>
-                            {% if form.enlace_web %}
-                                {{ form.enlace_web }}
-                            {% else %}
-                                <input type="url" name="enlace_web" id="enlace_web" class="input-form" placeholder="https://ejemplo.com/material">
-                            {% endif %}
+                            <label class="label-form" for="enlace_web">
+                                O Enlace Web / Video Embebido (YouTube, Vimeo o URL Externa)
+                            </label>
+                            <input type="url" name="enlace_web" id="enlace_web" class="input-form"
+                                placeholder="https://www.youtube.com/embed/... o https://ejemplo.com">
+                            <small style="display: block; color: #64748b; font-size: 12px; margin-top: 4px;">
+                                Si pegas un video de YouTube o Vimeo, se incrustará automáticamente en el aula virtual.
+                            </small>
                         </div>
 
                     </div>
 
                     <!-- Botones de Acción -->
-                    <div class="footer-botones-form" style="margin-top: 24px;">
-                        <a href="{% url 'panel_docente' %}" class="btn-secundario">Cancelar</a>
-                        <button type="submit" class="btn-primario" style="background-color: #059669; border-color: #059669;">
+                    <div class="footer-botones-form"
+                        style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+                        <a href="{% url 'detalle_curso' curso.id %}" class="btn-secundario"
+                            style="text-decoration: none; padding: 10px 18px; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center;">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn-primario"
+                            style="background-color: #059669; border: none; padding: 10px 20px; border-radius: 8px; color: #ffffff; font-weight: 600; font-size: 13px; cursor: pointer;">
                             ✓ Guardar y Publicar
                         </button>
                     </div>
@@ -132,4 +153,5 @@
     </main>
 
 </body>
+
 </html>
