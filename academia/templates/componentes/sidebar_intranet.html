@@ -5,10 +5,8 @@
         <div class="sidebar-title-group">
             <span class="sidebar-brand-title">Academia Galeno</span>
             <span class="sidebar-brand-sub">
-                {% if es_docente or request.user.perfil.rol == 'DOCENTE' or request.user.docente_cursos.exists %}
+                {% if request.user.is_superuser or request.user.is_staff or request.user.docente_cursos.exists or es_docente %}
                     PORTAL DOCENTE
-                {% elif request.user.is_superuser or request.user.is_staff %}
-                    PORTAL ADMINISTRADOR
                 {% else %}
                     PORTAL ESTUDIANTIL
                 {% endif %}
@@ -21,8 +19,8 @@
             <span>🏠</span> Inicio / Intranet
         </a>
 
-        {% if es_docente or request.user.perfil.rol == 'DOCENTE' or request.user.docente_cursos.exists %}
-            <!-- Menú Docente -->
+        <!-- Si es Docente o Administrador -->
+        {% if request.user.is_superuser or request.user.is_staff or request.user.docente_cursos.exists or es_docente %}
             <a href="{% url 'panel_docente' %}" class="sidebar-link {% if seccion_activa == 'asignaturas' %}active{% endif %}">
                 <span>📚</span> Mis Asignaturas
             </a>
@@ -33,7 +31,7 @@
                 <span>📋</span> Control de Asistencia
             </a>
         {% else %}
-            <!-- Menú Estudiante -->
+            <!-- Si es Alumno -->
             <a href="{% url 'mis_cursos' %}" class="sidebar-link {% if seccion_activa == 'mis_cursos' %}active{% endif %}">
                 <span>🎓</span> Aula Virtual (Mis Cursos)
             </a>

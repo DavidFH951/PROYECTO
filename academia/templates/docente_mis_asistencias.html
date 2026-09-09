@@ -16,8 +16,7 @@
 
     <div class="intranet-container">
 
-        {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencias' %}
-
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencias' es_docente=True %}
         <div class="content-wrapper">
 
             <header class="top-navbar">
@@ -39,43 +38,51 @@
             {% if messages %}
             <div style="padding: 18px 32px 0 32px;">
                 {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                        ⚠️ {{ message }}
-                    </div>
-                    {% else %}
-                    <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                        ✅ {{ message }}
-                    </div>
-                    {% endif %}
+                {% if message.tags == 'error' %}
+                <div
+                    style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                    ⚠️ {{ message }}
+                </div>
+                {% else %}
+                <div
+                    style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                    ✅ {{ message }}
+                </div>
+                {% endif %}
                 {% endfor %}
             </div>
             {% endif %}
 
             <main class="main-stage">
-                
+
                 <h2 class="page-header-title">
                     <span>📋</span> Control Rápido de Asistencias
                 </h2>
                 <p class="page-header-subtitle">
-                    Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los módulos del aula virtual.
+                    Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los módulos del
+                    aula virtual.
                 </p>
 
                 <div class="courses-grid">
                     {% for item in cursos_data %}
-                    <div class="course-card-clean" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
+                    <div class="course-card-clean"
+                        style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
                         <div>
-                            <span class="course-status-tag" style="position: static; display: inline-block; margin-bottom: 10px;">
-                                {% if item.curso.periodo %}{{ item.curso.periodo.nombre }}{% else %}Ciclo Activo{% endif %}
+                            <span class="course-status-tag"
+                                style="position: static; display: inline-block; margin-bottom: 10px;">
+                                {% if item.curso.periodo %}{{ item.curso.periodo.nombre }}{% else %}Ciclo Activo{% endif
+                                %}
                             </span>
-                            <h3 class="course-title-clean" style="font-size: 16px; margin: 0 0 8px 0;">{{ item.curso.titulo }}</h3>
+                            <h3 class="course-title-clean" style="font-size: 16px; margin: 0 0 8px 0;">{{
+                                item.curso.titulo }}</h3>
                             <div class="course-students-meta" style="margin-bottom: 14px;">
                                 <span>👥</span>
                                 <span>{{ item.total_alumnos }} estudiante(s) matriculado(s)</span>
                             </div>
                         </div>
 
-                        <a href="{% url 'docente_asistencia_curso' item.curso.id %}" class="btn-admin-curso" style="background: #0284c7; justify-content: center; text-align: center;">
+                        <a href="{% url 'docente_asistencia_curso' item.curso.id %}" class="btn-admin-curso"
+                            style="background: #0284c7; justify-content: center; text-align: center;">
                             ✍️ Registrar Asistencia
                         </a>
                     </div>
@@ -94,4 +101,5 @@
     </div>
 
 </body>
+
 </html>

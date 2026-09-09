@@ -1,10 +1,16 @@
-/* ====================================================
-   1. VARIABLES Y RESET GLOBAL
-   ==================================================== */
+/* ==============================================================================
+   ACADEMIA GALENO - HOJA DE ESTILOS BASE GLOBAL (base.css)
+   ============================================================================== */
+
+/* ----------------------------------------------------
+   1. VARIABLES Y RESET INSTITUCIONAL
+   ---------------------------------------------------- */
 :root {
     --primary: #0284c7;
     --primary-dark: #0f172a;
     --primary-hover: #0369a1;
+    --primary-active: #0080ff;
+    --sidebar-institutional: #02529c;
     --bg-main: #f8fafc;
     --card-bg: #ffffff;
     --text-main: #0f172a;
@@ -12,25 +18,55 @@
     --text-muted: #64748b;
     --border-color: #e2e8f0;
     --border-subtle: #cbd5e1;
-    --sidebar-bg: #0b3d68; /* Azul marino profundo institucional */
+    --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-* {
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-body {
+html, body {
+    width: 100%;
+    min-height: 100vh;
     background-color: var(--bg-main);
     color: var(--text-main);
     line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ----------------------------------------------------
+   2. CONTENEDORES MAESTROS DE INTRANET
+   ---------------------------------------------------- */
+.intranet-container,
+.intranet-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--bg-main);
+}
+
+.content-wrapper,
+.intranet-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-main);
+}
+
+.main-stage,
+.intranet-content {
+    padding: 24px 32px 60px 32px;
+    flex: 1;
 }
 
 .main-container {
     max-width: 1200px;
-    margin: 30px auto;
+    margin: 0 auto;
     padding: 0 20px;
 }
 
@@ -40,57 +76,76 @@ body {
     padding: 0 20px;
 }
 
-/* ====================================================
-   2. BARRA SUPERIOR GLOBAL (TOP-NAV) & BRANDING
-   ==================================================== */
-.top-nav {
-    align-items: center;
-    background-color: var(--card-bg);
+/* ----------------------------------------------------
+   3. BARRA SUPERIOR BLANCA (TOP-NAVBAR)
+   ---------------------------------------------------- */
+.top-navbar,
+.intranet-topbar {
+    background: var(--card-bg);
+    height: 62px;
     border-bottom: 1px solid var(--border-color);
-    padding: 10px 30px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
     position: sticky;
     top: 0;
-    z-index: 1000;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    z-index: 40;
+    box-shadow: var(--shadow-subtle);
 }
 
-.brand-container {
+.top-welcome-text,
+.intranet-topbar-welcome {
+    font-size: 13.5px;
+    color: var(--text-muted);
+}
+
+.top-welcome-text strong,
+.intranet-topbar-welcome strong {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.user-pill {
     display: flex;
     align-items: center;
     gap: 12px;
-    text-decoration: none;
+    background: transparent;
 }
 
-.brand-logo-img {
-    height: 38px;
-    width: auto;
-    max-width: 44px;
-    object-fit: contain;
-    border-radius: 6px;
-    transition: transform 0.2s ease;
+.user-circle,
+.user-avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    flex-shrink: 0;
 }
 
-.brand-container:hover .brand-logo-img {
-    transform: scale(1.04);
-}
-
-.brand-text-block {
+.user-text-info,
+.intranet-user-meta {
+    text-align: right;
     display: flex;
     flex-direction: column;
 }
 
-.brand-title {
-    font-weight: 800;
-    font-size: 15px;
+.user-text-name,
+.intranet-user-name {
+    font-size: 13px;
+    font-weight: 700;
     color: var(--text-main);
     line-height: 1.2;
-    letter-spacing: -0.3px;
 }
 
-.brand-subtitle {
+.user-text-role,
+.intranet-user-role {
     font-size: 10.5px;
     font-weight: 700;
     color: var(--primary);
@@ -98,9 +153,9 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* ====================================================
-   3. MENÚ DESPLEGABLE DE USUARIO (NAVBAR)
-   ==================================================== */
+/* ----------------------------------------------------
+   4. MENÚ DESPLEGABLE DE USUARIO (NAVBAR GLOBAL)
+   ---------------------------------------------------- */
 .user-dropdown-container {
     position: relative;
     display: inline-block;
@@ -122,20 +177,6 @@ body {
 .user-profile-trigger:hover {
     background: #f1f5f9;
     border-color: var(--border-subtle);
-}
-
-.user-avatar-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-transform: uppercase;
 }
 
 .user-trigger-text {
@@ -177,14 +218,8 @@ body {
 }
 
 @keyframes fadeInDropdown {
-    from {
-        opacity: 0;
-        transform: translateY(-6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .dropdown-user-info {
@@ -253,121 +288,13 @@ body {
     background: #fef2f2;
 }
 
-/* ====================================================
-   4. SIDEBAR MODULAR INTRANET (ESTUDIANTES) - EXACTO
-   ==================================================== */
-.sidebar-student {
-    width: 250px;
-    min-width: 250px;
-    background-color: #004b87 !important; /* Azul exacto de la Intranet */
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    color: #ffffff;
-    padding: 24px 16px;
-    box-sizing: border-box;
-}
-
-.sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    color: #ffffff;
-    margin-bottom: 28px;
-    padding: 0 8px;
-}
-
-.sidebar-logo-img {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    object-fit: cover;
-    background: #ffffff;
-    padding: 2px;
-    box-sizing: border-box;
-}
-
-.sidebar-brand-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar-brand-title {
-    font-size: 15px;
-    font-weight: 800;
-    line-height: 1.15;
-    color: #ffffff;
-}
-
-.sidebar-brand-subtitle {
-    font-size: 11px;
-    font-weight: 700;
-    color: #38bdf8;
-    letter-spacing: 0.5px;
-}
-
-.sidebar-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 16px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 500;
-    color: #e0edff;
-    transition: all 0.15s ease-in-out;
-}
-
-.sidebar-item:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.12);
-}
-
-/* Pastilla activa idéntica a la vista original */
-.sidebar-item.active {
-    background-color: #0088cc !important; /* Azul eléctrico original */
-    color: #ffffff !important;
-    font-weight: 700;
-    box-shadow: none;
-}
-
-.sidebar-icon {
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-}
-
-.sidebar-footer {
-    margin-top: auto;
-    padding-top: 20px;
-}
-
-.sidebar-item.logout-link {
-    color: #ff8a80;
-    font-weight: 700;
-}
-
-.sidebar-item.logout-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ff5252;
-}
-
-/* ====================================================
-   5. ALERTAS Y MENSAJES GLOBALES
-   ==================================================== */
+/* ----------------------------------------------------
+   5. ALERTAS Y MENSAJES INSTITUCIONALES
+   ---------------------------------------------------- */
 .contenedor-mensajes-global {
-    max-width: 1100px;
-    margin: 16px auto 0 auto;
-    padding: 0 20px;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .alerta-global, .alert-box-success, .alert-box-error {
@@ -381,47 +308,34 @@ body {
     gap: 8px;
 }
 
-.alerta-success, .alert-box-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-.alerta-error, .alert-box-error { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+.alerta-success, .alert-box-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.alerta-error, .alert-box-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 .alerta-warning { background: #fef9c3; color: #854d0e; border: 1px solid #facc15; }
 .alerta-info { background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
 
-/* ====================================================
-   6. PESTAÑAS DE NAVEGACIÓN (NAV TABS)
-   ==================================================== */
-.nav-tabs-container {
+/* ----------------------------------------------------
+   6. TIPOGRAFÍA DE ENCABEZADOS DE PÁGINA
+   ---------------------------------------------------- */
+.page-header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0 0 6px 0;
     display: flex;
-    gap: 12px;
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: 25px;
-}
-
-.nav-tab-item {
-    display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 20px;
-    font-size: 14.5px;
-    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.page-header-subtitle {
+    font-size: 13.5px;
     color: var(--text-muted);
-    text-decoration: none;
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s ease;
-    margin-bottom: -2px;
+    margin: 0 0 24px 0;
 }
 
-.nav-tab-item:hover {
-    color: var(--primary);
-}
-
-.nav-tab-item.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
-}
-
-/* ====================================================
-   7. TARJETAS DE CURSOS (DOCENTE / ALUMNO)
-   ==================================================== */
+/* ----------------------------------------------------
+   7. TARJETAS DE CURSOS Y PORTADAS
+   ---------------------------------------------------- */
 .card-curso-portada {
     height: 125px;
     position: relative;
@@ -433,7 +347,7 @@ body {
 }
 
 .card-curso-portada.sin-portada {
-    background: linear-gradient(135deg, #0b3d68 0%, var(--primary) 100%);
+    background: linear-gradient(135deg, #02529c 0%, var(--primary) 100%);
 }
 
 .badge-estado-portada {
@@ -455,284 +369,44 @@ body {
     background: #ef4444;
 }
 
-.preview-portada-box {
-    margin-bottom: 10px;
+/* ----------------------------------------------------
+   8. BLINDAJE DE IMÁGENES Y LOGOS (CONTENCIÓN TOTAL)
+   ---------------------------------------------------- */
+/* Evita desbordes gigantescos en el sidebar */
+.sidebar-galeno img,
+.sidebar-brand img,
+.sidebar-logo,
+.brand-logo-img,
+.intranet-sidebar img {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    object-fit: contain !important;
+    border-radius: 50% !important;
+    display: block !important;
+    flex-shrink: 0 !important;
 }
 
-.preview-portada-img {
-    width: 150px;
-    height: 85px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1.5px solid var(--border-subtle);
-    display: block;
+/* Blindaje de imágenes en vista Mi Perfil */
+.perfil-avatar,
+.avatar-usuario-img,
+.profile-card img {
+    width: 100px !important;
+    height: 100px !important;
+    max-width: 100px !important;
+    max-height: 100px !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+    margin: 0 auto !important;
+    display: block !important;
 }
 
-/* ====================================================
-   8. CARGA MASIVA DE USUARIOS
-   ==================================================== */
-.upload-view-body {
-    background-color: #f1f5f9;
-    color: #1e293b;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.upload-navbar {
-    background: #ffffff;
-    border-bottom: 1px solid var(--border-color);
-    padding: 14px 28px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-}
-
-.upload-nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-}
-
-.upload-nav-brand img {
-    height: 38px;
-    width: auto;
-    object-fit: contain;
-}
-
-.upload-nav-brand-title {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--text-main);
-    display: block;
-}
-
-.upload-nav-brand-sub {
-    font-size: 11px;
-    color: var(--primary);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: block;
-}
-
-.upload-nav-user-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-size: 13px;
-}
-
-.upload-nav-logout {
-    color: #dc2626;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.upload-main-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-}
-
-.upload-card {
-    background: #ffffff;
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    border: 1px solid var(--border-color);
-    width: 100%;
-    max-width: 680px;
-    padding: 32px;
-}
-
-.upload-card-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #eff6ff;
-    color: var(--primary);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 5px 12px;
-    border-radius: 20px;
-    margin-bottom: 12px;
-}
-
-.upload-card-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--text-main);
-    margin-bottom: 6px;
-}
-
-.upload-card-desc {
-    font-size: 13.5px;
-    color: var(--text-muted);
-    line-height: 1.5;
-}
-
-.upload-excel-box {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-radius: 12px;
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 20px 0;
-}
-
-.upload-excel-box strong {
-    color: #166534;
-    font-size: 14px;
-    display: block;
-}
-
-.upload-excel-box span {
-    color: #15803d;
-    font-size: 12px;
-}
-
-.btn-download-template {
-    background: #16a34a;
-    color: #ffffff;
-    text-decoration: none;
-    padding: 9px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-}
-
-.btn-download-template:hover {
-    background: #15803d;
-    transform: translateY(-1px);
-}
-
-.upload-grid-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: block;
-    margin-bottom: 8px;
-}
-
-.upload-grid-container {
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    overflow-x: auto;
-    margin-bottom: 8px;
-    background: #ffffff;
-}
-
-.upload-grid-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12.5px;
-    text-align: left;
-}
-
-.upload-grid-table th {
-    background: #0f172a;
-    color: #f8fafc;
-    padding: 10px 14px;
-    font-weight: 700;
-    border-right: 1px solid #334155;
-    white-space: nowrap;
-}
-
-.upload-grid-table th:last-child {
-    border-right: none;
-}
-
-.upload-grid-table td {
-    padding: 9px 14px;
-    border-bottom: 1px solid var(--border-color);
-    border-right: 1px solid #f1f5f9;
-    color: #475569;
-    white-space: nowrap;
-}
-
-.upload-grid-table tr:last-child td {
-    border-bottom: none;
-}
-
-.upload-role-pill {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.role-pill-alumno { background: #e0f2fe; color: #0369a1; }
-.role-pill-docente { background: #fef3c7; color: #92400e; }
-
-.upload-file-input {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px dashed var(--border-subtle);
-    border-radius: 10px;
-    font-size: 13.5px;
-    background: #f8fafc;
-    cursor: pointer;
-}
-
-.upload-actions-bar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-}
-
-.btn-upload-cancel {
-    padding: 10px 20px;
-    background: #f8fafc;
-    border: 1px solid var(--border-subtle);
-    color: #475569;
-    border-radius: 9px;
-    font-size: 13.5px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.2s;
-}
-
-.btn-upload-cancel:hover {
-    background: var(--border-color);
-}
-
-.btn-upload-submit {
-    padding: 10px 22px;
-    background: #059669;
-    border: none;
-    color: #ffffff;
-    border-radius: 9px;
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-}
-
-.btn-upload-submit:hover {
-    background: #047857;
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
-}
-
-/* ====================================================
-   9. BOTÓN FLOTANTE WHATSAPP & LANDING UTILS
-   ==================================================== */
+/* ----------------------------------------------------
+   9. UTILIDADES Y BOTÓN FLOTANTE WHATSAPP
+   ---------------------------------------------------- */
 .btn-whatsapp-flotante {
     position: fixed;
     bottom: 24px;
@@ -753,46 +427,4 @@ body {
 .btn-whatsapp-flotante:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
-}
-/* ====================================================
-   TOPBAR INTRANET (LAYOUT CON SIDEBAR)
-   ==================================================== */
-.intranet-topbar {
-    height: 65px;
-    background: #ffffff;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 32px;
-    box-sizing: border-box;
-}
-
-.intranet-topbar-welcome {
-    font-size: 14.5px;
-    color: #475569;
-}
-
-.intranet-topbar-welcome strong {
-    color: #0f172a;
-}
-
-.intranet-user-meta {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-.intranet-user-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: #0f172a;
-    line-height: 1.2;
-}
-
-.intranet-user-role {
-    font-size: 10.5px;
-    font-weight: 700;
-    color: #0284c7;
-    letter-spacing: 0.5px;
 }
