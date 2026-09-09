@@ -417,7 +417,7 @@ def dashboard(request, token=None):
 
 @login_required
 def mis_cursos(request, token=None):
-    """Aula Virtual: Catálogo de cursos matriculados con token en la URL."""
+    """Aula Virtual: Muestra los cursos que dicta el docente o las materias donde está matriculado el alumno."""
     if not token:
         return redirigir_mis_cursos(request)
 
@@ -425,13 +425,30 @@ def mis_cursos(request, token=None):
     if str(token) != token_sesion:
         return redirect('mis_cursos_token', token=token_sesion)
 
-    inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso', 'curso__periodo')
-    return render(request, 'mis_cursos.html', {
-        'inscripciones': inscripciones,
-        'token': token_sesion,
-        'es_docente': False,
-    })
+    user = request.user
+    es_docente = es_docente_valido(user)
 
+    if es_docente:
+        # Cursos que dicta el profesor (o todos si es superusuario/staff)
+        if user.is_superuser or user.is_staff:
+            cursos_qs = Curso.objects.all()
+        else:
+            cursos_qs = Curso.objects.filter(docentes=user)
+        
+        cursos_docente = cursos_qs.select_related('periodo').distinct()
+        inscripciones = None
+    else:
+        # Materias en las que está matriculado el alumno
+        inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
+        cursos_docente = None
+
+    context = {
+        'inscripciones': inscripciones,
+        'cursos_docente': cursos_docente,
+        'token': token_sesion,
+        'es_docente': es_docente,
+    }
+    return render(request, 'mis_cursos.html', context)
 
 @login_required
 def mis_notas(request, token=None):

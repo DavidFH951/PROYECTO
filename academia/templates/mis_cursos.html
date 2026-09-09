@@ -17,14 +17,13 @@
 
     <div class="intranet-layout">
 
-        <!-- Sidebar Modular Homologado -->
-        {% include 'componentes/sidebar_intranet.html' with seccion_activa='aula_virtual' es_docente=False %}
+        <!-- Sidebar Modular con Detección de Rol -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='aula_virtual' es_docente=es_docente %}
 
-        <!-- Contenido Central -->
         <div class="intranet-main">
 
-            <!-- Topbar Modular -->
-            {% include 'componentes/topbar_intranet.html' with es_docente=False %}
+            <!-- Topbar Modular con Detección de Rol -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=es_docente %}
 
             <div style="padding: 14px 32px 0 32px;">
                 {% include 'componentes/mensajes.html' %}
@@ -33,43 +32,91 @@
             <main class="intranet-content" style="padding-top: 14px;">
 
                 <div style="margin-bottom: 24px;">
-                    <h2 style="margin: 0 0 6px 0; font-size: 22px; color: #0f172a; font-weight: 800;">🎓 Asignaturas Matriculadas</h2>
-                    <p style="margin: 0; color: #64748b; font-size: 13.5px;">Selecciona un curso para acceder al material didáctico, videoconferencias, foros y evaluaciones.</p>
+                    <h2 style="margin: 0 0 6px 0; font-size: 22px; color: #0f172a; font-weight: 800;">
+                        🎓 {% if es_docente %}Asignaturas Asignadas{% else %}Asignaturas Matriculadas{% endif %}
+                    </h2>
+                    <p style="margin: 0; color: #64748b; font-size: 13.5px;">
+                        {% if es_docente %}
+                            Accede a tus cursos para gestionar contenidos, material didáctico y evaluaciones.
+                        {% else %}
+                            Selecciona un curso para acceder al material didáctico, evaluaciones y avisos.
+                        {% endif %}
+                    </p>
                 </div>
 
                 <div class="cursos-grid">
-                    {% for insc in inscripciones %}
-                    <div class="curso-card">
-                        <div class="curso-portada-box">
-                            {% if insc.curso.imagen_portada %}
-                            <img src="{{ insc.curso.imagen_portada.url }}" alt="{{ insc.curso.titulo }}">
-                            {% endif %}
-                            <span class="curso-badge-periodo">
-                                {{ insc.curso.periodo.codigo|default:"Ciclo Activo" }}
-                            </span>
-                        </div>
 
-                        <div class="curso-card-body">
-                            <h3 class="curso-card-titulo">{{ insc.curso.titulo }}</h3>
-                            <p class="curso-card-docente">
-                                <span>👨‍🏫</span> {{ insc.curso.docentes_nombres|default:"Docente asignado" }}
-                            </p>
+                    {% if es_docente %}
+                        <!-- 1. VISTA PARA DOCENTES -->
+                        {% for curso in cursos_docente %}
+                        <div class="curso-card">
+                            <div class="curso-portada-box">
+                                {% if curso.imagen_portada %}
+                                <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}">
+                                {% endif %}
+                                <span class="curso-badge-periodo">
+                                    {{ curso.periodo.codigo|default:"Ciclo Activo" }}
+                                </span>
+                            </div>
 
-                            <div class="curso-card-footer">
-                                <span style="font-size: 12px; color: #64748b;">Semestre Regular</span>
-                                <a href="{% url 'detalle_curso' insc.curso.id %}" class="btn-entrar-materia">
-                                    Ingresar al Curso →
-                                </a>
+                            <div class="curso-card-body">
+                                <h3 class="curso-card-titulo">{{ curso.titulo }}</h3>
+                                <p class="curso-card-docente">
+                                    <span>👥</span> {{ curso.inscripciones.count }} estudiante(s) matriculado(s)
+                                </p>
+
+                                <div class="curso-card-footer">
+                                    <span style="font-size: 12px; color: #64748b;">Semestre Regular</span>
+                                    <a href="{% url 'detalle_curso' curso.id %}" class="btn-entrar-materia">
+                                        Administrar Curso →
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {% empty %}
-                    <div class="dashboard-card" style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: #64748b; background: #ffffff; border-radius: 14px; border: 1px dashed #cbd5e1;">
-                        <span style="font-size: 32px; display: block; margin-bottom: 8px;">📚</span>
-                        <strong style="display: block; font-size: 1rem; color: #1e293b; margin-bottom: 4px;">No estás matriculado en ninguna asignatura activa.</strong>
-                        <small style="font-size: 0.85rem;">Comunícate con el área de administración académica para gestionar tu matrícula.</small>
-                    </div>
-                    {% endfor %}
+                        {% empty %}
+                        <div class="dashboard-card" style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: #64748b; background: #ffffff; border-radius: 14px; border: 1px dashed #cbd5e1;">
+                            <span style="font-size: 32px; display: block; margin-bottom: 8px;">📚</span>
+                            <strong style="display: block; font-size: 1rem; color: #1e293b; margin-bottom: 4px;">No tienes asignaturas asignadas a tu cargo actualmente.</strong>
+                            <small style="font-size: 0.85rem;">Comunícate con la coordinación académica si requieres la asignación de materias.</small>
+                        </div>
+                        {% endfor %}
+
+                    {% else %}
+                        <!-- 2. VISTA PARA ESTUDIANTES -->
+                        {% for insc in inscripciones %}
+                        <div class="curso-card">
+                            <div class="curso-portada-box">
+                                {% if insc.curso.imagen_portada %}
+                                <img src="{{ insc.curso.imagen_portada.url }}" alt="{{ insc.curso.titulo }}">
+                                {% endif %}
+                                <span class="curso-badge-periodo">
+                                    {{ insc.curso.periodo.codigo|default:"Ciclo Activo" }}
+                                </span>
+                            </div>
+
+                            <div class="curso-card-body">
+                                <h3 class="curso-card-titulo">{{ insc.curso.titulo }}</h3>
+                                <p class="curso-card-docente">
+                                    <span>👨‍🏫</span> {{ insc.curso.docentes_nombres|default:"Docente asignado" }}
+                                </p>
+
+                                <div class="curso-card-footer">
+                                    <span style="font-size: 12px; color: #64748b;">Semestre Regular</span>
+                                    <a href="{% url 'detalle_curso' insc.curso.id %}" class="btn-entrar-materia">
+                                        Ingresar al Curso →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="dashboard-card" style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: #64748b; background: #ffffff; border-radius: 14px; border: 1px dashed #cbd5e1;">
+                            <span style="font-size: 32px; display: block; margin-bottom: 8px;">📚</span>
+                            <strong style="display: block; font-size: 1rem; color: #1e293b; margin-bottom: 4px;">No estás matriculado en ninguna asignatura activa.</strong>
+                            <small style="font-size: 0.85rem;">Comunícate con el área de administración académica para gestionar tu matrícula.</small>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
                 </div>
 
             </main>
