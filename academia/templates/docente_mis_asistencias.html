@@ -9,36 +9,74 @@
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
+    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=1.0">
     <link rel="stylesheet" href="{% static 'css/docente_asistencia.css' %}?v=1.0">
 </head>
 
-<body class="intranet-body">
+<body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
 
-    <div class="intranet-layout">
+    <div style="display: flex; min-height: 100vh; width: 100%;">
 
-        <!-- 1. Barra Lateral Modular de la Intranet -->
-        {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencia_docente' es_docente=True %}
+        <!-- 1. Sidebar Centralizado con enlace correcto a Registro de Notas -->
+        {% include 'componentes/sidebar_docente.html' with seccion_activa='asistencias' %}
 
         <!-- 2. Área Principal Derecha -->
-        <div class="intranet-main">
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
 
-            <!-- Barra Superior Modular -->
-            {% include 'componentes/topbar_intranet.html' with es_docente=True %}
+            <!-- Barra Superior Blanca Institucional -->
+            <header
+                style="background: #ffffff; height: 62px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 40;">
+                <div style="font-size: 13px; color: #475569;">
+                    Bienvenido, profesor <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div
+                        style="width: 34px; height: 34px; border-radius: 50%; background: #0284c7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;">
+                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 13px; font-weight: 700; color: #0f172a;">{{
+                            request.user.get_full_name|default:request.user.username }}</div>
+                        <div style="font-size: 10.5px; font-weight: 700; color: #0284c7; text-transform: uppercase;">
+                            Docente Titular</div>
+                    </div>
+                </div>
+            </header>
 
             <!-- Alertas del Sistema -->
+            {% if messages %}
             <div style="padding: 18px 32px 0 32px;">
-                {% include 'componentes/mensajes.html' %}
+                {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <div
+                    style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                    ⚠️ {{ message }}
+                </div>
+                {% else %}
+                <div
+                    style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                    ✅ {{ message }}
+                </div>
+                {% endif %}
+                {% endfor %}
             </div>
+            {% endif %}
 
             <!-- Contenido Principal -->
-            <main class="intranet-content" style="padding-top: 14px;">
+            <main style="padding: 24px 32px 60px 32px;">
 
                 <div class="main-container" style="max-width: 100%; margin: 0; padding: 0;">
 
-                    <div class="header-title-box">
-                        <h1>📋 Control Rápido de Asistencias</h1>
-                        <p>Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los módulos del aula virtual.</p>
+                    <div class="header-title-box" style="margin-bottom: 24px;">
+                        <h1
+                            style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
+                            📋 Control Rápido de Asistencias
+                        </h1>
+                        <p style="font-size: 13.5px; color: #64748b; margin: 0;">
+                            Selecciona una asignatura para tomar o actualizar la asistencia del día sin entrar a los
+                            módulos del aula virtual.
+                        </p>
                     </div>
 
                     {% if cursos_data %}
@@ -46,14 +84,17 @@
                         {% for item in cursos_data %}
                         <div class="curso-asistencia-card">
                             <div class="card-top">
-                                <span class="badge-periodo">{{ item.curso.periodo.nombre|default:"Ciclo Activo" }}</span>
+                                <span class="badge-periodo">{{ item.curso.periodo.nombre|default:"Ciclo Activo"
+                                    }}</span>
                                 <h2 class="curso-titulo">{{ item.curso.titulo }}</h2>
                                 <div class="curso-meta">
-                                    <span>👥</span> {{ item.total_alumnos }} estudiante{{ item.total_alumnos|pluralize }} matriculado{{ item.total_alumnos|pluralize }}
+                                    <span>👥</span> {{ item.total_alumnos }} estudiante{{ item.total_alumnos|pluralize
+                                    }} matriculado{{ item.total_alumnos|pluralize }}
                                 </div>
                             </div>
 
-                            <a href="{% url 'docente_asistencia_curso' item.curso.id %}?fecha={{ hoy }}" class="btn-tomar-asistencia">
+                            <a href="{% url 'docente_asistencia_curso' item.curso.id %}?fecha={{ hoy }}"
+                                class="btn-tomar-asistencia">
                                 <span>✍️</span> Registrar Asistencia
                             </a>
                         </div>
