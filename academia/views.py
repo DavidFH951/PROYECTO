@@ -418,7 +418,12 @@ def dashboard(request, token=None):
 
 @login_required
 def mis_cursos(request, token=None):
-    """Aula Virtual: Muestra los cursos que dicta el docente o las materias donde está matriculado el alumno."""
+    """Aula Virtual: Redirige al docente a su panel o muestra materias al estudiante."""
+    # 1. Si es docente, lo enviamos a su catálogo oficial
+    if es_docente_valido(request.user):
+        return redirect('panel_docente')
+
+    # 2. Control de token para estudiantes
     if not token:
         return redirigir_mis_cursos(request)
 
@@ -426,28 +431,13 @@ def mis_cursos(request, token=None):
     if str(token) != token_sesion:
         return redirect('mis_cursos_token', token=token_sesion)
 
-    user = request.user
-    es_docente = es_docente_valido(user)
-
-    if es_docente:
-        # Cursos que dicta el profesor (o todos si es superusuario/staff)
-        if user.is_superuser or user.is_staff:
-            cursos_qs = Curso.objects.all()
-        else:
-            cursos_qs = Curso.objects.filter(docentes=user)
-        
-        cursos_docente = cursos_qs.select_related('periodo').distinct()
-        inscripciones = None
-    else:
-        # Materias en las que está matriculado el alumno
-        inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
-        cursos_docente = None
+    # 3. Consulta exclusiva de asignaturas matriculadas del estudiante
+    inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso', 'curso__periodo')
 
     context = {
         'inscripciones': inscripciones,
-        'cursos_docente': cursos_docente,
         'token': token_sesion,
-        'es_docente': es_docente,
+        'es_docente': False,
     }
     return render(request, 'mis_cursos.html', context)
 
@@ -770,17 +760,22 @@ def verificar_estado_examen(request, examen_id):
 
 @login_required
 def panel_docente(request):
-    """Panel central docente."""
+    """Panel oficial del docente con sus asignaturas asignadas."""
     if not es_docente_valido(request.user):
-        messages.error(request, "Acceso exclusivo para docentes.")
+        messages.error(request, "Acceso restringido a docentes.")
         return redirect('dashboard')
 
     if request.user.is_superuser or request.user.is_staff:
-        cursos = Curso.objects.prefetch_related('docentes', 'inscripciones', 'materiales').all()
+        cursos_qs = Curso.objects.all()
     else:
-        cursos = Curso.objects.filter(docentes=request.user).prefetch_related('docentes', 'inscripciones', 'materiales').distinct()
+        cursos_qs = Curso.objects.filter(docentes=request.user)
 
-    return render(request, 'panel_docente.html', {'cursos': cursos,'es_docente': True,})
+    cursos = cursos_qs.select_related('periodo').prefetch_related('inscripciones').distinct()
+
+    return render(request, 'panel_docente.html', {
+        'cursos': cursos,
+        'es_docente': True,
+    })
 
 
 @login_required
