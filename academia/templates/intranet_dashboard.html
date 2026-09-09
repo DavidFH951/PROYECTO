@@ -9,27 +9,59 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
+    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
     <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
     <link rel="stylesheet" href="{% static 'css/dashboard_docente.css' %}?v=1.1">
 </head>
 
-<body class="intranet-body">
+<body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
 
-    <div class="intranet-layout">
+    <div class="intranet-container">
 
-        <!-- 1. Barra Lateral Modular -->
-        {% include 'componentes/sidebar_intranet.html' with seccion_activa='intranet' %}
+        <!-- 1. Barra Lateral Centralizada -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='inicio' es_docente=es_docente %}
 
-        <!-- Contenedor Principal -->
-        <div class="intranet-main">
+        <!-- Contenedor Principal Derecho -->
+        <div class="content-wrapper">
 
-            <!-- 2. Barra Superior Modular -->
-            {% include 'componentes/topbar_intranet.html' %}
+            <!-- 2. Barra Superior Blanca -->
+            <header class="top-navbar">
+                <div class="top-welcome-text">
+                    Bienvenido, {% if es_docente %}profesor{% else %}alumno{% endif %} <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                </div>
+
+                <div class="user-pill">
+                    <div class="user-circle">
+                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                    </div>
+                    <div class="user-text-info">
+                        <div class="user-text-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                        <div class="user-text-role">
+                            {% if es_docente %}Docente Titular{% elif request.user.is_superuser or request.user.is_staff %}Administrador{% else %}Estudiante Regular{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </header>
 
             <!-- Mensajes Globales del Sistema -->
-            {% include 'componentes/mensajes.html' %}
+            {% if messages %}
+            <div style="padding: 18px 32px 0 32px;">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ⚠️ {{ message }}
+                    </div>
+                    {% else %}
+                    <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ✅ {{ message }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
 
-            <main class="intranet-content">
+            <main class="main-stage">
 
                 <!-- Métricas -->
                 <section class="metrics-grid metrics-docente-grid">
@@ -182,7 +214,6 @@
 
     </div>
 
-    <!-- Scripts desacoplados -->
     <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
     <script src="{% static 'js/dashboard_docente.js' %}?v=1.0" defer></script>
 </body>
