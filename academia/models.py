@@ -462,6 +462,13 @@ class Material(models.Model):
     archivo = models.FileField(upload_to='materiales/', blank=True, null=True)
     enlace_web = models.URLField(blank=True, null=True)
     fecha_subida = models.DateTimeField(auto_now_add=True)
+    # En academia/models.py dentro de Material:
+    video_url = models.URLField(
+    max_length=500, 
+    blank=True, 
+    null=True, 
+    help_text="Enlace del video (Vimeo, YouTube sin listar o Bunny Stream)"
+)
     # ... tus campos actuales ...
     archivo = models.FileField(
         upload_to='materiales/', 

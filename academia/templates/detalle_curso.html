@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ curso.titulo }} | Aula Virtual Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=3.2">
+    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=3.4">
 </head>
 
 <body>
@@ -177,7 +177,7 @@
                         </a>
                         <a href="{% url 'subir_material' curso.id %}" class="btn-upload-material"
                             style="background-color: #059669; color: #ffffff; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                            ➕ Subir Nuevo Material
+                            ➕ Subir Contenido
                         </a>
                     </div>
                     {% endif %}
@@ -311,7 +311,7 @@
                             </span>
                         </summary>
 
-                        <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 14px;">
 
                             <!-- Exámenes de la semana -->
                             {% for ex in bloque.examenes %}
@@ -390,44 +390,77 @@
                             </div>
                             {% endfor %}
 
-                            <!-- Materiales de estudio -->
+                            <!-- Materiales de estudio y Contenido Multimedia -->
                             {% for mat in bloque.materiales %}
-                            <div class="material-item-card" style="margin: 0;">
-                                <div class="material-info">
-                                    <div
-                                        class="material-icon-box {% if mat.archivo %}icon-file{% else %}icon-link{% endif %}">
-                                        {% if mat.archivo %}📄{% else %}🔗{% endif %}
+                            <div class="material-item-card" style="margin: 0; display: flex; flex-direction: column; gap: 10px;">
+                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div class="material-info">
+                                        <div class="material-icon-box {% if mat.archivo and '.mp4' in mat.archivo.name.lower %}icon-video{% elif mat.archivo %}icon-file{% else %}icon-link{% endif %}">
+                                            {% if mat.archivo and '.mp4' in mat.archivo.name.lower %}🎥{% elif mat.archivo %}📄{% else %}🔗{% endif %}
+                                        </div>
+                                        <div class="material-details">
+                                            <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #1e293b;">{{ mat.titulo }}</h4>
+                                            {% if mat.contenido %}
+                                            <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido }}</p>
+                                            {% endif %}
+                                            <span style="font-size: 11px; color: #94a3b8; display: block; margin-top: 2px;">Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
+                                        </div>
                                     </div>
-                                    <div class="material-details">
-                                        <h4>{{ mat.titulo }}</h4>
-                                        {% if mat.contenido %}
-                                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ mat.contenido }}</p>
+
+                                    <div class="material-actions" style="display: flex; align-items: center; gap: 8px;">
+                                        <!-- Solo permitir descarga si NO es un video -->
+                                        {% if mat.archivo and not '.mp4' in mat.archivo.name.lower and not '.webm' in mat.archivo.name.lower %}
+                                        <a href="{{ mat.archivo.url }}" class="btn-download-mat" target="_blank" download>
+                                            📥 Descargar
+                                        </a>
                                         {% endif %}
-                                        <span>Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
+
+                                        <!-- Enlaces externos que no sean videos embebidos directos -->
+                                        {% if mat.enlace and not 'youtube.com' in mat.enlace and not 'youtu.be' in mat.enlace and not 'vimeo.com' in mat.enlace %}
+                                        <a href="{{ mat.enlace }}" class="btn-download-mat" target="_blank" style="background: #0284c7;">
+                                            🌐 Abrir Enlace
+                                        </a>
+                                        {% endif %}
+
+                                        {% if es_docente_curso %}
+                                        <a href="{% url 'eliminar_material' mat.id %}" class="btn-delete-mat"
+                                            onclick="return confirm('¿Estás seguro de eliminar este recurso?');">
+                                            🗑️
+                                        </a>
+                                        {% endif %}
                                     </div>
                                 </div>
 
-                                <div class="material-actions">
-                                    {% if mat.archivo %}
-                                    <a href="{{ mat.archivo.url }}" class="btn-download-mat" target="_blank" download>
-                                        📥 Descargar
-                                    </a>
-                                    {% endif %}
-
-                                    {% if mat.enlace or mat.enlace_web %}
-                                    <a href="{{ mat.enlace|default:mat.enlace_web }}" class="btn-download-mat"
-                                        target="_blank" style="background: #0284c7;">
-                                        🌐 Abrir Enlace
-                                    </a>
-                                    {% endif %}
-
-                                    {% if es_docente_curso %}
-                                    <a href="{% url 'eliminar_material' mat.id %}" class="btn-delete-mat"
-                                        onclick="return confirm('¿Estás seguro de eliminar este material?');">
-                                        🗑️
-                                    </a>
-                                    {% endif %}
+                                <!-- Reproductor Protegido 1: Archivo MP4 / WebM subido -->
+                                {% if mat.archivo and '.mp4' in mat.archivo.name.lower or '.webm' in mat.archivo.name.lower %}
+                                <div class="video-secure-container" oncontextmenu="return false;">
+                                    <div class="video-watermark">
+                                        {{ request.user.username }} • Galeno ID {{ request.user.id }}
+                                    </div>
+                                    <video class="video-secure-player" controls controlsList="nodownload noplaybackrate" disablePictureInPicture>
+                                        <source src="{{ mat.archivo.url }}" type="video/mp4">
+                                        Tu navegador no soporta reproducción protegida.
+                                    </video>
                                 </div>
+                                {% endif %}
+
+                                <!-- Reproductor Protegido 2: Video Embebido por Enlace (YouTube / Vimeo) -->
+                                {% if mat.enlace and 'youtube.com' in mat.enlace or 'youtu.be' in mat.enlace or 'vimeo.com' in mat.enlace %}
+                                <div class="video-secure-container" oncontextmenu="return false;">
+                                    <div class="video-watermark">
+                                        {{ request.user.username }} • Galeno ID {{ request.user.id }}
+                                    </div>
+                                    <div class="video-iframe-wrapper">
+                                        <iframe 
+                                            src="{{ mat.enlace }}" 
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                            allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                </div>
+                                {% endif %}
+
                             </div>
                             {% endfor %}
 
@@ -453,6 +486,7 @@
 
     </main>
 
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
 </body>
 
 </html>
