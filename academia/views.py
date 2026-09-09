@@ -14,7 +14,8 @@ from .validators import validar_archivo_material
 from functools import wraps
 
 from django.shortcuts import render, get_object_or_404, redirect
-from django.core.exceptions import PermissionDenied, ValidationError, request
+# LÍNEA CORREGIDA:
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
