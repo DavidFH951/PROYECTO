@@ -94,11 +94,9 @@ urlpatterns = [
     path('panel-admin/curso/<int:curso_id>/editar/', views.admin_editar_curso, name='admin_editar_curso'),
     path('panel-admin/curso/<int:curso_id>/eliminar/', views.admin_eliminar_curso, name='admin_eliminar_curso'),
     path('panel-admin/matricular/', views.admin_matricular, name='admin_matricular'),
-    path('panel-admin/matricular-individual/', views.admin_matricular_alumno, name='admin_matricular_alumno'),
     path('panel-admin/matricular/<int:curso_id>/', views.admin_matricular, name='admin_matricular_curso'),
     path('panel-admin/curso/<int:curso_id>/alumnos/', views.admin_curso_alumnos, name='admin_curso_alumnos'),
-    path('panel-admin/inscripcion/<int:inscripcion_id>/eliminar/', views.admin_desmatricular_alumno, name='admin_desmatricular_alumno'),
-]
+    path('panel-admin/inscripcion/<int:inscripcion_id>/eliminar/', views.admin_desmatricular_alumno, name='admin_desmatricular_alumno'),]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
