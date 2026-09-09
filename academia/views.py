@@ -780,7 +780,7 @@ def panel_docente(request):
     else:
         cursos = Curso.objects.filter(docentes=request.user).prefetch_related('docentes', 'inscripciones', 'materiales').distinct()
 
-    return render(request, 'panel_docente.html', {'cursos': cursos})
+    return render(request, 'panel_docente.html', {'cursos': cursos,'es_docente': True,})
 
 
 @login_required
@@ -874,7 +874,7 @@ def subir_material(request, curso_id):
 
 
 @login_required
-def eliminar_material(request, material_id):
+def eliminar_material(request, material_id):    
     """Elimina un material con control Anti-IDOR."""
     material = get_object_or_404(Material, id=material_id)
     curso = material.curso
