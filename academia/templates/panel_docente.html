@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,13 +12,13 @@
     <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=1.0">
     <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
 </head>
+
 <body>
 
     <div class="intranet-container">
 
         <!-- Sidebar Reutilizable con Pestaña Activa -->
-        {% include 'componentes/sidebar_docente.html' with seccion_activa='asignaturas' %}
-
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='notas' %}
         <!-- Columna de Contenido Principal -->
         <div class="content-wrapper">
 
@@ -40,7 +41,7 @@
 
             <!-- Contenedor de Asignaturas -->
             <main class="main-stage">
-                
+
                 <h2 class="page-header-title">
                     <span>🎓</span> Asignaturas Asignadas
                 </h2>
@@ -51,7 +52,7 @@
                 <div class="courses-grid">
                     {% for curso in cursos %}
                     <div class="course-card-clean">
-                        
+
                         <div class="course-thumb-box">
                             {% if curso.imagen_portada %}
                             <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}" class="course-thumb-img">
@@ -94,4 +95,5 @@
     </div>
 
 </body>
+
 </html>
