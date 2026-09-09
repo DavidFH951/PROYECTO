@@ -9,49 +9,87 @@
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.2">
-    <link rel="stylesheet" href="{% static 'css/docente_asistencia.css' %}?v=1.3">
+    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
+    <link rel="stylesheet" href="{% static 'css/docente_asistencia.css' %}?v=1.4">
 </head>
 
-<body class="intranet-body">
+<body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
 
-    <div class="intranet-layout">
+    <div class="intranet-container">
 
-        {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencia_docente' es_docente=True %}
+        <!-- 1. Sidebar Compartido Centralizado -->
+        {% include 'componentes/sidebar_docente.html' with seccion_activa='asistencias' %}
 
-        <div class="intranet-main">
+        <!-- 2. Área Principal Derecha -->
+        <div class="content-wrapper">
 
-            {% include 'componentes/topbar_intranet.html' with es_docente=True %}
+            <!-- Barra Superior Institucional -->
+            <header class="top-navbar">
+                <div class="top-welcome-text">
+                    Bienvenido, profesor <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                </div>
 
+                <div class="user-pill">
+                    <div class="user-circle">
+                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                    </div>
+                    <div class="user-text-info">
+                        <div class="user-text-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                        <div class="user-text-role">Docente Titular</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Alertas del Sistema -->
+            {% if messages %}
             <div style="padding: 18px 32px 0 32px;">
-                {% include 'componentes/mensajes.html' %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ⚠️ {{ message }}
+                    </div>
+                    {% else %}
+                    <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                        ✅ {{ message }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
             </div>
+            {% endif %}
 
-           <!-- Contenido de Asistencia -->
-            <main class="intranet-content" style="padding-top: 20px;">
+            <!-- Contenido de Asistencia -->
+            <main class="main-stage">
 
-                <div class="asistencia-container">
+                <div class="asistencia-container" style="max-width: 100%; margin: 0; padding: 0;">
 
-                    <!-- Barra superior de acción: solo el botón Nueva Sesión a la derecha -->
-                    <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+                    <!-- Barra superior de acción: Volver y Nueva Sesión -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <a href="{% url 'docente_mis_asistencias' %}" style="text-decoration: none; font-size: 13px; font-weight: 700; color: #0284c7; display: inline-flex; align-items: center; gap: 6px;">
+                            ← Volver a Asistencias
+                        </a>
                         <a href="?fecha={{ hoy_str }}" class="btn-nueva-sesion">
                             <span>➕</span> Nueva Sesión
                         </a>
                     </div>
 
-                    <div class="card-asistencia">
+                    <div class="card-asistencia" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
 
                         <!-- Encabezado con título a la izquierda y selector de SESIONES a la derecha -->
-                        <div class="header-section">
+                        <div class="header-section" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
                             <div class="title-group">
-                                <h2>Sesión {{ sesion_actual_num }} — {{ curso.titulo }}</h2>
-                                <p>Fecha de la sesión: <strong>{{ fecha_sesion }}</strong></p>
+                                <h2 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 800; color: #0f172a;">
+                                    Sesión {{ sesion_actual_num }} — {{ curso.titulo }}
+                                </h2>
+                                <p style="margin: 0; font-size: 13.5px; color: #64748b;">
+                                    Fecha de la sesión: <strong>{{ fecha_sesion }}</strong>
+                                </p>
                             </div>
 
-                            <!-- Desplegable SESIONES (como en tu boceto) -->
-                            <form method="GET" class="sesiones-select-box">
-                                <label for="sesion_select">SESIONES</label>
-                                <select id="sesion_select" name="fecha" onchange="this.form.submit()" class="select-sesiones-dropdown">
+                            <!-- Desplegable SESIONES -->
+                            <form method="GET" class="sesiones-select-box" style="display: flex; align-items: center; gap: 8px;">
+                                <label for="sesion_select" style="font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase;">SESIONES</label>
+                                <select id="sesion_select" name="fecha" onchange="this.form.submit()" class="select-sesiones-dropdown" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; font-weight: 600; color: #0f172a; background: #ffffff;">
                                     {% for s in sesiones_existentes %}
                                     <option value="{{ s.fecha_str }}" {% if s.fecha_str == fecha_sesion %}selected{% endif %}>
                                         Sesión {{ s.numero }}: {{ s.fecha_formateada }}
@@ -76,53 +114,53 @@
                             <input type="hidden" name="fecha" value="{{ fecha_sesion }}">
 
                             <div class="table-responsive">
-                                <table class="table-asistencia">
+                                <table class="table-asistencia" style="width: 100%; border-collapse: collapse; text-align: left;">
                                     <thead>
-                                        <tr>
-                                            <th style="width: 44%;">Estudiante</th>
-                                            <th style="width: 14%; text-align: center;">🟢 Presente</th>
-                                            <th style="width: 14%; text-align: center;">🟡 Tardanza</th>
-                                            <th style="width: 14%; text-align: center;">🔴 Falta</th>
-                                            <th style="width: 14%; text-align: center;">🔵 Justificado</th>
+                                        <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 12px; text-transform: uppercase; color: #64748b;">
+                                            <th style="padding: 12px 16px; width: 44%;">Estudiante</th>
+                                            <th style="padding: 12px 16px; width: 14%; text-align: center;">🟢 Presente</th>
+                                            <th style="padding: 12px 16px; width: 14%; text-align: center;">🟡 Tardanza</th>
+                                            <th style="padding: 12px 16px; width: 14%; text-align: center;">🔴 Falta</th>
+                                            <th style="padding: 12px 16px; width: 14%; text-align: center;">🔵 Justificado</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for fila in filas %}
-                                        <tr>
-                                            <td>
-                                                <div class="student-item">
-                                                    <div class="student-avatar">
+                                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                                            <td style="padding: 12px 16px;">
+                                                <div class="student-item" style="display: flex; align-items: center; gap: 10px;">
+                                                    <div class="student-avatar" style="width: 32px; height: 32px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;">
                                                         {{ fila.alumno.first_name|first|default:fila.alumno.username|first|upper }}
                                                     </div>
                                                     <div>
-                                                        <div class="student-name">
+                                                        <div class="student-name" style="font-weight: 700; color: #0f172a; font-size: 13.5px;">
                                                             {{ fila.alumno.get_full_name|default:fila.alumno.username }}
                                                         </div>
-                                                        <div class="student-sub">
+                                                        <div class="student-sub" style="font-size: 11.5px; color: #64748b;">
                                                             {{ fila.alumno.email|default:"Alumno Regular" }}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center; padding: 12px 16px;">
                                                 <label class="radio-custom-label radio-p" title="Presente">
                                                     <input type="radio" name="asistencia_{{ fila.alumno.id }}" value="P" {% if fila.estado == 'P' %}checked{% endif %}>
                                                     <span class="radio-mark"></span>
                                                 </label>
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center; padding: 12px 16px;">
                                                 <label class="radio-custom-label radio-t" title="Tardanza">
                                                     <input type="radio" name="asistencia_{{ fila.alumno.id }}" value="T" {% if fila.estado == 'T' %}checked{% endif %}>
                                                     <span class="radio-mark"></span>
                                                 </label>
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center; padding: 12px 16px;">
                                                 <label class="radio-custom-label radio-f" title="Falta">
                                                     <input type="radio" name="asistencia_{{ fila.alumno.id }}" value="F" {% if fila.estado == 'F' %}checked{% endif %}>
                                                     <span class="radio-mark"></span>
                                                 </label>
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center; padding: 12px 16px;">
                                                 <label class="radio-custom-label radio-j" title="Justificado">
                                                     <input type="radio" name="asistencia_{{ fila.alumno.id }}" value="J" {% if fila.estado == 'J' %}checked{% endif %}>
                                                     <span class="radio-mark"></span>
@@ -134,12 +172,14 @@
                                 </table>
                             </div>
 
-                            <div class="form-actions" style="margin-top: 24px;">
-                                <button type="submit" class="btn-submit-asistencia">💾 Guardar Asistencia de la Sesión</button>
+                            <div class="form-actions" style="margin-top: 24px; text-align: right;">
+                                <button type="submit" class="btn-submit-asistencia" style="background: #059669; color: #ffffff; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 700; font-size: 13.5px; cursor: pointer;">
+                                    💾 Guardar Asistencia de la Sesión
+                                </button>
                             </div>
                         </form>
                         {% else %}
-                        <div class="empty-state">
+                        <div class="empty-state" style="text-align: center; padding: 48px 20px; color: #94a3b8;">
                             <div style="font-size: 40px; margin-bottom: 12px;">👥</div>
                             <strong style="display: block; font-size: 1.05rem; color: #1e293b; margin-bottom: 6px;">
                                 Sin alumnos inscritos

@@ -1,7 +1,126 @@
 /* ==============================================================================
-   SIDEBAR INTRANET CENTRALIZADO (PORTAL DOCENTE / INTRANET)
+   SIDEBAR INTRANET CENTRALIZADO (ACADEMIA GALENO)
    ============================================================================== */
 
+/* Contenedor padre de la barra lateral */
+.sidebar-galeno {
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
+    background-color: #02529c; /* Azul base institucional */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 50;
+    box-sizing: border-box;
+}
+
+/* Cabecera del Sidebar con Logo */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.sidebar-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    padding: 2px;
+    object-fit: contain;
+    display: block;
+}
+
+.sidebar-brand-title {
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.2;
+    display: block;
+}
+
+.sidebar-brand-sub {
+    font-size: 10px;
+    font-weight: 700;
+    color: #93c5fd;
+    letter-spacing: 0.5px;
+    display: block;
+    text-transform: uppercase;
+}
+
+/* Menú de Enlaces */
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px 12px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Ítem Seleccionado / Activo */
+.sidebar-link.active {
+    background-color: #0080ff !important; /* Celeste institucional uniforme */
+    color: #ffffff !important;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0, 128, 255, 0.35);
+}
+
+/* Botón inferior de Salir */
+.sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    color: #ff6b6b;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: auto;
+    transition: background-color 0.15s ease;
+}
+
+.sidebar-logout:hover {
+    background: rgba(255, 107, 107, 0.12);
+    color: #ff8787;
+}
+
+/* Scrollbar fina para el menú lateral */
+.sidebar-menu::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar-menu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+/* ==============================================================================
+   SIDEBAR INTRANET DOCENTE - ESTILO GLOBAL UNIFICADO
+   ============================================================================== */
 .sidebar-galeno {
     width: 240px;
     min-width: 240px;
@@ -42,6 +161,7 @@
     font-weight: 800;
     line-height: 1.2;
     display: block;
+    color: #ffffff;
 }
 
 .sidebar-brand-sub {
@@ -79,7 +199,7 @@
     background: rgba(255, 255, 255, 0.12);
 }
 
-/* Ítem activo con celeste vibrante */
+/* Ítem activo con celeste exacto de tu captura */
 .sidebar-link.active {
     background-color: #0080ff !important;
     color: #ffffff !important;
@@ -109,7 +229,6 @@
 .sidebar-menu::-webkit-scrollbar {
     width: 4px;
 }
-
 .sidebar-menu::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 4px;
