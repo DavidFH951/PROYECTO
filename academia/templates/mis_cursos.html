@@ -8,56 +8,33 @@
     <title>Aula Virtual - Mis Cursos | Academia Galeno</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.1">
-    <link rel="stylesheet" href="{% static 'css/mis_cursos.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.4">
+    <link rel="stylesheet" href="{% static 'css/mis_cursos.css' %}?v=1.1">
 </head>
 
 <body class="intranet-body">
 
     <div class="intranet-layout">
 
-        <!-- Sidebar -->
-        <aside class="intranet-sidebar">
-            <div class="intranet-sidebar-header">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo">
-                <div>
-                    <span class="intranet-brand-title">Academia Galeno</span>
-                    <span class="intranet-brand-sub">Aula Virtual</span>
-                </div>
-            </div>
-
-            <nav class="intranet-menu">
-                <a href="{% url 'dashboard' %}" class="intranet-nav-link">
-                    <span>🏠</span> Inicio / Intranet
-                </a>
-                <a href="{% url 'mis_cursos' %}" class="intranet-nav-link active">
-                    <span>🎓</span> Aula Virtual (Mis Cursos)
-                </a>
-                <a href="{% url 'mis_notas' %}" class="intranet-nav-link">
-                    <span>📊</span> Consulta de Notas
-                </a>
-                <a href="{% url 'mis_asistencias' %}" class="intranet-nav-link">
-                    <span>⏱️</span> Mi Asistencia a Clases
-                </a>
-                <a href="{% url 'mi_perfil' %}" class="intranet-nav-link">
-                    <span>👤</span> Mi Perfil
-                </a>
-                <a href="{% url 'salir' %}" class="intranet-nav-link logout" style="margin-top: auto;">
-                    <span>🚪</span> Cerrar Sesión
-                </a>
-            </nav>
-        </aside>
+        <!-- Sidebar Modular Homologado -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='aula_virtual' es_docente=False %}
 
         <!-- Contenido Central -->
         <div class="intranet-main">
-            <!-- REEMPLAZAR POR: -->
+
+            <!-- Topbar Modular -->
             {% include 'componentes/topbar_intranet.html' with es_docente=False %}
-            <main class="intranet-content">
+
+            <div style="padding: 14px 32px 0 32px;">
+                {% include 'componentes/mensajes.html' %}
+            </div>
+
+            <main class="intranet-content" style="padding-top: 14px;">
 
                 <div style="margin-bottom: 24px;">
-                    <h2 style="margin: 0 0 6px 0; font-size: 22px; color: #0f172a;">🎓 Asignaturas Matriculadas</h2>
-                    <p style="margin: 0; color: #64748b; font-size: 13.5px;">Selecciona un curso para acceder al
-                        material didáctico, videoconferencias, foros y evaluaciones.</p>
+                    <h2 style="margin: 0 0 6px 0; font-size: 22px; color: #0f172a; font-weight: 800;">🎓 Asignaturas Matriculadas</h2>
+                    <p style="margin: 0; color: #64748b; font-size: 13.5px;">Selecciona un curso para acceder al material didáctico, videoconferencias, foros y evaluaciones.</p>
                 </div>
 
                 <div class="cursos-grid">
@@ -75,7 +52,7 @@
                         <div class="curso-card-body">
                             <h3 class="curso-card-titulo">{{ insc.curso.titulo }}</h3>
                             <p class="curso-card-docente">
-                                <span>👨‍🏫</span> {{ insc.curso.docentes_nombres }}
+                                <span>👨‍🏫</span> {{ insc.curso.docentes_nombres|default:"Docente asignado" }}
                             </p>
 
                             <div class="curso-card-footer">
@@ -87,11 +64,10 @@
                         </div>
                     </div>
                     {% empty %}
-                    <div class="dashboard-card"
-                        style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748b;">
-                        <p style="font-size: 15px; margin: 0 0 8px 0;">No estás matriculado en ninguna asignatura
-                            activa.</p>
-                        <small>Comunícate con el área de administración académica para gestionar tu matrícula.</small>
+                    <div class="dashboard-card" style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: #64748b; background: #ffffff; border-radius: 14px; border: 1px dashed #cbd5e1;">
+                        <span style="font-size: 32px; display: block; margin-bottom: 8px;">📚</span>
+                        <strong style="display: block; font-size: 1rem; color: #1e293b; margin-bottom: 4px;">No estás matriculado en ninguna asignatura activa.</strong>
+                        <small style="font-size: 0.85rem;">Comunícate con el área de administración académica para gestionar tu matrícula.</small>
                     </div>
                     {% endfor %}
                 </div>
@@ -102,6 +78,7 @@
 
     </div>
 
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
 </body>
 
 </html>

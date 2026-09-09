@@ -1,47 +1,45 @@
 {% load static %}
-<!-- Barra Lateral Modular de Intranet -->
 <aside class="intranet-sidebar">
     <div class="intranet-sidebar-header">
-        <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno">
-        <div>
+        <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="sidebar-logo">
+        <div class="sidebar-title-group">
             <span class="intranet-brand-title">Academia Galeno</span>
             <span class="intranet-brand-sub">
-                {% if es_docente or request.user.groups.all.0.name == 'Docentes' %}
-                    Portal Docente
+                {% if es_docente %}
+                    PORTAL DOCENTE
                 {% elif request.user.is_superuser or request.user.is_staff %}
-                    Portal Administrador
+                    PORTAL ADMINISTRADOR
                 {% else %}
-                    Portal Estudiantil
+                    PORTAL ESTUDIANTIL
                 {% endif %}
             </span>
         </div>
     </div>
 
     <nav class="intranet-menu">
-        <a href="{% url 'dashboard' %}" class="intranet-nav-link {% if seccion_activa == 'intranet' %}active{% endif %}">
+        <a href="{% url 'dashboard' %}" class="intranet-nav-link {% if seccion_activa == 'inicio' %}active{% endif %}">
             <span>🏠</span> Inicio / Intranet
         </a>
 
-        {% if es_docente or request.user.groups.all.0.name == 'Docentes' %}
-            <!-- Accesos Docente -->
-            <a href="{% url 'panel_docente' %}" class="intranet-nav-link {% if seccion_activa == 'asignaturas' %}active{% endif %}">
+        {% if es_docente %}
+            <a href="{% url 'mis_cursos' %}" class="intranet-nav-link {% if seccion_activa == 'cursos_docente' %}active{% endif %}">
                 <span>📚</span> Mis Asignaturas
             </a>
-            <a href="{% url 'docente_mis_calificaciones' %}" class="intranet-nav-link {% if seccion_activa == 'notas_docente' %}active{% endif %}">
+            <a href="{% url 'panel_docente' %}" class="intranet-nav-link {% if seccion_activa == 'notas_docente' %}active{% endif %}">
                 <span>📊</span> Registro de Notas
             </a>
             <a href="{% url 'docente_mis_asistencias' %}" class="intranet-nav-link {% if seccion_activa == 'asistencia_docente' %}active{% endif %}">
                 <span>📋</span> Control de Asistencia
             </a>
-        {% elif not request.user.is_superuser and not request.user.is_staff %}
-            <!-- Accesos Estudiante -->
-            <a href="{% url 'mis_cursos' %}" class="intranet-nav-link {% if seccion_activa == 'aula' %}active{% endif %}">
-                <span>🎓</span> Aula Virtual
+        {% else %}
+            <!-- Menú Alumno Unificado -->
+            <a href="{% url 'mis_cursos' %}" class="intranet-nav-link {% if seccion_activa == 'mis_cursos' or seccion_activa == 'aula_virtual' %}active{% endif %}">
+                <span>🎓</span> Aula Virtual (Mis Cursos)
             </a>
             <a href="{% url 'mis_notas' %}" class="intranet-nav-link {% if seccion_activa == 'notas' %}active{% endif %}">
                 <span>📊</span> Consulta de Notas
             </a>
-            <a href="{% url 'mis_asistencias' %}" class="intranet-nav-link {% if seccion_activa == 'asistencia' %}active{% endif %}">
+            <a href="{% url 'mis_asistencias' %}" class="intranet-nav-link {% if seccion_activa == 'asistencias' %}active{% endif %}">
                 <span>⏱️</span> Mi Asistencia a Clases
             </a>
         {% endif %}
