@@ -4,6 +4,7 @@ import io
 import uuid
 import base64
 import os
+from django.template import context
 import qrcode
 from datetime import date
 
@@ -13,7 +14,7 @@ from .validators import validar_archivo_material
 from functools import wraps
 
 from django.shortcuts import render, get_object_or_404, redirect
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError, request
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
@@ -842,8 +843,8 @@ def mis_asistencias(request):
     context = {
         'resumen_asistencias': resumen_asistencias,
     }
-    return render(request, 'alumno_mis_asistencia.html', context)
-
+    # En academia/views.py dentro de mis_asistencias:
+    return render(request, 'alumno_mis_asistencias.html', context)
 
 # ==============================================================================
 # 6. MÓDULO DE EVALUACIONES, EXÁMENES Y BANCO DE PREGUNTAS

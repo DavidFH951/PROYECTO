@@ -339,3 +339,36 @@ body.intranet-body {
         grid-template-columns: 1fr;
     }
 }
+/* Soporte Móvil y Tablets */
+@media (max-width: 768px) {
+    .intranet-layout {
+        flex-direction: column;
+    }
+
+    .intranet-sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .intranet-topbar {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .intranet-content {
+        padding: 16px;
+    }
+
+    .table-responsive,
+    .table-responsive-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .academic-table,
+    .table-asistencia {
+        min-width: 600px; /* Garantiza scroll horizontal táctil sin deformar columnas */
+    }
+}
