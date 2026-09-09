@@ -28,7 +28,7 @@ urlpatterns = [
     path('intranet/mis-asistencias/<uuid:token>/', views.mis_asistencias, name='mis_asistencias_token'),
     path('intranet/mi-perfil/<uuid:token>/', views.mi_perfil, name='mi_perfil_token'),
 
-    # Redirecciones transparentes (si entran a la ruta base sin token, los envía a su URL con UUID)
+    # Redirecciones transparentes (rutas base redirigen a su URL con UUID)
     path('dashboard/', views.redirigir_dashboard, name='dashboard'),
     path('aula-virtual/mis-cursos/', views.redirigir_mis_cursos, name='mis_cursos'),
     path('intranet/mis-notas/', views.redirigir_mis_notas, name='mis_notas'),
@@ -36,9 +36,11 @@ urlpatterns = [
     path('intranet/mi-perfil/', views.redirigir_mi_perfil, name='mi_perfil'),
     path('perfil/', views.redirigir_mi_perfil),
 
-    # Contenido académico del estudiante
+    # Contenido académico del estudiante (con soporte y redirección para /curso/<id>/)
     path('aula-virtual/curso/<uuid:token>/<int:curso_id>/', views.detalle_curso, name='detalle_curso_token'),
     path('aula-virtual/curso/<int:curso_id>/', views.redirigir_detalle_curso, name='detalle_curso'),
+    path('curso/<int:curso_id>/', views.redirigir_detalle_curso),  # Fallback clave para URLs antiguas
+
     path('examen/<int:examen_id>/rendir/', views.rendir_examen, name='rendir_examen'),
     path('examen/<int:examen_id>/revision/', views.revision_examen, name='revision_examen'),
     path('examen/<int:examen_id>/verificar-estado/', views.verificar_estado_examen, name='verificar_estado_examen'),
@@ -92,6 +94,7 @@ urlpatterns = [
     path('panel-admin/curso/<int:curso_id>/editar/', views.admin_editar_curso, name='admin_editar_curso'),
     path('panel-admin/curso/<int:curso_id>/eliminar/', views.admin_eliminar_curso, name='admin_eliminar_curso'),
     path('panel-admin/matricular/', views.admin_matricular, name='admin_matricular'),
+    path('panel-admin/matricular-individual/', views.admin_matricular_alumno, name='admin_matricular_alumno'),
     path('panel-admin/matricular/<int:curso_id>/', views.admin_matricular, name='admin_matricular_curso'),
     path('panel-admin/curso/<int:curso_id>/alumnos/', views.admin_curso_alumnos, name='admin_curso_alumnos'),
     path('panel-admin/inscripcion/<int:inscripcion_id>/eliminar/', views.admin_desmatricular_alumno, name='admin_desmatricular_alumno'),
