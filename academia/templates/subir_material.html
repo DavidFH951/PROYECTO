@@ -74,27 +74,27 @@
                     <div style="display: flex; flex-direction: column; gap: 18px;">
 
                         <!-- Selector de Semana -->
+                        <!-- Selector de Semana -->
                         <div class="campo-form">
                             <label class="label-form" for="semana">Semana / Sesión Académica</label>
                             <select name="semana" id="semana" class="input-form"
                                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #ffffff;"
                                 required>
                                 {% if cronograma %}
-                                {% for sem in cronograma %}
-                                <option value="{{ sem.numero }}">Semana {{ sem.numero }} {% if sem.inicio and sem.fin
-                                    %}({{ sem.inicio|date:"d/m" }} - {{ sem.fin|date:"d/m" }}){% endif %}</option>
-                                {% endfor %}
+                                    {% for sem in cronograma %}
+                                    <option value="{{ sem.numero }}">Semana {{ sem.numero }}</option>
+                                    {% endfor %}
                                 {% else %}
-                                <option value="1">Semana 01</option>
-                                <option value="2">Semana 02</option>
-                                <option value="3">Semana 03</option>
-                                <option value="4">Semana 04</option>
-                                <option value="5">Semana 05</option>
-                                <option value="6">Semana 06</option>
-                                <option value="7">Semana 07</option>
-                                <option value="8">Semana 08</option>
-                                <option value="9">Semana 09</option>
-                                <option value="10">Semana 10</option>
+                                    <option value="1">Semana 01</option>
+                                    <option value="2">Semana 02</option>
+                                    <option value="3">Semana 03</option>
+                                    <option value="4">Semana 04</option>
+                                    <option value="5">Semana 05</option>
+                                    <option value="6">Semana 06</option>
+                                    <option value="7">Semana 07</option>
+                                    <option value="8">Semana 08</option>
+                                    <option value="9">Semana 09</option>
+                                    <option value="10">Semana 10</option>
                                 {% endif %}
                             </select>
                         </div>
