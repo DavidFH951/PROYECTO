@@ -44,6 +44,7 @@ body {
    2. BARRA SUPERIOR GLOBAL (TOP-NAV) & BRANDING
    ==================================================== */
 .top-nav {
+    align-items: center;
     background-color: var(--card-bg);
     border-bottom: 1px solid var(--border-color);
     padding: 10px 30px;

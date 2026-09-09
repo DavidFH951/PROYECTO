@@ -18,20 +18,6 @@
         </div>
     </a>
 
-    <!-- Menú Central de Enlaces (Exclusivo para Alumnos) -->
-    <nav class="nav-links-center" style="display: flex; gap: 15px; align-items: center;">
-        {% if not request.user.is_superuser and not request.user.is_staff %}
-            {% if request.user.groups.all.0.name != 'Docentes' %}
-                <a href="{% url 'dashboard' %}" class="nav-tab-item {% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'mis_cursos' %}active{% endif %}">
-                    Mis Cursos
-                </a>
-                <a href="{% url 'mis_notas' %}" class="nav-tab-item {% if request.resolver_match.url_name == 'mis_notas' %}active{% endif %}">
-                    Historial de Notas
-                </a>
-            {% endif %}
-        {% endif %}
-    </nav>
-
     <!-- Menú de Usuario con Avatar -->
     <div class="user-dropdown-container">
         <div class="user-profile-trigger">

@@ -5,104 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil | Academia Galeno</title>
-
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.4">
     <link rel="stylesheet" href="{% static 'css/perfil.css' %}">
 </head>
-<body>
+<body class="intranet-body">
 
-    <!-- 1. Barra Superior Modular Institucional -->
-    {% include 'componentes/navbar.html' %}
+    <div class="intranet-layout">
+        
+        <!-- Sidebar Modular -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='perfil' es_docente=es_docente %}
 
-    <!-- Tarjeta de Perfil -->
-    <main class="main-container">
+        <div class="intranet-main">
+            
+            <!-- Topbar Modular estándar -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=es_docente %}
 
-        <!-- 2. Alertas Modulares -->
-        {% include 'componentes/mensajes.html' %}
-
-        <div class="profile-wrapper">
-
-            <div class="profile-banner"></div>
-
-            <div class="profile-header-box">
-                <div class="profile-large-avatar">
-                    {{ request.user.first_name|first|default:request.user.username|first }}
-                </div>
-                <div class="profile-title-block">
-                    <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
-                    <span class="profile-role-badge">
-                        {% if request.user.is_staff or request.user.is_superuser %}
-                            Administrador del Sistema
-                        {% elif request.user.groups.all.0.name == 'Docentes' %}
-                            Docente Académico
-                        {% else %}
-                            Estudiante Activo
-                        {% endif %}
-                    </span>
-                </div>
+            <div style="padding: 14px 32px 0 32px;">
+                {% include 'componentes/mensajes.html' %}
             </div>
 
-            <div class="profile-content">
-                <div class="profile-grid">
-
-                    <div class="profile-field-card">
-                        <div class="profile-field-label">👤 Usuario (Login)</div>
-                        <div class="profile-field-value">@{{ request.user.username }}</div>
-                    </div>
-
-                    <div class="profile-field-card">
-                        <div class="profile-field-label">📅 Miembro Desde</div>
-                        <div class="profile-field-value">{{ request.user.date_joined|date:"d M Y" }}</div>
-                    </div>
-
-                    <div class="profile-field-card">
-                        <div class="profile-field-label">🏷️ Nombres</div>
-                        <div class="profile-field-value">{{ request.user.first_name|default:"No registrado" }}</div>
-                    </div>
-
-                    <div class="profile-field-card">
-                        <div class="profile-field-label">🏷️ Apellidos</div>
-                        <div class="profile-field-value">{{ request.user.last_name|default:"No registrado" }}</div>
-                    </div>
-
-                    <div class="profile-field-card full-width">
-                        <div class="profile-field-label">✉️ Correo Electrónico</div>
-                        <div class="profile-field-value">{{ request.user.email|default:"Sin correo registrado" }}</div>
-                    </div>
-
+            <main class="intranet-content" style="padding-top: 20px;">
+                <!-- Aquí colocas la tarjeta azul con la información del usuario y el botón 2FA -->
+                <div class="perfil-card-container">
+                    <!-- Tu contenido actual de la tarjeta de perfil -->
                 </div>
-                <div class="seguridad-card full-width"
-                        style="margin-top: 10px; padding: 18px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;">
-                        <h3 style="margin-top: 0; font-size: 16px; color: #0f172a;">🔐 Seguridad de la Cuenta</h3>
-                        <p style="font-size: 13.5px; color: #64748b; margin-bottom: 15px;">
-                            Protege tu acceso institucional añadiendo una capa extra de verificación por código temporal.
-                        </p>
-                        <a href="{% url 'configurar_2fa' %}" class="btn-submit"
-                            style="display: inline-block; padding: 8px 16px; text-decoration: none; font-size: 13.5px; width: auto; background: #0284c7; color: #fff; border-radius: 6px; font-weight: 600;">
-                            Configurar Doble Factor (2FA)
-                        </a>
-                    </div>
-
-                <div class="profile-footer">
-                    {% if request.user.is_superuser or request.user.is_staff %}
-                        <a href="{% url 'admin_dashboard' %}" class="btn-profile-back">
-                            ← Volver al Panel de Control
-                        </a>
-                    {% else %}
-                        <a href="{% url 'dashboard' %}" class="btn-profile-back">
-                            ← Volver al Aula Virtual
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
+            </main>
 
         </div>
-    </main>
 
-    <!-- Script Modular Externo -->
-    <script src="{% static 'js/admin_dashboard.js' %}?v=1.0" defer></script>
+    </div>
 
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
 </body>
-
 </html>
