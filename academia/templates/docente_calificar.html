@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.2">
     <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/docente_calificar.css' %}?v=1.5">
+    <link rel="stylesheet" href="{% static 'css/docente_calificar.css' %}?v=1.6">
 </head>
 
 <body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
@@ -74,6 +74,14 @@
                     Ingresa las notas vigesimales (0 a 20) de los estudiantes matriculados en <strong>{{ curso.titulo }}</strong>.
                 </p>
 
+                {% if formula_evaluacion %}
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px 16px; border-radius: 8px; font-size: 13px; color: #166534; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                    <span>📐</span>
+                    <strong>Fórmula Oficial del Curso:</strong>
+                    <code>{{ formula_evaluacion }}</code>
+                </div>
+                {% endif %}
+
                 <form method="POST">
                     {% csrf_token %}
 
@@ -81,16 +89,11 @@
                         <table class="custom-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 35%;">Estudiante</th>
-                                    {% for criterio in criterios %}
-                                    <th class="center">{{ criterio.nombre|upper }} ({{ criterio.codigo }})</th>
-                                    {% empty %}
-                                    <th class="center">Nota 1</th>
-                                    <th class="center">Nota 2</th>
-                                    <th class="center">Nota 3</th>
-                                    <th class="center">Nota 4</th>
+                                    <th style="width: 32%;">Estudiante</th>
+                                    {% for crit in criterios %}
+                                    <th class="center">{{ crit.nombre|default:crit.codigo|upper }} ({{ crit.codigo }})</th>
                                     {% endfor %}
-                                    <th class="center" style="width: 15%;">Promedio Final</th>
+                                    <th class="center" style="width: 14%;">Promedio Final</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -108,30 +111,32 @@
                                         </div>
                                     </td>
 
-                                    {% for cal in fila.calificaciones %}
+                                    <!-- Render de cada criterio evaluable -->
+                                    {% for col in fila.columnas %}
                                     <td class="center">
-                                        <input type="number" 
-                                               name="nota_{{ fila.alumno.id }}_{{ cal.criterio_id }}" 
-                                               value="{{ cal.valor|default_if_none:'' }}" 
-                                               min="0" max="20" step="0.1" 
-                                               class="input-nota">
+                                        <input type="text" 
+                                               name="nota_{{ col.codigo }}_{{ fila.alumno.id }}" 
+                                               value="{{ col.valor }}" 
+                                               placeholder="—"
+                                               class="input-nota"
+                                               autocomplete="off">
                                     </td>
-                                    {% empty %}
-                                    <td class="center"><input type="number" class="input-nota" disabled></td>
-                                    <td class="center"><input type="number" class="input-nota" disabled></td>
-                                    <td class="center"><input type="number" class="input-nota" disabled></td>
-                                    <td class="center"><input type="number" class="input-nota" disabled></td>
                                     {% endfor %}
 
+                                    <!-- Promedio Final -->
                                     <td class="center">
-                                        <span class="promedio-badge {% if fila.promedio >= 11 %}aprobado{% elif fila.promedio %}desaprobado{% else %}promedio-nulo{% endif %}">
-                                            {{ fila.promedio|default:"—" }}
-                                        </span>
+                                        {% if fila.promedio is not None %}
+                                            <span class="promedio-badge {% if fila.promedio >= 10.5 %}promedio-aprobado{% else %}promedio-desaprobado{% endif %}">
+                                                {{ fila.promedio|floatformat:2 }}
+                                            </span>
+                                        {% else %}
+                                            <span class="promedio-nulo">—</span>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="6" class="empty-cell">
+                                    <td colspan="{{ criterios|length|add:2 }}" class="empty-cell">
                                         👥 No hay estudiantes inscritos en este curso para calificar.
                                     </td>
                                 </tr>
@@ -141,14 +146,14 @@
                     </div>
 
                     <div class="calificar-actions-bar">
-                        <button type="button" class="btn-toggle-edit" onclick="document.querySelectorAll('.input-nota').forEach(i => i.disabled = !i.disabled)">
+                        <button type="button" class="btn-toggle-edit" onclick="document.querySelectorAll('.input-nota').forEach(i => { i.disabled = !i.disabled; i.classList.toggle('locked'); })">
                             🔒 Bloquear / Desbloquear Casillas
                         </button>
                         <div class="save-buttons-group">
-                            <button type="submit" name="accion" value="guardar" class="btn-solo-guardar">
+                            <button type="submit" name="accion" value="guardar_solo" class="btn-solo-guardar">
                                 💾 Guardar Notas
                             </button>
-                            <button type="submit" name="accion" value="promediar" class="btn-guardar-promediar">
+                            <button type="submit" name="accion" value="guardar_promediar" class="btn-guardar-promediar">
                                 ⚡ Guardar y Calcular Promedios
                             </button>
                         </div>
