@@ -309,6 +309,11 @@ def redirigir_mi_perfil(request):
     token = _obtener_o_crear_token_sesion(request)
     return redirect('mi_perfil_token', token=token)
 
+@login_required
+def redirigir_detalle_curso(request, curso_id):
+    token = _obtener_o_crear_token_sesion(request)
+    return redirect('detalle_curso_token', token=token, curso_id=curso_id)
+
 
 # ==============================================================================
 # 4. PORTAL ESTUDIANTIL (DASHBOARD, CURSOS, NOTAS, ASISTENCIAS Y PERFIL)
@@ -565,8 +570,15 @@ def mi_perfil(request, token=None):
 # ==============================================================================
 
 @login_required
-def detalle_curso(request, curso_id):
+def detalle_curso(request, curso_id, token=None):
     """Detalle de contenidos, semanas y cronograma de una asignatura."""
+    if not token:
+        return redirigir_detalle_curso(request, curso_id)
+
+    token_sesion = _obtener_o_crear_token_sesion(request)
+    if str(token) != token_sesion:
+        return redirect('detalle_curso_token', token=token_sesion, curso_id=curso_id)
+
     curso = get_object_or_404(Curso, id=curso_id)
     es_docente = es_docente_del_curso(request.user, curso)
     es_alumno = es_alumno_del_curso(request.user, curso)
@@ -606,6 +618,7 @@ def detalle_curso(request, curso_id):
         'notas': notas,
         'periodo': periodo,
         'es_docente_curso': es_docente,
+        'token': token_sesion,
     }
     return render(request, 'detalle_curso.html', context)
 

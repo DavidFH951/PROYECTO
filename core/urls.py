@@ -37,7 +37,8 @@ urlpatterns = [
     path('perfil/', views.redirigir_mi_perfil),
 
     # Contenido académico del estudiante
-    path('curso/<int:curso_id>/', views.detalle_curso, name='detalle_curso'),
+    path('aula-virtual/curso/<uuid:token>/<int:curso_id>/', views.detalle_curso, name='detalle_curso_token'),
+    path('aula-virtual/curso/<int:curso_id>/', views.redirigir_detalle_curso, name='detalle_curso'),
     path('examen/<int:examen_id>/rendir/', views.rendir_examen, name='rendir_examen'),
     path('examen/<int:examen_id>/revision/', views.revision_examen, name='revision_examen'),
     path('examen/<int:examen_id>/verificar-estado/', views.verificar_estado_examen, name='verificar_estado_examen'),
