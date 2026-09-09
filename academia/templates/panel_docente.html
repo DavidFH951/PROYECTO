@@ -8,40 +8,15 @@
 
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=2.0">
-    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
 </head>
 <body>
 
     <div class="intranet-container">
 
-        <!-- Barra Lateral Íntegra de Intranet (Azul Continuo) -->
-        <aside class="sidebar-galeno">
-            <a href="{% url 'panel_docente' %}" class="sidebar-brand">
-                <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="sidebar-logo">
-                <div>
-                    <span class="sidebar-brand-title">Academia Galeno</span>
-                    <span class="sidebar-brand-sub">PORTAL DOCENTE</span>
-                </div>
-            </a>
-
-            <div class="sidebar-menu">
-                <a href="{% url 'dashboard' %}" class="sidebar-link">
-                    <span>🏠</span> Inicio / Intranet
-                </a>
-                <a href="{% url 'panel_docente' %}" class="sidebar-link active">
-                    <span>📚</span> Mis Asignaturas
-                </a>
-                <a href="{% url 'docente_mis_calificaciones' %}" class="sidebar-link">
-                    <span>📊</span> Registro de Notas
-                </a>
-                <a href="{% url 'docente_mis_asistencias' %}" class="sidebar-link">
-                    <span>📋</span> Control de Asistencia
-                </a>
-                <a href="{% url 'mi_perfil' %}" class="sidebar-link">
-                    <span>👤</span> Mi Perfil
-                </a>
-            </div>
-        </aside>
+        <!-- Sidebar Reutilizable con Pestaña Activa -->
+        {% include 'componentes/sidebar_docente.html' with seccion_activa='asignaturas' %}
 
         <!-- Columna de Contenido Principal -->
         <div class="content-wrapper">
