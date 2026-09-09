@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 EXTENSIONES_PERMITIDAS_MATERIAL = [
     '.pdf', '.docx', '.doc', '.xlsx', '.xls', 
     '.pptx', '.ppt', '.zip', '.rar', '.jpg', '.jpeg', '.png'
+    '.mp4', '.webm'  # Permitir videos
 ]
 
 TAMANO_MAXIMO_MB = 15
