@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ curso.titulo }} | Aula Virtual Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=3.6">
+    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=3.7">
 </head>
 
 <body>
@@ -70,78 +70,80 @@
     <!-- Contenido Central -->
     <main class="main-container">
 
-        {% if messages %}
-        <div style="margin-bottom: 20px;">
-            {% for message in messages %}
-            <div
-                style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-                <span>✅</span>
-                <span>{{ message }}</span>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        <!-- Encabezado Principal del Curso con Portada Dinámica -->
-        <div class="course-header-banner"
-            style="position: relative; border-radius: 16px; overflow: hidden; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); margin-bottom: 25px; background: #0f172a;">
-
-            {% if curso.imagen_portada %}
-            <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}"
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
-            <div
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)); z-index: 1;">
-            </div>
-            {% else %}
-            <div
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); z-index: 1;">
-            </div>
-            {% endif %}
-
-            <div style="position: relative; z-index: 2;">
-                <span
-                    style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.3);">
-                    {% if curso.periodo %}
-                    Período: {{ curso.periodo.nombre }} ({{ curso.periodo.codigo }})
-                    {% else %}
-                    Período Académico Activo
-                    {% endif %}
-                </span>
-
-                <h1
-                    style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0 0 6px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                    {{ curso.titulo }}
-                </h1>
-
-                {% if curso.descripcion %}
-                <p
-                    style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin: 0 0 15px 0; max-width: 800px; line-height: 1.4;">
-                    {{ curso.descripcion }}
-                </p>
-                {% endif %}
-
-                <div
-                    style="font-size: 13px; color: rgba(255, 255, 255, 0.85); font-weight: 500; display: flex; align-items: center; gap: 8px;">
-                    <span>Plana Docente:</span>
-                    <strong style="color: #ffffff;">
-                        {% for doc in curso.docentes.all %}
-                        Prof. {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                        Sin docente asignado
-                        {% endfor %}
-                    </strong>
-                </div>
-            </div>
-        </div>
-
-        <!-- Layout con Sidebar y Contenidos -->
+        <!-- Layout General: Sidebar al borde izquierdo + Contenido a la derecha -->
         <div class="course-layout">
 
-            <!-- 1. BARRA LATERAL MODULAR -->
+            <!-- 1. BARRA LATERAL MODULAR (PEGADA AL BORDE IZQUIERDO) -->
             {% include 'componentes/sidebar_curso.html' with curso=curso bloques_semanas=bloques_semanas %}
 
-            <!-- 2. CONTENIDO PRINCIPAL -->
+            <!-- 2. CONTENIDO PRINCIPAL DEL CURSO (COLUMNA DERECHA) -->
             <section class="course-main-content">
+
+                {% if messages %}
+                <div style="margin-bottom: 16px;">
+                    {% for message in messages %}
+                    <div
+                        style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <span>✅</span>
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Encabezado Principal del Curso con Portada Dinámica -->
+                <div class="course-header-banner"
+                    style="position: relative; border-radius: 14px; overflow: hidden; min-height: 160px; display: flex; flex-direction: column; justify-content: flex-end; padding: 22px 28px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; background: #0f172a;">
+
+                    {% if curso.imagen_portada %}
+                    <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}"
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+                    <div
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)); z-index: 1;">
+                    </div>
+                    {% else %}
+                    <div
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); z-index: 1;">
+                    </div>
+                    {% endif %}
+
+                    <div style="position: relative; z-index: 2;">
+                        <span
+                            style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); color: #ffffff; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; border: 1px solid rgba(255, 255, 255, 0.3);">
+                            {% if curso.periodo %}
+                            Período: {{ curso.periodo.nombre }} ({{ curso.periodo.codigo }})
+                            {% else %}
+                            Período Académico Activo
+                            {% endif %}
+                        </span>
+
+                        <h1
+                            style="color: #ffffff; font-size: 26px; font-weight: 800; margin: 0 0 6px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                            {{ curso.titulo }}
+                        </h1>
+
+                        {% if curso.descripcion %}
+                        <p
+                            style="color: rgba(255, 255, 255, 0.9); font-size: 13.5px; margin: 0 0 12px 0; max-width: 800px; line-height: 1.4;">
+                            {{ curso.descripcion }}
+                        </p>
+                        {% endif %}
+
+                        <div
+                            style="font-size: 13px; color: rgba(255, 255, 255, 0.85); font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                            <span>Plana Docente:</span>
+                            <strong style="color: #ffffff;">
+                                {% for doc in curso.docentes.all %}
+                                Prof. {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                Sin docente asignado
+                                {% endfor %}
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de Acciones / Materiales -->
                 <div class="content-action-bar"
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Materiales de Estudio y Clases</h3>
