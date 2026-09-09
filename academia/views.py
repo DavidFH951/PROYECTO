@@ -7,6 +7,7 @@ import json
 import os
 from urllib.parse import quote
 import uuid
+import cloudinary.uploader
 
 from axes.models import AccessAttempt
 from django.conf import settings
@@ -804,8 +805,12 @@ def subir_material(request, curso_id):
             messages.error(request, "El título del contenido es obligatorio.")
             return render(request, 'subir_material.html', {'curso': curso, 'cronograma': cronograma})
 
+        if not archivo and not enlace:
+            messages.error(request, "Debes adjuntar un archivo o ingresar un enlace web.")
+            return render(request, 'subir_material.html', {'curso': curso, 'cronograma': cronograma})
+
         if archivo:
-            # Límite ampliado a 60 MB para videos cortos y documentos pesados
+            # Límite ampliado a 60 MB para videos y documentos pesados
             max_bytes = 60 * 1024 * 1024
             if archivo.size > max_bytes:
                 messages.error(request, "El archivo excede el tamaño máximo permitido de 60 MB.")
@@ -817,14 +822,36 @@ def subir_material(request, curso_id):
                 '.mp4', '.webm'
             }
             _, ext = os.path.splitext(archivo.name)
-            if ext.lower() not in extensiones_permitidas:
+            ext = ext.lower()
+            if ext not in extensiones_permitidas:
                 messages.error(
                     request, 
                     f"Tipo de archivo no permitido ({ext}). Formatos admitidos: PDF, Office, comprimidos, imágenes y video MP4/WebM."
                 )
                 return render(request, 'subir_material.html', {'curso': curso, 'cronograma': cronograma})
 
-        # Normalización automática si pegan enlaces de YouTube estándar (watch?v= -> embed/)
+            # Asignar el resource_type adecuado para Cloudinary
+            if ext in ['.mp4', '.webm']:
+                res_type = 'video'
+            elif ext in ['.jpg', '.jpeg', '.png']:
+                res_type = 'image'
+            else:
+                res_type = 'raw'
+
+            try:
+                # Subir directamente a Cloudinary con el tipo de recurso correcto
+                resultado = cloudinary.uploader.upload(
+                    archivo,
+                    resource_type=res_type,
+                    folder="academia_galeno/materiales/"
+                )
+                # Si el campo en la base de datos almacena el archivo/CloudinaryField:
+                archivo = resultado.get('public_id') or resultado.get('secure_url')
+            except Exception as e:
+                # Si no usa el uploader manual o falla, continuar con fallback
+                pass
+
+        # Normalización automática de videos embebidos de YouTube
         if enlace and 'youtube.com/watch?v=' in enlace:
             video_id = enlace.split('v=')[-1].split('&')[0]
             enlace = f"https://www.youtube-nocookie.com/embed/{video_id}"

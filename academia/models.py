@@ -10,6 +10,9 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 
+# En academia/models.py
+from cloudinary.models import CloudinaryField
+
 
 # ----------------------------------------------------
 # 0. MODELO PERÍODO ACADÉMICO / TEMPORADA
@@ -172,7 +175,12 @@ class Material(models.Model):
         ('EXAMEN', 'Examen / Simulacro'),
         ('TAREA', 'Tarea Práctica'),
     ]
-
+    archivo = CloudinaryField(
+        'archivo',
+        resource_type='auto',  # CLAVE: detecta automáticamente si es video, raw (pdf/docx) o image
+        blank=True,
+        null=True
+    )
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='materiales')
     titulo = models.CharField(max_length=200, verbose_name="Título del Material")
     tipo = models.CharField(max_length=50, choices=TIPO_OPCIONES, default='CLASE')
