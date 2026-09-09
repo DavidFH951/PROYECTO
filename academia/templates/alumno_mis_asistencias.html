@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Asistencia a Clases | Academia Galeno</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
+    <link rel="stylesheet" href="{% static 'css/intranet.css' %}?v=1.4">
+    <link rel="stylesheet" href="{% static 'css/asistencias.css' %}?v=1.1">
+</head>
+<body class="intranet-body">
+
+    <div class="intranet-layout">
+        
+        <!-- Sidebar Modular -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencias' es_docente=False %}
+
+        <div class="intranet-main">
+            
+            <!-- Topbar Modular -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=False %}
+
+            <div style="padding: 14px 32px 0 32px;">
+                {% include 'componentes/mensajes.html' %}
+            </div>
+
+            <main class="intranet-content" style="padding-top: 14px;">
+
+                <div class="barra-titulo-negra">
+                    <span class="barra-titulo-texto">⏱️ Control de Asistencia a Clases</span>
+                </div>
+
+                <div class="contenedor-acordeon">
+                    <div class="acordeon-top-bar">
+                        <span class="acordeon-seccion-titulo">Materias Registradas</span>
+                        <button type="button" onclick="window.print()" class="btn-print-asistencia" title="Imprimir récord">
+                            🖨️ Imprimir Récord
+                        </button>
+                    </div>
+
+                    {% for item in resumen_asistencias %}
+                    <div class="curso-acordeon-item">
+                        <button type="button" class="curso-header-btn" onclick="toggleDetalle('curso-{{ item.curso.id }}', this)">
+                            <div class="curso-header-titulo">
+                                <span>📘</span>
+                                <strong>{{ item.curso.titulo }}</strong>
+                                <span class="curso-header-sub">Grupo 01</span>
+                            </div>
+                            <div class="curso-header-derecha">
+                                <span class="porcentaje-badge {% if item.porcentaje >= 70 %}porcentaje-optimo{% else %}porcentaje-riesgo{% endif %}">
+                                    {{ item.porcentaje }}% Asistencia
+                                </span>
+                                <span class="flecha-indicador">▼</span>
+                            </div>
+                        </button>
+
+                        <div id="curso-{{ item.curso.id }}" class="curso-body-detalle">
+                            {% if item.detalles %}
+                            <div class="table-responsive">
+                                <table class="tabla-asistencia-ref">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">Sesión / Semana</th>
+                                            <th style="width: 45%;">Fecha Registrada</th>
+                                            <th style="width: 30%; text-align: center;">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for reg in item.detalles %}
+                                        <tr>
+                                            <td>Semana {{ reg.semana }}</td>
+                                            <td>{{ reg.fecha|date:"d/m/Y" }}</td>
+                                            <td style="text-align: center;">
+                                                {% if reg.estado == 'P' %}
+                                                    <span class="estado-p">Presente</span>
+                                                {% elif reg.estado == 'T' %}
+                                                    <span class="estado-t">Tardanza</span>
+                                                {% elif reg.estado == 'F' %}
+                                                    <span class="estado-f">Falta</span>
+                                                {% elif reg.estado == 'J' %}
+                                                    <span class="estado-j">Justificado</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="empty-asistencia-msg">
+                                No se registran asistencias computadas para esta materia aún.
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-asistencia-msg" style="padding: 36px 20px; text-align: center; background: #ffffff; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                        <span style="font-size: 32px; display: block; margin-bottom: 8px;">📋</span>
+                        <strong style="color: #1e293b; display: block; margin-bottom: 4px;">Sin materias inscritas</strong>
+                        <span style="color: #64748b; font-size: 13.5px;">No tienes asignaturas registradas actualmente.</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="leyenda-footer">
+                    <strong>Leyenda:</strong>
+                    <span><strong style="color: #16a34a;">Presente</strong></span>
+                    <span><strong style="color: #d97706;">Tardanza</strong></span>
+                    <span><strong style="color: #0284c7;">Justificado</strong></span>
+                    <span><strong style="color: #dc2626;">Falta</strong></span>
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
+    <script src="{% static 'js/asistencias.js' %}?v=1.0" defer></script>
+</body>
+</html>
