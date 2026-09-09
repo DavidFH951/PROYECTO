@@ -1,63 +1,63 @@
-import csv
-import json
-import io
-import uuid
 import base64
-import os
-from django.template import context
-import qrcode
+import csv
 from datetime import date
-
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from .validators import validar_archivo_material
 from functools import wraps
+import io
+import json
+import os
+from urllib.parse import quote
+import uuid
 
-from django.shortcuts import render, get_object_or_404, redirect
-# LÍNEA CORREGIDA:
-from django.core.exceptions import PermissionDenied, ValidationError
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.views.decorators.http import require_POST
+from axes.models import AccessAttempt
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import LoginView
-from django.contrib.auth.models import User, Group
-from django.conf import settings
-from axes.models import AccessAttempt
-from django.db.models import Q
-from django.utils import timezone
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
-from urllib.parse import quote
-from django_otp.plugins.otp_totp.models import TOTPDevice
+from django.db.models import Q
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django_otp import login as otp_login
+from django_otp.plugins.otp_totp.models import TOTPDevice
+import openpyxl
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+import qrcode
 
-from .models import (
-    Curso, 
-    Material, 
-    Inscripcion, 
-    Calificacion, 
-    LogActividad, 
-    PeriodoAcademico, 
-    BannerCarrusel, 
-    ConfiguracionLanding, 
-    Examen, 
-    Pregunta, 
-    Opcion, 
-    IntentoExamen, 
-    RespuestaEstudiante,
-    Asistencia, 
-    HorarioCurso
-)
 from .forms import (
-    RegistroUsuarioForm, 
-    EditarUsuarioForm, 
-    CursoForm, 
-    InscripcionForm, 
-    PreguntaForm
+    CursoForm,
+    EditarUsuarioForm,
+    InscripcionForm,
+    PreguntaForm,
+    RegistroUsuarioForm,
 )
+from .models import (
+    Asistencia,
+    BannerCarrusel,
+    Calificacion,
+    ConfiguracionLanding,
+    Curso,
+    Examen,
+    HorarioCurso,
+    Inscripcion,
+    IntentoExamen,
+    LogActividad,
+    Material,
+    Opcion,
+    PeriodoAcademico,
+    Pregunta,
+    RespuestaEstudiante,
+)
+from .validators import validar_archivo_material
 
-# 1. Definición del decorador (PRIMERO)
+
+# ==============================================================================
+# 1. DECORADORES, HELPERS Y AUDITORÍA (ANTI-IDOR Y 2FA)
+# ==============================================================================
+
 def requerir_2fa_si_esta_activo(view_func):
     """Verifica que el usuario haya completado el desafío 2FA si su cuenta lo tiene configurado."""
     @wraps(view_func)
@@ -71,48 +71,6 @@ def requerir_2fa_si_esta_activo(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
-
-# ==============================================================================
-# 1. UTILIDADES DEL SISTEMA Y CONTROL DE ACCESO (ANTI-IDOR Y AUDITORÍA)
-# ==============================================================================
-class CustomLoginView(LoginView):
-    template_name = 'registration/login.html'
-
-    def form_valid(self, form):
-        """Si las credenciales son correctas, evalúa si requiere verificación 2FA."""
-        response = super().form_valid(form)
-        user = self.request.user
-
-        # Si el usuario tiene un dispositivo 2FA confirmado, redirigir al desafío OTP
-        if TOTPDevice.objects.filter(user=user, confirmed=True).exists():
-            return redirect('verificar_2fa')
-
-        return response
-
-    def form_invalid(self, form):
-        response = super().form_invalid(form)
-        
-        username = form.data.get('username', '').strip()
-        limite = getattr(settings, 'AXES_FAILURE_LIMIT', 5)
-        
-        # Buscar el intento registrado para este usuario
-        intento = AccessAttempt.objects.filter(username=username).first()
-        
-        if intento:
-            fallos = intento.failures_since_start
-            restantes = max(0, limite - fallos)
-            if restantes > 0:
-                messages.error(
-                    self.request,
-                    f"Credenciales incorrectas. Te queda(n) {restantes} intento(s) antes del bloqueo temporal."
-                )
-        else:
-            messages.error(
-                self.request,
-                f"Credenciales incorrectas. Te queda(n) {limite - 1} intento(s) antes del bloqueo temporal."
-            )
-            
-        return response
 
 def registrar_log(request, accion, detalles=""):
     """Registra una acción en la tabla de auditoría con la IP del usuario."""
@@ -153,12 +111,8 @@ def es_docente_del_curso(user, curso):
     """Valida si el usuario es docente asignado al curso específico o administrador del sistema."""
     if not user.is_authenticated:
         return False
-    
-    # 1. Los administradores (staff o superuser) tienen acceso global
     if user.is_staff or user.is_superuser:
         return True
-        
-    # 2. El docente DEBE estar asignado específicamente a este curso
     return curso.docentes.filter(id=user.id).exists()
 
 
@@ -166,19 +120,59 @@ def es_alumno_del_curso(user, curso):
     """Valida si el estudiante está formalmente matriculado en el curso."""
     if not user.is_authenticated:
         return False
-        
     if user.is_staff or user.is_superuser:
         return True
-        
     return Inscripcion.objects.filter(curso=curso, alumno=user).exists()
 
 
+def _obtener_o_crear_token_sesion(request):
+    """Gestiona un token UUID único por sesión para ofuscar las rutas del alumno."""
+    token = request.session.get('dashboard_token')
+    if not token:
+        token = str(uuid.uuid4())
+        request.session['dashboard_token'] = token
+        request.session.modified = True
+    return token
+
+
 # ==============================================================================
-# 2. VISTAS PÚBLICAS Y DE AUTENTICACIÓN
+# 2. AUTENTICACIÓN, LOGIN Y DOBLE FACTOR (2FA)
 # ==============================================================================
 
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        user = self.request.user
+        if TOTPDevice.objects.filter(user=user, confirmed=True).exists():
+            return redirect('verificar_2fa')
+        return response
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        username = form.data.get('username', '').strip()
+        limite = getattr(settings, 'AXES_FAILURE_LIMIT', 5)
+        
+        intento = AccessAttempt.objects.filter(username=username).first()
+        if intento:
+            fallos = intento.failures_since_start
+            restantes = max(0, limite - fallos)
+            if restantes > 0:
+                messages.error(
+                    self.request,
+                    f"Credenciales incorrectas. Te queda(n) {restantes} intento(s) antes del bloqueo temporal."
+                )
+        else:
+            messages.error(
+                self.request,
+                f"Credenciales incorrectas. Te queda(n) {limite - 1} intento(s) antes del bloqueo temporal."
+            )
+        return response
+
+
 def inicio_publico(request):
-    """Página principal (Landing) de la Academia."""
+    """Landing page pública de la Academia."""
     periodo_activo = PeriodoAcademico.objects.filter(activo=True).first()
     cursos_qs = Curso.objects.select_related('periodo')
 
@@ -208,23 +202,124 @@ def salir(request):
 
 
 @login_required
+def configurar_2fa(request):
+    """Vincular aplicación autenticadora (Google Authenticator / Authy)."""
+    user = request.user
+    dispositivo_confirmado = TOTPDevice.objects.filter(user=user, confirmed=True).first()
+
+    if request.method == 'POST':
+        token = request.POST.get('token', '').strip()
+        dispositivo_temp = TOTPDevice.objects.filter(user=user, confirmed=False).last()
+
+        if dispositivo_temp and dispositivo_temp.verify_token(token):
+            dispositivo_temp.confirmed = True
+            dispositivo_temp.save()
+            TOTPDevice.objects.filter(user=user, confirmed=True).exclude(id=dispositivo_temp.id).delete()
+            registrar_log(request, "Seguridad 2FA", "Activó el doble factor de autenticación")
+            messages.success(request, "Doble factor de autenticación (2FA) activado correctamente.")
+            return redirect('mi_perfil')
+        else:
+            messages.error(request, "Código incorrecto o expirado. Inténtalo nuevamente.")
+
+    dispositivo_temp = TOTPDevice.objects.filter(user=user, confirmed=False).last()
+    if not dispositivo_temp:
+        dispositivo_temp = TOTPDevice.objects.create(
+            user=user, 
+            name="Academia Galeno", 
+            confirmed=False
+        )
+
+    secret_b32 = base64.b32encode(dispositivo_temp.bin_key).decode('ascii').replace('=', '')
+    identificador = user.email if user.email else user.username
+    emisor = "Academia Galeno"
+
+    otp_url = (
+        f"otpauth://totp/{quote(emisor)}:{quote(identificador)}"
+        f"?secret={secret_b32}&issuer={quote(emisor)}&digits=6&period=30"
+    )
+
+    qr = qrcode.make(otp_url)
+    buffer = io.BytesIO()
+    qr.save(buffer, format="PNG")
+    qr_b64 = base64.b64encode(buffer.getvalue()).decode('ascii')
+
+    context = {
+        'tiene_2fa': dispositivo_confirmado is not None,
+        'qr_b64': qr_b64,
+        'secret_key': secret_b32,
+        'emisor': emisor,
+        'identificador': identificador,
+    }
+    return render(request, 'configurar_2fa.html', context)
+
+
+@login_required
+def verificar_2fa(request):
+    """Valida el código OTP de 6 dígitos."""
+    user = request.user
+    tiene_dispositivo = TOTPDevice.objects.filter(user=user, confirmed=True).exists()
+
+    if getattr(user, 'is_verified', lambda: False)() or not tiene_dispositivo:
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        token = request.POST.get('token', '').strip()
+        dispositivo = TOTPDevice.objects.filter(user=user, confirmed=True).first()
+
+        if dispositivo and dispositivo.verify_token(token):
+            otp_login(request, dispositivo)
+            registrar_log(request, "Inicio de Sesión 2FA", "Verificación TOTP exitosa")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Código de 6 dígitos inválido. Revisa tu aplicación Authenticator.")
+
+    return render(request, 'verificar_2fa.html')
+
+
+# ==============================================================================
+# 3. REDIRECCIONES TRANSPARENTES A RUTAS CON UUID (PORTAL ESTUDIANTIL)
+# ==============================================================================
+
+@login_required
 def redirigir_dashboard(request):
-    """Obtiene o crea un token UUID en sesión y redirige a la URL segura."""
-    token = request.session.get('dashboard_token')
-    if not token:
-        token = str(uuid.uuid4())
-        request.session['dashboard_token'] = token
-        request.session.modified = True
+    token = _obtener_o_crear_token_sesion(request)
     return redirect('dashboard_token', token=token)
 
 
 @login_required
+def redirigir_mis_cursos(request):
+    token = _obtener_o_crear_token_sesion(request)
+    return redirect('mis_cursos_token', token=token)
+
+
+@login_required
+def redirigir_mis_notas(request):
+    token = _obtener_o_crear_token_sesion(request)
+    return redirect('mis_notas_token', token=token)
+
+
+@login_required
+def redirigir_mis_asistencias(request):
+    token = _obtener_o_crear_token_sesion(request)
+    return redirect('mis_asistencias_token', token=token)
+
+
+@login_required
+def redirigir_mi_perfil(request):
+    token = _obtener_o_crear_token_sesion(request)
+    return redirect('mi_perfil_token', token=token)
+
+
+# ==============================================================================
+# 4. PORTAL ESTUDIANTIL (DASHBOARD, CURSOS, NOTAS, ASISTENCIAS Y PERFIL)
+# ==============================================================================
+
+@login_required
 def dashboard(request, token=None):
-    """Portal central post-login protegido por token."""
+    """Portal principal del estudiante / docente protegido por UUID."""
     token_sesion = request.session.get('dashboard_token')
     token_str = str(token) if token else None
 
-    # Si la sesión no tiene token aún, lo asignamos directamente al actual
     if not token_sesion:
         if token_str:
             request.session['dashboard_token'] = token_str
@@ -232,7 +327,6 @@ def dashboard(request, token=None):
         else:
             return redirect('dashboard')
 
-    # Si el token de la URL no coincide con la sesión, enviar a la ruta base
     if token_str != token_sesion:
         return redirect('dashboard')
 
@@ -242,19 +336,15 @@ def dashboard(request, token=None):
     if user.is_staff or user.is_superuser:
         return redirect('admin_dashboard')
 
-    # =========================================================================
-    # VISTA PARA DOCENTE
-    # =========================================================================
+    # Vista Docente
     if es_docente:
         cursos_asignados = Curso.objects.filter(docentes=user).select_related('periodo').distinct()
         cursos_ids = cursos_asignados.values_list('id', flat=True)
 
-        cursos_data = []
-        for c in cursos_asignados:
-            cursos_data.append({
-                'curso': c,
-                'total_alumnos': Inscripcion.objects.filter(curso=c).count()
-            })
+        cursos_data = [
+            {'curso': c, 'total_alumnos': Inscripcion.objects.filter(curso=c).count()}
+            for c in cursos_asignados
+        ]
 
         total_alumnos = (
             Inscripcion.objects.filter(curso_id__in=cursos_ids)
@@ -277,12 +367,11 @@ def dashboard(request, token=None):
             'total_alumnos': total_alumnos,
             'horarios': horarios,
             'hoy': date.today().strftime('%Y-%m-%d'),
+            'token': token_sesion,
         }
         return render(request, 'intranet_dashboard.html', context)
 
-    # =========================================================================
-    # VISTA PARA ESTUDIANTE
-    # =========================================================================
+    # Vista Estudiante
     inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
     cursos_ids = inscripciones.values_list('curso_id', flat=True)
     cursos = [insc.curso for insc in inscripciones if insc.curso]
@@ -310,90 +399,42 @@ def dashboard(request, token=None):
         'porcentaje_asistencia': porcentaje_asistencia,
         'inscripciones': inscripciones,
         'horarios': horarios,
+        'token': token_sesion,
     }
     return render(request, 'intranet_dashboard.html', context)
 
 
 @login_required
-def mi_perfil(request):
-    """Vista del perfil de usuario."""
-    return render(request, 'perfil.html')
+def mis_cursos(request, token=None):
+    """Aula Virtual: Catálogo de cursos matriculados con token en la URL."""
+    if not token:
+        return redirigir_mis_cursos(request)
 
+    token_sesion = _obtener_o_crear_token_sesion(request)
+    if str(token) != token_sesion:
+        return redirect('mis_cursos_token', token=token_sesion)
 
-# ==============================================================================
-# 3. MÓDULO DE CURSOS Y AULA VIRTUAL (ALUMNOS Y DOCENTES)
-# ==============================================================================
-
-@login_required
-def mis_cursos(request):
-    """Aula Virtual: Puente que lista las asignaturas matriculadas del alumno."""
     inscripciones = Inscripcion.objects.filter(alumno=request.user).select_related('curso', 'curso__periodo')
-    return render(request, 'mis_cursos.html', {'inscripciones': inscripciones})
+    return render(request, 'mis_cursos.html', {
+        'inscripciones': inscripciones,
+        'token': token_sesion,
+        'es_docente': False,
+    })
 
 
 @login_required
-def detalle_curso(request, curso_id):
-    """Visualización de materiales, semanas y evaluaciones dentro de un curso."""
-    curso = get_object_or_404(Curso, id=curso_id)
-    
-    es_docente = es_docente_del_curso(request.user, curso)
-    es_alumno = es_alumno_del_curso(request.user, curso)
-    
-    # Blindaje Anti-IDOR: Si no es docente ni alumno matriculado, denegar
-    if not (es_docente or es_alumno):
-        messages.error(request, "No tienes autorización para acceder a los contenidos de este curso.")
-        return redirect('dashboard')
-    
-    periodo = curso.periodo or PeriodoAcademico.objects.filter(activo=True).first()
-
-    if periodo:
-        cronograma = periodo.obtener_cronograma_semanas()
-    else:
-        cronograma = [{'numero': i, 'inicio': None, 'fin': None, 'etiqueta': f"Semana {i}"} for i in range(1, 11)]
-
-    materiales = list(curso.materiales.all().order_by('semana', '-fecha_subida'))
-    examenes = list(curso.examenes.all().prefetch_related('preguntas'))
-    
-    bloques_semanas = []
-    for sem in cronograma:
-        mats_semana = [m for m in materiales if m.semana == sem['numero']]
-        exams_semana = [e for e in examenes if e.semana == sem['numero']]
-        
-        bloques_semanas.append({
-            'info': sem,
-            'materiales': mats_semana,
-            'examenes': exams_semana,
-            'total_materiales': len(mats_semana),
-            'total_recursos': len(mats_semana) + len(exams_semana)
-        })
-
-    # Si es alumno cargamos su registro; si es docente o admin no hace falta buscar su calificación
-    notas = Calificacion.objects.filter(alumno=request.user, curso=curso) if not es_docente else None
-    
-    context = {
-        'curso': curso,
-        'materiales': materiales,
-        'bloques_semanas': bloques_semanas,
-        'cronograma': cronograma,
-        'notas': notas,
-        'periodo': periodo,
-        'es_docente_curso': es_docente,
-    }
-    return render(request, 'detalle_curso.html', context)
-
-
-@login_required
-def mis_notas(request):
-    """
-    Sábana consolidada de notas con soporte para alumnos y docentes.
-    Evita el bloqueo por períodos cuando no hay coincidencia exacta.
-    """
+def mis_notas(request, token=None):
+    """Consulta consolidada de calificaciones del estudiante."""
     user = request.user
-    es_docente = es_docente_valido(user)
-
-    # Si es docente puro, lo enviamos directamente a su catálogo de calificaciones
-    if es_docente and not user.groups.filter(name='Alumnos').exists():
+    if es_docente_valido(user) and not user.groups.filter(name='Alumnos').exists():
         return redirect('docente_mis_calificaciones')
+
+    if not token:
+        return redirigir_mis_notas(request)
+
+    token_sesion = _obtener_o_crear_token_sesion(request)
+    if str(token) != token_sesion:
+        return redirect('mis_notas_token', token=token_sesion)
 
     periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
     periodo_id = request.GET.get('periodo')
@@ -403,10 +444,8 @@ def mis_notas(request):
     else:
         periodo_actual = PeriodoAcademico.objects.filter(activo=True).first() or periodos.first()
 
-    # Obtener inscripciones del alumno
     inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
 
-    # Solo filtrar por período si efectivamente existen materias en ese período
     if periodo_actual:
         inscripciones_periodo = inscripciones.filter(curso__periodo=periodo_actual)
         if inscripciones_periodo.exists():
@@ -447,369 +486,25 @@ def mis_notas(request):
         'periodos': periodos,
         'periodo_actual': periodo_actual,
         'reporte_cursos': reporte_cursos,
+        'token': token_sesion,
+        'es_docente': False,
     }
-
-    return render(request, 'notas.html', context)
-
-
-# ==============================================================================
-# 4. GESTIÓN DOCENTE (CONTENIDOS Y CALIFICACIONES)
-# ==============================================================================
-
-@login_required
-def panel_docente(request):
-    """Panel principal donde el docente visualiza los cursos asignados."""
-    if not es_docente_valido(request.user):
-        messages.error(request, "Acceso exclusivo para docentes.")
-        return redirect('dashboard')
-
-    if request.user.is_superuser or request.user.is_staff:
-        cursos = Curso.objects.prefetch_related('docentes', 'inscripciones', 'materiales').all()
-    else:
-        cursos = Curso.objects.filter(docentes=request.user).prefetch_related('docentes', 'inscripciones', 'materiales').distinct()
-
-    return render(request, 'panel_docente.html', {'cursos': cursos})
-
-@login_required
-def subir_material(request, curso_id):
-    """Permite al docente subir archivos o enlaces para una semana específica."""
-    curso = get_object_or_404(Curso, id=curso_id)
-
-    # Blindaje Anti-IDOR
-    if not es_docente_del_curso(request.user, curso):
-        messages.error(request, "No tienes permiso para subir material a este curso.")
-        return redirect('dashboard')
-    
-    if request.method == 'POST':
-        titulo = request.POST.get('titulo', '').strip()
-        semana = request.POST.get('semana', 1)
-        archivo = request.FILES.get('archivo')
-        enlace = request.POST.get('enlace') or request.POST.get('enlace_web')
-
-        if not titulo:
-            messages.error(request, "El título del material es obligatorio.")
-            return render(request, 'subir_material.html', {'curso': curso})
-
-        # =====================================================================
-        # VALIDACIÓN DE SEGURIDAD DEL ARCHIVO (EXTENSIÓN Y TAMAÑO MÁXIMO)
-        # =====================================================================
-        if archivo:
-            # 1. Límite de tamaño: 15 MB
-            max_bytes = 15 * 1024 * 1024
-            if archivo.size > max_bytes:
-                messages.error(request, "El archivo excede el tamaño máximo permitido de 15 MB.")
-                return render(request, 'subir_material.html', {'curso': curso})
-
-            # 2. Whitelist de extensiones seguras
-            extensiones_permitidas = {
-                '.pdf', '.docx', '.doc', '.xlsx', '.xls', 
-                '.pptx', '.ppt', '.zip', '.rar', '.jpg', '.jpeg', '.png'
-            }
-            _, ext = os.path.splitext(archivo.name)
-            if ext.lower() not in extensiones_permitidas:
-                messages.error(
-                    request, 
-                    f"Tipo de archivo no permitido ({ext}). Solo se admiten PDFs, Office, imágenes y comprimidos."
-                )
-                return render(request, 'subir_material.html', {'curso': curso})
-
-        Material.objects.create(
-            curso=curso,
-            titulo=titulo,
-            semana=semana,
-            archivo=archivo,
-            enlace_web=enlace
-        )
-        registrar_log(request, "Subida de Material", f"Subió '{titulo}' (Semana {semana}) al curso '{curso.titulo}'")
-        messages.success(request, f"Material '{titulo}' publicado exitosamente en la Semana {semana}.")
-        return redirect('detalle_curso', curso_id=curso.id)
-            
-    return render(request, 'subir_material.html', {'curso': curso})
+    return render(request, 'alumno_mis_notas.html', context)
 
 
 @login_required
-def eliminar_material(request, material_id):
-    """Permite eliminar un material publicado (protegido contra IDOR y POST verificado)."""
-    material = get_object_or_404(Material, id=material_id)
-    curso = material.curso
-
-    # Blindaje Anti-IDOR
-    if not es_docente_del_curso(request.user, curso):
-        messages.error(request, "No tienes permiso para eliminar este material.")
-        return redirect('dashboard')
-
-    titulo_mat = material.titulo
-    material.delete()
-    registrar_log(request, "Eliminación de Material", f"Eliminó el material '{titulo_mat}' del curso '{curso.titulo}'")
-    messages.success(request, f"Material '{titulo_mat}' eliminado correctamente.")
-    return redirect('detalle_curso', curso_id=curso.id)
-
-
-@login_required
-def docente_calificar_curso(request, curso_id):
-    """Planilla dinámica con opciones de solo guardar o guardar y promediar."""
-    curso = get_object_or_404(Curso, id=curso_id)
-
-    # Blindaje Anti-IDOR
-    if not es_docente_del_curso(request.user, curso):
-        messages.error(request, "No tienes autorización para calificar esta materia.")
-        return redirect('docente_mis_calificaciones')
-    
-    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
-    criterios = curso.obtener_criterios()
-
-    def parsear_nota(valor):
-        if valor is not None and str(valor).strip() != '':
-            try:
-                val = round(float(str(valor).replace(',', '.')), 2)
-                return max(0.0, min(20.0, val))
-            except ValueError:
-                return None
-        return None
-
-    if request.method == 'POST':
-        accion = request.POST.get('accion', 'guardar_promediar')
-
-        for insc in inscripciones:
-            alumno_id = str(insc.alumno.id)
-            detalle = {}
-            for crit in criterios:
-                cod = crit["codigo"]
-                raw_val = request.POST.get(f'nota_{cod}_{alumno_id}')
-                detalle[cod] = parsear_nota(raw_val)
-
-            calificacion, _ = Calificacion.objects.get_or_create(curso=curso, alumno=insc.alumno)
-            calificacion.notas_detalle = detalle
-
-            if accion == 'guardar_promediar':
-                calificacion.save()
-            else:
-                calificacion.save(update_fields=['notas_detalle'])
-
-        if accion == 'guardar_promediar':
-            messages.success(request, "Notas guardadas y promedios recalculados exitosamente.")
-        else:
-            messages.success(request, "Notas guardadas en borrador. Los promedios se mantienen intactos.")
-
-        return redirect('docente_calificar_curso', curso_id=curso.id)
-
-    calificaciones_dict = {c.alumno_id: c for c in Calificacion.objects.filter(curso=curso)}
-    filas = []
-
-    for insc in inscripciones:
-        calif = calificaciones_dict.get(insc.alumno.id)
-        notas_map = calif.notas_detalle if (calif and calif.notas_detalle) else {}
-
-        columnas_alumno = []
-        for crit in criterios:
-            cod = crit["codigo"]
-            val = notas_map.get(cod)
-            columnas_alumno.append({
-                'codigo': cod,
-                'valor': f"{val:.2f}" if isinstance(val, (int, float)) else (val if val is not None else '')
-            })
-
-        filas.append({
-            'alumno': insc.alumno,
-            'columnas': columnas_alumno,
-            'promedio': calif.promedio if (calif and calif.promedio is not None) else None
-        })
-
-    context = {
-        'curso': curso,
-        'criterios': criterios,
-        'filas_calificaciones': filas,
-        'formula_evaluacion': curso.formula_evaluacion,
-    }
-    return render(request, 'docente_calificar.html', context)
-
-
-@login_required
-def docente_mis_calificaciones(request):
-    """Listado de asignaturas del docente para ingresar a calificar y promediar."""
-    if not es_docente_valido(request.user):
-        messages.error(request, "Acceso restringido a docentes.")
-        return redirect('dashboard')
-
-    if request.user.is_superuser or request.user.is_staff:
-        cursos = Curso.objects.all().select_related('periodo').distinct()
-    else:
-        cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
-
-    cursos_data = []
-    for c in cursos:
-        cursos_data.append({
-            'curso': c,
-            'total_alumnos': Inscripcion.objects.filter(curso=c).count()
-        })
-
-    context = {
-        'cursos_data': cursos_data,
-    }
-    return render(request, 'docente_mis_calificaciones.html', context)
-
-
-# ==============================================================================
-# 5. MÓDULO DE ASISTENCIAS (DOCENTE Y ALUMNO)
-# ==============================================================================
-
-@login_required
-def docente_mis_asistencias(request):
-    """Catálogo rápido de asignaturas del docente para seleccionar asistencia."""
-    if not es_docente_valido(request.user):
-        messages.error(request, "Acceso restringido a docentes.")
-        return redirect('dashboard')
-
-    if request.user.is_superuser or request.user.is_staff:
-        cursos = Curso.objects.all().select_related('periodo').distinct()
-    else:
-        cursos = Curso.objects.filter(docentes=request.user).select_related('periodo').distinct()
-
-    cursos_data = []
-    for c in cursos:
-        cursos_data.append({
-            'curso': c,
-            'total_alumnos': Inscripcion.objects.filter(curso=c).count()
-        })
-
-    context = {
-        'cursos_data': cursos_data,
-        'hoy': date.today().strftime('%Y-%m-%d'),
-    }
-    return render(request, 'docente_mis_asistencias.html', context)
-
-
-@login_required
-def docente_asistencia_curso(request, curso_id):
-    """Toma de lista por sesiones ordenadas del docente."""
-    curso = get_object_or_404(Curso, id=curso_id)
-
-    # Blindaje Anti-IDOR
-    if not es_docente_del_curso(request.user, curso):
-        messages.error(request, "No tienes permisos para gestionar este curso.")
-        return redirect('panel_docente')
-
-    # 1. Obtener todas las fechas con asistencia registrada en este curso (ordenadas)
-    fechas_qs = (
-        Asistencia.objects.filter(curso=curso)
-        .values_list('fecha', flat=True)
-        .distinct()
-        .order_by('fecha')
-    )
-    
-    sesiones_existentes = []
-    for idx, f in enumerate(fechas_qs, start=1):
-        sesiones_existentes.append({
-            'numero': idx,
-            'fecha': f,
-            'fecha_str': f.strftime('%Y-%m-%d'),
-            'fecha_formateada': f.strftime('%d/%m/%Y'),
-        })
-
-    # 2. Determinar la fecha activa
-    fecha_param = request.GET.get('fecha')
-    if fecha_param:
-        try:
-            fecha_sesion = date.fromisoformat(fecha_param)
-        except ValueError:
-            fecha_sesion = date.today()
-    elif sesiones_existentes:
-        # Por defecto abre la última sesión registrada
-        fecha_sesion = sesiones_existentes[-1]['fecha']
-    else:
-        # Si no hay ninguna creada, toma la fecha de hoy
-        fecha_sesion = date.today()
-
-    # Identificar el número de sesión actual
-    sesion_actual_num = None
-    for s in sesiones_existentes:
-        if s['fecha'] == fecha_sesion:
-            sesion_actual_num = s['numero']
-            break
-
-    # Si la fecha actual no está registrada aún, es una sesión nueva (última + 1)
-    if sesion_actual_num is None:
-        sesion_actual_num = len(sesiones_existentes) + 1
-
-    semana = int(request.GET.get('semana', sesion_actual_num))
-
-    inscripciones = (
-        Inscripcion.objects.filter(curso=curso)
-        .select_related('alumno')
-        .order_by('alumno__last_name', 'alumno__first_name')
-    )
-
-    # 3. Guardar asistencias
-    if request.method == 'POST':
-        semana_post = int(request.POST.get('semana', semana))
-        fecha_post_str = request.POST.get('fecha', str(fecha_sesion))
-        try:
-            fecha_guardar = date.fromisoformat(fecha_post_str)
-        except ValueError:
-            fecha_guardar = date.today()
-
-        total_marcados = 0
-        for insc in inscripciones:
-            if not insc.alumno:
-                continue
-            alumno_id = str(insc.alumno.id)
-            estado = request.POST.get(f'asistencia_{alumno_id}', 'P')
-
-            Asistencia.objects.update_or_create(
-                curso=curso,
-                alumno=insc.alumno,
-                fecha=fecha_guardar,
-                defaults={
-                    'semana': semana_post,
-                    'estado': estado
-                }
-            )
-            total_marcados += 1
-
-        registrar_log(
-            request, 
-            "Control Asistencia", 
-            f"Registró asistencia (Sesión {sesion_actual_num} - {fecha_guardar}) para {total_marcados} alumno(s) en '{curso.titulo}'"
-        )
-        messages.success(request, f"Asistencia guardada para la Sesión {sesion_actual_num} ({fecha_guardar.strftime('%d/%m/%Y')}).")
-        return redirect(f"{request.path}?fecha={fecha_guardar}&semana={semana_post}")
-
-    # 4. Cargar asistencias existentes para la fecha seleccionada
-    asistencias_existentes = {
-        a.alumno_id: a.estado
-        for a in Asistencia.objects.filter(curso=curso, fecha=fecha_sesion)
-    }
-
-    filas = []
-    for insc in inscripciones:
-        if insc.alumno:
-            filas.append({
-                'alumno': insc.alumno,
-                'inscripcion': insc,
-                'estado': asistencias_existentes.get(insc.alumno.id, 'P')
-            })
-
-    hoy_str = date.today().strftime('%Y-%m-%d')
-
-    context = {
-        'curso': curso,
-        'semana': semana,
-        'fecha_sesion': fecha_sesion.strftime('%Y-%m-%d'),
-        'sesiones_existentes': sesiones_existentes,
-        'sesion_actual_num': sesion_actual_num,
-        'filas': filas,
-        'hoy_str': hoy_str,
-    }
-    return render(request, 'docente_asistencia.html', context)
-
-
-@login_required
-def mis_asistencias(request):
-    """Consulta de asistencias exclusiva para el estudiante (Modo Solo Lectura)."""
+def mis_asistencias(request, token=None):
+    """Consulta detallada de asistencias por curso."""
     user = request.user
-
     if user.groups.filter(name='Docentes').exists() and not user.is_staff:
         return redirect('docente_mis_asistencias')
+
+    if not token:
+        return redirigir_mis_asistencias(request)
+
+    token_sesion = _obtener_o_crear_token_sesion(request)
+    if str(token) != token_sesion:
+        return redirect('mis_asistencias_token', token=token_sesion)
 
     inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
 
@@ -820,7 +515,6 @@ def mis_asistencias(request):
             continue
 
         registros = Asistencia.objects.filter(curso=curso, alumno=user).order_by('-fecha')
-
         total_sesiones = registros.count()
         presentes = registros.filter(estado='P').count()
         tardanzas = registros.filter(estado='T').count()
@@ -843,20 +537,482 @@ def mis_asistencias(request):
 
     context = {
         'resumen_asistencias': resumen_asistencias,
+        'token': token_sesion,
+        'es_docente': False,
     }
-    # En academia/views.py dentro de mis_asistencias:
     return render(request, 'alumno_mis_asistencias.html', context)
 
+
+@login_required
+def mi_perfil(request, token=None):
+    """Vista de perfil con datos del usuario y seguridad 2FA."""
+    if not token:
+        return redirigir_mi_perfil(request)
+
+    token_sesion = _obtener_o_crear_token_sesion(request)
+    if str(token) != token_sesion:
+        return redirect('mi_perfil_token', token=token_sesion)
+
+    es_docente = request.user.groups.filter(name='Docentes').exists()
+    return render(request, 'perfil.html', {
+        'token': token_sesion,
+        'es_docente': es_docente,
+    })
+
+
 # ==============================================================================
-# 6. MÓDULO DE EVALUACIONES, EXÁMENES Y BANCO DE PREGUNTAS
+# 5. AULA VIRTUAL, MATERIALES Y EVALUACIONES (ALUMNOS Y DOCENTES)
 # ==============================================================================
 
 @login_required
-def crear_examen_curso(request, curso_id):
-    """Crea una nueva evaluación para el curso."""
+def detalle_curso(request, curso_id):
+    """Detalle de contenidos, semanas y cronograma de una asignatura."""
+    curso = get_object_or_404(Curso, id=curso_id)
+    es_docente = es_docente_del_curso(request.user, curso)
+    es_alumno = es_alumno_del_curso(request.user, curso)
+
+    if not (es_docente or es_alumno):
+        messages.error(request, "No tienes autorización para acceder a los contenidos de este curso.")
+        return redirect('dashboard')
+
+    periodo = curso.periodo or PeriodoAcademico.objects.filter(activo=True).first()
+    if periodo:
+        cronograma = periodo.obtener_cronograma_semanas()
+    else:
+        cronograma = [{'numero': i, 'inicio': None, 'fin': None, 'etiqueta': f"Semana {i}"} for i in range(1, 11)]
+
+    materiales = list(curso.materiales.all().order_by('semana', '-fecha_subida'))
+    examenes = list(curso.examenes.all().prefetch_related('preguntas'))
+
+    bloques_semanas = []
+    for sem in cronograma:
+        mats_semana = [m for m in materiales if m.semana == sem['numero']]
+        exams_semana = [e for e in examenes if e.semana == sem['numero']]
+        bloques_semanas.append({
+            'info': sem,
+            'materiales': mats_semana,
+            'examenes': exams_semana,
+            'total_materiales': len(mats_semana),
+            'total_recursos': len(mats_semana) + len(exams_semana)
+        })
+
+    notas = Calificacion.objects.filter(alumno=request.user, curso=curso) if not es_docente else None
+
+    context = {
+        'curso': curso,
+        'materiales': materiales,
+        'bloques_semanas': bloques_semanas,
+        'cronograma': cronograma,
+        'notas': notas,
+        'periodo': periodo,
+        'es_docente_curso': es_docente,
+    }
+    return render(request, 'detalle_curso.html', context)
+
+
+@login_required
+def rendir_examen(request, examen_id):
+    """Toma de evaluación para el estudiante con barajado dinámico."""
+    examen = get_object_or_404(Examen, id=examen_id)
+    es_docente = es_docente_del_curso(request.user, examen.curso)
+    es_alumno = es_alumno_del_curso(request.user, examen.curso)
+
+    if not (es_docente or es_alumno):
+        messages.error(request, "No estás matriculado en el curso correspondiente a este examen.")
+        return redirect('dashboard')
+
+    if not es_docente:
+        if not examen.esta_disponible:
+            messages.error(request, f"Acceso restringido: {examen.estado_texto}.")
+            return redirect('detalle_curso', curso_id=examen.curso.id)
+
+        intentos_hechos = IntentoExamen.objects.filter(
+            alumno=request.user, 
+            examen=examen, 
+            completado=True
+        ).count()
+
+        if intentos_hechos >= examen.intentos_permitidos:
+            messages.warning(request, f"Has alcanzado el límite de intentos permitidos ({examen.intentos_permitidos}).")
+            return redirect('revision_examen', examen_id=examen.id)
+
+    queryset_preguntas = examen.preguntas.order_by('?')
+    if getattr(examen, 'cantidad_preguntas_aleatorias', 0) > 0:
+        preguntas = list(queryset_preguntas[:examen.cantidad_preguntas_aleatorias])
+    else:
+        preguntas = list(queryset_preguntas)
+
+    for p in preguntas:
+        p.opciones_aleatorias = list(p.opciones.order_by('?'))
+
+    if request.method == 'POST':
+        puntaje_total = 0.0
+        intento = IntentoExamen.objects.create(
+            alumno=request.user,
+            examen=examen,
+            completado=True,
+            fecha_fin=timezone.now()
+        )
+
+        for pregunta in examen.preguntas.all():
+            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
+            if opcion_id:
+                try:
+                    opcion = Opcion.objects.get(id=opcion_id, pregunta=pregunta)
+                    es_correcta = opcion.es_correcta
+                    if es_correcta:
+                        puntaje_total += float(pregunta.puntaje)
+                    RespuestaEstudiante.objects.create(
+                        intento=intento,
+                        pregunta=pregunta,
+                        opcion_seleccionada=opcion,
+                        es_correcta=es_correcta
+                    )
+                except Opcion.DoesNotExist:
+                    pass
+
+        intento.nota = puntaje_total
+        intento.save()
+
+        registrar_log(request, "Rendición de Examen", f"Completó '{examen.titulo}' con nota {puntaje_total}")
+        messages.success(request, f"Evaluación finalizada. Tu nota es: {puntaje_total} puntos.")
+        return redirect('revision_examen', examen_id=examen.id)
+
+    context = {
+        'examen': examen,
+        'preguntas': preguntas,
+        'tiempo_segundos': examen.duracion_minutos * 60,
+    }
+    return render(request, 'rendir_examen.html', context)
+
+
+@login_required
+def revision_examen(request, examen_id):
+    """Revisión de respuestas y retroalimentación del examen."""
+    examen = get_object_or_404(Examen, id=examen_id)
+    es_docente = es_docente_del_curso(request.user, examen.curso)
+    es_alumno = es_alumno_del_curso(request.user, examen.curso)
+
+    if not (es_docente or es_alumno):
+        messages.error(request, "No estás autorizado a ver revisiones de este examen.")
+        return redirect('dashboard')
+    
+    ultimo_intento = IntentoExamen.objects.filter(
+        alumno=request.user, 
+        examen=examen, 
+        completado=True
+    ).order_by('-fecha_fin').first()
+
+    if not ultimo_intento and not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "No has realizado ningún intento en esta evaluación.")
+        return redirect('detalle_curso', curso_id=examen.curso.id)
+
+    respuestas = ultimo_intento.respuestas.select_related('pregunta', 'opcion_seleccionada').all() if ultimo_intento else []
+
+    context = {
+        'examen': examen,
+        'intento': ultimo_intento,
+        'respuestas': respuestas,
+        'puede_ver_solucionario': examen.revision_disponible or request.user.is_staff,
+    }
+    return render(request, 'revision_examen.html', context)
+
+
+@login_required
+def verificar_estado_examen(request, examen_id):
+    """Endpoint JSON para sincronizar cierres en tiempo real desde el cliente."""
+    examen = get_object_or_404(Examen, id=examen_id)
+    return JsonResponse({
+        'cerrado': examen.cerrado_manualmente or not examen.activo
+    })
+
+
+# ==============================================================================
+# 6. GESTIÓN DOCENTE (CALIFICACIONES, ASISTENCIAS Y CONTENIDOS)
+# ==============================================================================
+
+@login_required
+def panel_docente(request):
+    """Panel central docente."""
+    if not es_docente_valido(request.user):
+        messages.error(request, "Acceso exclusivo para docentes.")
+        return redirect('dashboard')
+
+    if request.user.is_superuser or request.user.is_staff:
+        cursos = Curso.objects.prefetch_related('docentes', 'inscripciones', 'materiales').all()
+    else:
+        cursos = Curso.objects.filter(docentes=request.user).prefetch_related('docentes', 'inscripciones', 'materiales').distinct()
+
+    return render(request, 'panel_docente.html', {'cursos': cursos})
+
+
+@login_required
+def subir_material(request, curso_id):
+    """Subida de material didáctico validado."""
     curso = get_object_or_404(Curso, id=curso_id)
 
-    # Blindaje Anti-IDOR
+    if not es_docente_del_curso(request.user, curso):
+        messages.error(request, "No tienes permiso para subir material a este curso.")
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        semana = request.POST.get('semana', 1)
+        archivo = request.FILES.get('archivo')
+        enlace = request.POST.get('enlace') or request.POST.get('enlace_web')
+
+        if not titulo:
+            messages.error(request, "El título del material es obligatorio.")
+            return render(request, 'subir_material.html', {'curso': curso})
+
+        if archivo:
+            if archivo.size > 15 * 1024 * 1024:
+                messages.error(request, "El archivo excede el tamaño máximo permitido de 15 MB.")
+                return render(request, 'subir_material.html', {'curso': curso})
+
+            extensiones_permitidas = {
+                '.pdf', '.docx', '.doc', '.xlsx', '.xls', 
+                '.pptx', '.ppt', '.zip', '.rar', '.jpg', '.jpeg', '.png'
+            }
+            _, ext = os.path.splitext(archivo.name)
+            if ext.lower() not in extensiones_permitidas:
+                messages.error(request, f"Extensión {ext} no admitida.")
+                return render(request, 'subir_material.html', {'curso': curso})
+
+        Material.objects.create(
+            curso=curso,
+            titulo=titulo,
+            semana=semana,
+            archivo=archivo,
+            enlace_web=enlace
+        )
+        registrar_log(request, "Subida de Material", f"Subió '{titulo}' al curso '{curso.titulo}'")
+        messages.success(request, f"Material '{titulo}' publicado exitosamente.")
+        return redirect('detalle_curso', curso_id=curso.id)
+            
+    return render(request, 'subir_material.html', {'curso': curso})
+
+
+@login_required
+def eliminar_material(request, material_id):
+    """Elimina un material con control Anti-IDOR."""
+    material = get_object_or_404(Material, id=material_id)
+    curso = material.curso
+
+    if not es_docente_del_curso(request.user, curso):
+        messages.error(request, "No tienes permiso para eliminar este material.")
+        return redirect('dashboard')
+
+    titulo_mat = material.titulo
+    material.delete()
+    registrar_log(request, "Eliminación de Material", f"Eliminó '{titulo_mat}' de '{curso.titulo}'")
+    messages.success(request, f"Material '{titulo_mat}' eliminado.")
+    return redirect('detalle_curso', curso_id=curso.id)
+
+
+@login_required
+def docente_mis_calificaciones(request):
+    """Catálogo de cursos para registro de notas."""
+    if not es_docente_valido(request.user):
+        messages.error(request, "Acceso restringido a docentes.")
+        return redirect('dashboard')
+
+    cursos = Curso.objects.all() if (request.user.is_superuser or request.user.is_staff) else Curso.objects.filter(docentes=request.user)
+    cursos_data = [
+        {'curso': c, 'total_alumnos': Inscripcion.objects.filter(curso=c).count()}
+        for c in cursos.select_related('periodo').distinct()
+    ]
+    return render(request, 'docente_mis_calificaciones.html', {'cursos_data': cursos_data})
+
+
+@login_required
+def docente_calificar_curso(request, curso_id):
+    """Planilla dinámica de notas y cálculo de promedios."""
+    curso = get_object_or_404(Curso, id=curso_id)
+
+    if not es_docente_del_curso(request.user, curso):
+        messages.error(request, "No tienes autorización para calificar esta materia.")
+        return redirect('docente_mis_calificaciones')
+    
+    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
+    criterios = curso.obtener_criterios()
+
+    def parsear_nota(valor):
+        if valor is not None and str(valor).strip() != '':
+            try:
+                val = round(float(str(valor).replace(',', '.')), 2)
+                return max(0.0, min(20.0, val))
+            except ValueError:
+                return None
+        return None
+
+    if request.method == 'POST':
+        accion = request.POST.get('accion', 'guardar_promediar')
+
+        for insc in inscripciones:
+            alumno_id = str(insc.alumno.id)
+            detalle = {
+                crit["codigo"]: parsear_nota(request.POST.get(f'nota_{crit["codigo"]}_{alumno_id}'))
+                for crit in criterios
+            }
+            calificacion, _ = Calificacion.objects.get_or_create(curso=curso, alumno=insc.alumno)
+            calificacion.notas_detalle = detalle
+
+            if accion == 'guardar_promediar':
+                calificacion.save()
+            else:
+                calificacion.save(update_fields=['notas_detalle'])
+
+        messages.success(request, "Notas guardadas exitosamente.")
+        return redirect('docente_calificar_curso', curso_id=curso.id)
+
+    calificaciones_dict = {c.alumno_id: c for c in Calificacion.objects.filter(curso=curso)}
+    filas = []
+
+    for insc in inscripciones:
+        calif = calificaciones_dict.get(insc.alumno.id)
+        notas_map = calif.notas_detalle if (calif and calif.notas_detalle) else {}
+        columnas_alumno = [
+            {
+                'codigo': crit["codigo"],
+                'valor': f"{notas_map[crit['codigo']]:.2f}" if isinstance(notas_map.get(crit["codigo"]), (int, float)) else (notas_map.get(crit["codigo"]) or '')
+            }
+            for crit in criterios
+        ]
+        filas.append({
+            'alumno': insc.alumno,
+            'columnas': columnas_alumno,
+            'promedio': calif.promedio if (calif and calif.promedio is not None) else None
+        })
+
+    context = {
+        'curso': curso,
+        'criterios': criterios,
+        'filas_calificaciones': filas,
+        'formula_evaluacion': curso.formula_evaluacion,
+    }
+    return render(request, 'docente_calificar.html', context)
+
+
+@login_required
+def docente_mis_asistencias(request):
+    """Catálogo de materias del docente para toma de asistencia."""
+    if not es_docente_valido(request.user):
+        messages.error(request, "Acceso restringido a docentes.")
+        return redirect('dashboard')
+
+    cursos = Curso.objects.all() if (request.user.is_superuser or request.user.is_staff) else Curso.objects.filter(docentes=request.user)
+    cursos_data = [
+        {'curso': c, 'total_alumnos': Inscripcion.objects.filter(curso=c).count()}
+        for c in cursos.select_related('periodo').distinct()
+    ]
+    return render(request, 'docente_mis_asistencias.html', {
+        'cursos_data': cursos_data,
+        'hoy': date.today().strftime('%Y-%m-%d'),
+    })
+
+
+@login_required
+def docente_asistencia_curso(request, curso_id):
+    """Toma de asistencia y gestión de sesiones."""
+    curso = get_object_or_404(Curso, id=curso_id)
+
+    if not es_docente_del_curso(request.user, curso):
+        messages.error(request, "No tienes permisos para gestionar este curso.")
+        return redirect('panel_docente')
+
+    fechas_qs = (
+        Asistencia.objects.filter(curso=curso)
+        .values_list('fecha', flat=True)
+        .distinct()
+        .order_by('fecha')
+    )
+    
+    sesiones_existentes = [
+        {
+            'numero': idx,
+            'fecha': f,
+            'fecha_str': f.strftime('%Y-%m-%d'),
+            'fecha_formateada': f.strftime('%d/%m/%Y'),
+        }
+        for idx, f in enumerate(fechas_qs, start=1)
+    ]
+
+    fecha_param = request.GET.get('fecha')
+    if fecha_param:
+        try:
+            fecha_sesion = date.fromisoformat(fecha_param)
+        except ValueError:
+            fecha_sesion = date.today()
+    elif sesiones_existentes:
+        fecha_sesion = sesiones_existentes[-1]['fecha']
+    else:
+        fecha_sesion = date.today()
+
+    sesion_actual_num = next((s['numero'] for s in sesiones_existentes if s['fecha'] == fecha_sesion), len(sesiones_existentes) + 1)
+    semana = int(request.GET.get('semana', sesion_actual_num))
+
+    inscripciones = (
+        Inscripcion.objects.filter(curso=curso)
+        .select_related('alumno')
+        .order_by('alumno__last_name', 'alumno__first_name')
+    )
+
+    if request.method == 'POST':
+        semana_post = int(request.POST.get('semana', semana))
+        try:
+            fecha_guardar = date.fromisoformat(request.POST.get('fecha', str(fecha_sesion)))
+        except ValueError:
+            fecha_guardar = date.today()
+
+        total_marcados = 0
+        for insc in inscripciones:
+            if not insc.alumno:
+                continue
+            estado = request.POST.get(f'asistencia_{insc.alumno.id}', 'P')
+            Asistencia.objects.update_or_create(
+                curso=curso,
+                alumno=insc.alumno,
+                fecha=fecha_guardar,
+                defaults={'semana': semana_post, 'estado': estado}
+            )
+            total_marcados += 1
+
+        registrar_log(request, "Control Asistencia", f"Sesión {sesion_actual_num} ({fecha_guardar}) en '{curso.titulo}'")
+        messages.success(request, f"Asistencia guardada para la Sesión {sesion_actual_num}.")
+        return redirect(f"{request.path}?fecha={fecha_guardar}&semana={semana_post}")
+
+    asistencias_existentes = {
+        a.alumno_id: a.estado
+        for a in Asistencia.objects.filter(curso=curso, fecha=fecha_sesion)
+    }
+
+    filas = [
+        {
+            'alumno': insc.alumno,
+            'inscripcion': insc,
+            'estado': asistencias_existentes.get(insc.alumno.id, 'P')
+        }
+        for insc in inscripciones if insc.alumno
+    ]
+
+    context = {
+        'curso': curso,
+        'semana': semana,
+        'fecha_sesion': fecha_sesion.strftime('%Y-%m-%d'),
+        'sesiones_existentes': sesiones_existentes,
+        'sesion_actual_num': sesion_actual_num,
+        'filas': filas,
+        'hoy_str': date.today().strftime('%Y-%m-%d'),
+    }
+    return render(request, 'docente_asistencia.html', context)
+
+
+@login_required
+def crear_examen_curso(request, curso_id):
+    """Creación de exámenes por el docente."""
+    curso = get_object_or_404(Curso, id=curso_id)
+
     if not es_docente_del_curso(request.user, curso):
         messages.error(request, "No tienes permisos para programar evaluaciones.")
         return redirect('detalle_curso', curso_id=curso.id)
@@ -872,7 +1028,7 @@ def crear_examen_curso(request, curso_id):
         descripcion = request.POST.get('descripcion', '')
 
         if titulo:
-            examen = Examen.objects.create(
+            Examen.objects.create(
                 curso=curso,
                 titulo=titulo,
                 semana=int(semana),
@@ -884,57 +1040,52 @@ def crear_examen_curso(request, curso_id):
                 descripcion=descripcion,
                 activo=True
             )
-            registrar_log(request, "Creación de Examen", f"Creó examen '{titulo}' para el curso '{curso.titulo}'")
-            messages.success(request, f"Evaluación '{titulo}' programada exitosamente para la Semana {semana}.")
+            registrar_log(request, "Creación de Examen", f"Creó examen '{titulo}' para '{curso.titulo}'")
+            messages.success(request, f"Evaluación '{titulo}' programada exitosamente.")
         else:
-            messages.error(request, "Debes ingresar un título para la evaluación.")
+            messages.error(request, "El título de la evaluación es obligatorio.")
 
     return redirect('detalle_curso', curso_id=curso.id)
 
 
 @login_required
 def toggle_examen(request, examen_id):
-    """Pausa o habilita un examen."""
+    """Habilita o pausa un examen."""
     examen = get_object_or_404(Examen, id=examen_id)
-    
-    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, examen.curso):
         messages.error(request, "No tienes permisos para realizar esta acción.")
         return redirect('dashboard')
 
     examen.activo = not examen.activo
     examen.save()
-    estado = "habilitado" if examen.activo else "pausado"
-    messages.success(request, f"Evaluación '{examen.titulo}' {estado} correctamente.")
+    messages.success(request, f"Evaluación '{examen.titulo}' {'habilitada' if examen.activo else 'pausada'}.")
     return redirect('detalle_curso', curso_id=examen.curso.id)
 
 
 @login_required
 def eliminar_examen(request, examen_id):
-    """Elimina una evaluación y sus preguntas."""
+    """Eliminación de un examen."""
     examen = get_object_or_404(Examen, id=examen_id)
     curso_id = examen.curso.id
-    
-    # Blindaje Anti-IDOR
+
     if not es_docente_del_curso(request.user, examen.curso):
         messages.error(request, "No tienes permisos para realizar esta acción.")
         return redirect('dashboard')
 
     titulo = examen.titulo
     examen.delete()
-    registrar_log(request, "Eliminación de Examen", f"Eliminó examen '{titulo}' del curso ID {curso_id}")
-    messages.success(request, f"Evaluación '{titulo}' eliminada del sistema.")
+    registrar_log(request, "Eliminación de Examen", f"Eliminó '{titulo}' de curso ID {curso_id}")
+    messages.success(request, f"Evaluación '{titulo}' eliminada.")
     return redirect('detalle_curso', curso_id=curso_id)
 
 
 @login_required
 def banco_preguntas_curso(request, curso_id):
-    """Gestión del banco de preguntas por curso."""
+    """Gestión de banco de preguntas reactivas."""
     curso = get_object_or_404(Curso, id=curso_id)
 
-    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
-        messages.error(request, "No tienes permisos para gestionar el banco de preguntas de este curso.")
+        messages.error(request, "No tienes permisos para gestionar este banco de preguntas.")
         return redirect('detalle_curso', curso_id=curso.id)
 
     examenes_curso = Examen.objects.filter(curso=curso)
@@ -944,13 +1095,13 @@ def banco_preguntas_curso(request, curso_id):
         if form.is_valid():
             pregunta = form.save()
             correcta = form.cleaned_data['opcion_correcta']
-
-            Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_1'], es_correcta=(correcta == '1'))
-            Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_2'], es_correcta=(correcta == '2'))
-            Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_3'], es_correcta=(correcta == '3'))
-            Opcion.objects.create(pregunta=pregunta, texto=form.cleaned_data['opcion_4'], es_correcta=(correcta == '4'))
-
-            messages.success(request, "Pregunta guardada exitosamente en el banco.")
+            for idx in ['1', '2', '3', '4']:
+                Opcion.objects.create(
+                    pregunta=pregunta, 
+                    texto=form.cleaned_data[f'opcion_{idx}'], 
+                    es_correcta=(correcta == idx)
+                )
+            messages.success(request, "Pregunta agregada con éxito al banco.")
             return redirect('banco_preguntas_curso', curso_id=curso.id)
     else:
         form = PreguntaForm(curso=curso)
@@ -972,21 +1123,20 @@ def eliminar_pregunta(request, pregunta_id):
     pregunta = get_object_or_404(Pregunta, id=pregunta_id)
     curso = pregunta.examen.curso
 
-    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
         messages.error(request, "No tienes permisos para eliminar preguntas de este curso.")
         return redirect('dashboard')
 
     pregunta.delete()
-    messages.success(request, "Pregunta eliminada correctamente del banco.")
+    messages.success(request, "Pregunta eliminada correctamente.")
     return redirect('banco_preguntas_curso', curso_id=curso.id)
 
 
 @login_required
 def descargar_plantilla_preguntas(request):
-    """Genera la plantilla Excel (.xlsx) para preguntas."""
+    """Descarga de plantilla Excel (.xlsx) para banco de preguntas."""
     if not es_docente_valido(request.user):
-        messages.error(request, "Acceso restringido a personal docente.")
+        messages.error(request, "Acceso restringido a docentes.")
         return redirect('dashboard')
 
     wb = openpyxl.Workbook()
@@ -1023,13 +1173,8 @@ def descargar_plantilla_preguntas(request):
 
     ejemplo = [
         "¿Cuál es el agente causal más frecuente de la infección del tracto urinario?",
-        "Escherichia coli",
-        "Staphylococcus aureus",
-        "Klebsiella pneumoniae",
-        "Pseudomonas aeruginosa",
-        "A",
-        2.0,
-        "E. coli representa más del 80% de los casos comunitarios."
+        "Escherichia coli", "Staphylococcus aureus", "Klebsiella pneumoniae", "Pseudomonas aeruginosa",
+        "A", 2.0, "E. coli representa más del 80% de los casos comunitarios."
     ]
     ws.append(ejemplo)
 
@@ -1061,10 +1206,9 @@ def descargar_plantilla_preguntas(request):
 
 @login_required
 def importar_preguntas_curso(request, curso_id):
-    """Carga masiva de preguntas desde Excel (.xlsx)."""
+    """Importación masiva de preguntas desde Excel."""
     curso = get_object_or_404(Curso, id=curso_id)
 
-    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, curso):
         messages.error(request, "No tienes permisos para esta acción.")
         return redirect('detalle_curso', curso_id=curso.id)
@@ -1082,8 +1226,8 @@ def importar_preguntas_curso(request, curso_id):
         try:
             wb = openpyxl.load_workbook(archivo, data_only=True)
             ws = wb.active
-
             creadas = 0
+
             for row in ws.iter_rows(min_row=2, values_only=True):
                 if not row or not row[0]:
                     continue
@@ -1111,144 +1255,28 @@ def importar_preguntas_curso(request, curso_id):
                     explicacion=explicacion,
                     puntaje=puntaje
                 )
-
                 Opcion.objects.create(pregunta=pregunta, texto=op_a, es_correcta=(correcta == 'A'))
                 Opcion.objects.create(pregunta=pregunta, texto=op_b, es_correcta=(correcta == 'B'))
                 Opcion.objects.create(pregunta=pregunta, texto=op_c, es_correcta=(correcta == 'C'))
                 Opcion.objects.create(pregunta=pregunta, texto=op_d, es_correcta=(correcta == 'D'))
-
                 creadas += 1
 
-            registrar_log(request, "Importación Masiva", f"Cargó {creadas} preguntas al examen '{examen.titulo}'")
-            messages.success(request, f"Se importaron con éxito {creadas} preguntas a la evaluación '{examen.titulo}'.")
+            registrar_log(request, "Importación Masiva", f"Cargó {creadas} preguntas en '{examen.titulo}'")
+            messages.success(request, f"Se importaron {creadas} preguntas con éxito.")
         except Exception as e:
             messages.error(request, f"Error al procesar el archivo Excel: {str(e)}")
     else:
-        messages.error(request, "Por favor adjunta un archivo Excel válido (.xlsx).")
+        messages.error(request, "Adjunta un archivo Excel (.xlsx) válido.")
 
     return redirect('banco_preguntas_curso', curso_id=curso.id)
 
 
 @login_required
-def rendir_examen(request, examen_id):
-    """Ejecución de exámenes por estudiantes con control estricto de matrícula."""
-    examen = get_object_or_404(Examen, id=examen_id)
-    es_docente = es_docente_del_curso(request.user, examen.curso)
-    es_alumno = es_alumno_del_curso(request.user, examen.curso)
-
-    # Blindaje Anti-IDOR: Si no está matriculado y no es docente del curso, fuera
-    if not (es_docente or es_alumno):
-        messages.error(request, "No estás matriculado en el curso correspondiente a este examen.")
-        return redirect('dashboard')
-
-    if not es_docente:
-        if not examen.esta_disponible:
-            messages.error(request, f"Acceso restringido: {examen.estado_texto}.")
-            return redirect('detalle_curso', curso_id=examen.curso.id)
-
-        intentos_hechos = IntentoExamen.objects.filter(
-            alumno=request.user, 
-            examen=examen, 
-            completado=True
-        ).count()
-
-        if intentos_hechos >= examen.intentos_permitidos:
-            messages.warning(request, f"Has alcanzado el límite de intentos permitidos ({examen.intentos_permitidos}).")
-            return redirect('revision_examen', examen_id=examen.id)
-
-    queryset_preguntas = examen.preguntas.order_by('?')
-    if getattr(examen, 'cantidad_preguntas_aleatorias', 0) > 0:
-        preguntas = list(queryset_preguntas[:examen.cantidad_preguntas_aleatorias])
-    else:
-        preguntas = list(queryset_preguntas)
-
-    for p in preguntas:
-        p.opciones_aleatorias = list(p.opciones.order_by('?'))
-
-    if request.method == 'POST':
-        puntaje_total = 0.0
-
-        intento = IntentoExamen.objects.create(
-            alumno=request.user,
-            examen=examen,
-            completado=True,
-            fecha_fin=timezone.now()
-        )
-
-        for pregunta in examen.preguntas.all():
-            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
-            if opcion_id:
-                try:
-                    opcion = Opcion.objects.get(id=opcion_id, pregunta=pregunta)
-                    es_correcta = opcion.es_correcta
-                    if es_correcta:
-                        puntaje_total += float(pregunta.puntaje)
-                    
-                    RespuestaEstudiante.objects.create(
-                        intento=intento,
-                        pregunta=pregunta,
-                        opcion_seleccionada=opcion,
-                        es_correcta=es_correcta
-                    )
-                except Opcion.DoesNotExist:
-                    pass
-
-        intento.nota = puntaje_total
-        intento.save()
-
-        registrar_log(request, "Rendición de Examen", f"Completó '{examen.titulo}' con nota {puntaje_total}")
-        messages.success(request, f"Evaluación finalizada. Tu nota es: {puntaje_total} puntos.")
-        return redirect('revision_examen', examen_id=examen.id)
-
-    context = {
-        'examen': examen,
-        'preguntas': preguntas,
-        'tiempo_segundos': examen.duracion_minutos * 60,
-    }
-    return render(request, 'rendir_examen.html', context)
-
-
-@login_required
-def revision_examen(request, examen_id):
-    """Revisión de notas y respuestas de la evaluación con validación de acceso."""
-    examen = get_object_or_404(Examen, id=examen_id)
-    es_docente = es_docente_del_curso(request.user, examen.curso)
-    es_alumno = es_alumno_del_curso(request.user, examen.curso)
-
-    # Blindaje Anti-IDOR
-    if not (es_docente or es_alumno):
-        messages.error(request, "No estás autorizado a ver revisiones de este examen.")
-        return redirect('dashboard')
-    
-    ultimo_intento = IntentoExamen.objects.filter(
-        alumno=request.user, 
-        examen=examen, 
-        completado=True
-    ).order_by('-fecha_fin').first()
-
-    if not ultimo_intento and not (request.user.is_staff or request.user.is_superuser):
-        messages.error(request, "No has realizado ningún intento en esta evaluación.")
-        return redirect('detalle_curso', curso_id=examen.curso.id)
-
-    respuestas = ultimo_intento.respuestas.select_related('pregunta', 'opcion_seleccionada').all() if ultimo_intento else []
-
-    context = {
-        'examen': examen,
-        'intento': ultimo_intento,
-        'respuestas': respuestas,
-        'puede_ver_solucionario': examen.revision_disponible or request.user.is_staff,
-    }
-    return render(request, 'revision_examen.html', context)
-
-
-@login_required
 def ver_intentos_examen(request, examen_id):
-    """Lista de intentos rendidos para docentes."""
+    """Lista intentos rendidos para revisión docente."""
     examen = get_object_or_404(Examen, id=examen_id)
-    
-    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, examen.curso):
-        messages.error(request, "No tienes permiso para ver los resultados de este examen.")
+        messages.error(request, "No tienes permiso para ver estos resultados.")
         return redirect('dashboard')
 
     intentos = IntentoExamen.objects.filter(
@@ -1256,41 +1284,30 @@ def ver_intentos_examen(request, examen_id):
         completado=True
     ).select_related('alumno').order_by('-nota', 'fecha_fin')
 
-    context = {
-        'examen': examen,
-        'intentos': intentos,
-    }
-    return render(request, 'docente_intentos_examen.html', context)
+    return render(request, 'docente_intentos_examen.html', {'examen': examen, 'intentos': intentos})
 
 
 @login_required
 def ver_detalle_intento(request, intento_id):
-    """Inspección de las respuestas enviadas por un alumno."""
+    """Auditoría de respuestas enviadas por un estudiante."""
     intento = get_object_or_404(IntentoExamen, id=intento_id)
-    examen = intento.examen
-
-    # Blindaje Anti-IDOR
-    if not es_docente_del_curso(request.user, examen.curso):
-        messages.error(request, "No tienes permiso para auditar este intento de examen.")
+    if not es_docente_del_curso(request.user, intento.examen.curso):
+        messages.error(request, "No tienes permiso para auditar este intento.")
         return redirect('dashboard')
 
     respuestas = intento.respuestas.select_related('pregunta', 'opcion_seleccionada').all()
-
-    context = {
-        'examen': examen,
+    return render(request, 'revision_examen.html', {
+        'examen': intento.examen,
         'intento': intento,
         'respuestas': respuestas,
         'puede_ver_solucionario': True,
-    }
-    return render(request, 'revision_examen.html', context)
+    })
 
 
 @login_required
 def finalizar_examen_docente(request, examen_id):
-    """Cierra la evaluación manualmente."""
+    """Cierre manual de la evaluación por el docente."""
     examen = get_object_or_404(Examen, id=examen_id)
-    
-    # Blindaje Anti-IDOR
     if not es_docente_del_curso(request.user, examen.curso):
         messages.error(request, "No tienes permisos para cerrar este examen.")
         return redirect('dashboard')
@@ -1299,29 +1316,20 @@ def finalizar_examen_docente(request, examen_id):
     examen.activo = False
     examen.save()
 
-    registrar_log(request, "Cierre de Examen", f"Cerró manualmente el examen '{examen.titulo}'")
-    messages.warning(request, f"La evaluación '{examen.titulo}' ha sido cerrada definitivamente por el docente.")
+    registrar_log(request, "Cierre de Examen", f"Cerró manualmente '{examen.titulo}'")
+    messages.warning(request, f"La evaluación '{examen.titulo}' fue cerrada definitivamente.")
     return redirect('detalle_curso', curso_id=examen.curso.id)
 
 
-@login_required
-def verificar_estado_examen(request, examen_id):
-    """Chequeo del estado del examen para el navegador."""
-    examen = get_object_or_404(Examen, id=examen_id)
-    return JsonResponse({
-        'cerrado': examen.cerrado_manualmente or not examen.activo
-    })
-
-
 # ==============================================================================
-# 7. MÓDULO ADMINISTRADOR (DASHBOARD, USUARIOS Y MATRÍCULAS)
+# 7. PANEL DE ADMINISTRACIÓN GENERAL
 # ==============================================================================
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 @requerir_2fa_si_esta_activo
 def admin_dashboard(request):
-    """Panel de administración general."""
+    """Panel de administración con búsqueda y paginación."""
     total_alumnos = User.objects.filter(groups__name='Alumnos').count()
     total_docentes = User.objects.filter(groups__name='Docentes').count()
     total_cursos = Curso.objects.count()
@@ -1348,8 +1356,7 @@ def admin_dashboard(request):
         usuarios_qs = usuarios_qs.filter(groups__name='Alumnos')
 
     paginator = Paginator(usuarios_qs, 15)
-    page_number = request.GET.get('page')
-    usuarios = paginator.get_page(page_number)
+    usuarios = paginator.get_page(request.GET.get('page'))
 
     context = {
         'total_alumnos': total_alumnos,
@@ -1366,41 +1373,36 @@ def admin_dashboard(request):
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_detalle_usuario(request, user_id):
-    """Detalle de matrículas y cursos de un usuario."""
+    """Ficha informativa de matrículas y asignaciones de un usuario."""
     usuario_detalle = get_object_or_404(User, id=user_id)
-    inscripciones = Inscripcion.objects.filter(alumno=usuario_detalle).select_related('curso')
-    cursos_docente = Curso.objects.filter(docentes=usuario_detalle)
-    
-    context = {
+    return render(request, 'admin_detalle_usuario.html', {
         'usuario_detalle': usuario_detalle,
-        'inscripciones': inscripciones,
-        'cursos_docente': cursos_docente,
-    }
-    return render(request, 'admin_detalle_usuario.html', context)
+        'inscripciones': Inscripcion.objects.filter(alumno=usuario_detalle).select_related('curso'),
+        'cursos_docente': Curso.objects.filter(docentes=usuario_detalle),
+    })
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def registrar_usuario(request):
-    """Creación individual de usuarios."""
+    """Creación individual de usuario."""
     if request.method == 'POST':
         form = RegistroUsuarioForm(request.POST)
         if form.is_valid():
             nuevo_usuario = form.save()
-            rol_nombre = form.cleaned_data.get('rol', 'Sin rol')
-            registrar_log(request, "Creación de Usuario", f"Creó al usuario '{nuevo_usuario.username}' con rol '{rol_nombre}'")
-            messages.success(request, f"Usuario '{nuevo_usuario.username}' registrado correctamente.")
+            rol = form.cleaned_data.get('rol', 'Sin rol')
+            registrar_log(request, "Creación de Usuario", f"Creó usuario '{nuevo_usuario.username}' ({rol})")
+            messages.success(request, f"Usuario @{nuevo_usuario.username} registrado con éxito.")
             return redirect('admin_dashboard')
     else:
         form = RegistroUsuarioForm()
-
     return render(request, 'registro_usuario.html', {'form': form})
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def editar_usuario(request, user_id):
-    """Edición de credenciales y roles."""
+    """Edición de credenciales y roles por el administrador."""
     usuario_editar = get_object_or_404(User, id=user_id)
     rol_actual = 'Alumno'
     if usuario_editar.is_superuser or usuario_editar.is_staff:
@@ -1426,112 +1428,92 @@ def editar_usuario(request, user_id):
         elif nuevo_rol == 'Docente':
             usuario_editar.is_staff = False
             usuario_editar.is_superuser = False
-            grupo_docentes, _ = Group.objects.get_or_create(name='Docentes')
-            usuario_editar.groups.add(grupo_docentes)
+            grupo, _ = Group.objects.get_or_create(name='Docentes')
+            usuario_editar.groups.add(grupo)
         else:
             usuario_editar.is_staff = False
             usuario_editar.is_superuser = False
-            grupo_alumnos, _ = Group.objects.get_or_create(name='Alumnos')
-            usuario_editar.groups.add(grupo_alumnos)
+            grupo, _ = Group.objects.get_or_create(name='Alumnos')
+            usuario_editar.groups.add(grupo)
 
         usuario_editar.save()
-        registrar_log(request, "Edición de Usuario", f"Actualizó datos/rol de '{usuario_editar.username}'")
-        messages.success(request, f"Usuario @{usuario_editar.username} actualizado correctamente.")
+        registrar_log(request, "Edición de Usuario", f"Actualizó datos de '{usuario_editar.username}'")
+        messages.success(request, f"Usuario @{usuario_editar.username} actualizado.")
         return redirect('admin_dashboard')
 
-    tiene_2fa = TOTPDevice.objects.filter(user=usuario_editar, confirmed=True).exists()
-
-    context = {
+    return render(request, 'editar_usuario.html', {
         'usuario_editar': usuario_editar,
         'rol_actual': rol_actual,
-        'tiene_2fa': tiene_2fa,
+        'tiene_2fa': TOTPDevice.objects.filter(user=usuario_editar, confirmed=True).exists(),
         'es_alumno': rol_actual == 'Alumno',
         'es_docente': rol_actual == 'Docente',
         'es_admin': rol_actual == 'Administrador',
-    }
-    return render(request, 'editar_usuario.html', context)
+    })
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def eliminar_usuario(request, user_id):
-    """Eliminación de una cuenta."""
+    """Elimina una cuenta de usuario."""
     usuario = get_object_or_404(User, id=user_id)
-    
     if usuario == request.user:
         messages.error(request, "No puedes eliminar tu propia cuenta de administrador.")
         return redirect('admin_dashboard')
-    
+
     nombre = usuario.username
-    registrar_log(request, "Eliminación de Usuario", f"Eliminó la cuenta del usuario '{nombre}'")
     usuario.delete()
-    messages.success(request, f"El usuario '{nombre}' fue eliminado correctamente.")
+    registrar_log(request, "Eliminación de Usuario", f"Eliminó al usuario '{nombre}'")
+    messages.success(request, f"Usuario '{nombre}' eliminado.")
     return redirect('admin_dashboard')
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def eliminar_usuarios_masivo(request):
-    """Eliminación masiva de usuarios."""
+    """Elimina múltiples usuarios seleccionados."""
     if request.method == 'POST':
         user_ids = request.POST.getlist('usuarios_seleccionados')
         if not user_ids:
-            messages.error(request, "No seleccionaste ningún usuario para eliminar.")
+            messages.error(request, "No seleccionaste ningún usuario.")
             return redirect('admin_dashboard')
-        
-        usuarios_a_borrar = User.objects.filter(id__in=user_ids).exclude(id=request.user.id)
-        cantidad = usuarios_a_borrar.count()
-        nombres = ", ".join(usuarios_a_borrar.values_list('username', flat=True))
-        usuarios_a_borrar.delete()
-        
-        registrar_log(request, "Eliminación Masiva", f"Eliminó {cantidad} usuario(s): {nombres}")
+
+        a_borrar = User.objects.filter(id__in=user_ids).exclude(id=request.user.id)
+        cantidad = a_borrar.count()
+        a_borrar.delete()
+
+        registrar_log(request, "Eliminación Masiva", f"Eliminó {cantidad} usuario(s)")
         messages.success(request, f"Se eliminaron {cantidad} usuario(s) correctamente.")
-    
     return redirect('admin_dashboard')
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_cursos_lista(request):
-    """Listado de cursos para administración."""
-    cursos = Curso.objects.prefetch_related('docentes').all()
-    total_alumnos = User.objects.filter(groups__name='Alumnos').count()
-    total_docentes = User.objects.filter(groups__name='Docentes').count()
-    total_cursos = Curso.objects.filter(estado=True).count()
-
-    context = {
-        'cursos': cursos,
-        'total_alumnos': total_alumnos,
-        'total_docentes': total_docentes,
-        'total_cursos': total_cursos,
-    }
-    return render(request, 'admin_cursos_lista.html', context)
+    """Listado general de asignaturas activas e inactivas."""
+    return render(request, 'admin_cursos_lista.html', {
+        'cursos': Curso.objects.prefetch_related('docentes').all(),
+        'total_alumnos': User.objects.filter(groups__name='Alumnos').count(),
+        'total_docentes': User.objects.filter(groups__name='Docentes').count(),
+        'total_cursos': Curso.objects.filter(estado=True).count(),
+    })
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_crear_curso(request):
-    """Creación de un nuevo curso junto a sus horarios semanales."""
+    """Crea una asignatura y sus horarios de clase."""
     if request.method == 'POST':
-        titulo = request.POST.get('titulo')
-        descripcion = request.POST.get('descripcion')
-        estado = bool(request.POST.get('estado'))
-        imagen = request.FILES.get('imagen_portada')
-        formula = request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3')
-        
         curso = Curso.objects.create(
-            titulo=titulo,
-            descripcion=descripcion,
-            estado=estado,
-            imagen_portada=imagen,
-            formula_evaluacion=formula
+            titulo=request.POST.get('titulo'),
+            descripcion=request.POST.get('descripcion'),
+            estado=bool(request.POST.get('estado')),
+            imagen_portada=request.FILES.get('imagen_portada'),
+            formula_evaluacion=request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3')
         )
-        
         docentes_ids = request.POST.getlist('docentes')
         if docentes_ids:
             curso.docentes.set(docentes_ids)
 
-        # Procesar bloques de horarios dinámicos
         dias = request.POST.getlist('horario_dia[]')
         inicios = request.POST.getlist('horario_inicio[]')
         fines = request.POST.getlist('horario_fin[]')
@@ -1540,25 +1522,20 @@ def admin_crear_curso(request):
         for d, ini, fin, aula in zip(dias, inicios, fines, aulas):
             if d and ini and fin:
                 HorarioCurso.objects.create(
-                    curso=curso,
-                    dia=d,
-                    hora_inicio=ini,
-                    hora_fin=fin,
-                    aula=aula.strip() if aula else "Aula Virtual"
+                    curso=curso, dia=d, hora_inicio=ini, hora_fin=fin, aula=aula.strip() if aula else "Aula Virtual"
                 )
-            
-        registrar_log(request, "Creación de Curso", f"Creó el curso '{curso.titulo}'")
-        messages.success(request, f"Curso '{curso.titulo}' y sus horarios fueron creados exitosamente.")
+
+        registrar_log(request, "Creación de Curso", f"Creó '{curso.titulo}'")
+        messages.success(request, f"Curso '{curso.titulo}' creado exitosamente.")
         return redirect('admin_cursos_lista')
 
-    docentes = User.objects.filter(groups__name='Docentes')
-    return render(request, 'admin_crear_curso.html', {'docentes': docentes})
+    return render(request, 'admin_crear_curso.html', {'docentes': User.objects.filter(groups__name='Docentes')})
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_editar_curso(request, curso_id):
-    """Modificación de parámetros, criterios y horarios del curso."""
+    """Edición integral de asignatura y ponderaciones."""
     curso = get_object_or_404(Curso, id=curso_id)
 
     if request.method == 'POST':
@@ -1569,24 +1546,16 @@ def admin_editar_curso(request, curso_id):
         if 'imagen_portada' in request.FILES:
             curso.imagen_portada = request.FILES['imagen_portada']
 
-        docentes_ids = request.POST.getlist('docentes')
-        curso.docentes.set(docentes_ids)
+        curso.docentes.set(request.POST.getlist('docentes'))
 
-        # Criterios de evaluación
         criterios_raw = request.POST.getlist('criterio_nombre')
-        nuevos_criterios = []
-        for idx, nombre in enumerate(criterios_raw, start=1):
-            if nombre.strip():
-                nuevos_criterios.append({
-                    "codigo": f"N{idx}",
-                    "nombre": nombre.strip()
-                })
-
-        curso.criterios_evaluacion = nuevos_criterios
+        curso.criterios_evaluacion = [
+            {"codigo": f"N{idx}", "nombre": nombre.strip()}
+            for idx, nombre in enumerate(criterios_raw, start=1) if nombre.strip()
+        ]
         curso.formula_evaluacion = request.POST.get('formula_evaluacion', '(N1 + N2 + N3) / 3').strip()
         curso.save()
 
-        # Actualizar Horarios: Reemplazo limpio de los horarios asignados
         curso.horarios.all().delete()
         dias = request.POST.getlist('horario_dia[]')
         inicios = request.POST.getlist('horario_inicio[]')
@@ -1596,40 +1565,31 @@ def admin_editar_curso(request, curso_id):
         for d, ini, fin, aula in zip(dias, inicios, fines, aulas):
             if d and ini and fin:
                 HorarioCurso.objects.create(
-                    curso=curso,
-                    dia=d,
-                    hora_inicio=ini,
-                    hora_fin=fin,
-                    aula=aula.strip() if aula else "Aula Virtual"
+                    curso=curso, dia=d, hora_inicio=ini, hora_fin=fin, aula=aula.strip() if aula else "Aula Virtual"
                 )
 
-        registrar_log(request, "Edición de Curso", f"Actualizó parámetros de '{curso.titulo}'")
-        messages.success(request, f"Curso '{curso.titulo}' actualizado con éxito.")
+        registrar_log(request, "Edición de Curso", f"Actualizó '{curso.titulo}'")
+        messages.success(request, f"Curso '{curso.titulo}' actualizado.")
         return redirect('admin_cursos_lista')
 
-    docentes = User.objects.filter(groups__name='Docentes')
-    docentes_asignados_ids = list(curso.docentes.values_list('id', flat=True))
-    horarios = curso.horarios.all().order_by('dia', 'hora_inicio')
-
-    context = {
+    return render(request, 'editar_curso.html', {
         'curso': curso,
-        'docentes': docentes,
-        'docentes_asignados_ids': docentes_asignados_ids,
+        'docentes': User.objects.filter(groups__name='Docentes'),
+        'docentes_asignados_ids': list(curso.docentes.values_list('id', flat=True)),
         'criterios': curso.obtener_criterios(),
-        'horarios': horarios,
-    }
-    return render(request, 'editar_curso.html', context)
+        'horarios': curso.horarios.all().order_by('dia', 'hora_inicio'),
+    })
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_eliminar_curso(request, curso_id):
-    """Eliminación definitiva de un curso."""
+    """Eliminación de asignatura."""
     curso = get_object_or_404(Curso, id=curso_id)
     titulo = curso.titulo
-    registrar_log(request, "Eliminación de Curso", f"Eliminó el curso '{titulo}'")
     curso.delete()
-    messages.success(request, f"El curso '{titulo}' fue eliminado correctamente.")
+    registrar_log(request, "Eliminación de Curso", f"Eliminó '{titulo}'")
+    messages.success(request, f"Curso '{titulo}' eliminado correctamente.")
     return redirect('admin_cursos_lista')
 
 
@@ -1649,91 +1609,63 @@ def admin_matricular(request, curso_id=None):
         alumnos_matriculados_ids = list(Inscripcion.objects.filter(curso=curso_seleccionado).values_list('alumno_id', flat=True))
 
     if request.method == 'POST':
-        curso_post_id = request.POST.get('curso_id')
-        curso_actual = get_object_or_404(Curso, id=curso_post_id)
-        seleccionados_ids = request.POST.getlist('alumnos_seleccionados')
-        seleccionados_ids = [int(i) for i in seleccionados_ids]
+        curso_actual = get_object_or_404(Curso, id=request.POST.get('curso_id'))
+        seleccionados_ids = [int(i) for i in request.POST.getlist('alumnos_seleccionados')]
 
         Inscripcion.objects.filter(curso=curso_actual).exclude(alumno_id__in=seleccionados_ids).delete()
-
         for a_id in seleccionados_ids:
             Inscripcion.objects.get_or_create(curso=curso_actual, alumno_id=a_id)
 
         LogActividad.objects.create(
             usuario=request.user,
-            accion=f"Actualizó matrícula del curso '{curso_actual.titulo}' ({len(seleccionados_ids)} alumnos activos)"
+            accion=f"Matrícula actualizada en '{curso_actual.titulo}' ({len(seleccionados_ids)} inscritos)"
         )
-
-        messages.success(request, f"Matrícula actualizada exitosamente para '{curso_actual.titulo}'.")
+        messages.success(request, f"Matrícula actualizada para '{curso_actual.titulo}'.")
         return redirect('admin_matricular_curso', curso_id=curso_actual.id)
 
-    context = {
+    return render(request, 'admin_matricular.html', {
         'cursos': cursos,
         'curso_seleccionado': curso_seleccionado,
         'alumnos': alumnos,
         'alumnos_matriculados_ids': alumnos_matriculados_ids,
-    }
-    return render(request, 'admin_matricular.html', context)
-
-
-@login_required
-@user_passes_test(es_administrador, login_url='/cuentas/login/')
-def admin_matricular_alumno(request):
-    """Matrícula individual mediante formulario."""
-    if request.method == 'POST':
-        form = InscripcionForm(request.POST)
-        if form.is_valid():
-            inscripcion = form.save()
-            registrar_log(request, "Matrícula de Alumno", f"Matriculó a '{inscripcion.alumno.username}' en '{inscripcion.curso.titulo}'")
-            messages.success(request, f"Alumno '{inscripcion.alumno.username}' matriculado en '{inscripcion.curso.titulo}'.")
-            return redirect('admin_cursos_lista')
-    else:
-        form = InscripcionForm()
-    return render(request, 'admin_matricular.html', {'form': form})
+    })
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_curso_alumnos(request, curso_id):
-    """Estudiantes matriculados por curso."""
+    """Lista de alumnos inscritos en un curso."""
     curso = get_object_or_404(Curso, id=curso_id)
     inscripciones = Inscripcion.objects.filter(curso=curso).select_related('alumno').order_by('alumno__last_name', 'alumno__first_name')
-    
-    context = {
-        'curso': curso,
-        'inscripciones': inscripciones,
-    }
-    return render(request, 'admin_curso_alumnos.html', context)
+    return render(request, 'admin_curso_alumnos.html', {'curso': curso, 'inscripciones': inscripciones})
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_desmatricular_alumno(request, inscripcion_id):
-    """Eliminación de matrícula de un alumno."""
+    """Retira la matrícula de un alumno."""
     inscripcion = get_object_or_404(Inscripcion, id=inscripcion_id)
     curso_id = inscripcion.curso.id
-    nombre_alumno = inscripcion.alumno.get_full_name() or inscripcion.alumno.username
-    titulo_curso = inscripcion.curso.titulo
-    
-    registrar_log(request, "Desmatriculación", f"Desmatriculó a '{nombre_alumno}' del curso '{titulo_curso}'")
+    nombre = inscripcion.alumno.get_full_name() or inscripcion.alumno.username
+    titulo = inscripcion.curso.titulo
     inscripcion.delete()
-    messages.success(request, f"Se desmatriculó al alumno '{nombre_alumno}' del curso '{titulo_curso}'.")
+    registrar_log(request, "Desmatriculación", f"Retiró a '{nombre}' de '{titulo}'")
+    messages.success(request, f"Alumno '{nombre}' retirado de '{titulo}'.")
     return redirect('admin_curso_alumnos', curso_id=curso_id)
 
 
 # ==============================================================================
-# 8. CARGA MASIVA, REPORTES, AUDITORÍA Y PERÍODOS ACADÉMICOS
+# 8. GESTIÓN DE CICLOS, REPORTES, IMPORTACIÓN Y REVOCACIÓN 2FA
 # ==============================================================================
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_carga_masiva_usuarios(request):
-    """Carga masiva mediante archivo CSV."""
+    """Importación masiva de usuarios vía archivo CSV."""
     if request.method == 'POST' and request.FILES.get('archivo_csv'):
         archivo = request.FILES['archivo_csv']
-        
         if not archivo.name.lower().endswith('.csv'):
-            messages.error(request, "El archivo seleccionado debe tener extensión .csv")
+            messages.error(request, "El archivo debe tener extensión .csv")
             return redirect('admin_carga_masiva_usuarios')
 
         try:
@@ -1743,21 +1675,15 @@ def admin_carga_masiva_usuarios(request):
             except UnicodeDecodeError:
                 contenido = raw_data.decode('latin-1')
 
-            primera_linea = contenido.split('\n')[0] if contenido else ''
-            delimitador = ';' if ';' in primera_linea and ',' not in primera_linea else ','
-
+            delimitador = ';' if ';' in contenido.split('\n')[0] else ','
             lector = csv.DictReader(io.StringIO(contenido), delimiter=delimitador)
             if lector.fieldnames:
-                lector.fieldnames = [nombre.strip().lower() for nombre in lector.fieldnames if nombre]
+                lector.fieldnames = [f.strip().lower() for f in lector.fieldnames if f]
 
-            creados = 0
-            omitidos = 0
-
+            creados, omitidos = 0, 0
             for fila in lector:
                 username = fila.get('username', '').strip()
                 email = fila.get('email', '').strip()
-                first_name = fila.get('first_name', '').strip()
-                last_name = fila.get('last_name', '').strip()
                 password = fila.get('password', '').strip()
                 rol = fila.get('rol', 'Alumnos').strip() or 'Alumnos'
 
@@ -1766,24 +1692,21 @@ def admin_carga_masiva_usuarios(request):
                         username=username,
                         email=email,
                         password=password,
-                        first_name=first_name,
-                        last_name=last_name
+                        first_name=fila.get('first_name', '').strip(),
+                        last_name=fila.get('last_name', '').strip()
                     )
-                    
                     if rol.lower() in ['administrador', 'admin']:
                         user.is_staff = True
                         user.save()
-                    
                     grupo, _ = Group.objects.get_or_create(name=rol)
                     user.groups.add(grupo)
                     creados += 1
                 else:
                     omitidos += 1
 
-            registrar_log(request, "Carga Masiva", f"Creó {creados} usuarios vía CSV ({omitidos} omitidos)")
-            messages.success(request, f"Carga masiva completada: {creados} usuarios creados con éxito ({omitidos} omitidos o duplicados).")
+            registrar_log(request, "Carga Masiva", f"Creó {creados} usuarios ({omitidos} omitidos)")
+            messages.success(request, f"Se crearon {creados} usuarios correctamente ({omitidos} omitidos).")
             return redirect('admin_dashboard')
-
         except Exception as e:
             messages.error(request, f"Error al procesar el archivo CSV: {str(e)}")
             return redirect('admin_carga_masiva_usuarios')
@@ -1793,26 +1716,24 @@ def admin_carga_masiva_usuarios(request):
 
 @login_required
 def descargar_plantilla_usuarios(request):
-    """Descarga de plantilla CSV para usuarios."""
+    """Descarga de formato CSV modelo para usuarios."""
     if not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, "No tienes permiso para realizar esta acción.")
         return redirect('dashboard')
 
     response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
     response['Content-Disposition'] = 'attachment; filename="plantilla_carga_usuarios.csv"'
-    
     writer = csv.writer(response)
     writer.writerow(['username', 'first_name', 'last_name', 'email', 'password', 'rol'])
     writer.writerow(['jperez', 'Juan', 'Perez Garcia', 'jperez@galeno.pe', 'Temporal123*', 'Alumnos'])
     writer.writerow(['mrodriguez', 'Maria', 'Rodriguez Soto', 'mrodriguez@galeno.pe', 'Temporal123*', 'Docentes'])
-    
     return response
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def exportar_usuarios_csv(request):
-    """Descarga consolidada de usuarios en formato CSV."""
+    """Exportación completa de usuarios a CSV."""
     response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Disposition'] = 'attachment; filename="reporte_usuarios_galeno.csv"'
     response.write('\ufeff'.encode('utf8'))
@@ -1821,215 +1742,102 @@ def exportar_usuarios_csv(request):
     writer.writerow(['Usuario', 'Nombres', 'Apellidos', 'Correo', 'Rol', 'Fecha de Registro'])
 
     for u in User.objects.all().prefetch_related('groups').order_by('last_name', 'first_name'):
-        if u.is_superuser or u.is_staff:
-            rol = 'Administrador'
-        elif u.groups.filter(name='Docentes').exists():
-            rol = 'Docente'
-        else:
-            rol = 'Alumno'
+        rol = 'Administrador' if (u.is_superuser or u.is_staff) else ('Docente' if u.groups.filter(name='Docentes').exists() else 'Alumno')
+        writer.writerow([u.username, u.first_name, u.last_name, u.email or 'Sin correo', rol, u.date_joined.strftime('%d/%m/%Y %H:%M')])
 
-        writer.writerow([
-            u.username,
-            u.first_name,
-            u.last_name,
-            u.email or 'Sin correo',
-            rol,
-            u.date_joined.strftime('%d/%m/%Y %H:%M')
-        ])
-
-    registrar_log(request, "Exportación de Datos", "Descargó el listado general de usuarios en CSV")
+    registrar_log(request, "Exportación de Datos", "Descargó listado de usuarios")
     return response
 
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_logs_actividad(request):
-    """Historial de auditoría y actividades del sistema."""
-    total_alumnos = User.objects.filter(groups__name='Alumnos').count()
-    total_docentes = User.objects.filter(groups__name='Docentes').count()
-    total_cursos = Curso.objects.count()
-
+    """Registro de logs y auditoría."""
     query = request.GET.get('q', '').strip()
     logs_qs = LogActividad.objects.all().select_related('usuario').order_by('-fecha')
 
     if query:
         logs_qs = logs_qs.filter(
-            Q(accion__icontains=query) |
-            Q(detalles__icontains=query) |
-            Q(usuario__username__icontains=query)
+            Q(accion__icontains=query) | Q(detalles__icontains=query) | Q(usuario__username__icontains=query)
         )
 
     paginator = Paginator(logs_qs, 20)
-    page_number = request.GET.get('page')
-    logs = paginator.get_page(page_number)
-
-    context = {
-        'total_alumnos': total_alumnos,
-        'total_docentes': total_docentes,
-        'total_cursos': total_cursos,
-        'logs': logs,
+    return render(request, 'admin_logs.html', {
+        'total_alumnos': User.objects.filter(groups__name='Alumnos').count(),
+        'total_docentes': User.objects.filter(groups__name='Docentes').count(),
+        'total_cursos': Curso.objects.count(),
+        'logs': paginator.get_page(request.GET.get('page')),
         'query': query,
-    }
-    return render(request, 'admin_logs.html', context)
+    })
 
 
 @login_required
 def gestionar_temporada(request):
-    """Control de creación y culminación de ciclos académicos."""
+    """Apertura y cierre de ciclos académicos."""
     if not (request.user.is_staff or request.user.is_superuser):
-        messages.error(request, "No tienes permisos para realizar esta acción.")
+        messages.error(request, "Acceso restringido.")
         return redirect('admin_dashboard')
 
     if request.method == 'POST':
         accion = request.POST.get('accion')
-
         if accion == 'crear':
             nombre = request.POST.get('nombre', '').strip()
             codigo = request.POST.get('codigo', '').strip()
-            fecha_inicio = request.POST.get('fecha_inicio')
-            fecha_fin = request.POST.get('fecha_fin')
-            activar_inmediato = request.POST.get('activo') == 'on'
-
             if PeriodoAcademico.objects.filter(codigo=codigo).exists():
-                messages.error(request, f"Ya existe un período registrado con el código '{codigo}'. Usa otro código.")
+                messages.error(request, f"El código '{codigo}' ya existe.")
                 return redirect('admin_dashboard')
 
-            if activar_inmediato:
+            activar = request.POST.get('activo') == 'on'
+            if activar:
                 PeriodoAcademico.objects.update(activo=False)
 
             PeriodoAcademico.objects.create(
                 nombre=nombre,
                 codigo=codigo,
-                fecha_inicio=fecha_inicio,
-                fecha_fin=fecha_fin,
-                activo=activar_inmediato
+                fecha_inicio=request.POST.get('fecha_inicio'),
+                fecha_fin=request.POST.get('fecha_fin'),
+                activo=activar
             )
-            registrar_log(request, "Gestión de Ciclo", f"Creó el ciclo académico '{nombre}'")
-            messages.success(request, f"Temporada '{nombre}' creada exitosamente.")
+            registrar_log(request, "Gestión de Ciclo", f"Creó ciclo '{nombre}'")
+            messages.success(request, f"Temporada '{nombre}' creada con éxito.")
 
         elif accion == 'culminar':
-            periodo_id = request.POST.get('periodo_id')
-            periodo = PeriodoAcademico.objects.filter(id=periodo_id).first()
+            periodo = PeriodoAcademico.objects.filter(id=request.POST.get('periodo_id')).first()
             if periodo:
                 periodo.activo = False
                 periodo.save()
-                registrar_log(request, "Gestión de Ciclo", f"Culminó el ciclo académico '{periodo.nombre}'")
-                messages.warning(request, f"La temporada '{periodo.nombre}' ha sido culminada. El ciclo quedó cerrado.")
+                registrar_log(request, "Gestión de Ciclo", f"Culminó ciclo '{periodo.nombre}'")
+                messages.warning(request, f"Temporada '{periodo.nombre}' culminada.")
 
     return redirect('admin_dashboard')
 
-@login_required
-def configurar_2fa(request):
-    """Permite al docente o administrador vincular Google Authenticator con emisor personalizado."""
-    user = request.user
-    dispositivo_confirmado = TOTPDevice.objects.filter(user=user, confirmed=True).first()
-
-    if request.method == 'POST':
-        token = request.POST.get('token', '').strip()
-        dispositivo_temp = TOTPDevice.objects.filter(user=user, confirmed=False).last()
-
-        if dispositivo_temp and dispositivo_temp.verify_token(token):
-            dispositivo_temp.confirmed = True
-            dispositivo_temp.save()
-            # Eliminar dispositivos antiguos confirmados
-            TOTPDevice.objects.filter(user=user, confirmed=True).exclude(id=dispositivo_temp.id).delete()
-            registrar_log(request, "Seguridad 2FA", "Activó el doble factor de autenticación")
-            messages.success(request, "Doble factor de autenticación (2FA) activado correctamente.")
-            return redirect('mi_perfil')
-        else:
-            messages.error(request, "Código incorrecto o expirado. Inténtalo nuevamente.")
-
-    # Obtener o crear dispositivo temporal no confirmado
-    dispositivo_temp = TOTPDevice.objects.filter(user=user, confirmed=False).last()
-    if not dispositivo_temp:
-        dispositivo_temp = TOTPDevice.objects.create(
-            user=user, 
-            name="Academia Galeno", 
-            confirmed=False
-        )
-
-    # Convertir la clave binaria a Base32 limpia para el protocolo OTP
-    secret_b32 = base64.b32encode(dispositivo_temp.bin_key).decode('ascii').replace('=', '')
-
-    # Identificadores para la aplicación autenticadora
-    identificador = user.email if user.email else user.username
-    emisor = "Academia Galeno"
-
-    # URI estándar compatible con Google Authenticator / Microsoft Authenticator / Authy
-    otp_url = (
-        f"otpauth://totp/{quote(emisor)}:{quote(identificador)}"
-        f"?secret={secret_b32}&issuer={quote(emisor)}&digits=6&period=30"
-    )
-
-    # Generar imagen QR en memoria
-    qr = qrcode.make(otp_url)
-    buffer = io.BytesIO()
-    qr.save(buffer, format="PNG")
-    qr_b64 = base64.b64encode(buffer.getvalue()).decode('ascii')
-
-    context = {
-        'tiene_2fa': dispositivo_confirmado is not None,
-        'qr_b64': qr_b64,
-        'secret_key': secret_b32,
-        'emisor': emisor,
-        'identificador': identificador,
-    }
-    return render(request, 'configurar_2fa.html', context)
-
-@login_required
-def verificar_2fa(request):
-    """Solicita el código de 6 dígitos si la cuenta tiene 2FA activado."""
-    user = request.user
-    tiene_dispositivo = TOTPDevice.objects.filter(user=user, confirmed=True).exists()
-
-    # Si ya completó el paso OTP o no tiene 2FA configurado, pasa directo
-    if getattr(user, 'is_verified', lambda: False)() or not tiene_dispositivo:
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        token = request.POST.get('token', '').strip()
-        dispositivo = TOTPDevice.objects.filter(user=user, confirmed=True).first()
-
-        if dispositivo and dispositivo.verify_token(token):
-            otp_login(request, dispositivo)
-            registrar_log(request, "Inicio de Sesión 2FA", "Verificación TOTP exitosa")
-            return redirect('dashboard')
-        else:
-            messages.error(request, "Código de 6 dígitos inválido. Revisa tu aplicación Authenticator.")
-
-    return render(request, 'verificar_2fa.html')
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')
 def admin_resetear_2fa(request, user_id):
-    """Permite exclusivamente al administrador revocar el 2FA de cualquier usuario."""
+    """Revocación de 2FA por parte del administrador."""
     usuario_objetivo = get_object_or_404(User, id=user_id)
-
     if request.method == 'POST':
-        # Elimina cualquier dispositivo OTP configurado para este usuario
-        dispositivos = TOTPDevice.objects.filter(user=usuario_objetivo)
-        total_eliminados = dispositivos.count()
-        dispositivos.delete()
-
-        registrar_log(
-            request,
-            "Reseteo de Seguridad 2FA",
-            f"El administrador revocó el 2FA del usuario '{usuario_objetivo.username}'"
-        )
-
-        if total_eliminados > 0:
-            messages.success(request, f"Se desactivó el Doble Factor (2FA) para el usuario @{usuario_objetivo.username}.")
+        total = TOTPDevice.objects.filter(user=usuario_objetivo).delete()[0]
+        registrar_log(request, "Reseteo 2FA", f"Revocó 2FA a '{usuario_objetivo.username}'")
+        if total > 0:
+            messages.success(request, f"Se desactivó el 2FA para @{usuario_objetivo.username}.")
         else:
-            messages.info(request, f"El usuario @{usuario_objetivo.username} no tenía ningún 2FA activo.")
-
+            messages.info(request, f"El usuario @{usuario_objetivo.username} no tenía 2FA activo.")
     return redirect('editar_usuario', user_id=usuario_objetivo.id)
 
+
+# ==============================================================================
+# 9. MANEJADORES DE ERROR HTTP
+# ==============================================================================
 
 def error_403_view(request, exception=None):
     return render(request, 'errores/403.html', status=403)
 
+
 def error_404_view(request, exception=None):
     return render(request, 'errores/404.html', status=404)
+
 
 def error_500_view(request):
     return render(request, 'errores/500.html', status=500)

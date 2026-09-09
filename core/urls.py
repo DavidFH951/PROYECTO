@@ -1,69 +1,74 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 from academia import views
 
 urlpatterns = [
     # ==============================================================================
-    # 1. CORE, AUTENTICACIÓN Y NAVEGACIÓN PRINCIPAL
+    # 1. CORE, AUTENTICACIÓN Y SEGURIDAD
     # ==============================================================================
     path('panel-k8f9a2b71c4e90d/', admin.site.urls),
     path('', views.inicio_publico, name='inicio_publico'),
-    path('dashboard/<uuid:token>/', views.dashboard, name='dashboard_token'),
-    path('dashboard/', views.redirigir_dashboard, name='dashboard'),
-    path('perfil/', views.mi_perfil, name='mi_perfil'),
     path('salir/', views.salir, name='salir'),
     path('seguridad/2fa/configurar/', views.configurar_2fa, name='configurar_2fa'),
     path('seguridad/2fa/verificar/', views.verificar_2fa, name='verificar_2fa'),
 
-    # Autenticación estándar
+    # Autenticación
     path('cuentas/login/', views.CustomLoginView.as_view(), name='login'),
     path('cuentas/', include('django.contrib.auth.urls')),
 
     # ==============================================================================
-    # 2. VISTAS DEL ESTUDIANTE Y AULA GENERAL
+    # 2. PORTAL ESTUDIANTIL CON TOKEN DINÁMICO (UUID)
     # ==============================================================================
-    path('curso/<int:curso_id>/', views.detalle_curso, name='detalle_curso'),
-    path('notas/', views.mis_notas, name='mis_notas'),
+    # Rutas protegidas con UUID en la URL
+    path('dashboard/<uuid:token>/', views.dashboard, name='dashboard_token'),
+    path('aula-virtual/mis-cursos/<uuid:token>/', views.mis_cursos, name='mis_cursos_token'),
+    path('intranet/mis-notas/<uuid:token>/', views.mis_notas, name='mis_notas_token'),
+    path('intranet/mis-asistencias/<uuid:token>/', views.mis_asistencias, name='mis_asistencias_token'),
+    path('intranet/mi-perfil/<uuid:token>/', views.mi_perfil, name='mi_perfil_token'),
 
-    # ==============================================================================
-    # 3. MÓDULO DE EVALUACIONES (ALUMNO)
-    # ==============================================================================
+    # Redirecciones transparentes (si entran a la ruta base sin token, los envía a su URL con UUID)
+    path('dashboard/', views.redirigir_dashboard, name='dashboard'),
+    path('aula-virtual/mis-cursos/', views.redirigir_mis_cursos, name='mis_cursos'),
+    path('intranet/mis-notas/', views.redirigir_mis_notas, name='mis_notas'),
+    path('intranet/mis-asistencias/', views.redirigir_mis_asistencias, name='mis_asistencias'),
+    path('intranet/mi-perfil/', views.redirigir_mi_perfil, name='mi_perfil'),
+    path('perfil/', views.redirigir_mi_perfil),
+
+    # Contenido académico del estudiante
+    path('curso/<int:curso_id>/', views.detalle_curso, name='detalle_curso'),
     path('examen/<int:examen_id>/rendir/', views.rendir_examen, name='rendir_examen'),
     path('examen/<int:examen_id>/revision/', views.revision_examen, name='revision_examen'),
     path('examen/<int:examen_id>/verificar-estado/', views.verificar_estado_examen, name='verificar_estado_examen'),
 
     # ==============================================================================
-    # 4. GESTIÓN DOCENTE (CURSOS Y CALIFICACIONES)
+    # 3. GESTIÓN DOCENTE (AULA, CALIFICACIONES Y ASISTENCIA)
     # ==============================================================================
     path('panel-docente/', views.panel_docente, name='panel_docente'),
+    path('docente/mis-calificaciones/', views.docente_mis_calificaciones, name='docente_mis_calificaciones'),
     path('docente/curso/<int:curso_id>/calificar/', views.docente_calificar_curso, name='docente_calificar_curso'),
+    path('docente/asistencias/', views.docente_mis_asistencias, name='docente_mis_asistencias'),
+    path('docente/curso/<int:curso_id>/asistencia/', views.docente_asistencia_curso, name='docente_asistencia_curso'),
+
+    # Recursos y material del curso
     path('curso/<int:curso_id>/subir-material/', views.subir_material, name='subir_material'),
     path('material/<int:material_id>/eliminar/', views.eliminar_material, name='eliminar_material'),
 
-    # ==============================================================================
-    # 5. GESTIÓN DOCENTE (EXÁMENES, BANCO Y AUDITORÍA)
-    # ==============================================================================
-    # Programación y estados
+    # Exámenes y Banco de Preguntas
     path('curso/<int:curso_id>/crear-examen/', views.crear_examen_curso, name='crear_examen_curso'),
     path('examen/<int:examen_id>/toggle/', views.toggle_examen, name='toggle_examen'),
     path('examen/<int:examen_id>/eliminar/', views.eliminar_examen, name='eliminar_examen'),
     path('examen/<int:examen_id>/finalizar-docente/', views.finalizar_examen_docente, name='finalizar_examen_docente'),
-
-    # Banco de preguntas e importación masiva
     path('curso/<int:curso_id>/banco-preguntas/', views.banco_preguntas_curso, name='banco_preguntas_curso'),
     path('curso/<int:curso_id>/importar-preguntas/', views.importar_preguntas_curso, name='importar_preguntas_curso'),
     path('preguntas/descargar-plantilla/', views.descargar_plantilla_preguntas, name='descargar_plantilla_preguntas'),
     path('pregunta/<int:pregunta_id>/eliminar/', views.eliminar_pregunta, name='eliminar_pregunta'),
-
-    # Auditoría y revisión de entregas
     path('examen/<int:examen_id>/entregas/', views.ver_intentos_examen, name='ver_intentos_examen'),
     path('intento/<int:intento_id>/detalle/', views.ver_detalle_intento, name='ver_detalle_intento'),
 
     # ==============================================================================
-    # 6. PANEL DE ADMINISTRACIÓN
+    # 4. PANEL DE ADMINISTRACIÓN
     # ==============================================================================
     path('panel-admin/', views.admin_dashboard, name='admin_dashboard'),
     path('panel-admin/auditoria/', views.admin_logs_actividad, name='admin_logs_actividad'),
@@ -79,17 +84,6 @@ urlpatterns = [
     path('panel-admin/carga-masiva/', views.admin_carga_masiva_usuarios, name='admin_carga_masiva_usuarios'),
     path('panel-admin/descargar-plantilla/', views.descargar_plantilla_usuarios, name='descargar_plantilla_usuarios'),
     path('panel-admin/exportar/usuarios-csv/', views.exportar_usuarios_csv, name='exportar_usuarios_csv'),
-    path('docente/asistencias/', views.docente_mis_asistencias, name='docente_mis_asistencias'),
-    path('alumno/mis-asistencias/', views.mis_asistencias, name='mis_asistencias'),
-    path('cuentas/login/', views.CustomLoginView.as_view(), name='login'),
-
-    path('docente/curso/<int:curso_id>/asistencia/', views.docente_asistencia_curso, name='docente_asistencia_curso'),
-    path('aula-virtual/mis-cursos/', views.mis_cursos, name='mis_cursos'),
-    path('docente/mis-calificaciones/', views.docente_mis_calificaciones, name='docente_mis_calificaciones'),
-    path('intranet/mis-notas/', views.mis_notas, name='mis_notas'),
-    path('docente/curso/<int:curso_id>/asistencia/', views.docente_asistencia_curso, name='docente_asistencia_curso'),
-    path('intranet/mis-asistencias/', views.mis_asistencias, name='mis_asistencias'),
-    path('aula-virtual/mis-cursos/', views.mis_cursos, name='mis_cursos'),
 
     # Cursos y matrículas
     path('panel-admin/cursos/', views.admin_cursos_lista, name='admin_cursos_lista'),
@@ -102,12 +96,9 @@ urlpatterns = [
     path('panel-admin/inscripcion/<int:inscripcion_id>/eliminar/', views.admin_desmatricular_alumno, name='admin_desmatricular_alumno'),
 ]
 
-# Servir archivos multimedia subidos en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-
-# proyecto/urls.py (o academia/urls.py)
 handler403 = 'academia.views.error_403_view'
 handler404 = 'academia.views.error_404_view'
 handler500 = 'academia.views.error_500_view'
