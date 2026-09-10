@@ -1079,6 +1079,7 @@ def docente_asistencia_curso(request, curso_id):
         'sesion_actual_num': sesion_actual_num,
         'filas': filas,
         'hoy_str': date.today().strftime('%Y-%m-%d'),
+        'es_docente': True,  # <-- ESTA LÍNEA SINCRONIZA EL ROL
     }
     return render(request, 'docente_asistencia.html', context)
 
