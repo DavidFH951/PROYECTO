@@ -76,41 +76,106 @@
                 <!-- GRILLA: CALENDARIO Y MATERIAS -->
                 <div class="content-columns-docente" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
 
-                    <!-- Calendario Semanal -->
-                    <div class="card-calendario-box" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
-                        <div class="card-calendario-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-                            <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                                📅 Horario Semanal de Clases
-                            </h3>
-                            <span style="font-size: 12px; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 3px 10px; border-radius: 6px;">Ciclo Regular</span>
-                        </div>
-
-                        <!-- Grilla Semanal -->
+                    <!-- Grilla Semanal de Clases -->
                         <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; min-height: 260px;">
-                            {% for dia_cod, dia_nom in "1:LUN,2:MAR,3:MIÉ,4:JUE,5:VIE,6:SÁB"|make_list|slice:":0" %}{% endfor %}
                             
-                            {% with dias_semana="LUN,MAR,MIÉ,JUE,VIE,SÁB" %}
-                            {% for dia in "123456" %}
+                            <!-- LUNES -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 6px; text-align: center;">
-                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">
-                                    {% if dia == '1' %}LUN{% elif dia == '2' %}MAR{% elif dia == '3' %}MIÉ{% elif dia == '4' %}JUE{% elif dia == '5' %}VIE{% else %}SÁB{% endif %}
-                                </span>
+                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">LUN</span>
                                 <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
                                     {% for h in horarios %}
-                                        {% if h.dia == dia %}
+                                        {% if h.dia == 'LUN' or h.dia == 'Lunes' or h.dia == '1' %}
                                         <div style="background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 4px; font-size: 11px; text-align: left;">
                                             <strong style="color: #0369a1; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
                                             <span style="color: #0f172a; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ h.curso.titulo }}</span>
-                                            <small style="color: #64748b;">📍 {{ h.aula }}</small>
+                                            <small style="color: #64748b;">📍 {{ h.aula|default:"Virtual" }}</small>
                                         </div>
                                         {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
-                            {% endfor %}
-                            {% endwith %}
+
+                            <!-- MARTES -->
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 6px; text-align: center;">
+                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">MAR</span>
+                                <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+                                    {% for h in horarios %}
+                                        {% if h.dia == 'MAR' or h.dia == 'Martes' or h.dia == '2' %}
+                                        <div style="background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 4px; font-size: 11px; text-align: left;">
+                                            <strong style="color: #0369a1; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span style="color: #0f172a; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ h.curso.titulo }}</span>
+                                            <small style="color: #64748b;">📍 {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- MIÉRCOLES -->
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 6px; text-align: center;">
+                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">MIÉ</span>
+                                <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+                                    {% for h in horarios %}
+                                        {% if h.dia == 'MIE' or h.dia == 'MIÉ' or h.dia == 'Miercoles' or h.dia == 'Miércoles' or h.dia == '3' %}
+                                        <div style="background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 4px; font-size: 11px; text-align: left;">
+                                            <strong style="color: #0369a1; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span style="color: #0f172a; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ h.curso.titulo }}</span>
+                                            <small style="color: #64748b;">📍 {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- JUEVES -->
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 6px; text-align: center;">
+                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">JUE</span>
+                                <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+                                    {% for h in horarios %}
+                                        {% if h.dia == 'JUE' or h.dia == 'Jueves' or h.dia == '4' %}
+                                        <div style="background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 4px; font-size: 11px; text-align: left;">
+                                            <strong style="color: #0369a1; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span style="color: #0f172a; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ h.curso.titulo }}</span>
+                                            <small style="color: #64748b;">📍 {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- VIERNES -->
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 6px; text-align: center;">
+                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">VIE</span>
+                                <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+                                    {% for h in horarios %}
+                                        {% if h.dia == 'VIE' or h.dia == 'Viernes' or h.dia == '5' %}
+                                        <div style="background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 4px; font-size: 11px; text-align: left;">
+                                            <strong style="color: #0369a1; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span style="color: #0f172a; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ h.curso.titulo }}</span>
+                                            <small style="color: #64748b;">📍 {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- SÁBADO -->
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 6px; text-align: center;">
+                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">SÁB</span>
+                                <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+                                    {% for h in horarios %}
+                                        {% if h.dia == 'SAB' or h.dia == 'SÁB' or h.dia == 'Sabado' or h.dia == 'Sábado' or h.dia == '6' %}
+                                        <div style="background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 4px; font-size: 11px; text-align: left;">
+                                            <strong style="color: #0369a1; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span style="color: #0f172a; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ h.curso.titulo }}</span>
+                                            <small style="color: #64748b;">📍 {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
                         </div>
-                    </div>
 
                     <!-- Lista de Materias -->
                     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
