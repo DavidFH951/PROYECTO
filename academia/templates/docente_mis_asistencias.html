@@ -23,23 +23,8 @@
         <div class="content-wrapper">
 
             {% include 'componentes/topbar_intranet.html' with es_docente=True %}
-            
-            <!-- Alertas del Sistema -->
-            {% if messages %}
-            <div style="padding: 18px 32px 0 32px;">
-                {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                        ⚠️ {{ message }}
-                    </div>
-                    {% else %}
-                    <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                        ✅ {{ message }}
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            {% endif %}
+
+           {% include 'componentes/mensajes.html' %}
 
             <!-- Grilla de Asignaturas para Asistencia -->
             <main class="main-stage">

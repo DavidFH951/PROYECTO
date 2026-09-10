@@ -5,92 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Academia Galeno{% endblock %}</title>
-
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.2">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-    <!-- Barra Superior Institucional Global -->
-    <header class="top-nav">
-        <a href="{% url 'dashboard' %}" class="brand-container">
-            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="brand-logo-img">
-            <div class="brand-text-block">
-                <span class="brand-title">Academia Galeno</span>
-                <span class="brand-subtitle">
-                    {% if request.user.is_superuser or request.user.is_staff %}
-                        PANEL ADMINISTRADOR
-                    {% elif request.user.groups.all.0.name == 'Docentes' %}
-                        PORTAL DOCENTE
-                    {% else %}
-                        AULA VIRTUAL
-                    {% endif %}
-                </span>
-            </div>
-        </a>
+    <!-- 1. Barra Superior Reutilizada -->
+    {% include 'componentes/topbar_intranet.html' %}
 
-        {% if request.user.is_authenticated %}
-        <div class="user-dropdown-container">
-            <div class="user-profile-trigger">
-                <div class="user-avatar-circle">
-                    {{ request.user.first_name|first|default:request.user.username|first|upper }}
-                </div>
-                <span class="user-trigger-text">
-                    {{ request.user.first_name|default:request.user.username }}
-                </span>
-                <span class="dropdown-arrow">▼</span>
-            </div>
+    <!-- 2. Alertas Centralizadas Reutilizadas -->
+    {% include 'componentes/mensajes.html' %}
 
-            <div class="user-dropdown-menu">
-                <div class="dropdown-user-info">
-                    <div class="dropdown-user-name">
-                        {{ request.user.get_full_name|default:request.user.username }}
-                    </div>
-                    <div class="dropdown-user-email">
-                        {{ request.user.email|default:"Sin correo registrado" }}
-                    </div>
-                    <span class="dropdown-user-badge">
-                        {% if request.user.is_superuser or request.user.is_staff %}
-                            Administrador
-                        {% elif request.user.groups.all.0.name == 'Docentes' %}
-                            Docente
-                        {% else %}
-                            Estudiante
-                        {% endif %}
-                    </span>
-                </div>
-                <div class="dropdown-menu-list">
-                    <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">👤 Mi Perfil</a>
-                    {% if request.user.is_superuser or request.user.is_staff %}
-                        <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">⚙️ Panel Admin</a>
-                    {% else %}
-                        <a href="{% url 'dashboard' %}" class="dropdown-menu-item">📚 Mis Cursos</a>
-                    {% endif %}
-                    <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">🚪 Cerrar Sesión</a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </header>
-
-    <!-- Sistema Global de Mensajes (Alertas) -->
-    {% if messages %}
-        <div class="contenedor-mensajes-global">
-            {% for message in messages %}
-                <div class="alerta-global alerta-{{ message.tags|default:'info' }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <!-- Contenido dinámico de cada vista -->
+    <!-- 3. Contenido Dinámico según la vista -->
     <main class="main-content-layout">
         {% block content %}
         {% endblock %}
     </main>
 
     {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
 </body>
 </html>

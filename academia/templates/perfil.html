@@ -18,54 +18,17 @@
 
     <div class="intranet-container">
 
-        <!-- 1. Sidebar Modular Institucional Unificado -->
-        {% include 'componentes/sidebar_intranet.html' with seccion_activa='perfil' %}
+        <!-- 1. Sidebar Centralizado -->
+        {% include 'componentes/sidebar_intranet.html' with seccion_activa='perfil' es_docente=es_docente %}
 
         <!-- 2. Contenedor Principal Derecho -->
         <div class="content-wrapper">
 
-            <!-- Barra Superior Topbar Institucional -->
-            <header class="top-navbar">
-                <div class="top-welcome-text">
-                    Bienvenido, {% if request.user.is_superuser or request.user.is_staff or request.user.docente_cursos.exists or es_docente %}profesor{% else %}alumno{% endif %} 
-                    <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
-                </div>
+            <!-- Barra Superior Topbar Modular -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=es_docente %}
 
-                <div class="user-pill">
-                    <div class="user-circle">
-                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
-                    </div>
-                    <div class="user-text-info">
-                        <div class="user-text-name">{{ request.user.get_full_name|default:request.user.username }}</div>
-                        <div class="user-text-role">
-                            {% if request.user.is_superuser or request.user.is_staff %}
-                                Administrador
-                            {% elif request.user.docente_cursos.exists or es_docente %}
-                                Docente Titular
-                            {% else %}
-                                Estudiante Regular
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Alertas del Sistema -->
-            {% if messages %}
-            <div style="padding: 18px 32px 0 32px;">
-                {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                        ⚠️ {{ message }}
-                    </div>
-                    {% else %}
-                    <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                        ✅ {{ message }}
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            {% endif %}
+            <!-- Alertas Centralizadas -->
+            {% include 'componentes/mensajes.html' %}
 
             <!-- Contenido Principal -->
             <main class="main-stage">
@@ -89,7 +52,7 @@
                             <span class="badge-rol" style="padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; background: #e0f2fe; color: #0284c7; text-transform: uppercase;">
                                 {% if request.user.is_superuser or request.user.is_staff %}
                                     Administrador
-                                {% elif request.user.docente_cursos.exists or es_docente %}
+                                {% elif es_docente or request.user.docente_cursos.exists %}
                                     Docente Titular
                                 {% else %}
                                     Estudiante Regular
@@ -128,7 +91,7 @@
                         </div>
 
                         <!-- Seguridad y 2FA -->
-                        {% if request.user.is_superuser or request.user.is_staff or request.user.docente_cursos.exists or es_docente %}
+                        {% if request.user.is_superuser or request.user.is_staff or es_docente or request.user.docente_cursos.exists %}
                         <div class="seguridad-box" style="margin-top: 28px; padding: 20px 24px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
                             <div>
                                 <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 8px;">
@@ -138,7 +101,7 @@
                                     Protege tu acceso institucional añadiendo una capa extra de verificación por código temporal.
                                 </p>
                             </div>
-                            <a href="{% url 'configurar_2fa' %}" class="btn-2fa" style="background: #16a34a; color: #ffffff; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; transition: background 0.15s ease;">
+                            <a href="{% url 'configurar_2fa' %}" class="btn-2fa" style="background: #16a34a; color: #ffffff; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center;">
                                 Configurar Doble Factor (2FA)
                             </a>
                         </div>

@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Academia Galeno{% endblock %}</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.2">
+    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
+    {% block extra_css %}{% endblock %}
+</head>
+<body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
+
+    <div class="intranet-container">
+        <!-- 1. Sidebar Automático (usa el block para marcar la sección activa) -->
+        {% block sidebar %}
+            {% include 'componentes/sidebar_intranet.html' with seccion_activa=seccion_activa %}
+        {% endblock %}
+
+        <!-- 2. Contenedor Derecho -->
+        <div class="content-wrapper">
+            <!-- Barra Superior Unificada -->
+            {% include 'componentes/topbar_intranet.html' %}
+
+            <!-- Sistema de Alertas Centralizado -->
+            {% include 'componentes/mensajes.html' %}
+
+            <!-- Contenido Dinámico de la Página -->
+            <main class="main-stage">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
+</body>
+</html>

@@ -1,7 +1,25 @@
 {% if messages %}
+<div class="contenedor-mensajes-intranet">
     {% for message in messages %}
-        <div class="{% if message.tags == 'error' %}alert-box-error{% elif message.tags == 'warning' %}alert-box-warning{% elif message.tags == 'info' %}alert-box-info{% else %}alert-box-success{% endif %}">
+    <div class="alerta-intranet alerta-{{ message.tags|default:'info' }}">
+        <div class="alerta-intranet-icon">
+            {% if message.tags == 'success' %}
+                ✅
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                ⚠️
+            {% elif message.tags == 'warning' %}
+                🔔
+            {% else %}
+                ℹ️
+            {% endif %}
+        </div>
+        <div class="alerta-intranet-text">
             {{ message }}
         </div>
+        <button type="button" class="alerta-intranet-close" onclick="this.parentElement.remove()">
+            &times;
+        </button>
+    </div>
     {% endfor %}
+</div>
 {% endif %}
