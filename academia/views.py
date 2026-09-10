@@ -1849,19 +1849,21 @@ def admin_logs_actividad(request):
 
 @login_required
 def gestionar_temporada(request):
-    """Apertura y cierre de ciclos académicos."""
+    """Apertura, cierre y reactivación de ciclos académicos."""
     if not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, "Acceso restringido.")
         return redirect('admin_dashboard')
 
     if request.method == 'POST':
         accion = request.POST.get('accion')
+
         if accion == 'crear':
             nombre = request.POST.get('nombre', '').strip()
             codigo = request.POST.get('codigo', '').strip()
+
             if PeriodoAcademico.objects.filter(codigo=codigo).exists():
                 messages.error(request, f"El código '{codigo}' ya existe.")
-                return redirect('admin_dashboard')
+                return redirect(request.META.get('HTTP_REFERER', 'admin_dashboard'))
 
             activar = request.POST.get('activo') == 'on'
             if activar:
@@ -1885,8 +1887,17 @@ def gestionar_temporada(request):
                 registrar_log(request, "Gestión de Ciclo", f"Culminó ciclo '{periodo.nombre}'")
                 messages.warning(request, f"Temporada '{periodo.nombre}' culminada.")
 
-    return redirect('admin_dashboard')
+        elif accion == 'reactivar':
+            periodo_id = request.POST.get('periodo_id')
+            PeriodoAcademico.objects.update(activo=False)
+            periodo = PeriodoAcademico.objects.filter(id=periodo_id).first()
+            if periodo:
+                periodo.activo = True
+                periodo.save()
+                registrar_log(request, "Gestión de Ciclo", f"Reactivó ciclo '{periodo.nombre}'")
+                messages.success(request, f"Temporada '{periodo.nombre}' activada como ciclo vigente.")
 
+    return redirect(request.META.get('HTTP_REFERER', 'admin_dashboard'))
 
 @login_required
 @user_passes_test(es_administrador, login_url='/cuentas/login/')

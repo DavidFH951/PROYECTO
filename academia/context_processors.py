@@ -1,5 +1,5 @@
 # academia/context_processors.py
-from .models import Curso # o tu función es_docente_valido
+from .models import Curso , PeriodoAcademico # o tu función es_docente_valido
 
 def roles_intranet(request):
     if not request.user.is_authenticated:
@@ -13,4 +13,9 @@ def roles_intranet(request):
     )
     return {
         'es_docente_global': es_doc
+    }
+def periodo_context(request):
+    periodo_activo = PeriodoAcademico.objects.filter(activo=True).first()
+    return {
+        'periodo_activo': periodo_activo
     }
