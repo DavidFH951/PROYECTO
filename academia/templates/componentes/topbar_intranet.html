@@ -2,7 +2,7 @@
 <header class="top-navbar">
     <div class="top-welcome-text">
         Bienvenido{% if request.user.is_superuser or request.user.is_staff %}, administrador(a){% elif es_docente %}, profesor(a){% else %}, estudiante{% endif %} 
-        <strong>{{ request.user.first_name|default:request.user.username }}</strong>
+        <strong class="top-welcome-name">{{ request.user.first_name|default:request.user.username }}</strong>
     </div>
 
     <!-- Menú Desplegable del Usuario -->

@@ -560,3 +560,26 @@ html, body {
     border: 1px solid #bae6fd;
     color: #0369a1;
 }
+/* Estandarización de Topbar Blanco Institucional */
+.top-navbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.03) !important;
+    padding: 14px 28px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.top-welcome-text {
+    font-size: 14px;
+    color: #475569;
+    font-weight: 500;
+}
+
+.top-welcome-name {
+    color: #0f172a;
+    font-weight: 700;
+}
