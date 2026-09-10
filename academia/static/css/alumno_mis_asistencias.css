@@ -1,5 +1,5 @@
 /* ==============================================================================
-   MÓDULO ASISTENCIA DESPLEGABLE (ESTUDIANTE) - ACADEMIA GALENO
+   MÓDULO ASISTENCIA (ESTUDIANTE) - ACADEMIA GALENO
    ============================================================================== */
 
 .asistencia-page-container {
@@ -32,7 +32,7 @@
     margin-bottom: 16px;
     background: #ffffff;
     overflow: hidden;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .curso-accordion:hover {
@@ -40,21 +40,20 @@
 }
 
 .curso-accordion[open] {
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
-    border-color: #93c5fd;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    border-color: #cbd5e1;
 }
 
-/* Cabecera Clickeable */
+/* Cabecera del Acordeón */
 .curso-accordion-header {
     list-style: none;
     cursor: pointer;
     user-select: none;
-    padding: 16px 20px;
+    padding: 14px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: #ffffff;
-    border-radius: 12px;
     transition: background-color 0.15s ease;
 }
 
@@ -62,12 +61,12 @@
     display: none;
 }
 
-.curso-accordion:not([open]) .curso-accordion-header:hover {
+.curso-accordion-header:hover {
     background-color: #f8fafc;
 }
 
 .curso-accordion[open] .curso-accordion-header {
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #f1f5f9;
     background-color: #f8fafc;
 }
 
@@ -75,13 +74,13 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 15px;
+    font-size: 14.5px;
     font-weight: 700;
     color: #0f172a;
 }
 
 .curso-icon {
-    font-size: 17px;
+    font-size: 16px;
 }
 
 .curso-accordion-right {
@@ -92,8 +91,8 @@
 
 .porcentaje-badge {
     font-weight: 800;
-    font-size: 13px;
-    padding: 4px 12px;
+    font-size: 12.5px;
+    padding: 3px 10px;
     border-radius: 20px;
     background: #ecfdf5;
     color: #047857;
@@ -101,8 +100,8 @@
 }
 
 .accordion-arrow {
-    font-size: 10px;
-    color: #64748b;
+    font-size: 9px;
+    color: #94a3b8;
     transition: transform 0.2s ease;
 }
 
@@ -110,48 +109,60 @@
     transform: rotate(180deg);
 }
 
-/* Contenido Interno */
+/* Contenido Expandido */
 .curso-accordion-content {
-    padding: 20px;
+    padding: 16px 20px 20px 20px;
     background: #ffffff;
 }
 
-/* Grilla de Métricas */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.stat-box {
-    text-align: center;
-    padding: 14px 8px;
-    border-radius: 10px;
+/* Cinta de Métricas Delgada y Compacta */
+.metrics-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background: #f8fafc;
-    border: 1px solid #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 18px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-.stat-num {
-    font-size: 20px;
-    font-weight: 800;
-    display: block;
-    line-height: 1;
-    margin-bottom: 6px;
-    font-family: monospace;
+.metric-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.stat-total { color: #0f172a; }
-.stat-p { color: #059669; }
-.stat-t { color: #d97706; }
-.stat-f { color: #dc2626; }
-.stat-j { color: #0284c7; }
-
-.stat-label {
-    font-size: 10.5px;
-    font-weight: 700;
+.metric-title {
+    font-size: 12px;
+    font-weight: 600;
     color: #64748b;
-    letter-spacing: 0.5px;
+}
+
+.metric-val {
+    font-size: 13.5px;
+    font-weight: 800;
+    font-family: monospace;
+    padding: 2px 7px;
+    border-radius: 5px;
+}
+
+.metric-val.total { background: #e2e8f0; color: #0f172a; }
+.metric-val.val-p { background: #ecfdf5; color: #059669; }
+.metric-val.val-t { background: #fefce8; color: #d97706; }
+.metric-val.val-f { background: #fef2f2; color: #dc2626; }
+.metric-val.val-j { background: #f0f9ff; color: #0284c7; }
+
+.metric-separator {
+    width: 1px;
+    height: 16px;
+    background: #e2e8f0;
+}
+
+@media (max-width: 640px) {
+    .metric-separator { display: none; }
 }
 
 /* Tabla de Sesiones */
@@ -166,21 +177,21 @@
 }
 
 .table-detalles th {
-    padding: 12px 16px;
-    background: #f8fafc;
-    color: #64748b;
+    padding: 10px 14px;
+    background: #ffffff;
+    color: #94a3b8;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     text-align: left;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .table-detalles td {
-    padding: 14px 16px;
+    padding: 12px 14px;
     border-bottom: 1px solid #f1f5f9;
-    font-size: 13.5px;
+    font-size: 13px;
     vertical-align: middle;
 }
 
@@ -194,18 +205,17 @@
 }
 
 .col-semana {
-    color: #475569;
+    color: #64748b;
 }
 
 /* Píldoras de Estado */
 .tag-asistencia {
     display: inline-block;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
-    padding: 4px 12px;
+    padding: 3px 10px;
     border-radius: 6px;
-    letter-spacing: 0.5px;
-    min-width: 80px;
+    min-width: 75px;
 }
 
 .tag-P { background: #ecfdf5; color: #047857; }
@@ -215,19 +225,19 @@
 
 .empty-sesiones {
     text-align: center;
-    padding: 24px;
+    padding: 20px;
     color: #94a3b8;
     font-size: 13px;
 }
 
-/* Leyenda de Referencia */
+/* Leyenda */
 .leyenda-row {
     display: flex;
     gap: 20px;
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 600;
-    color: #475569;
-    margin-top: 24px;
+    color: #64748b;
+    margin-top: 20px;
     padding-top: 16px;
     border-top: 1px solid #f1f5f9;
     flex-wrap: wrap;
@@ -240,8 +250,8 @@
 }
 
 .dot {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     display: inline-block;
 }

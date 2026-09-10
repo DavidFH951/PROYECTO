@@ -11,14 +11,14 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.2">
     <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/alumno_mis_asistencias.css' %}?v=1.1">
+    <link rel="stylesheet" href="{% static 'css/alumno_mis_asistencias.css' %}?v=1.2">
 </head>
 
 <body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
 
     <div class="intranet-container">
 
-        <!-- 1. Menú lateral (Asistencias Alumno) -->
+        <!-- 1. Menú lateral -->
         {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencias_alumno' es_docente=False %}
 
         <!-- 2. Área Principal Derecha -->
@@ -48,7 +48,8 @@
 
                     <div class="asistencia-card-main">
                         {% for r in resumen_asistencias %}
-                        <details class="curso-accordion" {% if forloop.first %}open{% endif %}>
+                        <!-- Inicia cerrado siempre -->
+                        <details class="curso-accordion">
                             <summary class="curso-accordion-header">
                                 <div class="curso-accordion-title">
                                     <span class="curso-icon">📘</span>
@@ -63,31 +64,35 @@
                             </summary>
 
                             <div class="curso-accordion-content">
-                                <!-- Tarjetas de Resumen Numérico -->
-                                <div class="stats-grid">
-                                    <div class="stat-box">
-                                        <span class="stat-num stat-total">{{ r.total_sesiones }}</span>
-                                        <span class="stat-label">SESIONES</span>
+                                <!-- Barra Compacta de Métricas (Estilizada y delgada) -->
+                                <div class="metrics-strip">
+                                    <div class="metric-pill">
+                                        <span class="metric-title">Sesiones</span>
+                                        <span class="metric-val total">{{ r.total_sesiones }}</span>
                                     </div>
-                                    <div class="stat-box">
-                                        <span class="stat-num stat-p">{{ r.presentes }}</span>
-                                        <span class="stat-label">PRESENTES</span>
+                                    <div class="metric-separator"></div>
+                                    <div class="metric-pill">
+                                        <span class="metric-title">Presentes</span>
+                                        <span class="metric-val val-p">{{ r.presentes }}</span>
                                     </div>
-                                    <div class="stat-box">
-                                        <span class="stat-num stat-t">{{ r.tardanzas }}</span>
-                                        <span class="stat-label">TARDANZAS</span>
+                                    <div class="metric-separator"></div>
+                                    <div class="metric-pill">
+                                        <span class="metric-title">Tardanzas</span>
+                                        <span class="metric-val val-t">{{ r.tardanzas }}</span>
                                     </div>
-                                    <div class="stat-box">
-                                        <span class="stat-num stat-f">{{ r.faltas }}</span>
-                                        <span class="stat-label">FALTAS</span>
+                                    <div class="metric-separator"></div>
+                                    <div class="metric-pill">
+                                        <span class="metric-title">Faltas</span>
+                                        <span class="metric-val val-f">{{ r.faltas }}</span>
                                     </div>
-                                    <div class="stat-box">
-                                        <span class="stat-num stat-j">{{ r.justificadas }}</span>
-                                        <span class="stat-label">JUSTIFICADAS</span>
+                                    <div class="metric-separator"></div>
+                                    <div class="metric-pill">
+                                        <span class="metric-title">Justificadas</span>
+                                        <span class="metric-val val-j">{{ r.justificadas }}</span>
                                     </div>
                                 </div>
 
-                                <!-- Tabla Detallada de Sesiones -->
+                                <!-- Tabla Detallada -->
                                 {% if r.detalles %}
                                 <div class="table-detalles-wrapper">
                                     <table class="table-detalles">
@@ -133,7 +138,7 @@
                         </div>
                         {% endfor %}
 
-                        <!-- Leyenda de colores inferior -->
+                        <!-- Leyenda inferior -->
                         <div class="leyenda-row">
                             <span class="leyenda-item"><span class="dot dot-p"></span> Presente</span>
                             <span class="leyenda-item"><span class="dot dot-t"></span> Tardanza</span>
