@@ -11,311 +11,308 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.3">
     <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=4.0">
+    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=4.1">
 </head>
 
 <body class="aula-virtual-body">
 
-    <div class="intranet-container">
+    <!-- 1. TOPBAR PROPIO DEL AULA VIRTUAL (ANCHO COMPLETO) -->
+    {% include 'componentes/topbar_curso.html' %}
 
-        <!-- 1. BARRA LATERAL PROPIA DEL CURSO (SEMANAS Y AVISOS) -->
+    <!-- 2. LAYOUT INFERIOR: SIDEBAR CURSO + CONTENIDO -->
+    <div class="aula-virtual-layout">
+
+        <!-- Sidebar Propio del Curso (Semanas del ciclo) -->
         {% include 'componentes/sidebar_curso.html' with curso=curso bloques_semanas=bloques_semanas %}
 
-        <!-- 2. CONTENIDO PRINCIPAL AULA VIRTUAL -->
-        <div class="content-wrapper aula-content-wrapper">
+        <!-- Área de Contenido Principal -->
+        <main class="course-main-stage">
 
-            <!-- Topbar Global Compartido -->
-            {% include 'componentes/topbar_intranet.html' with es_docente=es_docente_curso %}
+            <div class="course-main-content">
 
-            <!-- Alertas Centralizadas -->
-            {% include 'componentes/mensajes.html' %}
+                <!-- Alertas del Sistema -->
+                {% include 'componentes/mensajes.html' %}
 
-            <main class="main-stage">
-
-                <div class="course-main-content">
-
-                    <!-- Banner de Portada del Curso -->
-                    <div class="course-header-banner">
-                        {% if curso.imagen_portada %}
-                            <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}" class="banner-bg-img">
-                            <div class="banner-overlay-dark"></div>
-                        {% else %}
-                            <div class="banner-gradient-default"></div>
-                        {% endif %}
-
-                        <div class="banner-info-content">
-                            <span class="banner-periodo-tag">
-                                {% if curso.periodo %}
-                                    Período: {{ curso.periodo.nombre }} ({{ curso.periodo.codigo }})
-                                {% else %}
-                                    Período Académico Activo
-                                {% endif %}
-                            </span>
-
-                            <h1 class="banner-curso-title">{{ curso.titulo }}</h1>
-
-                            {% if curso.descripcion %}
-                                <p class="banner-curso-desc">{{ curso.descripcion }}</p>
-                            {% endif %}
-
-                            <div class="banner-docentes-list">
-                                <span>Plana Docente:</span>
-                                <strong>
-                                    {% for doc in curso.docentes.all %}
-                                        Prof. {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif %}
-                                    {% empty %}
-                                        Sin docente asignado
-                                    {% endfor %}
-                                </strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Barra de Acciones del Docente / Encabezado -->
-                    <div class="content-action-bar">
-                        <h3 class="section-materials-title">Materiales de Estudio y Clases</h3>
-
-                        {% if es_docente_curso %}
-                        <div class="docente-action-buttons">
-                            <button type="button" class="btn-docente-blue" onclick="document.getElementById('modal-crear-examen').style.display='flex'">
-                                ➕ Programar Examen
-                            </button>
-                            <a href="{% url 'banco_preguntas_curso' curso.id %}" class="btn-docente-sky">
-                                <span>📝</span> Banco de Preguntas
-                            </a>
-                            <a href="{% url 'subir_material' curso.id %}" class="btn-docente-green">
-                                ➕ Subir Contenido
-                            </a>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Modal de Creación de Examen (Docente) -->
-                    {% if es_docente_curso %}
-                    <div id="modal-crear-examen" class="modal-evaluacion-overlay" style="display: none;">
-                        <div class="modal-evaluacion-card">
-                            <div class="modal-evaluacion-header">
-                                <h4>Programar Nueva Evaluación</h4>
-                                <button type="button" class="btn-close-modal" onclick="document.getElementById('modal-crear-examen').style.display='none'">&times;</button>
-                            </div>
-                            <form action="{% url 'crear_examen_curso' curso.id %}" method="POST" class="modal-evaluacion-form">
-                                {% csrf_token %}
-                                <div>
-                                    <label class="form-label-dark">Título de la Evaluación:</label>
-                                    <input type="text" name="titulo" placeholder="Ej: Examen Parcial / Test Clínico" required class="form-input-text">
-                                </div>
-
-                                <div class="form-grid-three">
-                                    <div>
-                                        <label class="form-label-dark">Semana:</label>
-                                        <select name="semana" required class="form-input-text">
-                                            {% for sem in cronograma %}
-                                            <option value="{{ sem.numero }}">{{ sem.etiqueta|default:"Semana" }} {{ sem.numero }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="form-label-dark">Tiempo (min):</label>
-                                        <input type="number" name="duracion_minutos" value="60" min="5" required class="form-input-text">
-                                    </div>
-                                    <div>
-                                        <label class="form-label-dark">N° Intentos:</label>
-                                        <input type="number" name="intentos_permitidos" value="1" min="1" max="10" required class="form-input-text">
-                                    </div>
-                                </div>
-
-                                <div class="form-grid-two">
-                                    <div>
-                                        <label class="form-label-dark">Apertura (opcional):</label>
-                                        <input type="datetime-local" name="fecha_apertura" class="form-input-text">
-                                    </div>
-                                    <div>
-                                        <label class="form-label-dark">Cierre (opcional):</label>
-                                        <input type="datetime-local" name="fecha_cierre" class="form-input-text">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="form-label-dark">Instrucciones (opcional):</label>
-                                    <textarea name="descripcion" rows="2" placeholder="Instrucciones para los postulantes..." class="form-input-text"></textarea>
-                                </div>
-
-                                <div class="modal-btn-row">
-                                    <button type="button" onclick="document.getElementById('modal-crear-examen').style.display='none'" class="btn-cancelar-modal">Cancelar</button>
-                                    <button type="submit" class="btn-guardar-modal">Crear Evaluación</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <!-- Sección General Fija -->
-                    <details id="seccion-general" open class="accordion-semana-box">
-                        <summary class="accordion-semana-summary">
-                            <span class="summary-arrow-green">▼</span> General
-                        </summary>
-                        <div class="accordion-semana-body">
-                            <div class="avisos-general-box">
-                                <span class="avisos-icon">📢</span>
-                                <div>
-                                    <div class="avisos-title">Avisos del Curso</div>
-                                    <div class="avisos-sub">Información general y novedades académicas de la temporada</div>
-                                </div>
-                            </div>
-                        </div>
-                    </details>
-
-                    <!-- Bloques Semanales -->
-                    {% if bloques_semanas %}
-                    <div class="semanas-container-list">
-                        {% for bloque in bloques_semanas %}
-                        <details id="semana-{{ bloque.info.numero }}" open class="accordion-semana-box">
-                            <summary class="accordion-semana-summary summary-space-between">
-                                <div class="summary-title-left">
-                                    <span class="summary-arrow-blue">▼</span>
-                                    <span>
-                                        Semana {{ bloque.info.numero }}
-                                        {% if bloque.info.inicio and bloque.info.fin %}
-                                        <small class="semana-dates-range">
-                                            ({{ bloque.info.inicio|date:"d/m" }} al {{ bloque.info.fin|date:"d/m" }})
-                                        </small>
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                <span class="recursos-count-badge">
-                                    {{ bloque.total_recursos }} recurso(s)
-                                </span>
-                            </summary>
-
-                            <div class="semana-items-list">
-                                <!-- Exámenes de la semana -->
-                                {% for ex in bloque.examenes %}
-                                <div class="card-examen-item {% if ex.activo %}examen-card-activa{% else %}examen-card-pausada{% endif %}">
-                                    <div class="examen-item-left">
-                                        <div class="examen-icono-box {% if ex.activo %}icono-activo{% else %}icono-pausado{% endif %}">
-                                            📝
-                                        </div>
-                                        <div>
-                                            <h4 class="examen-title-txt">
-                                                {{ ex.titulo }}{% if not ex.activo %}<span class="badge-pausado">Pausado / Oculto</span>{% endif %}
-                                            </h4>
-                                            <div class="examen-meta-txt">
-                                                Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }} preguntas &bull; Máx. {{ ex.intentos_permitidos }} intento(s)
-                                                {% if ex.fecha_apertura and ex.fecha_cierre %}
-                                                &bull; {{ ex.fecha_apertura|date:"d/m H:i" }} a {{ ex.fecha_cierre|date:"d/m H:i" }}
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        {% if es_docente_curso %}
-                                        <div class="examen-actions-group">
-                                            <a href="{% url 'ver_intentos_examen' ex.id %}" class="btn-action-base btn-entregas">
-                                                📊 Ver Entregas ({{ ex.intentos.count }})
-                                            </a>
-                                            <a href="{% url 'banco_preguntas_curso' curso.id %}" class="btn-action-base btn-gestionar">
-                                                Gestionar Preguntas
-                                            </a>
-                                            <a href="{% url 'finalizar_examen_docente' ex.id %}" onclick="return confirm('¿Finalizar el examen ahora? Se enviarán automáticamente las respuestas.');" class="btn-action-base btn-finalizar-forzado">
-                                                ⏹ Finalizar
-                                            </a>
-                                            {% if ex.activo %}
-                                            <a href="{% url 'toggle_examen' ex.id %}" class="btn-action-base btn-pausar">⏸ Pausar</a>
-                                            {% else %}
-                                            <a href="{% url 'toggle_examen' ex.id %}" class="btn-action-base btn-habilitar">▶ Habilitar</a>
-                                            {% endif %}
-                                            <a href="{% url 'eliminar_examen' ex.id %}" onclick="return confirm('¿Seguro que deseas eliminar esta evaluación?');" class="btn-eliminar-examen">🗑️</a>
-                                        </div>
-                                        {% else %}
-                                            {% if ex.esta_disponible %}
-                                            <a href="{% url 'rendir_examen' ex.id %}" class="btn-rendir-examen">
-                                                Rendir Evaluación →
-                                            </a>
-                                            {% else %}
-                                            <span class="badge-bloqueado">
-                                                🔒 {{ ex.estado_texto }}
-                                            </span>
-                                            {% endif %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                {% endfor %}
-
-                                <!-- Materiales y Videos de la semana -->
-                                {% for mat in bloque.materiales %}
-                                <div class="material-item-card">
-                                    <div class="material-info">
-                                        {% if mat.es_video %}
-                                        <div class="material-icon-box bg-icon-video">🎬</div>
-                                        {% elif mat.archivo %}
-                                        <div class="material-icon-box bg-icon-doc">📄</div>
-                                        {% else %}
-                                        <div class="material-icon-box bg-icon-link">🔗</div>
-                                        {% endif %}
-
-                                        <div class="material-details">
-                                            {% if mat.es_video %}
-                                            <a href="{% url 'ver_material_curso' curso.id mat.id %}" class="material-video-link">
-                                                {{ mat.titulo }}
-                                                <span class="badge-tag-video">VIDEO</span>
-                                            </a>
-                                            <span class="sub-video-protected">Visualización en plataforma</span>
-                                            {% else %}
-                                            <h4 class="material-normal-title">{{ mat.titulo }}</h4>
-                                            {% if mat.contenido %}
-                                            <p class="material-desc-txt">{{ mat.contenido }}</p>
-                                            {% endif %}
-                                            <span class="material-date-txt">Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                    <div class="material-actions">
-                                        {% if mat.es_video %}
-                                        <a href="{% url 'ver_material_curso' curso.id mat.id %}" class="btn-video-watch">
-                                            ▶ Ver Video
-                                        </a>
-                                        {% elif mat.archivo %}
-                                        <a href="{{ mat.archivo.url }}" class="btn-mat-download" target="_blank" download>
-                                            📥 Descargar
-                                        </a>
-                                        {% elif mat.enlace_web %}
-                                        <a href="{{ mat.enlace_web }}" class="btn-mat-link" target="_blank" rel="noopener noreferrer">
-                                            🌐 Abrir Enlace
-                                        </a>
-                                        {% endif %}
-
-                                        {% if es_docente_curso %}
-                                        <a href="{% url 'eliminar_material' mat.id %}" class="btn-delete-mat" onclick="return confirm('¿Estás seguro de eliminar este recurso?');">
-                                            🗑️
-                                        </a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                {% endfor %}
-
-                                {% if not bloque.materiales and not bloque.examenes %}
-                                <div class="empty-semana-msg">
-                                    No hay actividades ni materiales asignados para esta semana aún.
-                                </div>
-                                {% endif %}
-                            </div>
-                        </details>
-                        {% endfor %}
-                    </div>
+                <!-- Banner de Portada del Curso -->
+                <div class="course-header-banner">
+                    {% if curso.imagen_portada %}
+                        <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}" class="banner-bg-img">
+                        <div class="banner-overlay-dark"></div>
                     {% else %}
-                    <div class="empty-materials-state">
-                        <p style="font-size: 36px; margin: 0 0 10px 0;">📂</p>
-                        <p>Aún no se han configurado semanas ni publicado materiales en este curso.</p>
-                    </div>
+                        <div class="banner-gradient-default"></div>
                     {% endif %}
 
+                    <div class="banner-info-content">
+                        <span class="banner-periodo-tag">
+                            {% if curso.periodo %}
+                                Período: {{ curso.periodo.nombre }} ({{ curso.periodo.codigo }})
+                            {% else %}
+                                Período Académico Activo
+                            {% endif %}
+                        </span>
+
+                        <h1 class="banner-curso-title">{{ curso.titulo }}</h1>
+
+                        {% if curso.descripcion %}
+                            <p class="banner-curso-desc">{{ curso.descripcion }}</p>
+                        {% endif %}
+
+                        <div class="banner-docentes-list">
+                            <span>Plana Docente:</span>
+                            <strong>
+                                {% for doc in curso.docentes.all %}
+                                    Prof. {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    Sin docente asignado
+                                {% endfor %}
+                            </strong>
+                        </div>
+                    </div>
                 </div>
 
-            </main>
+                <!-- Barra de Acciones del Docente / Encabezado -->
+                <div class="content-action-bar">
+                    <h3 class="section-materials-title">Materiales de Estudio y Clases</h3>
 
-        </div>
+                    {% if es_docente_curso %}
+                    <div class="docente-action-buttons">
+                        <button type="button" class="btn-docente-blue" onclick="document.getElementById('modal-crear-examen').style.display='flex'">
+                            ➕ Programar Examen
+                        </button>
+                        <a href="{% url 'banco_preguntas_curso' curso.id %}" class="btn-docente-sky">
+                            <span>📝</span> Banco de Preguntas
+                        </a>
+                        <a href="{% url 'subir_material' curso.id %}" class="btn-docente-green">
+                            ➕ Subir Contenido
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Modal de Creación de Examen (Docente) -->
+                {% if es_docente_curso %}
+                <div id="modal-crear-examen" class="modal-evaluacion-overlay" style="display: none;">
+                    <div class="modal-evaluacion-card">
+                        <div class="modal-evaluacion-header">
+                            <h4>Programar Nueva Evaluación</h4>
+                            <button type="button" class="btn-close-modal" onclick="document.getElementById('modal-crear-examen').style.display='none'">&times;</button>
+                        </div>
+                        <form action="{% url 'crear_examen_curso' curso.id %}" method="POST" class="modal-evaluacion-form">
+                            {% csrf_token %}
+                            <div>
+                                <label class="form-label-dark">Título de la Evaluación:</label>
+                                <input type="text" name="titulo" placeholder="Ej: Examen Parcial / Test Clínico" required class="form-input-text">
+                            </div>
+
+                            <div class="form-grid-three">
+                                <div>
+                                    <label class="form-label-dark">Semana:</label>
+                                    <select name="semana" required class="form-input-text">
+                                        {% for sem in cronograma %}
+                                        <option value="{{ sem.numero }}">{{ sem.etiqueta|default:"Semana" }} {{ sem.numero }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label-dark">Tiempo (min):</label>
+                                    <input type="number" name="duracion_minutos" value="60" min="5" required class="form-input-text">
+                                </div>
+                                <div>
+                                    <label class="form-label-dark">N° Intentos:</label>
+                                    <input type="number" name="intentos_permitidos" value="1" min="1" max="10" required class="form-input-text">
+                                </div>
+                            </div>
+
+                            <div class="form-grid-two">
+                                <div>
+                                    <label class="form-label-dark">Apertura (opcional):</label>
+                                    <input type="datetime-local" name="fecha_apertura" class="form-input-text">
+                                </div>
+                                <div>
+                                    <label class="form-label-dark">Cierre (opcional):</label>
+                                    <input type="datetime-local" name="fecha_cierre" class="form-input-text">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label-dark">Instrucciones (opcional):</label>
+                                <textarea name="descripcion" rows="2" placeholder="Instrucciones para los postulantes..." class="form-input-text"></textarea>
+                            </div>
+
+                            <div class="modal-btn-row">
+                                <button type="button" onclick="document.getElementById('modal-crear-examen').style.display='none'" class="btn-cancelar-modal">Cancelar</button>
+                                <button type="submit" class="btn-guardar-modal">Crear Evaluación</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Sección General Fija -->
+                <details id="seccion-general" open class="accordion-semana-box">
+                    <summary class="accordion-semana-summary">
+                        <span class="summary-arrow-green">▼</span> General
+                    </summary>
+                    <div class="accordion-semana-body">
+                        <div class="avisos-general-box">
+                            <span class="avisos-icon">📢</span>
+                            <div>
+                                <div class="avisos-title">Avisos del Curso</div>
+                                <div class="avisos-sub">Información general y novedades académicas de la temporada</div>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Bloques Semanales -->
+                {% if bloques_semanas %}
+                <div class="semanas-container-list">
+                    {% for bloque in bloques_semanas %}
+                    <details id="semana-{{ bloque.info.numero }}" open class="accordion-semana-box">
+                        <summary class="accordion-semana-summary summary-space-between">
+                            <div class="summary-title-left">
+                                <span class="summary-arrow-blue">▼</span>
+                                <span>
+                                    Semana {{ bloque.info.numero }}
+                                    {% if bloque.info.inicio and bloque.info.fin %}
+                                    <small class="semana-dates-range">
+                                        ({{ bloque.info.inicio|date:"d/m" }} al {{ bloque.info.fin|date:"d/m" }})
+                                    </small>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <span class="recursos-count-badge">
+                                {{ bloque.total_recursos }} recurso(s)
+                            </span>
+                        </summary>
+
+                        <div class="semana-items-list">
+                            <!-- Exámenes de la semana -->
+                            {% for ex in bloque.examenes %}
+                            <div class="card-examen-item {% if ex.activo %}examen-card-activa{% else %}examen-card-pausada{% endif %}">
+                                <div class="examen-item-left">
+                                    <div class="examen-icono-box {% if ex.activo %}icono-activo{% else %}icono-pausado{% endif %}">
+                                        📝
+                                    </div>
+                                    <div>
+                                        <h4 class="examen-title-txt">
+                                            {{ ex.titulo }}{% if not ex.activo %}<span class="badge-pausado">Pausado / Oculto</span>{% endif %}
+                                        </h4>
+                                        <div class="examen-meta-txt">
+                                            Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }} preguntas &bull; Máx. {{ ex.intentos_permitidos }} intento(s)
+                                            {% if ex.fecha_apertura and ex.fecha_cierre %}
+                                            &bull; {{ ex.fecha_apertura|date:"d/m H:i" }} a {{ ex.fecha_cierre|date:"d/m H:i" }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    {% if es_docente_curso %}
+                                    <div class="examen-actions-group">
+                                        <a href="{% url 'ver_intentos_examen' ex.id %}" class="btn-action-base btn-entregas">
+                                            📊 Ver Entregas ({{ ex.intentos.count }})
+                                        </a>
+                                        <a href="{% url 'banco_preguntas_curso' curso.id %}" class="btn-action-base btn-gestionar">
+                                            Gestionar Preguntas
+                                        </a>
+                                        <a href="{% url 'finalizar_examen_docente' ex.id %}" onclick="return confirm('¿Finalizar el examen ahora? Se enviarán automáticamente las respuestas.');" class="btn-action-base btn-finalizar-forzado">
+                                            ⏹ Finalizar
+                                        </a>
+                                        {% if ex.activo %}
+                                        <a href="{% url 'toggle_examen' ex.id %}" class="btn-action-base btn-pausar">⏸ Pausar</a>
+                                        {% else %}
+                                        <a href="{% url 'toggle_examen' ex.id %}" class="btn-action-base btn-habilitar">▶ Habilitar</a>
+                                        {% endif %}
+                                        <a href="{% url 'eliminar_examen' ex.id %}" onclick="return confirm('¿Seguro que deseas eliminar esta evaluación?');" class="btn-eliminar-examen">🗑️</a>
+                                    </div>
+                                    {% else %}
+                                        {% if ex.esta_disponible %}
+                                        <a href="{% url 'rendir_examen' ex.id %}" class="btn-rendir-examen">
+                                            Rendir Evaluación →
+                                        </a>
+                                        {% else %}
+                                        <span class="badge-bloqueado">
+                                            🔒 {{ ex.estado_texto }}
+                                        </span>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                            <!-- Materiales y Videos de la semana -->
+                            {% for mat in bloque.materiales %}
+                            <div class="material-item-card">
+                                <div class="material-info">
+                                    {% if mat.es_video %}
+                                    <div class="material-icon-box bg-icon-video">🎬</div>
+                                    {% elif mat.archivo %}
+                                    <div class="material-icon-box bg-icon-doc">📄</div>
+                                    {% else %}
+                                    <div class="material-icon-box bg-icon-link">🔗</div>
+                                    {% endif %}
+
+                                    <div class="material-details">
+                                        {% if mat.es_video %}
+                                        <a href="{% url 'ver_material_curso' curso.id mat.id %}" class="material-video-link">
+                                            {{ mat.titulo }}
+                                            <span class="badge-tag-video">VIDEO</span>
+                                        </a>
+                                        <span class="sub-video-protected">Visualización en plataforma</span>
+                                        {% else %}
+                                        <h4 class="material-normal-title">{{ mat.titulo }}</h4>
+                                        {% if mat.contenido %}
+                                        <p class="material-desc-txt">{{ mat.contenido }}</p>
+                                        {% endif %}
+                                        <span class="material-date-txt">Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="material-actions">
+                                    {% if mat.es_video %}
+                                    <a href="{% url 'ver_material_curso' curso.id mat.id %}" class="btn-video-watch">
+                                        ▶ Ver Video
+                                    </a>
+                                    {% elif mat.archivo %}
+                                    <a href="{{ mat.archivo.url }}" class="btn-mat-download" target="_blank" download>
+                                        📥 Descargar
+                                    </a>
+                                    {% elif mat.enlace_web %}
+                                    <a href="{{ mat.enlace_web }}" class="btn-mat-link" target="_blank" rel="noopener noreferrer">
+                                        🌐 Abrir Enlace
+                                    </a>
+                                    {% endif %}
+
+                                    {% if es_docente_curso %}
+                                    <a href="{% url 'eliminar_material' mat.id %}" class="btn-delete-mat" onclick="return confirm('¿Estás seguro de eliminar este recurso?');">
+                                        🗑️
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                            {% if not bloque.materiales and not bloque.examenes %}
+                            <div class="empty-semana-msg">
+                                No hay actividades ni materiales asignados para esta semana aún.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </details>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-materials-state">
+                    <p style="font-size: 36px; margin: 0 0 10px 0;">📂</p>
+                    <p>Aún no se han configurado semanas ni publicado materiales en este curso.</p>
+                </div>
+                {% endif %}
+
+            </div>
+
+        </main>
 
     </div>
 

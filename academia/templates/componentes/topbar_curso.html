@@ -1,0 +1,53 @@
+{% load static %}
+<header class="topbar-aula-virtual">
+    <a href="{% url 'mis_cursos' %}" class="topbar-brand-link">
+        <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="topbar-brand-img">
+        <div class="topbar-brand-info">
+            <span class="topbar-brand-title">Academia Galeno</span>
+            <span class="topbar-brand-tag">AULA VIRTUAL</span>
+        </div>
+    </a>
+
+    <div class="user-dropdown-container">
+        <div class="user-profile-trigger" id="userProfileTrigger" tabindex="0">
+            <div class="user-avatar-circle">
+                {{ request.user.first_name|first|default:request.user.username|first|upper }}
+            </div>
+            <span class="user-profile-name">
+                {{ request.user.first_name|default:request.user.username }}
+            </span>
+            <span class="dropdown-arrow">▼</span>
+        </div>
+
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+            <div class="dropdown-user-info">
+                <div class="dropdown-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                <div class="dropdown-user-email">{{ request.user.email|default:"Sin correo registrado" }}</div>
+                <span class="dropdown-user-badge">
+                    {% if request.user.is_staff or request.user.is_superuser %}
+                        Administrador
+                    {% elif es_docente_curso %}
+                        Docente
+                    {% else %}
+                        Estudiante
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="dropdown-menu-list">
+                <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
+                    <span>👤</span> Mi Perfil
+                </a>
+                <a href="{% url 'dashboard' %}" class="dropdown-menu-item">
+                    <span>🏠</span> Intranet Principal
+                </a>
+                <a href="{% url 'mis_cursos' %}" class="dropdown-menu-item">
+                    <span>📚</span> Mis Asignaturas
+                </a>
+                <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
+                    <span>🚪</span> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
