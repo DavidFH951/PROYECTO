@@ -1,8 +1,8 @@
 // ==============================================================================
-// GESTIÓN DEL PANEL DE ADMINISTRACIÓN (USUARIOS, MODALES, DROPDOWNS Y CHECKBOXES)
+// GESTIÓN DEL PANEL DE ADMINISTRACIÓN (MODAL TEMPORADAS, DROPDOWNS Y CHECKBOXES)
 // ==============================================================================
 
-// 1. Selección múltiple de checkboxes en la tabla
+// 1. Selección múltiple de checkboxes en tablas administrativas
 window.toggleAll = function (source) {
     const checkboxes = document.querySelectorAll('.user-check');
     checkboxes.forEach(function (cb) {
@@ -25,35 +25,25 @@ window.cerrarModalTemporadas = function () {
     }
 };
 
-// 3. Inicialización y Event Listeners
+// 3. Inicialización y Event Listeners globales
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Listener por ID para abrir temporadas ---
-    const btnAbrir = document.getElementById('btnAbrirTemporadas') || document.getElementById('btnModalTemporadas');
     const modal = document.getElementById('modalTemporadas');
 
-    if (btnAbrir && modal) {
-        btnAbrir.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.abrirModalTemporadas();
-        });
-    }
+    // Cierre al hacer clic fuera del recuadro blanco
+    window.addEventListener('click', (e) => {
+        if (modal && e.target === modal) {
+            window.cerrarModalTemporadas();
+        }
+    });
 
-    // --- Cierre del Modal con fondo o tecla Escape ---
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                window.cerrarModalTemporadas();
-            }
-        });
+    // Cierre con la tecla Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+            window.cerrarModalTemporadas();
+        }
+    });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.style.display === 'flex') {
-                window.cerrarModalTemporadas();
-            }
-        });
-    }
-
-    // --- Dropdown del Perfil de Usuario (Navbar) ---
+    // Dropdown del Perfil de Usuario (Topbar)
     const userTrigger = document.querySelector('.user-profile-trigger');
     const userDropdown = document.querySelector('.user-dropdown-container');
 
