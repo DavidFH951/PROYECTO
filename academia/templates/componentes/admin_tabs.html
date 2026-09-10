@@ -12,5 +12,6 @@
     </button>
     <a href="{% url 'admin_logs_actividad' %}"
         class="nav-tab-item {% if pestana_activa == 'logs' %}active{% endif %}">📋 Auditoría y Logs</a>
+
+    {% include 'componentes/modal_temporadas.html' %}
 </div>
-{% include 'componentes/modal_temporadas.html' %}
