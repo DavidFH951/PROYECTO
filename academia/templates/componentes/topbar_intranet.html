@@ -1,11 +1,11 @@
 {% load static %}
 <header class="top-navbar">
     <div class="top-welcome-text">
-        Bienvenido{% if es_docente %}, profesor(a){% else %}, estudiante{% endif %} 
+        Bienvenido{% if request.user.is_superuser or request.user.is_staff or es_docente or 'Docentes' in request.user.groups.all|stringformat:'s' %}, profesor(a){% else %}, estudiante{% endif %} 
         <strong>{{ request.user.first_name|default:request.user.username }}</strong>
     </div>
 
-    <!-- Pastilla de Usuario con Menú Desplegable -->
+    <!-- Menú Desplegable del Usuario -->
     <div class="user-dropdown-container">
         <div class="user-profile-trigger">
             <div class="user-avatar-circle">
@@ -14,7 +14,9 @@
             <div class="user-trigger-text">
                 <div class="user-text-name">{{ request.user.get_full_name|default:request.user.username }}</div>
                 <div class="user-text-role">
-                    {% if es_docente or request.user.is_superuser or request.user.is_staff or request.user.docente_cursos.exists %}
+                    {% if request.user.is_superuser or request.user.is_staff %}
+                        Administrador
+                    {% elif es_docente or 'Docentes' in request.user.groups.all|stringformat:'s' %}
                         Docente Titular
                     {% else %}
                         Estudiante Regular
@@ -30,7 +32,9 @@
                 <div class="dropdown-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
                 <div class="dropdown-user-email">{{ request.user.email|default:"Sin correo registrado" }}</div>
                 <span class="dropdown-user-badge">
-                    {% if es_docente or request.user.is_superuser or request.user.is_staff or request.user.docente_cursos.exists %}
+                    {% if request.user.is_superuser or request.user.is_staff %}
+                        Administrador
+                    {% elif es_docente or 'Docentes' in request.user.groups.all|stringformat:'s' %}
                         Docente
                     {% else %}
                         Estudiante
@@ -42,15 +46,21 @@
                 <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
                     <span>👤</span> Mi Perfil
                 </a>
-                {% if es_docente or request.user.is_superuser or request.user.is_staff or request.user.docente_cursos.exists %}
-                <a href="{% url 'panel_docente' %}" class="dropdown-menu-item">
-                    <span>📚</span> Mis Asignaturas
-                </a>
+
+                {% if request.user.is_superuser or request.user.is_staff %}
+                    <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
+                        <span>⚙️</span> Panel Admin
+                    </a>
+                {% elif es_docente or 'Docentes' in request.user.groups.all|stringformat:'s' %}
+                    <a href="{% url 'panel_docente' %}" class="dropdown-menu-item">
+                        <span>📚</span> Mis Asignaturas
+                    </a>
                 {% else %}
-                <a href="{% url 'mis_cursos' %}" class="dropdown-menu-item">
-                    <span>🎓</span> Mis Cursos
-                </a>
+                    <a href="{% url 'mis_cursos' %}" class="dropdown-menu-item">
+                        <span>🎓</span> Aula Virtual (Mis Cursos)
+                    </a>
                 {% endif %}
+
                 <a href="{% url 'salir' %}" class="dropdown-menu-item logout-danger">
                     <span>🚪</span> Cerrar Sesión
                 </a>
