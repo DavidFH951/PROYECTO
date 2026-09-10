@@ -11,20 +11,20 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.2">
     <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/notas.css' %}?v=1.2">
 </head>
 
 <body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
 
     <div class="intranet-container">
 
-        <!-- 1. Sidebar Compartido -->
+        <!-- 1. Menú lateral (Consulta de Notas activo) -->
         {% include 'componentes/sidebar_intranet.html' with seccion_activa='notas_alumno' es_docente=False %}
 
         <!-- 2. Área Principal Derecha -->
         <div class="content-wrapper">
 
-            <!-- Topbar Centralizado -->
+            <!-- Topbar Global -->
             {% include 'componentes/topbar_intranet.html' with es_docente=False %}
 
             <!-- Alertas Centralizadas -->
@@ -66,8 +66,8 @@
                                     <tr>
                                         <th style="width: 120px;">Código</th>
                                         <th>Curso Matriculado</th>
-                                        <th style="text-align: center; width: 150px;">Promedio Final</th>
-                                        <th style="text-align: center; width: 140px;">Acciones</th>
+                                        <th style="text-align: center; width: 160px;">Promedio Final</th>
+                                        <th style="text-align: center; width: 180px;">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -94,9 +94,14 @@
                                             {% endif %}
                                         </td>
                                         <td style="text-align: center;">
-                                            <a href="{% url 'detalle_curso_token' token=token curso_id=r.curso.id %}" class="btn-ver-detalle">
-                                                Ver Curso →
-                                            </a>
+                                            <button type="button" 
+                                                    class="btn-ver-notas"
+                                                    data-curso="{{ r.curso.titulo }}"
+                                                    data-formula="{{ r.formula|default:'Promedio Simple' }}"
+                                                    data-evals="{{ r.evaluaciones_json|escape }}"
+                                                    onclick="abrirModalNotas(this)">
+                                                <span>📝</span> Ver Notas
+                                            </button>
                                         </td>
                                     </tr>
                                     {% empty %}
@@ -119,7 +124,38 @@
 
     </div>
 
-    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
-</body>
+   <!-- Modal Emergente de Notas Detalladas -->
+    <div id="modalNotas" class="modal-overlay" style="display: none;" onclick="cerrarModalFondo(event)">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><span>📋</span> <span id="modalCursoTitulo">Detalle de Calificaciones</span></h3>
+                <button type="button" class="btn-close-x" onclick="cerrarModalNotas()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="eval-table">
+                    <thead>
+                        <tr>
+                            <th>Evaluación / Criterio</th>
+                            <th style="width: 80px; text-align: center;">Código</th>
+                            <th style="width: 100px; text-align: center;">Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalEvalBody">
+                        <!-- Generado por mis_notas.js -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="formula-info">
+                    Fórmula de cálculo: <code id="modalFormulaTexto">--</code>
+                </div>
+                <button type="button" class="btn-modal-close" onclick="cerrarModalNotas()">Cerrar</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Scripts Modulares -->
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
+    <script src="{% static 'js/mis_notas.js' %}?v=1.0" defer></script>
+</body>
 </html>

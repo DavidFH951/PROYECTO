@@ -104,10 +104,6 @@
     border-bottom: none;
 }
 
-.table-notas tbody tr {
-    transition: background-color 0.15s ease;
-}
-
 .table-notas tbody tr:hover {
     background-color: #f8fafc;
 }
@@ -177,37 +173,199 @@
     font-size: 14px;
 }
 
-/* Botón de Acción */
-.btn-ver-detalle {
-    background: #0284c7;
+/* Botón Ver Notas (Modal Trigger) */
+.btn-ver-notas {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
     color: #ffffff;
-    text-decoration: none;
+    border: none;
     padding: 8px 16px;
     border-radius: 8px;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.15s ease;
-    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.15);
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
 }
 
-.btn-ver-detalle:hover {
-    background: #0369a1;
+.btn-ver-notas:hover {
+    background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+    box-shadow: 0 4px 8px rgba(2, 132, 199, 0.3);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(2, 132, 199, 0.25);
 }
 
-.btn-ver-detalle:active {
+.btn-ver-notas:active {
     transform: translateY(0);
 }
 
-/* Estado Vacío */
 .empty-notas {
     text-align: center;
     padding: 48px 20px;
     color: #94a3b8;
     font-size: 14px;
     font-weight: 500;
+}
+
+/* ==============================================================================
+   MODAL DE CALIFICACIONES
+   ============================================================================== */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal-dialog {
+    background: #ffffff;
+    width: 100%;
+    max-width: 580px;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+    overflow: hidden;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #ffffff;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-close-x {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+.btn-close-x:hover {
+    color: #ffffff;
+}
+
+.modal-body {
+    padding: 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.eval-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.eval-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    border-bottom: 2px solid #e2e8f0;
+    text-align: left;
+}
+
+.eval-table td {
+    padding: 12px 14px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.score-badge {
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 0.95rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    min-width: 44px;
+    text-align: center;
+}
+
+.score-pass {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.score-fail {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.score-pending {
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+
+.modal-footer {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.formula-info {
+    font-size: 0.775rem;
+    color: #64748b;
+}
+
+.formula-info code {
+    font-family: monospace;
+    color: #0369a1;
+    background: #e0f2fe;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.btn-modal-close {
+    background: #e2e8f0;
+    color: #334155;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-modal-close:hover {
+    background: #cbd5e1;
 }
