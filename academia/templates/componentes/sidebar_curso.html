@@ -7,9 +7,14 @@
     <div class="sidebar-curso-section-title">Semanas del Ciclo</div>
     {% for bloque in bloques_semanas %}
     <a href="#semana-{{ bloque.info.numero }}" class="sidebar-curso-link">
-        <span>📅 Sem. {{ bloque.info.numero }}</span>
+        <span class="sidebar-link-label">
+            <span class="sidebar-emoji">📅</span> Semana {{ bloque.info.numero }}
+        </span>
+
         {% if bloque.total_recursos > 0 %}
-        <span class="sidebar-badge-counter">{{ bloque.total_recursos }}</span>
+            <span class="sidebar-badge-counter">{{ bloque.total_recursos }}</span>
+        {% else %}
+            <span class="sidebar-badge-empty">0</span>
         {% endif %}
     </a>
     {% empty %}
