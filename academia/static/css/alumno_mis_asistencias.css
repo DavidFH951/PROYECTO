@@ -1,190 +1,157 @@
 /* ==============================================================================
-   CONSULTA DE ASISTENCIA ALUMNO - ACADEMIA GALENO
+   MÓDULO ASISTENCIA (ESTUDIANTE) - ACADEMIA GALENO
    ============================================================================== */
 
-body {
-    background-color: #f8fafc;
-    font-family: 'Inter', sans-serif;
-    color: #0f172a;
-    margin: 0;
-    padding: 30px 24px;
+.asistencia-page-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-.asistencia-box {
-    max-width: 950px;
-    margin: 0 auto;
-}
-
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: #0284c7;
-    font-size: 0.88rem;
-    font-weight: 600;
-    text-decoration: none;
-    margin-bottom: 16px;
-    transition: color 0.15s ease;
-}
-
-.back-link:hover {
-    color: #0369a1;
-    text-decoration: underline;
-}
-
-.page-header {
-    margin-bottom: 24px;
-}
-
-.page-header h1 {
-    font-size: 1.6rem;
-    font-weight: 800;
-    margin: 0 0 6px 0;
-    letter-spacing: -0.02em;
-}
-
-.page-header p {
-    color: #64748b;
-    margin: 0;
-    font-size: 0.95rem;
-}
-
-.card-curso {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 22px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
-}
-
-.card-head {
+.asistencia-header-block {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 12px;
-    border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 16px;
+    gap: 14px;
+    margin-bottom: 20px;
 }
 
-.curso-title {
-    font-size: 1.15rem;
+.asistencia-card-main {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.curso-asistencia-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.curso-asistencia-header {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.curso-asistencia-title {
+    font-size: 15px;
     font-weight: 700;
     color: #0f172a;
-    margin: 0;
-}
-
-.curso-sesiones-count {
-    font-size: 0.82rem;
-    color: #64748b;
-    display: block;
-    margin-top: 4px;
-}
-
-.porcentaje-score {
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-}
-
-.score-aprobado {
-    color: #15803d;
-}
-
-.score-alerta {
-    color: #b91c1c;
-}
-
-.stats-badges {
     display: flex;
+    align-items: center;
     gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 14px;
 }
 
-.badge-pill {
-    font-size: 0.8rem;
-    font-weight: 600;
+.porcentaje-badge {
+    font-weight: 800;
+    font-size: 13px;
     padding: 4px 10px;
     border-radius: 20px;
-}
-
-.badge-p {
     background: #ecfdf5;
     color: #047857;
+    border: 1px solid #a7f3d0;
 }
 
-.badge-t {
-    background: #fefce8;
-    color: #a16207;
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    padding: 16px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
 }
 
-.badge-f {
-    background: #fef2f2;
-    color: #b91c1c;
+.stat-box {
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f8fafc;
 }
 
-.badge-j {
-    background: #eff6ff;
-    color: #1d4ed8;
+.stat-num {
+    font-size: 18px;
+    font-weight: 800;
+    display: block;
 }
 
-.table-log {
+.stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.table-detalles-wrapper {
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.table-detalles {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 16px;
-    font-size: 0.88rem;
+    font-size: 13px;
 }
 
-.table-log th {
-    text-align: left;
-    padding: 10px 12px;
+.table-detalles th {
+    padding: 10px 16px;
     background: #f8fafc;
     color: #64748b;
-    font-size: 0.78rem;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    text-align: left;
     border-bottom: 1px solid #e2e8f0;
 }
 
-.table-log td {
-    padding: 12px;
+.table-detalles td {
+    padding: 12px 16px;
     border-bottom: 1px solid #f1f5f9;
-    color: #334155;
 }
 
-.tag-p {
-    color: #047857;
+.tag-asistencia {
+    display: inline-block;
+    font-size: 11.5px;
     font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
 }
 
-.tag-t {
-    color: #a16207;
-    font-weight: 700;
-}
+.tag-P { background: #ecfdf5; color: #047857; }
+.tag-T { background: #fefce8; color: #854d0e; }
+.tag-F { background: #fef2f2; color: #b91c1c; }
+.tag-J { background: #f0f9ff; color: #0369a1; }
 
-.tag-f {
-    color: #b91c1c;
-    font-weight: 700;
-}
-
-.tag-j {
-    color: #1d4ed8;
-    font-weight: 700;
-}
-
-.empty-records {
-    text-align: center;
-    color: #94a3b8;
-    font-size: 0.88rem;
-    padding: 20px;
-    font-style: italic;
-}
-
-.card-curso-empty {
-    text-align: center;
+.leyenda-row {
+    display: flex;
+    gap: 18px;
+    font-size: 12px;
+    font-weight: 600;
     color: #64748b;
-    padding: 40px 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.empty-asistencia {
+    text-align: center;
+    padding: 48px 20px;
+    color: #94a3b8;
+}
+
+.empty-asistencia strong {
+    display: block;
+    color: #1e293b;
+    font-size: 15px;
+    margin-bottom: 4px;
 }
