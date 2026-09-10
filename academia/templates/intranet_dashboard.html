@@ -42,7 +42,7 @@
                                 <div class="kpi-label">
                                     {% if es_docente %}Asignaturas Asignadas{% else %}Cursos Matriculados{% endif %}
                                 </div>
-                                <div class="kpi-number kpi-number-dark">{{ total_cursos|default:"0" }}</div>
+                                <div class="kpi-number kpi-number-dark">{{ total_cursos|default:"1" }}</div>
                             </div>
                             <span class="kpi-icon">📚</span>
                         </div>
@@ -62,18 +62,17 @@
                         <div class="kpi-card-white">
                             <div>
                                 <div class="kpi-label">Asistencia Global</div>
-                                <div class="kpi-number kpi-number-success">{{ porcentaje_asistencia|default:"100" }}%
-                                </div>
+                                <div class="kpi-number kpi-number-success">{{ porcentaje_asistencia|default:"100,0" }}%</div>
                             </div>
                             <span class="kpi-icon">⏱️</span>
                         </div>
                         {% endif %}
                     </div>
 
-                    <!-- Grilla Principal: Horario y Materias -->
+                    <!-- Grilla Principal de Dos Columnas: Horario (Izquierda) + Materias (Derecha) -->
                     <div class="main-columns-layout">
 
-                        <!-- Calendario Semanal -->
+                        <!-- Columna Izquierda: Calendario Semanal -->
                         <div class="card-white-box">
                             <div class="card-header-flex">
                                 <h3 class="card-header-title">
@@ -89,7 +88,7 @@
                                     <span class="col-dia-header">LUN</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'LUN' or h.dia == 'Lunes' or h.dia == '1' or h.dia == 'lun' %}
+                                            {% if h.dia == 'LUN' or h.dia == 'Lunes' or h.dia == '1' or h.dia == 'lun' or h.dia == 'L' %}
                                             <div class="event-card">
                                                 <span class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
@@ -105,7 +104,7 @@
                                     <span class="col-dia-header">MAR</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'MAR' or h.dia == 'Martes' or h.dia == '2' or h.dia == 'mar' %}
+                                            {% if h.dia == 'MAR' or h.dia == 'Martes' or h.dia == '2' or h.dia == 'mar' or h.dia == 'M' %}
                                             <div class="event-card">
                                                 <span class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
@@ -121,7 +120,7 @@
                                     <span class="col-dia-header">MIÉ</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'MIE' or h.dia == 'MIÉ' or h.dia == 'Miercoles' or h.dia == 'Miércoles' or h.dia == '3' or h.dia == 'mie' %}
+                                            {% if h.dia == 'MIE' or h.dia == 'MIÉ' or h.dia == 'Miercoles' or h.dia == 'Miércoles' or h.dia == '3' or h.dia == 'mie' or h.dia == 'X' %}
                                             <div class="event-card">
                                                 <span class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
@@ -137,7 +136,7 @@
                                     <span class="col-dia-header">JUE</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'JUE' or h.dia == 'Jueves' or h.dia == '4' or h.dia == 'jue' %}
+                                            {% if h.dia == 'JUE' or h.dia == 'Jueves' or h.dia == '4' or h.dia == 'jue' or h.dia == 'J' %}
                                             <div class="event-card">
                                                 <span class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
@@ -153,7 +152,7 @@
                                     <span class="col-dia-header">VIE</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'VIE' or h.dia == 'Viernes' or h.dia == '5' or h.dia == 'vie' %}
+                                            {% if h.dia == 'VIE' or h.dia == 'Viernes' or h.dia == '5' or h.dia == 'vie' or h.dia == 'V' %}
                                             <div class="event-card">
                                                 <span class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
@@ -169,7 +168,7 @@
                                     <span class="col-dia-header">SÁB</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'SAB' or h.dia == 'SÁB' or h.dia == 'Sabado' or h.dia == 'Sábado' or h.dia == '6' or h.dia == 'sab' %}
+                                            {% if h.dia == 'SAB' or h.dia == 'SÁB' or h.dia == 'Sabado' or h.dia == 'Sábado' or h.dia == '6' or h.dia == 'sab' or h.dia == 'S' %}
                                             <div class="event-card">
                                                 <span class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
@@ -181,6 +180,32 @@
                                 </div>
 
                             </div>
+                        </div>
+
+                        <!-- Columna Derecha: Mis Materias -->
+                        <div class="card-white-box">
+                            <h3 class="card-header-title" style="margin-bottom: 16px;">
+                                <span>📖</span> Mis Materias
+                            </h3>
+
+                            <div>
+                                {% for c in cursos|default:cursos_matriculados %}
+                                <div class="materia-item-row">
+                                    <div>
+                                        <strong class="materia-title-txt">{{ c.titulo }}</strong>
+                                        <small class="materia-sub-txt">Ciclo Activo</small>
+                                    </div>
+                                    <a href="{% url 'detalle_curso_token' token=token curso_id=c.id %}" class="btn-entrar-curso">
+                                        Entrar →
+                                    </a>
+                                </div>
+                                {% empty %}
+                                <div class="empty-dashboard-state">
+                                    No tienes materias registradas.
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
 
                     </div>
 
