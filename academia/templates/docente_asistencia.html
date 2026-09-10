@@ -101,11 +101,9 @@
                                     style="padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; font-weight: 600; color: #0f172a; background: #ffffff;">
                                     {% for s in sesiones_existentes %}
                                     <option value="{{ s.fecha_str }}" {% if s.fecha_str==fecha_sesion %}selected{% endif
-                                        %}> %}>
-                                        Sesión {{ s.numero }}: {{ s.fecha_formateada }}
+                                        %}>
+                                        Sesión {{ s.numero }}: {{ s.fecha_str }}
                                     </option>
-                                    {% empty %}
-                                    <option value="{{ hoy_str }}">Sesión 1: {{ hoy_str }}</option>
                                     {% endfor %}
 
                                     {% if sesion_actual_num > sesiones_existentes|length %}
