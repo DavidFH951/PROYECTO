@@ -1,394 +1,288 @@
-/* ====================================================
-   VARIABLES Y BASE
-   ==================================================== */
-:root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --bg-main: #f8fafc;
-    --card-bg: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --border-color: #e2e8f0;
-}
+/* ==============================================================================
+   AULA VIRTUAL: DETALLE DEL CURSO - ACADEMIA GALENO
+   ============================================================================== */
 
-body {
-    background-color: var(--bg-main);
-    color: var(--text-main);
+.aula-virtual-body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.5;
-}
-
-/* ====================================================
-   BARRA SUPERIOR (TOP-NAV)
-   ==================================================== */
-.top-nav {
     background-color: #ffffff;
-    border-bottom: 1px solid var(--border-color);
-    padding: 10px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #0f172a;
 }
 
-.brand-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
+.aula-content-wrapper {
+    background-color: #f8fafc;
+    min-height: 100vh;
 }
 
-.brand-logo-img {
-    height: 38px;
-    width: auto;
-    max-width: 45px;
-    object-fit: contain;
-    border-radius: 6px;
-    display: block;
+.course-main-content {
+    width: 100%;
+    max-width: 1140px;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
-.brand-text-block {
+/* Banner de Portada */
+.course-header-banner {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    min-height: 160px;
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px 30px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+    margin-bottom: 24px;
+    background: #0f172a;
 }
 
-.brand-title {
-    font-weight: 800;
-    font-size: 15px;
-    color: #0f172a;
-    line-height: 1.2;
-    letter-spacing: -0.3px;
+.banner-bg-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
 }
 
-.brand-subtitle {
-    font-size: 10.5px;
-    font-weight: 600;
-    color: var(--primary);
+.banner-overlay-dark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.88));
+    z-index: 1;
+}
+
+.banner-gradient-default {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%);
+    z-index: 1;
+}
+
+.banner-info-content {
+    position: relative;
+    z-index: 2;
+}
+
+.banner-periodo-tag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* ====================================================
-   MENÚ DESPLEGABLE DE USUARIO (AVATAR)
-   ==================================================== */
-.user-dropdown-container {
-    position: relative;
-    display: inline-block;
-}
-
-.user-profile-trigger {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #f8fafc;
-    border: 1px solid var(--border-color);
-    padding: 5px 14px 5px 6px;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    user-select: none;
-}
-
-.user-profile-trigger:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-}
-
-.user-avatar-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--primary);
+.banner-curso-title {
     color: #ffffff;
-    font-weight: 700;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-transform: uppercase;
-}
-
-.user-trigger-text {
-    font-size: 13px;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.dropdown-arrow {
-    font-size: 9px;
-    color: var(--text-muted);
-    transition: transform 0.2s ease;
-}
-
-.user-dropdown-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
-    width: 230px;
-    background: #ffffff;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    z-index: 1000;
-}
-
-.user-dropdown-container:hover .user-dropdown-menu,
-.user-dropdown-container:focus-within .user-dropdown-menu {
-    display: block;
-    animation: fadeInDropdown 0.15s ease-out forwards;
-}
-
-.user-dropdown-container:hover .dropdown-arrow {
-    transform: rotate(180deg);
-}
-
-@keyframes fadeInDropdown {
-    from {
-        opacity: 0;
-        transform: translateY(-6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.dropdown-user-info {
-    padding: 14px 16px;
-    border-bottom: 1px solid #f1f5f9;
-    background: #f8fafc;
-}
-
-.dropdown-user-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: #0f172a;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.dropdown-user-email {
-    font-size: 11.5px;
-    color: var(--text-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-top: 2px;
-}
-
-.dropdown-user-badge {
-    display: inline-block;
-    margin-top: 6px;
-    padding: 2px 8px;
-    background: #e0e7ff;
-    color: #3730a3;
-    font-size: 10px;
-    font-weight: 700;
-    border-radius: 4px;
-    text-transform: uppercase;
-}
-
-.dropdown-menu-list {
-    padding: 6px 0;
-}
-
-.dropdown-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    font-size: 13px;
-    color: #334155;
-    text-decoration: none;
-    font-weight: 500;
-    transition: background 0.15s ease;
-}
-
-.dropdown-menu-item:hover {
-    background: #f8fafc;
-    color: #0f172a;
-}
-
-.dropdown-menu-item.logout-danger {
-    color: #dc2626;
-    border-top: 1px solid #f1f5f9;
-}
-
-.dropdown-menu-item.logout-danger:hover {
-    background: #fef2f2;
-}
-
-/* ====================================================
-   ESTRUCTURA COMPLETA TIPO MOODLE (FULL WIDTH)
-   ==================================================== */
-.main-container {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background-color: #f8fafc;
-}
-
-/* Contenedor flex con sidebar pegado al extremo */
-.course-layout {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important;
-    min-height: calc(100vh - 61px);
-    width: 100% !important;
-    gap: 0 !important;
-}
-
-/* Sidebar lateral pegado al borde izquierdo */
-.course-sidebar {
-    width: 270px !important;
-    min-width: 270px !important;
-    max-width: 270px !important;
-    background: #1e293b !important;
-    color: #f8fafc;
-    padding: 18px 12px;
-    border: none !important;
-    border-right: 1px solid #0f172a !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    height: calc(100vh - 61px);
-    position: sticky;
-    top: 61px;
-    overflow-y: auto;
-}
-
-.sidebar-section-title {
-    font-size: 11px;
+    font-size: 26px;
     font-weight: 800;
-    text-transform: uppercase;
-    color: #94a3b8;
-    letter-spacing: 0.8px;
-    margin: 14px 0 6px 8px;
+    margin: 0 0 6px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.sidebar-section-title:first-child {
-    margin-top: 2px;
+.banner-curso-desc {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13.5px;
+    margin: 0 0 12px 0;
+    max-width: 800px;
+    line-height: 1.45;
 }
 
-.sidebar-nav-link {
+.banner-docentes-list {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 9px 12px;
-    color: #cbd5e1;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    gap: 8px;
 }
 
-.sidebar-nav-link:hover {
-    background-color: #334155;
+.banner-docentes-list strong {
     color: #ffffff;
 }
 
-.sidebar-nav-link.active {
-    background-color: #059669 !important;
-    color: #ffffff !important;
-    font-weight: 700;
-}
-
-/* Scrollbar estilizada para el sidebar */
-.course-sidebar::-webkit-scrollbar {
-    width: 5px;
-}
-.course-sidebar::-webkit-scrollbar-thumb {
-    background: #475569;
-    border-radius: 4px;
-}
-
-/* Columna de contenidos que aprovecha todo el espacio */
-.course-main-content {
-    flex: 1 !important;
-    min-width: 0 !important;
-    background: #f8fafc;
-    border: none !important;
-    border-radius: 0 !important;
-    padding: 24px 32px 60px 32px !important;
-    box-shadow: none !important;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* ====================================================
-   BANNER DEL CURSO Y ACCIONES
-   ==================================================== */
-.course-header-banner {
-    background: #0f172a;
-    color: #ffffff;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
+/* Barra de Acciones */
 .content-action-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
-.content-action-bar h3 {
+.section-materials-title {
+    margin: 0;
     font-size: 18px;
     font-weight: 800;
     color: #0f172a;
-    margin: 0;
 }
 
-.btn-upload-material {
-    display: inline-flex;
+.docente-action-buttons {
+    display: flex;
     align-items: center;
     gap: 8px;
-    background: #059669;
+    flex-wrap: wrap;
+}
+
+.btn-docente-blue {
+    background-color: #2563eb;
     color: #ffffff;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-docente-sky {
+    background-color: #0284c7;
+    color: #ffffff;
     padding: 8px 14px;
     border-radius: 8px;
     text-decoration: none;
-    transition: all 0.15s ease;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.btn-upload-material:hover {
-    background: #047857;
+.btn-docente-green {
+    background-color: #059669;
+    color: #ffffff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
-/* ====================================================
-   TARJETAS DE MATERIALES Y ACCIONES
-   ==================================================== */
+/* Acordeones Semanales */
+.accordion-semana-box {
+    margin-bottom: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    scroll-margin-top: 20px;
+}
+
+.accordion-semana-summary {
+    padding: 14px 20px;
+    background: #f8fafc;
+    font-weight: 700;
+    font-size: 14px;
+    color: #1e293b;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    user-select: none;
+}
+
+.accordion-semana-summary::-webkit-details-marker {
+    display: none;
+}
+
+.summary-space-between {
+    justify-content: space-between;
+}
+
+.summary-title-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.summary-arrow-green { color: #059669; font-size: 11px; }
+.summary-arrow-blue { color: #0284c7; font-size: 11px; }
+
+.semana-dates-range {
+    color: #64748b;
+    font-weight: 500;
+    margin-left: 6px;
+}
+
+.recursos-count-badge {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+    background: #edf2f7;
+    padding: 3px 10px;
+    border-radius: 12px;
+}
+
+.accordion-semana-body {
+    padding: 16px 20px;
+}
+
+.avisos-general-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 8px;
+}
+
+.avisos-icon { font-size: 22px; }
+.avisos-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+.avisos-sub { font-size: 12px; color: #64748b; }
+
+.semanas-container-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.semana-items-list {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Tarjetas de Material */
 .material-item-card {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 14px 18px;
     background: #ffffff;
-    border: 1px solid var(--border-color);
+    border: 1px solid #e2e8f0;
     border-radius: 10px;
+    gap: 12px;
     transition: all 0.15s ease;
 }
 
 .material-item-card:hover {
     border-color: #cbd5e1;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
 }
 
 .material-info {
@@ -408,16 +302,56 @@ body {
     flex-shrink: 0;
 }
 
-.material-details h4 {
+.bg-icon-video { background: #fee2e2; }
+.bg-icon-doc { background: #e0f2fe; }
+.bg-icon-link { background: #f1f5f9; }
+
+.material-video-link {
+    margin: 0;
     font-size: 14.5px;
     font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 2px 0;
+    color: #1e40af;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.material-details span {
+.badge-tag-video {
+    font-size: 10px;
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+}
+
+.sub-video-protected {
+    font-size: 11px;
+    color: #64748b;
+    display: block;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+.material-normal-title {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.material-desc-txt {
+    margin: 3px 0 0 0;
     font-size: 12px;
-    color: var(--text-muted);
+    color: #64748b;
+}
+
+.material-date-txt {
+    font-size: 11px;
+    color: #94a3b8;
+    display: block;
+    margin-top: 3px;
 }
 
 .material-actions {
@@ -426,244 +360,246 @@ body {
     gap: 8px;
 }
 
-.btn-download-mat {
-    padding: 7px 14px;
-    background: var(--primary);
-    color: #ffffff;
-    font-size: 12.5px;
-    font-weight: 600;
-    border-radius: 6px;
-    text-decoration: none;
+.btn-video-watch {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    transition: background 0.15s ease;
+    background: #1e293b;
+    color: #ffffff;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
 }
 
-.btn-download-mat:hover {
-    background: var(--primary-dark);
+.btn-mat-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #2563eb;
+    color: #ffffff;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.btn-mat-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0284c7;
+    color: #ffffff;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
 }
 
 .btn-delete-mat {
-    padding: 7px 10px;
-    background: #fee2e2;
+    background: #fef2f2;
     color: #dc2626;
-    font-size: 13px;
-    font-weight: 600;
+    padding: 7px 10px;
     border-radius: 6px;
     text-decoration: none;
-    transition: all 0.15s ease;
+    font-size: 13px;
 }
 
-.btn-delete-mat:hover {
-    background: #fecaca;
-}
-
-.empty-materials-state {
-    text-align: center;
-    padding: 45px 20px;
-    color: #94a3b8;
-}
-
-/* ====================================================
-   TARJETAS Y CONTROLES DE EVALUACIONES (EXÁMENES)
-   ==================================================== */
+/* Exámenes */
 .card-examen-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 6px;
+    background: #ffffff;
 }
 
-.examen-card-activa {
-    background-color: #eff6ff;
-    border: 1px solid #bfdbfe;
-}
-
-.examen-card-pausada {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
+.examen-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .examen-icono-box {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
+    font-size: 20px;
+    background: #fef3c7;
 }
 
-.icono-activo {
-    background-color: #dbeafe;
+.examen-title-txt {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e3a8a;
 }
 
-.icono-pausado {
-    background-color: #e2e8f0;
+.badge-pausado {
+    font-size: 11px;
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: 600;
 }
 
-.examen-actions-group {
-    display: flex;
+.examen-meta-txt {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.btn-rendir-examen {
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.btn-action-base {
+    background-color: #2563eb;
+    color: #ffffff;
     text-decoration: none;
     font-weight: 600;
-    font-size: 12px;
-    padding: 6px 12px;
+    font-size: 13px;
+    padding: 7px 14px;
     border-radius: 6px;
+}
+
+.badge-bloqueado {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    border: none;
-    cursor: pointer;
+    background-color: #f1f5f9;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
 }
 
-.btn-action-base:active {
-    transform: scale(0.98);
-}
-
-.btn-entregas {
-    background-color: #4f46e5;
-    color: #ffffff;
-}
-
-.btn-entregas:hover {
-    background-color: #4338ca;
-}
-
-.btn-gestionar {
-    background-color: #0284c7;
-    color: #ffffff;
-}
-
-.btn-gestionar:hover {
-    background-color: #0369a1;
-}
-
-.btn-pausar {
-    background-color: #d97706;
-    color: #ffffff;
-    padding: 6px 10px;
-}
-
-.btn-pausar:hover {
-    background-color: #b45309;
-}
-
-.btn-habilitar {
-    background-color: #16a34a;
-    color: #ffffff;
-    padding: 6px 10px;
-}
-
-.btn-habilitar:hover {
-    background-color: #15803d;
-}
-
-.btn-eliminar-examen {
-    background-color: #fee2e2;
-    color: #dc2626;
+.empty-semana-msg {
+    text-align: center;
+    padding: 14px;
+    color: #94a3b8;
     font-size: 13px;
-    padding: 5px 8px;
-    border-radius: 6px;
-    text-decoration: none;
-    display: inline-flex;
+}
+
+.empty-materials-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: #94a3b8;
+}
+
+/* Modales */
+.modal-evaluacion-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    z-index: 1000;
     align-items: center;
-    transition: background-color 0.2s ease;
+    justify-content: center;
 }
 
-.btn-eliminar-examen:hover {
-    background-color: #fecaca;
-}
-
-.btn-finalizar-forzado {
-    background-color: #be123c;
-    color: #ffffff;
-    padding: 6px 10px;
-}
-
-.btn-finalizar-forzado:hover {
-    background-color: #9f1239;
-}
-
-/* ====================================================
-   REPRODUCTORES DE VIDEO Y PROTECCIÓN
-   ==================================================== */
-.video-secure-container {
-    position: relative;
-    background: #000000;
+.modal-evaluacion-card {
+    background: #ffffff;
     border-radius: 12px;
-    overflow: hidden;
-    margin-top: 10px;
-    max-width: 820px;
-    user-select: none;
-    -webkit-user-select: none;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-}
-
-.video-secure-player {
     width: 100%;
-    height: auto;
-    max-height: 480px;
-    display: block;
-    outline: none;
+    max-width: 500px;
+    padding: 24px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-.video-watermark {
-    position: absolute;
-    top: 14px;
-    right: 18px;
-    background: rgba(15, 23, 42, 0.55);
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 11px;
+.modal-evaluacion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modal-evaluacion-header h4 {
+    margin: 0;
+    font-size: 17px;
+    color: #0f172a;
     font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 6px;
-    pointer-events: none;
-    z-index: 5;
-    letter-spacing: 0.5px;
 }
 
-.video-iframe-wrapper {
-    position: relative;
-    padding-bottom: 56.25%;
-    height: 0;
-    overflow: hidden;
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #64748b;
+    line-height: 1;
 }
 
-.video-iframe-wrapper iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
+.modal-evaluacion-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-label-dark {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.form-input-text {
     width: 100%;
-    height: 100%;
-    border: 0;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 13px;
+    background: #ffffff;
 }
 
-/* ====================================================
-   RESPONSIVE
-   ==================================================== */
-@media (max-width: 900px) {
-    .course-layout {
-        flex-direction: column !important;
-    }
-    .course-sidebar {
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        position: static !important;
-    }
-    .course-main-content {
-        padding: 18px 16px !important;
-    }
+.form-grid-three {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.form-grid-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.modal-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.btn-cancelar-modal {
+    padding: 9px 16px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.btn-guardar-modal {
+    padding: 9px 18px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
 }
