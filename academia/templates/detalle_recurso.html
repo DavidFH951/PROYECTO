@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ recurso.titulo }} | Aula Virtual</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.3">
+    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
+    <link rel="stylesheet" href="{% static 'css/aula_virtual_detalle.css' %}?v=1.0">
+</head>
+
+<body style="margin: 0; background-color: #ffffff; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
+
+    <div class="intranet-container">
+
+        <!-- Sidebar del Curso existente en tu carpeta componentes -->
+        {% include 'componentes/sidebar_curso.html' with curso=recurso.curso semana_activa=recurso.semana %}
+
+        <div class="content-wrapper aula-content-wrapper">
+
+            <!-- Topbar oficial reutilizable -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=False %}
+
+            <!-- Mensajes y alertas del sistema -->
+            {% include 'componentes/mensajes.html' %}
+
+            <main class="main-stage">
+
+                <div class="recurso-detalle-container">
+
+                    <!-- Breadcrumbs de navegación -->
+                    <nav class="breadcrumb-aula-virtual">
+                        <a href="{% url 'mis_cursos' %}">🎓 Aula Virtual</a>
+                        <span>/</span>
+                        <a href="{% url 'detalle_curso_token' token=token curso_id=recurso.curso.id %}">{{ recurso.curso.titulo }}</a>
+                        <span>/</span>
+                        {% if recurso.semana %}
+                            <span>Semana {{ recurso.semana }}</span>
+                            <span>/</span>
+                        {% endif %}
+                        <span style="color: #0f172a;">{{ recurso.titulo }}</span>
+                    </nav>
+
+                    <div class="recurso-detalle-card">
+
+                        <!-- Encabezado del Recurso -->
+                        <div class="recurso-header-block">
+                            {% if recurso.video_url or 'video' in recurso.titulo|lower %}
+                                <span class="tipo-recurso-pill pill-video">🎥 Video de Sesión / Clase</span>
+                            {% elif recurso.es_examen or 'examen' in recurso.titulo|lower %}
+                                <span class="tipo-recurso-pill pill-examen">📝 Evaluación / Cuestionario</span>
+                            {% else %}
+                                <span class="tipo-recurso-pill pill-lectura">📄 Material Didáctico</span>
+                            {% endif %}
+
+                            <h1 class="recurso-titulo-principal">{{ recurso.titulo }}</h1>
+
+                            <div class="recurso-meta-row">
+                                <div class="recurso-meta-item">
+                                    <span>📅</span>
+                                    <span>Publicado el {{ recurso.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                                </div>
+                                {% if recurso.semana %}
+                                <div class="recurso-meta-item">
+                                    <span>📌</span>
+                                    <span>Semana {{ recurso.semana }}</span>
+                                </div>
+                                {% endif %}
+                                <div class="recurso-meta-item">
+                                    <span>👨‍🏫</span>
+                                    <span>Docente: {{ recurso.curso.docente.get_full_name|default:recurso.curso.docente.username }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reproductor si es Video -->
+                        {% if recurso.video_url %}
+                        <div class="recurso-media-box">
+                            <div class="iframe-video-wrapper">
+                                <iframe src="{{ recurso.video_url }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                        {% elif recurso.archivo and '.mp4' in recurso.archivo.url %}
+                        <div class="recurso-media-box">
+                            <video controls class="media-video-native">
+                                <source src="{{ recurso.archivo.url }}" type="video/mp4">
+                                Tu navegador no admite reproducción de video MP4.
+                            </video>
+                        </div>
+                        {% endif %}
+
+                        <!-- Información y Descripción -->
+                        <div class="recurso-info-body">
+                            <div class="info-section-title">
+                                <span>📋</span> Instrucciones y Detalles
+                            </div>
+                            <div class="info-descripcion-text">
+                                {{ recurso.descripcion|default:"El docente no ha incluido comentarios adicionales para este material."|linebreaks }}
+                            </div>
+
+                            {% if recurso.es_examen or 'examen' in recurso.titulo|lower %}
+                            <div class="card-examen-instrucciones">
+                                <strong style="color: #0f172a; font-size: 13.5px;">Información de la Evaluación</strong>
+                                <div class="examen-grid-detalles">
+                                    <div class="examen-stat-card">
+                                        <span class="examen-stat-val">{{ recurso.duracion_minutos|default:"60" }} min</span>
+                                        <span class="examen-stat-lbl">Tiempo Límite</span>
+                                    </div>
+                                    <div class="examen-stat-card">
+                                        <span class="examen-stat-val">{{ recurso.total_preguntas|default:"--" }}</span>
+                                        <span class="examen-stat-lbl">Preguntas</span>
+                                    </div>
+                                    <div class="examen-stat-card">
+                                        <span class="examen-stat-val">1</span>
+                                        <span class="examen-stat-lbl">Intentos Permitidos</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="recurso-bottom-bar">
+                            <a href="{% url 'detalle_curso_token' token=token curso_id=recurso.curso.id %}" class="btn-volver-curso">
+                                ← Volver al Curso
+                            </a>
+
+                            {% if recurso.es_examen or 'examen' in recurso.titulo|lower %}
+                                <a href="{% url 'rendir_examen' token=token examen_id=recurso.id %}" class="btn-accion-recurso btn-accion-examen">
+                                    ✍️ Iniciar Evaluación
+                                </a>
+                            {% elif recurso.archivo %}
+                                <a href="{{ recurso.archivo.url }}" download class="btn-accion-recurso">
+                                    📥 Descargar Archivo Adjunto
+                                </a>
+                            {% elif recurso.enlace %}
+                                <a href="{{ recurso.enlace }}" target="_blank" rel="noopener noreferrer" class="btn-accion-recurso">
+                                    🌐 Ir al Enlace →
+                                </a>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
+</body>
+
+</html>
