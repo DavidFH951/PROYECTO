@@ -51,14 +51,7 @@
         <!-- Contenido Central -->
         <div class="intranet-main">
             
-            <header class="intranet-topbar">
-                <div class="intranet-welcome-text">
-                    Control de Asistencias: <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
-                </div>
-                <a href="{% url 'dashboard' %}" style="text-decoration: none; font-size: 13px; font-weight: 600; color: #047857;">
-                    ← Volver a Intranet
-                </a>
-            </header>
+           {% include 'componentes/topbar_intranet.html' with es_docente=True %}
 
             <main class="intranet-content">
 

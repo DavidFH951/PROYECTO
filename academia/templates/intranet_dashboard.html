@@ -25,24 +25,7 @@
         <!-- Contenedor Principal Derecho -->
         <div class="content-wrapper">
 
-            <!-- 2. Barra Superior Blanca -->
-            <header class="top-navbar">
-                <div class="top-welcome-text">
-                    Bienvenido, {% if es_docente %}profesor{% else %}alumno{% endif %} <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
-                </div>
-
-                <div class="user-pill">
-                    <div class="user-circle">
-                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
-                    </div>
-                    <div class="user-text-info">
-                        <div class="user-text-name">{{ request.user.get_full_name|default:request.user.username }}</div>
-                        <div class="user-text-role">
-                            {% if es_docente %}Docente Titular{% elif request.user.is_superuser or request.user.is_staff %}Administrador{% else %}Estudiante Regular{% endif %}
-                        </div>
-                    </div>
-                </div>
-            </header>
+           {% include 'componentes/topbar_intranet.html' with es_docente=True %}
 
             <!-- Mensajes Globales del Sistema -->
             {% if messages %}

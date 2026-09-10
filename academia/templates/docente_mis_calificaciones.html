@@ -22,22 +22,7 @@
         <!-- 2. Contenido Principal -->
         <div class="content-wrapper">
 
-            <!-- Barra Superior Blanca -->
-            <header class="top-navbar">
-                <div class="top-welcome-text">
-                    Bienvenido, profesor <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
-                </div>
-
-                <div class="user-pill">
-                    <div class="user-circle">
-                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
-                    </div>
-                    <div class="user-text-info">
-                        <div class="user-text-name">{{ request.user.get_full_name|default:request.user.username }}</div>
-                        <div class="user-text-role">Docente Titular</div>
-                    </div>
-                </div>
-            </header>
+            {% include 'componentes/topbar_intranet.html' with es_docente=True %}
 
             <!-- Mensajes -->
             {% if messages %}
