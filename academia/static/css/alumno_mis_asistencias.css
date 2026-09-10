@@ -1,5 +1,5 @@
 /* ==============================================================================
-   MÓDULO ASISTENCIA (ESTUDIANTE) - ACADEMIA GALENO
+   MÓDULO ASISTENCIA DESPLEGABLE (ESTUDIANTE) - ACADEMIA GALENO
    ============================================================================== */
 
 .asistencia-page-container {
@@ -22,136 +22,237 @@
     border: 1px solid #e2e8f0;
     border-radius: 14px;
     padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
 }
 
-.curso-asistencia-item {
+/* Acordeón de Cada Asignatura */
+.curso-accordion {
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border-radius: 12px;
     margin-bottom: 16px;
-    overflow: hidden;
     background: #ffffff;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.curso-asistencia-header {
+.curso-accordion:hover {
+    border-color: #cbd5e1;
+}
+
+.curso-accordion[open] {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    border-color: #93c5fd;
+}
+
+/* Cabecera Clickeable */
+.curso-accordion-header {
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
     padding: 16px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    flex-wrap: wrap;
-    gap: 10px;
+    background: #ffffff;
+    border-radius: 12px;
+    transition: background-color 0.15s ease;
 }
 
-.curso-asistencia-title {
+.curso-accordion-header::-webkit-details-marker {
+    display: none;
+}
+
+.curso-accordion:not([open]) .curso-accordion-header:hover {
+    background-color: #f8fafc;
+}
+
+.curso-accordion[open] .curso-accordion-header {
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+}
+
+.curso-accordion-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-size: 15px;
     font-weight: 700;
     color: #0f172a;
+}
+
+.curso-icon {
+    font-size: 17px;
+}
+
+.curso-accordion-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .porcentaje-badge {
     font-weight: 800;
     font-size: 13px;
-    padding: 4px 10px;
+    padding: 4px 12px;
     border-radius: 20px;
     background: #ecfdf5;
     color: #047857;
     border: 1px solid #a7f3d0;
 }
 
+.accordion-arrow {
+    font-size: 10px;
+    color: #64748b;
+    transition: transform 0.2s ease;
+}
+
+.curso-accordion[open] .accordion-arrow {
+    transform: rotate(180deg);
+}
+
+/* Contenido Interno */
+.curso-accordion-content {
+    padding: 20px;
+    background: #ffffff;
+}
+
+/* Grilla de Métricas */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 12px;
-    padding: 16px 20px;
-    background: #ffffff;
-    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 20px;
 }
 
 .stat-box {
     text-align: center;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 14px 8px;
+    border-radius: 10px;
     background: #f8fafc;
+    border: 1px solid #f1f5f9;
 }
 
 .stat-num {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 800;
     display: block;
+    line-height: 1;
+    margin-bottom: 6px;
+    font-family: monospace;
 }
+
+.stat-total { color: #0f172a; }
+.stat-p { color: #059669; }
+.stat-t { color: #d97706; }
+.stat-f { color: #dc2626; }
+.stat-j { color: #0284c7; }
 
 .stat-label {
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
     color: #64748b;
-    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
+/* Tabla de Sesiones */
 .table-detalles-wrapper {
-    max-height: 220px;
-    overflow-y: auto;
+    width: 100%;
+    overflow-x: auto;
 }
 
 .table-detalles {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
 }
 
 .table-detalles th {
-    padding: 10px 16px;
+    padding: 12px 16px;
     background: #f8fafc;
     color: #64748b;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
     text-align: left;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .table-detalles td {
-    padding: 12px 16px;
+    padding: 14px 16px;
     border-bottom: 1px solid #f1f5f9;
+    font-size: 13.5px;
+    vertical-align: middle;
 }
 
+.table-detalles tr:last-child td {
+    border-bottom: none;
+}
+
+.col-fecha {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.col-semana {
+    color: #475569;
+}
+
+/* Píldoras de Estado */
 .tag-asistencia {
     display: inline-block;
     font-size: 11.5px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    min-width: 80px;
 }
 
 .tag-P { background: #ecfdf5; color: #047857; }
-.tag-T { background: #fefce8; color: #854d0e; }
-.tag-F { background: #fef2f2; color: #b91c1c; }
-.tag-J { background: #f0f9ff; color: #0369a1; }
+.tag-T { background: #fefce8; color: #b45309; }
+.tag-F { background: #fef2f2; color: #dc2626; }
+.tag-J { background: #f0f9ff; color: #0284c7; }
 
+.empty-sesiones {
+    text-align: center;
+    padding: 24px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* Leyenda de Referencia */
 .leyenda-row {
     display: flex;
-    gap: 18px;
-    font-size: 12px;
+    gap: 20px;
+    font-size: 12.5px;
     font-weight: 600;
-    color: #64748b;
-    margin-top: 20px;
+    color: #475569;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
     flex-wrap: wrap;
 }
+
+.leyenda-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-p { background-color: #10b981; }
+.dot-t { background-color: #f59e0b; }
+.dot-j { background-color: #0284c7; }
+.dot-f { background-color: #ef4444; }
 
 .empty-asistencia {
     text-align: center;
     padding: 48px 20px;
     color: #94a3b8;
-}
-
-.empty-asistencia strong {
-    display: block;
-    color: #1e293b;
-    font-size: 15px;
-    margin-bottom: 4px;
 }

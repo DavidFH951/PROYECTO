@@ -5,20 +5,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Asistencia | Academia Galeno</title>
+    <title>Mi Asistencia a Clases | Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.2">
     <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/alumno_mis_asistencias.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/alumno_mis_asistencias.css' %}?v=1.1">
 </head>
 
 <body style="margin: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, sans-serif; color: #0f172a;">
 
     <div class="intranet-container">
 
-        <!-- 1. Sidebar Alumno -->
+        <!-- 1. Menú lateral (Asistencias Alumno) -->
         {% include 'componentes/sidebar_intranet.html' with seccion_activa='asistencias_alumno' es_docente=False %}
 
         <!-- 2. Área Principal Derecha -->
@@ -48,86 +48,97 @@
 
                     <div class="asistencia-card-main">
                         {% for r in resumen_asistencias %}
-                        <div class="curso-asistencia-item">
-                            <div class="curso-asistencia-header">
-                                <div class="curso-asistencia-title">
-                                    <span>📘</span> {{ r.curso.titulo }}
+                        <details class="curso-accordion" {% if forloop.first %}open{% endif %}>
+                            <summary class="curso-accordion-header">
+                                <div class="curso-accordion-title">
+                                    <span class="curso-icon">📘</span>
+                                    <span class="curso-nombre">{{ r.curso.titulo }}</span>
                                 </div>
-                                <div>
+                                <div class="curso-accordion-right">
                                     <span class="porcentaje-badge">
                                         {{ r.porcentaje }}% Asistencia
                                     </span>
+                                    <span class="accordion-arrow">▼</span>
                                 </div>
-                            </div>
+                            </summary>
 
-                            <div class="stats-grid">
-                                <div class="stat-box">
-                                    <span class="stat-num" style="color: #0f172a;">{{ r.total_sesiones }}</span>
-                                    <span class="stat-label">Sesiones</span>
+                            <div class="curso-accordion-content">
+                                <!-- Tarjetas de Resumen Numérico -->
+                                <div class="stats-grid">
+                                    <div class="stat-box">
+                                        <span class="stat-num stat-total">{{ r.total_sesiones }}</span>
+                                        <span class="stat-label">SESIONES</span>
+                                    </div>
+                                    <div class="stat-box">
+                                        <span class="stat-num stat-p">{{ r.presentes }}</span>
+                                        <span class="stat-label">PRESENTES</span>
+                                    </div>
+                                    <div class="stat-box">
+                                        <span class="stat-num stat-t">{{ r.tardanzas }}</span>
+                                        <span class="stat-label">TARDANZAS</span>
+                                    </div>
+                                    <div class="stat-box">
+                                        <span class="stat-num stat-f">{{ r.faltas }}</span>
+                                        <span class="stat-label">FALTAS</span>
+                                    </div>
+                                    <div class="stat-box">
+                                        <span class="stat-num stat-j">{{ r.justificadas }}</span>
+                                        <span class="stat-label">JUSTIFICADAS</span>
+                                    </div>
                                 </div>
-                                <div class="stat-box">
-                                    <span class="stat-num" style="color: #059669;">{{ r.presentes }}</span>
-                                    <span class="stat-label">Presentes</span>
-                                </div>
-                                <div class="stat-box">
-                                    <span class="stat-num" style="color: #d97706;">{{ r.tardanzas }}</span>
-                                    <span class="stat-label">Tardanzas</span>
-                                </div>
-                                <div class="stat-box">
-                                    <span class="stat-num" style="color: #dc2626;">{{ r.faltas }}</span>
-                                    <span class="stat-label">Faltas</span>
-                                </div>
-                                <div class="stat-box">
-                                    <span class="stat-num" style="color: #0284c7;">{{ r.justificadas }}</span>
-                                    <span class="stat-label">Justificadas</span>
-                                </div>
-                            </div>
 
-                            {% if r.detalles %}
-                            <div class="table-detalles-wrapper">
-                                <table class="table-detalles">
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Semana</th>
-                                            <th style="text-align: center;">Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for d in r.detalles %}
-                                        <tr>
-                                            <td>{{ d.fecha|date:"d/m/Y" }}</td>
-                                            <td>Semana {{ d.semana }}</td>
-                                            <td style="text-align: center;">
-                                                <span class="tag-asistencia tag-{{ d.estado }}">
-                                                    {% if d.estado == 'P' %}Presente
-                                                    {% elif d.estado == 'T' %}Tardanza
-                                                    {% elif d.estado == 'F' %}Falta
-                                                    {% elif d.estado == 'J' %}Justificado
-                                                    {% else %}{{ d.estado }}
-                                                    {% endif %}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                <!-- Tabla Detallada de Sesiones -->
+                                {% if r.detalles %}
+                                <div class="table-detalles-wrapper">
+                                    <table class="table-detalles">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 35%;">FECHA</th>
+                                                <th style="width: 35%;">SEMANA</th>
+                                                <th style="width: 30%; text-align: center;">ESTADO</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for d in r.detalles %}
+                                            <tr>
+                                                <td class="col-fecha">{{ d.fecha|date:"d/m/Y" }}</td>
+                                                <td class="col-semana">Semana {{ d.semana }}</td>
+                                                <td style="text-align: center;">
+                                                    <span class="tag-asistencia tag-{{ d.estado }}">
+                                                        {% if d.estado == 'P' %}PRESENTE
+                                                        {% elif d.estado == 'T' %}TARDANZA
+                                                        {% elif d.estado == 'F' %}FALTA
+                                                        {% elif d.estado == 'J' %}JUSTIFICADO
+                                                        {% else %}{{ d.estado }}
+                                                        {% endif %}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <div class="empty-sesiones">
+                                    Aún no hay fechas registradas para esta asignatura.
+                                </div>
+                                {% endif %}
                             </div>
-                            {% endif %}
-                        </div>
+                        </details>
                         {% empty %}
                         <div class="empty-asistencia">
                             <div style="font-size: 38px; margin-bottom: 8px;">📋</div>
-                            <strong>Sin registros de asistencia</strong>
-                            <p style="margin: 4px 0 0 0; font-size: 13px;">Aún no se han registrado asistencias para tus cursos matriculados.</p>
+                            <strong>Sin cursos registrados</strong>
+                            <p style="margin: 4px 0 0 0; font-size: 13px;">No cuentas con matrículas activas en este período académico.</p>
                         </div>
                         {% endfor %}
 
+                        <!-- Leyenda de colores inferior -->
                         <div class="leyenda-row">
-                            <span>🟢 Presente</span>
-                            <span>🟡 Tardanza</span>
-                            <span>🔵 Justificado</span>
-                            <span>🔴 Falta</span>
+                            <span class="leyenda-item"><span class="dot dot-p"></span> Presente</span>
+                            <span class="leyenda-item"><span class="dot dot-t"></span> Tardanza</span>
+                            <span class="leyenda-item"><span class="dot dot-j"></span> Justificado</span>
+                            <span class="leyenda-item"><span class="dot dot-f"></span> Falta</span>
                         </div>
                     </div>
 
@@ -141,4 +152,5 @@
 
     <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
 </body>
+
 </html>
