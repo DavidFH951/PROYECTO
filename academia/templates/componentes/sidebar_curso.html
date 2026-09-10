@@ -1,44 +1,20 @@
-<!-- Sidebar de Navegación Académica del Curso -->
-<aside class="course-sidebar">
-    <div class="sidebar-section-title">Navegación</div>
-    
-    <a href="{% url 'detalle_curso' curso.id %}#seccion-general" 
-       class="sidebar-nav-link {% if not semana_activa %}active{% endif %}">
-        🏠 General y Avisos
+<aside class="sidebar-curso-nav">
+    <div class="sidebar-curso-section-title">Navegación</div>
+    <a href="#seccion-general" class="sidebar-curso-link btn-general-active">
+        <span>🏠 General y Avisos</span>
     </a>
-    
-    <div class="sidebar-section-title">Semanas del Ciclo</div>
-    <div style="display: flex; flex-direction: column; gap: 4px; max-height: 480px; overflow-y: auto; padding-right: 4px;">
-        {% if bloques_semanas %}
-            {# Vista desde detalle_curso (donde existe la lista de bloques con recursos) #}
-            {% for bloque in bloques_semanas %}
-            <a href="{% url 'detalle_curso' curso.id %}#semana-{{ bloque.info.numero }}" 
-               class="sidebar-nav-link {% if semana_activa == bloque.info.numero %}active{% endif %}"
-               style="font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
-                <span>🗓️ Sem. {{ bloque.info.numero }}</span>
-                {% if bloque.total_recursos > 0 %}
-                <span style="background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px;">
-                    {{ bloque.total_recursos }}
-                </span>
-                {% endif %}
-            </a>
-            {% empty %}
-            <span style="font-size: 12px; color: #94a3b8; padding: 6px 12px;">Sin semanas configuradas</span>
-            {% endfor %}
-        {% elif cronograma %}
-            {# Vista desde ver_material o pantallas secundarias (donde existe cronograma) #}
-            {% for sem in cronograma %}
-            <a href="{% url 'detalle_curso' curso.id %}#semana-{{ sem.numero }}" 
-               class="sidebar-nav-link {% if semana_activa == sem.numero %}active{% endif %}"
-               style="font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
-                <span>🗓️ Sem. {{ sem.numero }}</span>
-                {% if sem.inicio and sem.fin %}
-                <small style="color: #94a3b8; font-size: 10.5px;">{{ sem.inicio|date:"d/m" }}</small>
-                {% endif %}
-            </a>
-            {% empty %}
-            <span style="font-size: 12px; color: #94a3b8; padding: 6px 12px;">Sin semanas configuradas</span>
-            {% endfor %}
+
+    <div class="sidebar-curso-section-title">Semanas del Ciclo</div>
+    {% for bloque in bloques_semanas %}
+    <a href="#semana-{{ bloque.info.numero }}" class="sidebar-curso-link">
+        <span>📅 Sem. {{ bloque.info.numero }}</span>
+        {% if bloque.total_recursos > 0 %}
+        <span class="sidebar-badge-counter">{{ bloque.total_recursos }}</span>
         {% endif %}
+    </a>
+    {% empty %}
+    <div style="padding: 10px 14px; font-size: 12px; color: #64748b;">
+        Sin semanas registradas
     </div>
+    {% endfor %}
 </aside>

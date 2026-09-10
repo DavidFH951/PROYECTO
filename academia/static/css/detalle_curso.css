@@ -1,4 +1,87 @@
 /* ==============================================================================
+   SIDEBAR LATERAL DEL CURSO (AULA VIRTUAL)
+   ============================================================================== */
+
+.aula-virtual-layout {
+    display: flex;
+    min-height: calc(100vh - 64px);
+    width: 100%;
+}
+
+/* Sidebar oscuro pegado a la izquierda */
+.sidebar-curso-nav,
+.course-sidebar,
+aside.sidebar-curso {
+    width: 240px;
+    min-width: 240px;
+    background: #0f172a !important;
+    color: #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+    box-sizing: border-box;
+    border-right: 1px solid #1e293b;
+    flex-shrink: 0;
+}
+
+.sidebar-curso-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #64748b;
+    margin: 16px 10px 8px 10px;
+}
+
+.sidebar-curso-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    margin-bottom: 3px;
+}
+
+.sidebar-curso-link:hover {
+    background: #1e293b;
+    color: #ffffff;
+}
+
+.sidebar-curso-link.active,
+.sidebar-curso-link.btn-general-active {
+    background: #059669 !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.sidebar-badge-counter {
+    background: #1e293b;
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 12px;
+}
+
+.sidebar-curso-link.active .sidebar-badge-counter {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* Ajuste del Área de Contenido Principal */
+.course-main-stage {
+    flex: 1;
+    background-color: #f8fafc;
+    padding: 28px 36px 48px 36px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+/* ==============================================================================
    ESTRUCTURA Y TOPBAR - AULA VIRTUAL (ACADEMIA GALENO)
    ============================================================================== */
 
