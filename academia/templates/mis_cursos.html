@@ -22,23 +22,8 @@
 
         <div class="content-wrapper">
 
-            <!-- Topbar Modular -->
-            <header class="top-navbar">
-                <div class="top-welcome-text">
-                    Bienvenido, estudiante <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
-                </div>
-
-                <div class="user-pill">
-                    <div class="user-circle">
-                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
-                    </div>
-                    <div class="user-text-info">
-                        <div class="user-text-name">{{ request.user.get_full_name|default:request.user.username }}</div>
-                        <div class="user-text-role">Estudiante Regular</div>
-                    </div>
-                </div>
-            </header>
-
+            <!-- Barra Superior Compartida -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=False %}
             <div style="padding: 14px 32px 0 32px;">
                 {% include 'componentes/mensajes.html' %}
             </div>
@@ -59,7 +44,8 @@
                     <div class="course-card-clean">
                         <div class="course-thumb-box">
                             {% if insc.curso.imagen_portada %}
-                            <img src="{{ insc.curso.imagen_portada.url }}" alt="{{ insc.curso.titulo }}" class="course-thumb-img">
+                            <img src="{{ insc.curso.imagen_portada.url }}" alt="{{ insc.curso.titulo }}"
+                                class="course-thumb-img">
                             {% else %}
                             <div class="course-thumb-fallback"></div>
                             {% endif %}
@@ -78,7 +64,8 @@
 
                             <div class="course-footer-row">
                                 <span class="course-type-label">Semestre Regular</span>
-                                <a href="{% url 'detalle_curso' insc.curso.id %}" class="btn-admin-curso" style="background: #0284c7;">
+                                <a href="{% url 'detalle_curso' insc.curso.id %}" class="btn-admin-curso"
+                                    style="background: #0284c7;">
                                     Ingresar al Curso →
                                 </a>
                             </div>

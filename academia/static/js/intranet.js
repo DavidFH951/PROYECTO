@@ -19,4 +19,21 @@ document.addEventListener('click', function (e) {
             menu.classList.remove('show');
         }
     }
+})
+document.addEventListener('DOMContentLoaded', function () {
+    const trigger = document.getElementById('userProfileTrigger');
+    const container = document.querySelector('.user-dropdown-container');
+
+    if (trigger && container) {
+        trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            container.classList.toggle('active');
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!container.contains(e.target)) {
+                container.classList.remove('active');
+            }
+        });
+    }
 });
