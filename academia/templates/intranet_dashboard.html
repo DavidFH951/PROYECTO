@@ -25,21 +25,23 @@
         <!-- Contenedor Principal Derecho -->
         <div class="content-wrapper">
 
-           {% include 'componentes/topbar_intranet.html' with es_docente=True %}
-
+            <!-- Barra Superior Modular -->
+            {% include 'componentes/topbar_intranet.html' with es_docente=es_docente %}
             <!-- Mensajes Globales del Sistema -->
             {% if messages %}
             <div style="padding: 18px 32px 0 32px;">
                 {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                        ⚠️ {{ message }}
-                    </div>
-                    {% else %}
-                    <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
-                        ✅ {{ message }}
-                    </div>
-                    {% endif %}
+                {% if message.tags == 'error' %}
+                <div
+                    style="background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                    ⚠️ {{ message }}
+                </div>
+                {% else %}
+                <div
+                    style="background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 12px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">
+                    ✅ {{ message }}
+                </div>
+                {% endif %}
                 {% endfor %}
             </div>
             {% endif %}
@@ -73,8 +75,9 @@
                     <div class="card-calendario-box">
                         <div class="card-calendario-header">
                             <h3>
-                                <span>📅</span> 
-                                {% if es_docente %}Calendario Semanal de Dictado{% else %}Horario Semanal de Clases{% endif %}
+                                <span>📅</span>
+                                {% if es_docente %}Calendario Semanal de Dictado{% else %}Horario Semanal de Clases{%
+                                endif %}
                             </h3>
                             <span class="badge-ciclo">Ciclo Regular</span>
                         </div>
@@ -86,7 +89,8 @@
                                 {% for h in horarios %}
                                 {% if h.dia == 1 or h.dia == '1' %}
                                 <div class="class-badge-card">
-                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
                                     <span class="class-badge-title">{{ h.curso.titulo }}</span>
                                     <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
                                 </div>
@@ -100,7 +104,8 @@
                                 {% for h in horarios %}
                                 {% if h.dia == 2 or h.dia == '2' %}
                                 <div class="class-badge-card">
-                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
                                     <span class="class-badge-title">{{ h.curso.titulo }}</span>
                                     <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
                                 </div>
@@ -114,7 +119,8 @@
                                 {% for h in horarios %}
                                 {% if h.dia == 3 or h.dia == '3' %}
                                 <div class="class-badge-card">
-                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
                                     <span class="class-badge-title">{{ h.curso.titulo }}</span>
                                     <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
                                 </div>
@@ -128,7 +134,8 @@
                                 {% for h in horarios %}
                                 {% if h.dia == 4 or h.dia == '4' %}
                                 <div class="class-badge-card">
-                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
                                     <span class="class-badge-title">{{ h.curso.titulo }}</span>
                                     <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
                                 </div>
@@ -142,7 +149,8 @@
                                 {% for h in horarios %}
                                 {% if h.dia == 5 or h.dia == '5' %}
                                 <div class="class-badge-card">
-                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
                                     <span class="class-badge-title">{{ h.curso.titulo }}</span>
                                     <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
                                 </div>
@@ -156,7 +164,8 @@
                                 {% for h in horarios %}
                                 {% if h.dia == 6 or h.dia == '6' %}
                                 <div class="class-badge-card">
-                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                                    <span class="class-badge-time">{{ h.hora_inicio|time:"H:i" }} - {{
+                                        h.hora_fin|time:"H:i" }}</span>
                                     <span class="class-badge-title">{{ h.curso.titulo }}</span>
                                     <span class="class-badge-room">📍 {{ h.aula|default:"Aula Virtual" }}</span>
                                 </div>

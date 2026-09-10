@@ -1,7 +1,7 @@
 {% load static %}
 <header class="top-navbar">
     <div class="top-welcome-text">
-        Bienvenido{% if request.user.is_superuser or request.user.is_staff or es_docente or 'Docentes' in request.user.groups.all|stringformat:'s' %}, profesor(a){% else %}, estudiante{% endif %} 
+        Bienvenido{% if request.user.is_superuser or request.user.is_staff %}, administrador(a){% elif es_docente %}, profesor(a){% else %}, estudiante{% endif %} 
         <strong>{{ request.user.first_name|default:request.user.username }}</strong>
     </div>
 
@@ -16,7 +16,7 @@
                 <div class="user-text-role">
                     {% if request.user.is_superuser or request.user.is_staff %}
                         Administrador
-                    {% elif es_docente or 'Docentes' in request.user.groups.all|stringformat:'s' %}
+                    {% elif es_docente %}
                         Docente Titular
                     {% else %}
                         Estudiante Regular
@@ -34,7 +34,7 @@
                 <span class="dropdown-user-badge">
                     {% if request.user.is_superuser or request.user.is_staff %}
                         Administrador
-                    {% elif es_docente or 'Docentes' in request.user.groups.all|stringformat:'s' %}
+                    {% elif es_docente %}
                         Docente
                     {% else %}
                         Estudiante
@@ -51,7 +51,7 @@
                     <a href="{% url 'admin_dashboard' %}" class="dropdown-menu-item">
                         <span>⚙️</span> Panel Admin
                     </a>
-                {% elif es_docente or 'Docentes' in request.user.groups.all|stringformat:'s' %}
+                {% elif es_docente %}
                     <a href="{% url 'panel_docente' %}" class="dropdown-menu-item">
                         <span>📚</span> Mis Asignaturas
                     </a>
