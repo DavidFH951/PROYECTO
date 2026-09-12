@@ -1,13 +1,25 @@
 {% load static %}
 <header class="topbar-aula-virtual">
-    <a href="{% url 'mis_cursos' %}" class="topbar-brand-link">
-        <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="topbar-brand-img">
-        <div class="topbar-brand-info">
-            <span class="topbar-brand-title">Academia Galeno</span>
-            <span class="topbar-brand-tag">AULA VIRTUAL</span>
-        </div>
-    </a>
+    <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+        <!-- Botón Hamburguesa Móvil (Abre Drawer de Semanas) -->
+        <button type="button" class="btn-hamburger-curso" id="btnHamburgerCurso" aria-label="Abrir Menú de Semanas">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
 
+        <a href="{% url 'mis_cursos' %}" class="topbar-brand-link">
+            <img src="{% static 'image/logo.jpeg' %}" alt="Logo Academia Galeno" class="topbar-brand-img">
+            <div class="topbar-brand-info">
+                <span class="topbar-brand-title">Academia Galeno</span>
+                <span class="topbar-brand-tag">AULA VIRTUAL</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- Dropdown de Usuario -->
     <div class="user-dropdown-container">
         <div class="user-profile-trigger" id="userProfileTrigger" tabindex="0">
             <div class="user-avatar-circle">
@@ -38,7 +50,7 @@
                 <a href="{% url 'mi_perfil' %}" class="dropdown-menu-item">
                     <span>👤</span> Mi Perfil
                 </a>
-                <a href="{% url 'dashboard' %}" class="dropdown-menu-item">
+                <a href="{% if token %}{% url 'dashboard_token' token=token %}{% else %}{% url 'dashboard' %}{% endif %}" class="dropdown-menu-item">
                     <span>🏠</span> Intranet Principal
                 </a>
                 <a href="{% url 'mis_cursos' %}" class="dropdown-menu-item">

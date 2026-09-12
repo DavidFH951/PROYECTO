@@ -117,4 +117,28 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-});
+}
+
+)
+// --- CONTROL DE DRAWER PARA SIDEBAR DE CURSO ---
+const btnOpenCurso = document.getElementById('btnHamburgerCurso');
+const btnCloseCurso = document.getElementById('btnSidebarCursoClose');
+const sidebarCurso = document.getElementById('sidebarCurso');
+const backdropCurso = document.getElementById('sidebarCursoBackdrop');
+
+function toggleSidebarCurso(open) {
+    if (!sidebarCurso || !backdropCurso) return;
+    if (open) {
+        sidebarCurso.classList.add('drawer-open');
+        backdropCurso.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    } else {
+        sidebarCurso.classList.remove('drawer-open');
+        backdropCurso.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+if (btnOpenCurso) btnOpenCurso.addEventListener('click', () => toggleSidebarCurso(true));
+if (btnCloseCurso) btnCloseCurso.addEventListener('click', () => toggleSidebarCurso(false));
+if (backdropCurso) backdropCurso.addEventListener('click', () => toggleSidebarCurso(false));;

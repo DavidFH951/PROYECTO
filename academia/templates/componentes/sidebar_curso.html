@@ -1,25 +1,33 @@
-<aside class="sidebar-curso-nav">
-    <div class="sidebar-curso-section-title">Navegación</div>
-    <a href="#seccion-general" class="sidebar-curso-link btn-general-active">
-        <span>🏠 General y Avisos</span>
-    </a>
+{% load static %}
+<!-- Fondo oscuro para celular al abrir el menú de semanas -->
+<div class="sidebar-backdrop" id="sidebarCursoBackdrop"></div>
 
-    <div class="sidebar-curso-section-title">Semanas del Ciclo</div>
-    {% for bloque in bloques_semanas %}
-    <a href="#semana-{{ bloque.info.numero }}" class="sidebar-curso-link">
-        <span class="sidebar-link-label">
-            <span class="sidebar-emoji">📅</span> Semana {{ bloque.info.numero }}
-        </span>
-
-        {% if bloque.total_recursos > 0 %}
-            <span class="sidebar-badge-counter">{{ bloque.total_recursos }}</span>
-        {% else %}
-            <span class="sidebar-badge-empty">0</span>
-        {% endif %}
-    </a>
-    {% empty %}
-    <div style="padding: 10px 14px; font-size: 12px; color: #64748b;">
-        Sin semanas registradas
+<aside class="sidebar-curso-dark" id="sidebarCurso">
+    <!-- Cabecera en móvil con botón X -->
+    <div class="sidebar-curso-mobile-header">
+        <span class="sidebar-curso-mobile-title">Semanas del Ciclo</span>
+        <button type="button" class="sidebar-close-btn" id="btnSidebarCursoClose">✕</button>
     </div>
-    {% endfor %}
+
+    <!-- Contenido existente de navegación y semanas -->
+    <div class="sidebar-curso-scroll">
+        <div class="seccion-bloque">
+            <span class="bloque-label">NAVEGACIÓN</span>
+            <a href="{% url 'detalle_curso_token' token=token curso_id=curso.id %}" class="btn-semana-item active">
+                <span>🏠</span> General y Avisos
+            </a>
+        </div>
+
+        <div class="seccion-bloque">
+            <span class="bloque-label">SEMANAS DEL CICLO</span>
+            <div class="lista-semanas">
+                {% for sem in semanas %}
+                <a href="?semana={{ sem.numero }}" class="btn-semana-item {% if semana_activa == sem.numero %}selected{% endif %}">
+                    <span>📅</span> {{ sem.etiqueta|default:sem.nombre }}
+                    <span class="badge-count">{{ sem.total_materiales|default:"0" }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </aside>
