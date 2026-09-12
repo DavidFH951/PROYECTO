@@ -556,3 +556,86 @@ body {
         justify-content: center !important;
     }
 }
+/* ==============================================================================
+   ESTILOS PARA BOTONES DE ACCIÓN DOCENTE EN EXÁMENES Y MATERIALES
+   ============================================================================== */
+
+/* Contenedor flexible para alinear los botones del examen */
+.examen-actions-group {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+}
+
+/* Botones base limpios sin subrayado */
+.btn-action-base {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 6px 10px !important;
+    border-radius: 6px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    transition: opacity 0.15s ease, transform 0.1s ease !important;
+    white-space: nowrap !important;
+}
+
+.btn-action-base:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Estilos individuales por botón */
+.btn-entregas {
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+}
+
+.btn-gestionar {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.btn-finalizar-forzado {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+}
+
+.btn-pausar {
+    background: #fef3c7 !important;
+    color: #b45309 !important;
+}
+
+.btn-habilitar {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+.btn-eliminar-examen {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 5px 8px !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-size: 12px !important;
+}
+
+.btn-eliminar-examen:hover {
+    background: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+}
+
+/* Espaciado del layout para que el sidebar no choque */
+.aula-virtual-layout {
+    display: flex !important;
+    min-height: calc(100vh - 60px);
+}
+
+.course-main-stage {
+    flex: 1 !important;
+    padding: 24px 32px !important;
+    background-color: #f8fafc !important;
+}
