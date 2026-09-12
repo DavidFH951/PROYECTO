@@ -8,10 +8,10 @@
     <title>Inicio / Intranet | Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3.3">
     <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
     <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=4.0">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3.0">
 </head>
 
 <body class="dashboard-page-body">
@@ -62,7 +62,8 @@
                         <div class="kpi-card-white">
                             <div>
                                 <div class="kpi-label">Asistencia Global</div>
-                                <div class="kpi-number kpi-number-success">{{ porcentaje_asistencia|default:"100,0" }}%</div>
+                                <div class="kpi-number kpi-number-success">{{ porcentaje_asistencia|default:"100,0" }}%
+                                </div>
                             </div>
                             <span class="kpi-icon">⏱️</span>
                         </div>
@@ -82,19 +83,28 @@
                             </div>
 
                             <div class="horario-columns-grid">
-                                
+
                                 <!-- LUNES -->
                                 <div class="col-dia">
                                     <span class="col-dia-header">LUN</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'LUN' or h.dia == 'Lunes' or h.dia == '1' or h.dia_semana == 'LUN' or h.dia_semana == 'Lunes' or h.dia_semana == '1' or h.dia_semana == 1 or h.dia == 1 %}
-                                            <div class="event-card" style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                                <strong style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
-                                                <span style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{ h.curso.titulo }}</span>
-                                                <small style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍 {{ h.aula|default:"Virtual" }}</small>
-                                            </div>
-                                            {% endif %}
+                                        {% if h.dia == 'LUN' or h.dia == 'Lunes' or h.dia == '1' or h.dia_semana ==
+                                        'LUN' or h.dia_semana == 'Lunes' or h.dia_semana == '1' or h.dia_semana == 1 or
+                                        h.dia == 1 %}
+                                        <div class="event-card"
+                                            style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                            <strong
+                                                style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{
+                                                h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span
+                                                style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{
+                                                h.curso.titulo }}</span>
+                                            <small
+                                                style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍
+                                                {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -104,13 +114,22 @@
                                     <span class="col-dia-header">MAR</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'MAR' or h.dia == 'Martes' or h.dia == '2' or h.dia_semana == 'MAR' or h.dia_semana == 'Martes' or h.dia_semana == '2' or h.dia_semana == 2 or h.dia == 2 %}
-                                            <div class="event-card" style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                                <strong style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
-                                                <span style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{ h.curso.titulo }}</span>
-                                                <small style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍 {{ h.aula|default:"Virtual" }}</small>
-                                            </div>
-                                            {% endif %}
+                                        {% if h.dia == 'MAR' or h.dia == 'Martes' or h.dia == '2' or h.dia_semana ==
+                                        'MAR' or h.dia_semana == 'Martes' or h.dia_semana == '2' or h.dia_semana == 2 or
+                                        h.dia == 2 %}
+                                        <div class="event-card"
+                                            style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                            <strong
+                                                style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{
+                                                h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span
+                                                style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{
+                                                h.curso.titulo }}</span>
+                                            <small
+                                                style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍
+                                                {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -120,13 +139,22 @@
                                     <span class="col-dia-header">MIÉ</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'MIE' or h.dia == 'MIÉ' or h.dia == 'Miércoles' or h.dia == '3' or h.dia_semana == 'MIE' or h.dia_semana == 'MIÉ' or h.dia_semana == 'Miércoles' or h.dia_semana == '3' or h.dia_semana == 3 or h.dia == 3 %}
-                                            <div class="event-card" style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                                <strong style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
-                                                <span style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{ h.curso.titulo }}</span>
-                                                <small style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍 {{ h.aula|default:"Virtual" }}</small>
-                                            </div>
-                                            {% endif %}
+                                        {% if h.dia == 'MIE' or h.dia == 'MIÉ' or h.dia == 'Miércoles' or h.dia == '3'
+                                        or h.dia_semana == 'MIE' or h.dia_semana == 'MIÉ' or h.dia_semana == 'Miércoles'
+                                        or h.dia_semana == '3' or h.dia_semana == 3 or h.dia == 3 %}
+                                        <div class="event-card"
+                                            style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                            <strong
+                                                style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{
+                                                h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span
+                                                style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{
+                                                h.curso.titulo }}</span>
+                                            <small
+                                                style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍
+                                                {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -136,13 +164,22 @@
                                     <span class="col-dia-header">JUE</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'JUE' or h.dia == 'Jueves' or h.dia == '4' or h.dia_semana == 'JUE' or h.dia_semana == 'Jueves' or h.dia_semana == '4' or h.dia_semana == 4 or h.dia == 4 %}
-                                            <div class="event-card" style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                                <strong style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
-                                                <span style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{ h.curso.titulo }}</span>
-                                                <small style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍 {{ h.aula|default:"Virtual" }}</small>
-                                            </div>
-                                            {% endif %}
+                                        {% if h.dia == 'JUE' or h.dia == 'Jueves' or h.dia == '4' or h.dia_semana ==
+                                        'JUE' or h.dia_semana == 'Jueves' or h.dia_semana == '4' or h.dia_semana == 4 or
+                                        h.dia == 4 %}
+                                        <div class="event-card"
+                                            style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                            <strong
+                                                style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{
+                                                h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span
+                                                style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{
+                                                h.curso.titulo }}</span>
+                                            <small
+                                                style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍
+                                                {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -152,13 +189,22 @@
                                     <span class="col-dia-header">VIE</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'VIE' or h.dia == 'Viernes' or h.dia == '5' or h.dia_semana == 'VIE' or h.dia_semana == 'Viernes' or h.dia_semana == '5' or h.dia_semana == 5 or h.dia == 5 %}
-                                            <div class="event-card" style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                                <strong style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
-                                                <span style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{ h.curso.titulo }}</span>
-                                                <small style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍 {{ h.aula|default:"Virtual" }}</small>
-                                            </div>
-                                            {% endif %}
+                                        {% if h.dia == 'VIE' or h.dia == 'Viernes' or h.dia == '5' or h.dia_semana ==
+                                        'VIE' or h.dia_semana == 'Viernes' or h.dia_semana == '5' or h.dia_semana == 5
+                                        or h.dia == 5 %}
+                                        <div class="event-card"
+                                            style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                            <strong
+                                                style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{
+                                                h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span
+                                                style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{
+                                                h.curso.titulo }}</span>
+                                            <small
+                                                style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍
+                                                {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -168,13 +214,22 @@
                                     <span class="col-dia-header">SÁB</span>
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
-                                            {% if h.dia == 'SAB' or h.dia == 'SÁB' or h.dia == 'Sábado' or h.dia == '6' or h.dia_semana == 'SAB' or h.dia_semana == 'SÁB' or h.dia_semana == 'Sábado' or h.dia_semana == '6' or h.dia_semana == 6 or h.dia == 6 %}
-                                            <div class="event-card" style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                                <strong style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
-                                                <span style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{ h.curso.titulo }}</span>
-                                                <small style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍 {{ h.aula|default:"Virtual" }}</small>
-                                            </div>
-                                            {% endif %}
+                                        {% if h.dia == 'SAB' or h.dia == 'SÁB' or h.dia == 'Sábado' or h.dia == '6' or
+                                        h.dia_semana == 'SAB' or h.dia_semana == 'SÁB' or h.dia_semana == 'Sábado' or
+                                        h.dia_semana == '6' or h.dia_semana == 6 or h.dia == 6 %}
+                                        <div class="event-card"
+                                            style="display: block !important; visibility: visible !important; min-height: 48px; background: #ffffff; border: 1px solid #bae6fd; border-left: 3px solid #0284c7; border-radius: 6px; padding: 6px 8px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                            <strong
+                                                style="color: #0369a1; font-weight: 800; font-size: 11px; display: block;">{{
+                                                h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
+                                            <span
+                                                style="color: #0f172a; font-weight: 700; font-size: 11.5px; display: block; margin-top: 2px; line-height: 1.2;">{{
+                                                h.curso.titulo }}</span>
+                                            <small
+                                                style="color: #64748b; font-size: 10px; display: block; margin-top: 3px;">📍
+                                                {{ h.aula|default:"Virtual" }}</small>
+                                        </div>
+                                        {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -195,7 +250,8 @@
                                         <strong class="materia-title-txt">{{ c.titulo }}</strong>
                                         <small class="materia-sub-txt">Ciclo Activo</small>
                                     </div>
-                                    <a href="{% url 'detalle_curso_token' token=token curso_id=c.id %}" class="btn-entrar-curso">
+                                    <a href="{% url 'detalle_curso_token' token=token curso_id=c.id %}"
+                                        class="btn-entrar-curso">
                                         Entrar →
                                     </a>
                                 </div>
