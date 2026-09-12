@@ -1,9 +1,13 @@
 {% load static %}
 <header class="top-navbar">
     <div style="display: flex; align-items: center; gap: 12px;">
-        <!-- Botón Hamburguesa Móvil (Visible solo en celular por CSS) -->
-        <button type="button" class="btn-hamburger-intranet" id="btnHamburgerSidebar" aria-label="Abrir Menú">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round">
+        <!-- Botón Hamburguesa Móvil -->
+        <button type="button" 
+                class="btn-hamburger-intranet" 
+                id="btnHamburgerSidebar" 
+                data-sidebar-toggle="true"
+                aria-label="Abrir Menú">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" style="pointer-events: none; display: block;">
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>

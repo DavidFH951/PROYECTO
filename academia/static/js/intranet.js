@@ -5,119 +5,119 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     // --------------------------------------------------------------------------
-    // 1. CONTROL DE SIDEBAR GENERAL / PANEL DOCENTE / INTRANET
+    // FUNCIONES BASE DE CONTROL DE SIDEBAR
     // --------------------------------------------------------------------------
-    // Busca por ID institucional o selectores alternativos comunes
-    const btnOpen = document.getElementById('btnHamburgerSidebar') || 
-                    document.getElementById('btnSidebarToggle') ||
-                    document.querySelector('.top-navbar .btn-hamburger') ||
-                    document.querySelector('.top-navbar button');
+    function toggleSidebarGeneral(open) {
+        const sidebar = document.getElementById('sidebarGaleno') || 
+                        document.getElementById('sidebar') ||
+                        document.querySelector('.sidebar-galeno') ||
+                        document.querySelector('.intranet-sidebar') ||
+                        document.querySelector('aside');
 
-    const btnClose = document.getElementById('btnSidebarClose') || 
-                     document.querySelector('.btn-close-sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop') || 
+                         document.querySelector('.sidebar-backdrop');
 
-    const sidebar = document.getElementById('sidebarGaleno') || 
-                    document.getElementById('sidebar') ||
-                    document.querySelector('.intranet-sidebar') ||
-                    document.querySelector('.sidebar-galeno');
-
-    const backdrop = document.getElementById('sidebarBackdrop') || 
-                     document.querySelector('.sidebar-backdrop');
-
-    function toggleSidebar(open) {
         if (!sidebar) return;
+
         if (open) {
-            sidebar.classList.add('drawer-open');
-            sidebar.classList.add('active');
-            if (backdrop) backdrop.classList.add('active');
+            sidebar.classList.add('drawer-open', 'active');
+            if (backdrop) {
+                backdrop.classList.add('active');
+                backdrop.style.display = 'block';
+            }
             document.body.style.overflow = 'hidden';
         } else {
-            sidebar.classList.remove('drawer-open');
-            sidebar.classList.remove('active');
-            if (backdrop) backdrop.classList.remove('active');
+            sidebar.classList.remove('drawer-open', 'active');
+            if (backdrop) {
+                backdrop.classList.remove('active');
+                backdrop.style.display = '';
+            }
             document.body.style.overflow = '';
         }
     }
-
-    if (btnOpen) {
-        btnOpen.addEventListener('click', function (e) {
-            e.stopPropagation();
-            toggleSidebar(true);
-        });
-    }
-
-    if (btnClose) {
-        btnClose.addEventListener('click', function (e) {
-            e.stopPropagation();
-            toggleSidebar(false);
-        });
-    }
-
-    if (backdrop) {
-        backdrop.addEventListener('click', function () {
-            toggleSidebar(false);
-        });
-    }
-
-    // Cerrar si tocan cualquier enlace del menú
-    if (sidebar) {
-        sidebar.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => toggleSidebar(false));
-        });
-    }
-
-    // --------------------------------------------------------------------------
-    // 2. CONTROL DEL SIDEBAR DE AULA VIRTUAL (CURSOS ESPECÍFICOS)
-    // --------------------------------------------------------------------------
-    const btnOpenCurso = document.getElementById('btnHamburgerCurso') || 
-                         document.querySelector('.btn-hamburger-curso');
-
-    const btnCloseCurso = document.getElementById('btnSidebarCursoClose') || 
-                          document.querySelector('.btn-close-curso-sidebar');
-
-    const sidebarCurso = document.getElementById('sidebarCurso') || 
-                         document.querySelector('.sidebar-curso-panel');
-
-    const backdropCurso = document.getElementById('sidebarCursoBackdrop') || 
-                          document.querySelector('.sidebar-curso-backdrop');
 
     function toggleSidebarCurso(open) {
+        const sidebarCurso = document.getElementById('sidebarCurso') || 
+                             document.querySelector('.sidebar-curso-panel');
+        const backdropCurso = document.getElementById('sidebarCursoBackdrop') || 
+                              document.querySelector('.sidebar-curso-backdrop');
+
         if (!sidebarCurso) return;
+
         if (open) {
-            sidebarCurso.classList.add('drawer-open');
-            sidebarCurso.classList.add('active');
-            if (backdropCurso) backdropCurso.classList.add('active');
+            sidebarCurso.classList.add('drawer-open', 'active');
+            if (backdropCurso) {
+                backdropCurso.classList.add('active');
+                backdropCurso.style.display = 'block';
+            }
             document.body.style.overflow = 'hidden';
         } else {
-            sidebarCurso.classList.remove('drawer-open');
-            sidebarCurso.classList.remove('active');
-            if (backdropCurso) backdropCurso.classList.remove('active');
+            sidebarCurso.classList.remove('drawer-open', 'active');
+            if (backdropCurso) {
+                backdropCurso.classList.remove('active');
+                backdropCurso.style.display = '';
+            }
             document.body.style.overflow = '';
         }
     }
 
-    if (btnOpenCurso) {
-        btnOpenCurso.addEventListener('click', function (e) {
+    // --------------------------------------------------------------------------
+    // 1. DISPARADOR GLOBAL UNIVERSAL (SOPORTE CLICK Y TOUCH EN MÓVILES)
+    // --------------------------------------------------------------------------
+    function manejarInteraccionMenu(e) {
+        // A. Botón Hamburguesa de Aula Virtual (Semanas del curso)
+        const btnCurso = e.target.closest('#btnHamburgerCurso, .btn-hamburger-curso');
+        if (btnCurso) {
+            e.preventDefault();
             e.stopPropagation();
             toggleSidebarCurso(true);
-        });
-    }
+            return;
+        }
 
-    if (btnCloseCurso) {
-        btnCloseCurso.addEventListener('click', function (e) {
+        // B. Botón Hamburguesa Institucional (Topbar General y Docente)
+        // Detecta el ID exacto, la clase btn-hamburger-intranet, atributos data o cualquier botón dentro del header
+        const btnGeneral = e.target.closest(
+            '#btnHamburgerSidebar, .btn-hamburger-intranet, #btnSidebarToggle, .btn-hamburger-topbar, .btn-hamburger, header .top-navbar button, button[data-sidebar-toggle="true"]'
+        );
+        const esTextoHamburguesa = e.target.textContent && e.target.textContent.trim() === '☰';
+
+        if (btnGeneral || esTextoHamburguesa) {
+            e.preventDefault();
             e.stopPropagation();
+            toggleSidebarGeneral(true);
+            return;
+        }
+
+        // C. Botón Cerrar (✕) o Clic en Fondo Oscuro (Backdrop)
+        const btnCerrarGeneral = e.target.closest('#btnSidebarClose, .sidebar-close-btn, .btn-close-sidebar');
+        const clickFondoGeneral = e.target.id === 'sidebarBackdrop' || (e.target.classList && e.target.classList.contains('sidebar-backdrop'));
+
+        if (btnCerrarGeneral || clickFondoGeneral) {
+            e.preventDefault();
+            toggleSidebarGeneral(false);
+            return;
+        }
+
+        const btnCerrarCurso = e.target.closest('#btnSidebarCursoClose, .btn-close-curso-sidebar');
+        const clickFondoCurso = e.target.id === 'sidebarCursoBackdrop' || (e.target.classList && e.target.classList.contains('sidebar-curso-backdrop'));
+
+        if (btnCerrarCurso || clickFondoCurso) {
+            e.preventDefault();
             toggleSidebarCurso(false);
-        });
+            return;
+        }
+
+        // D. Cerrar automáticamente al navegar en un link del menú
+        if (e.target.closest('.sidebar-galeno a, .sidebar-curso-panel a')) {
+            toggleSidebarGeneral(false);
+            toggleSidebarCurso(false);
+        }
     }
 
-    if (backdropCurso) {
-        backdropCurso.addEventListener('click', function () {
-            toggleSidebarCurso(false);
-        });
-    }
+    document.addEventListener('click', manejarInteraccionMenu);
 
     // --------------------------------------------------------------------------
-    // 3. DESPLEGABLE DE PERFIL DE USUARIO
+    // 2. DESPLEGABLE DE PERFIL DE USUARIO
     // --------------------------------------------------------------------------
     const trigger = document.getElementById('userProfileTrigger') || 
                     document.querySelector('.user-profile-trigger');
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --------------------------------------------------------------------------
-    // 4. MODAL DE HORARIOS
+    // 3. MODAL DE HORARIOS
     // --------------------------------------------------------------------------
     const modalOverlay = document.getElementById('modalHorarioOverlay');
     const btnCerrarModal = document.getElementById('btnCerrarModalHorario');
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Soporte retrocompatible para llamadas en línea onclick
+// Soporte retrocompatible para llamadas directas onclick
 function toggleUserMenu(event) {
     if (event) event.stopPropagation();
     const container = document.querySelector('.user-dropdown-container');
