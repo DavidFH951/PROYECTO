@@ -22,12 +22,10 @@
         <div class="bloque-nav-group">
             <span class="bloque-nav-label">SEMANAS DEL CICLO</span>
             <div class="lista-nav-semanas">
-                {% for sem in bloques_semanas|default:semanas %}
-                <a href="#semana-{{ sem.info.numero|default:sem.numero }}" class="btn-nav-semana">
-                    <span>📅</span> Semana {{ sem.info.numero|default:sem.numero }}
-                    <span class="badge-num-materiales">
-                        {{ sem.total_recursos|default:sem.total_materiales|default:"0" }}
-                    </span>
+                {% for sem in bloques_semanas %}
+                <a href="#semana-{{ sem.info.numero }}" class="btn-nav-semana">
+                    <span>📅</span> {{ sem.info.etiqueta|default:"Semana" }}
+                    <span class="badge-num-materiales">{{ sem.total_recursos }}</span>
                 </a>
                 {% empty %}
                 <span class="sin-semanas-txt">Ciclo en configuración</span>
