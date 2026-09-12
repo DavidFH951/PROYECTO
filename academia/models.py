@@ -9,8 +9,6 @@ from django.utils.dateparse import parse_date
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
-
-# En academia/models.py
 from cloudinary.models import CloudinaryField
 
 
@@ -71,7 +69,7 @@ class PeriodoAcademico(models.Model):
 
 
 # ----------------------------------------------------
-# 1. MODELO CURSO
+# 1. MODELO CURSO Y GRUPOS POR DOCENTE
 # ----------------------------------------------------
 class Curso(models.Model):
     titulo = models.CharField(max_length=200)
@@ -118,6 +116,22 @@ class Curso(models.Model):
         return ", ".join(nombres) if nombres else "Sin asignar"
 
 
+class GrupoCurso(models.Model):
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='grupos')
+    nombre = models.CharField(max_length=50, help_text="Ejemplo: Grupo 1, Grupo A, Sección A")
+    docente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='grupos_docente')
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Grupo de Curso"
+        verbose_name_plural = "Grupos de Cursos"
+        unique_together = ('curso', 'nombre')
+
+    def __str__(self):
+        docente_str = self.docente.get_full_name() or self.docente.username if self.docente else "Sin docente"
+        return f"{self.curso.titulo} - {self.nombre} ({docente_str})"
+
+
 # ----------------------------------------------------
 # 2. MODELO CALIFICACIONES (DINÁMICO)
 # ----------------------------------------------------
@@ -133,7 +147,6 @@ class Calificacion(models.Model):
         unique_together = ('curso', 'alumno')
 
     def calcular_promedio(self):
-        """Calcula el promedio evaluando la fórmula del curso de forma segura."""
         if not self.notas_detalle:
             self.promedio = None
             return
@@ -166,7 +179,7 @@ class Calificacion(models.Model):
 
 
 # ----------------------------------------------------
-# 3. MODELO MATERIAL DE CLASE
+# 3. MODELO MATERIAL DE CLASE (UNIFICADO)
 # ----------------------------------------------------
 class Material(models.Model):
     TIPO_OPCIONES = [
@@ -175,19 +188,20 @@ class Material(models.Model):
         ('EXAMEN', 'Examen / Simulacro'),
         ('TAREA', 'Tarea Práctica'),
     ]
-    archivo = CloudinaryField(
-        'archivo',
-        resource_type='auto',  # CLAVE: detecta automáticamente si es video, raw (pdf/docx) o image
-        blank=True,
-        null=True
-    )
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='materiales')
     titulo = models.CharField(max_length=200, verbose_name="Título del Material")
     tipo = models.CharField(max_length=50, choices=TIPO_OPCIONES, default='CLASE')
     semana = models.PositiveSmallIntegerField(default=1, verbose_name="Semana / Sesión")
-    archivo = models.FileField(upload_to='materiales/%Y/%m/', null=True, blank=True, verbose_name="Archivo Adjunto (PDF, ZIP, etc.)")
-    enlace = models.URLField(max_length=500, null=True, blank=True, verbose_name="Enlace Externo (Video, Meet, Drive)")
+    archivo = models.FileField(
+        upload_to='materiales/%Y/%m/', 
+        null=True, 
+        blank=True, 
+        validators=[validar_archivo_material], 
+        verbose_name="Archivo Adjunto (PDF, ZIP, etc.)"
+    )
+    enlace = models.URLField(max_length=500, null=True, blank=True, verbose_name="Enlace Externo (Drive, Meet)")
     enlace_web = models.URLField(max_length=500, null=True, blank=True, verbose_name="Enlace Web Alternativo")
+    video_url = models.URLField(max_length=500, blank=True, null=True, help_text="Enlace del video (Vimeo, YouTube o Bunny Stream)")
     contenido = models.TextField(blank=True, verbose_name="Instrucciones o Detalles Adicionales")
     fecha_subida = models.DateTimeField(auto_now_add=True)
 
@@ -197,25 +211,18 @@ class Material(models.Model):
         ordering = ['semana', '-fecha_subida']
 
     def __str__(self):
-        return f"[Semana {self.semana}] {self.titulo}"
-
-    # En academia/models.py dentro de la clase Material:
+        return f"[Semana {self.semana}] {self.titulo} - {self.curso.titulo}"
 
     @property
     def es_video(self):
-        """Verifica si el material corresponde a un video (subido o embebido)."""
         url_archivo = str(self.archivo.url if self.archivo else '').lower()
         nombre_archivo = str(self.archivo.name if self.archivo else '').lower()
-        enlace = str(self.enlace_web or '').lower()
+        enlace = str(self.enlace_web or self.video_url or '').lower()
 
-        # Comprobar si es un archivo de video
         if any(ext in url_archivo or ext in nombre_archivo for ext in ['.mp4', '.webm', '/video/upload/']):
             return True
-
-        # Comprobar si es un enlace de video externo
-        if any(prov in enlace for prov in ['youtube.com', 'youtu.be', 'vimeo.com']):
+        if any(prov in enlace for prov in ['youtube.com', 'youtu.be', 'vimeo.com', 'bunny.net']):
             return True
-
         return False
 
 
@@ -225,6 +232,7 @@ class Material(models.Model):
 class Inscripcion(models.Model):
     alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='inscripciones')
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='inscripciones')
+    grupo = models.ForeignKey(GrupoCurso, on_delete=models.SET_NULL, null=True, blank=True, related_name='alumnos_inscritos')
     fecha_inscripcion = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -233,7 +241,8 @@ class Inscripcion(models.Model):
         unique_together = ('alumno', 'curso')
 
     def __str__(self):
-        return f"{self.alumno.username} en {self.curso.titulo}"
+        grupo_txt = f" - {self.grupo.nombre}" if self.grupo else ""
+        return f"{self.alumno.username} en {self.curso.titulo}{grupo_txt}"
 
 
 # ----------------------------------------------------
@@ -444,6 +453,7 @@ class HorarioCurso(models.Model):
     ]
 
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='horarios')
+    grupo = models.ForeignKey(GrupoCurso, on_delete=models.SET_NULL, null=True, blank=True, related_name='horarios')
     dia = models.IntegerField(choices=DIAS_SEMANA, verbose_name="Día")
     hora_inicio = models.TimeField(verbose_name="Hora Inicio")
     hora_fin = models.TimeField(verbose_name="Hora Fin")
@@ -455,7 +465,8 @@ class HorarioCurso(models.Model):
         ordering = ['dia', 'hora_inicio']
 
     def __str__(self):
-        return f"{self.curso.titulo} - {self.get_dia_display()} ({self.hora_inicio.strftime('%H:%M')} - {self.hora_fin.strftime('%H:%M')})"
+        grupo_str = f" [{self.grupo.nombre}]" if self.grupo else ""
+        return f"{self.curso.titulo}{grupo_str} - {self.get_dia_display()} ({self.hora_inicio.strftime('%H:%M')} - {self.hora_fin.strftime('%H:%M')})"
 
 
 class Asistencia(models.Model):
@@ -480,28 +491,3 @@ class Asistencia(models.Model):
 
     def __str__(self):
         return f"Sem {self.semana} - {self.alumno.username} - {self.curso.titulo} ({self.fecha}): {self.get_estado_display()}"
-
-
-class Material(models.Model):
-    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='materiales')
-    titulo = models.CharField(max_length=200)
-    semana = models.IntegerField(default=1)
-    archivo = models.FileField(upload_to='materiales/', blank=True, null=True)
-    enlace_web = models.URLField(blank=True, null=True)
-    fecha_subida = models.DateTimeField(auto_now_add=True)
-    # En academia/models.py dentro de Material:
-    video_url = models.URLField(
-    max_length=500, 
-    blank=True, 
-    null=True, 
-    help_text="Enlace del video (Vimeo, YouTube sin listar o Bunny Stream)"
-)
-    # ... tus campos actuales ...
-    archivo = models.FileField(
-        upload_to='materiales/', 
-        blank=True, 
-        null=True,
-        validators=[validar_archivo_material]
-    )
-    def __str__(self):
-        return f"{self.titulo} - {self.curso.titulo}"
