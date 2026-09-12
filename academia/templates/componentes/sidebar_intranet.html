@@ -18,7 +18,7 @@
     <nav class="sidebar-menu">
         <!-- 1. Inicio / Intranet -->
         {% if es_docente %}
-            <a href="{% url 'intranet' %}" class="sidebar-link {% if seccion_activa == 'inicio' %}active{% endif %}">
+            <a href="{% if token %}{% url 'dashboard_token' token=token %}{% else %}{% url 'dashboard' %}{% endif %}" class="sidebar-link {% if seccion_activa == 'inicio' %}active{% endif %}">
                 <span>🏠</span> Inicio / Intranet
             </a>
             <a href="{% url 'panel_docente' %}" class="sidebar-link {% if seccion_activa == 'cursos' %}active{% endif %}">
