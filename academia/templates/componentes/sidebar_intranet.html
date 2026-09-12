@@ -1,5 +1,5 @@
 {% load static %}
-<!-- Fondo oscuro al abrir menú en celular -->
+<!-- Fondo oscuro para celular -->
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
 <aside class="sidebar-galeno" id="sidebarGaleno">
@@ -16,28 +16,40 @@
 
     <!-- Menú de enlaces verticales -->
     <nav class="sidebar-menu">
-        <a href="{% if es_docente %}{% url 'docente_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}" 
-           class="sidebar-link {% if seccion_activa == 'inicio' %}active{% endif %}">
-            <span>🏠</span> Inicio / Intranet
-        </a>
-        <a href="{% if es_docente %}{% url 'docente_mis_cursos' %}{% else %}{% url 'mis_cursos' %}{% endif %}" 
-           class="sidebar-link {% if seccion_activa == 'cursos' %}active{% endif %}">
-            <span>📚</span> Aula Virtual (Mis Cursos)
-        </a>
+        <!-- 1. Inicio / Intranet -->
         {% if es_docente %}
-        <a href="{% url 'docente_mis_asistencias' %}" 
-           class="sidebar-link {% if seccion_activa == 'asistencias' %}active{% endif %}">
-            <span>⏱️</span> Asistencias
-        </a>
+            <a href="{% url 'panel_docente' %}" class="sidebar-link {% if seccion_activa == 'inicio' %}active{% endif %}">
+                <span>🏠</span> Inicio / Intranet
+            </a>
+            <a href="{% url 'panel_docente' %}" class="sidebar-link {% if seccion_activa == 'cursos' %}active{% endif %}">
+                <span>📚</span> Mis Asignaturas
+            </a>
+            <a href="{% url 'docente_mis_asistencias' %}" class="sidebar-link {% if seccion_activa == 'asistencias' %}active{% endif %}">
+                <span>⏱️</span> Registro de Asistencias
+            </a>
+        {% else %}
+            <a href="{% if token %}{% url 'dashboard_token' token=token %}{% else %}{% url 'dashboard' %}{% endif %}" class="sidebar-link {% if seccion_activa == 'inicio' %}active{% endif %}">
+                <span>🏠</span> Inicio / Intranet
+            </a>
+            <a href="{% url 'mis_cursos' %}" class="sidebar-link {% if seccion_activa == 'cursos' %}active{% endif %}">
+                <span>📚</span> Aula Virtual (Mis Cursos)
+            </a>
+            <a href="{% url 'mis_asistencias' %}" class="sidebar-link {% if seccion_activa == 'asistencias' %}active{% endif %}">
+                <span>⏱️</span> Asistencias
+            </a>
+            <a href="{% url 'mis_calificaciones' %}" class="sidebar-link {% if seccion_activa == 'notas' %}active{% endif %}">
+                <span>📝</span> Mis Notas
+            </a>
         {% endif %}
-        <a href="{% url 'mi_perfil' %}" 
-           class="sidebar-link {% if seccion_activa == 'perfil' %}active{% endif %}">
+
+        <!-- Perfil común -->
+        <a href="{% url 'mi_perfil' %}" class="sidebar-link {% if seccion_activa == 'perfil' %}active{% endif %}">
             <span>👤</span> Mi Perfil
         </a>
     </nav>
 
     <!-- Logout -->
-    <a href="{% url 'logout' %}" class="sidebar-logout">
+    <a href="{% url 'salir' %}" class="sidebar-logout">
         <span>🚪</span> Cerrar Sesión
     </a>
 </aside>
