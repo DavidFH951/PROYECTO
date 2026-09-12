@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PeriodoAcademico, Curso, Material, Inscripcion, Calificacion, LogActividad,BannerCarrusel, ConfiguracionLanding,Examen, Pregunta, Opcion, IntentoExamen
+from .models import PeriodoAcademico, Curso, Material, Inscripcion, Calificacion, GrupoCurso, LogActividad,BannerCarrusel, ConfiguracionLanding,Examen, Pregunta, Opcion, IntentoExamen
 
 # 1. Primero defines el Inline de las alternativas
 class OpcionInline(admin.TabularInline):
@@ -83,3 +83,10 @@ class HorarioCursoAdmin(admin.ModelAdmin):
 class AsistenciaAdmin(admin.ModelAdmin):
     list_display = ('alumno', 'curso', 'fecha', 'estado')
     list_filter = ('estado', 'fecha', 'curso')
+
+
+@admin.register(GrupoCurso)
+class GrupoCursoAdmin(admin.ModelAdmin):
+    list_display = ('curso', 'nombre', 'docente', 'activo')
+    list_filter = ('curso', 'activo')
+    search_fields = ('nombre', 'curso__titulo', 'docente__username', 'docente__first_name', 'docente__last_name')

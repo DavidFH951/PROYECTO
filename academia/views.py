@@ -41,6 +41,7 @@ from .models import (
     Calificacion,
     ConfiguracionLanding,
     Curso,
+    GrupoCurso,
     Examen,
     HorarioCurso,
     Inscripcion,
@@ -328,90 +329,55 @@ def redirigir_detalle_curso(request, curso_id):
 
 @login_required
 def dashboard(request, token=None):
-    """Portal principal del estudiante / docente protegido por UUID."""
-    token_sesion = request.session.get('dashboard_token')
-    token_str = str(token) if token else None
+    usuario = request.user
+    es_docente = usuario.groups.filter(name__iexact='Docentes').exists() or usuario.cursos_asignados.exists() or GrupoCurso.objects.filter(docente=usuario).exists()
 
-    if not token_sesion:
-        if token_str:
-            request.session['dashboard_token'] = token_str
-            token_sesion = token_str
-        else:
-            return redirect('dashboard')
-
-    if token_str != token_sesion:
-        return redirect('dashboard')
-
-    user = request.user
-    es_docente = user.groups.filter(name='Docentes').exists()
-
-    if user.is_staff or user.is_superuser:
-        return redirect('admin_dashboard')
-
-    # Vista Docente
     if es_docente:
-        cursos_asignados = Curso.objects.filter(docentes=user).select_related('periodo').distinct()
-        cursos_ids = cursos_asignados.values_list('id', flat=True)
+        # 1. Cursos y Grupos asignados al Docente
+        grupos_docente = GrupoCurso.objects.filter(docente=usuario, activo=True).select_related('curso')
+        cursos_directos = usuario.cursos_asignados.filter(estado=True)
+        cursos_grupos = [g.curso for g in grupos_docente if g.curso.estado]
+        cursos = list({c.id: c for c in (list(cursos_directos) + cursos_grupos)}.values())
 
-        cursos_data = [
-            {'curso': c, 'total_alumnos': Inscripcion.objects.filter(curso=c).count()}
-            for c in cursos_asignados
-        ]
+        # Horarios específicos que dicta este docente
+        horarios = HorarioCurso.objects.filter(
+            Q(grupo__in=grupos_docente) | Q(curso__in=cursos_directos, grupo__isnull=True)
+        ).select_related('curso', 'grupo', 'grupo__docente').order_by('dia', 'hora_inicio')
 
-        total_alumnos = (
-            Inscripcion.objects.filter(curso_id__in=cursos_ids)
-            .values('alumno')
-            .distinct()
-            .count()
-        )
+        total_cursos = len(cursos)
+        porcentaje_asistencia = 100.0
 
-        horarios = (
-            HorarioCurso.objects.filter(curso_id__in=cursos_ids)
-            .select_related('curso')
-            .order_by('dia', 'hora_inicio')
-        )
+    else:
+        # 2. Inscripciones del Estudiante (por Grupo o Curso General)
+        inscripciones = Inscripcion.objects.filter(alumno=usuario).select_related('curso', 'grupo', 'grupo__docente')
+        cursos = [ins.curso for ins in inscripciones if ins.curso.estado]
+        
+        # Obtenemos los grupos a los que pertenece el alumno
+        grupos_inscritos = [ins.grupo for ins in inscripciones if ins.grupo is not None]
+        cursos_sin_grupo = [ins.curso for ins in inscripciones if ins.grupo is None]
 
-        context = {
-            'es_docente': True,
-            'cursos': cursos_asignados,
-            'cursos_data': cursos_data,
-            'total_cursos': cursos_asignados.count(),
-            'total_alumnos': total_alumnos,
-            'horarios': horarios,
-            'hoy': date.today().strftime('%Y-%m-%d'),
-            'token': token_sesion,
-        }
-        return render(request, 'intranet_dashboard.html', context)
+        # Solo traer los horarios de su grupo; si el curso no tiene grupos aún, trae el horario general
+        horarios = HorarioCurso.objects.filter(
+            Q(grupo__in=grupos_inscritos) | Q(curso__in=cursos_sin_grupo, grupo__isnull=True)
+        ).select_related('curso', 'grupo', 'grupo__docente').order_by('dia', 'hora_inicio')
 
-    # Vista Estudiante
-    inscripciones = Inscripcion.objects.filter(alumno=user).select_related('curso', 'curso__periodo')
-    cursos_ids = inscripciones.values_list('curso_id', flat=True)
-    cursos = [insc.curso for insc in inscripciones if insc.curso]
-
-    calificaciones = Calificacion.objects.filter(alumno=user, curso_id__in=cursos_ids)
-    promedios = [float(c.promedio) for c in calificaciones if c.promedio is not None]
-    promedio_global = round(sum(promedios) / len(promedios), 2) if promedios else None
-
-    asistencias = Asistencia.objects.filter(alumno=user, curso_id__in=cursos_ids)
-    total_clases = asistencias.count()
-    asistencias_validas = asistencias.filter(estado__in=['P', 'T', 'J']).count()
-    porcentaje_asistencia = round((asistencias_validas / total_clases) * 100, 1) if total_clases > 0 else 100.0
-
-    horarios = (
-        HorarioCurso.objects.filter(curso_id__in=cursos_ids)
-        .select_related('curso')
-        .order_by('dia', 'hora_inicio')
-    )
+        total_cursos = len(cursos)
+        
+        # Cálculo de Asistencia Global del Alumno
+        total_asist = Asistencia.objects.filter(alumno=usuario).count()
+        if total_asist > 0:
+            asistidas = Asistencia.objects.filter(alumno=usuario, estado__in=['P', 'T']).count()
+            porcentaje_asistencia = round((asistidas / total_asist) * 100, 1)
+        else:
+            porcentaje_asistencia = 100.0
 
     context = {
-        'es_docente': False,
         'cursos': cursos,
-        'total_cursos': len(cursos),
-        'promedio_global': promedio_global,
-        'porcentaje_asistencia': porcentaje_asistencia,
-        'inscripciones': inscripciones,
         'horarios': horarios,
-        'token': token_sesion,
+        'total_cursos': total_cursos,
+        'porcentaje_asistencia': porcentaje_asistencia,
+        'es_docente': es_docente,
+        'token': token,
     }
     return render(request, 'intranet_dashboard.html', context)
 

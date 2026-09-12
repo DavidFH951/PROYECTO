@@ -99,9 +99,9 @@
                                         <div class="event-card js-event-clickable" data-curso="{{ h.curso.titulo }}"
                                             data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
                                             data-aula="{{ h.aula|default:'Virtual' }}"
-                                            data-docente="{% firstof h.docente.get_full_name h.profesor.get_full_name h.curso.docente.get_full_name h.curso.profesor.get_full_name h.docente.username h.profesor.username h.curso.docente.username h.curso.profesor.username 'Plana Médica Galeno' %}">
+                                            data-docente="{% firstof h.grupo.docente.get_full_name h.grupo.docente.username h.curso.docentes_nombres 'Plana Médica Galeno' %}"
                                             <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{
-                                                h.hora_fin|time:"H:i" }}</strong>
+                                            h.hora_fin|time:"H:i" }}</strong>
                                             <span class="event-title">{{ h.curso.titulo }}</span>
                                             <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
                                         </div>
@@ -121,9 +121,9 @@
                                         <div class="event-card js-event-clickable" data-curso="{{ h.curso.titulo }}"
                                             data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
                                             data-aula="{{ h.aula|default:'Virtual' }}"
-                                            data-docente="{% firstof h.docente.get_full_name h.profesor.get_full_name h.curso.docente.get_full_name h.curso.profesor.get_full_name h.docente.username h.profesor.username h.curso.docente.username h.curso.profesor.username 'Plana Médica Galeno' %}">
+                                            data-docente="{% firstof h.grupo.docente.get_full_name h.grupo.docente.username h.curso.docentes_nombres 'Plana Médica Galeno' %}"
                                             <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{
-                                                h.hora_fin|time:"H:i" }}</strong>
+                                            h.hora_fin|time:"H:i" }}</strong>
                                             <span class="event-title">{{ h.curso.titulo }}</span>
                                             <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
                                         </div>
@@ -143,9 +143,9 @@
                                         <div class="event-card js-event-clickable" data-curso="{{ h.curso.titulo }}"
                                             data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
                                             data-aula="{{ h.aula|default:'Virtual' }}"
-                                            data-docente="{% firstof h.docente.get_full_name h.profesor.get_full_name h.curso.docente.get_full_name h.curso.profesor.get_full_name h.docente.username h.profesor.username h.curso.docente.username h.curso.profesor.username 'Plana Médica Galeno' %}">
+                                            data-docente="{% firstof h.grupo.docente.get_full_name h.grupo.docente.username h.curso.docentes_nombres 'Plana Médica Galeno' %}"
                                             <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{
-                                                h.hora_fin|time:"H:i" }}</strong>
+                                            h.hora_fin|time:"H:i" }}</strong>
                                             <span class="event-title">{{ h.curso.titulo }}</span>
                                             <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
                                         </div>
@@ -165,9 +165,9 @@
                                         <div class="event-card js-event-clickable" data-curso="{{ h.curso.titulo }}"
                                             data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
                                             data-aula="{{ h.aula|default:'Virtual' }}"
-                                            data-docente="{% firstof h.docente.get_full_name h.profesor.get_full_name h.curso.docente.get_full_name h.curso.profesor.get_full_name h.docente.username h.profesor.username h.curso.docente.username h.curso.profesor.username 'Plana Médica Galeno' %}">
+                                            data-docente="{% firstof h.grupo.docente.get_full_name h.grupo.docente.username h.curso.docentes_nombres 'Plana Médica Galeno' %}"
                                             <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{
-                                                h.hora_fin|time:"H:i" }}</strong>
+                                            h.hora_fin|time:"H:i" }}</strong>
                                             <span class="event-title">{{ h.curso.titulo }}</span>
                                             <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
                                         </div>
@@ -187,9 +187,9 @@
                                         <div class="event-card js-event-clickable" data-curso="{{ h.curso.titulo }}"
                                             data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
                                             data-aula="{{ h.aula|default:'Virtual' }}"
-                                            data-docente="{% firstof h.docente.get_full_name h.profesor.get_full_name h.curso.docente.get_full_name h.curso.profesor.get_full_name h.docente.username h.profesor.username h.curso.docente.username h.curso.profesor.username 'Plana Médica Galeno' %}">
+                                            data-docente="{% firstof h.grupo.docente.get_full_name h.grupo.docente.username h.curso.docentes_nombres 'Plana Médica Galeno' %}"
                                             <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{
-                                                h.hora_fin|time:"H:i" }}</strong>
+                                            h.hora_fin|time:"H:i" }}</strong>
                                             <span class="event-title">{{ h.curso.titulo }}</span>
                                             <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
                                         </div>
@@ -209,9 +209,9 @@
                                         <div class="event-card js-event-clickable" data-curso="{{ h.curso.titulo }}"
                                             data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
                                             data-aula="{{ h.aula|default:'Virtual' }}"
-                                            data-docente="{% firstof h.docente.get_full_name h.profesor.get_full_name h.curso.docente.get_full_name h.curso.profesor.get_full_name h.docente.username h.profesor.username h.curso.docente.username h.curso.profesor.username 'Plana Médica Galeno' %}">
+                                            data-docente="{% firstof h.grupo.docente.get_full_name h.grupo.docente.username h.curso.docentes_nombres 'Plana Médica Galeno' %}"
                                             <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{
-                                                h.hora_fin|time:"H:i" }}</strong>
+                                            h.hora_fin|time:"H:i" }}</strong>
                                             <span class="event-title">{{ h.curso.titulo }}</span>
                                             <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
                                         </div>
