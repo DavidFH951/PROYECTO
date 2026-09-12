@@ -583,3 +583,67 @@ html, body {
     color: #0f172a;
     font-weight: 700;
 }
+
+/* ==============================================================================
+   RESPONSIVE MÓVIL GLOBAL PARA INTRANET (< 768px)
+   ============================================================================== */
+@media (max-width: 768px) {
+    .intranet-container,
+    .intranet-layout {
+        flex-direction: column !important;
+    }
+
+    /* El sidebar pasa a la parte superior de forma compacta en celulares */
+    .sidebar-galeno {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        position: relative !important;
+        top: auto !important;
+    }
+
+    .sidebar-menu {
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        padding: 10px !important;
+        gap: 8px !important;
+    }
+
+    .sidebar-link {
+        padding: 8px 12px !important;
+        white-space: nowrap !important;
+        font-size: 12px !important;
+    }
+
+    .sidebar-logout {
+        display: none !important; /* Ocultamos el logout masivo del sidebar inferior en móvil, ya que vive seguro en el Topbar/Dropdown de usuario */
+    }
+
+    /* Topbar adaptable a pantallas pequeñas */
+    .top-navbar,
+    .intranet-topbar {
+        padding: 10px 16px !important;
+        height: auto !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .top-welcome-text {
+        font-size: 12px !important;
+    }
+
+    /* Botón flotante de WhatsApp ligeramente más compacto para no estorbar en móviles pequeños */
+    .btn-whatsapp-flotante {
+        bottom: 16px !important;
+        right: 16px !important;
+        width: 50px !important;
+        height: 50px !important;
+    }
+}
+/* Ajuste táctil del dropdown en móvil */
+    .user-dropdown-menu {
+        right: 0 !important;
+        left: auto !important;
+        max-width: 90vw !important;
+    }

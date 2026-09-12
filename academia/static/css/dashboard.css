@@ -243,3 +243,46 @@
     color: #94a3b8;
     font-size: 13px;
 }
+/* ==============================================================================
+   ADAPTACIÓN RESPONSIVE MÓVIL (SOLO DISPOSITIVOS PEQUEÑOS < 768px)
+   ============================================================================== */
+@media (max-width: 768px) {
+    .main-stage {
+        padding: 16px 12px 40px 12px !important;
+    }
+
+    .kpis-row {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .kpi-card-white {
+        padding: 16px 18px !important;
+    }
+
+    .main-columns-layout {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .card-white-box {
+        padding: 16px 14px !important;
+    }
+
+    /* Transformación del horario semanal para desplazamiento horizontal táctil o apilado fluido */
+    .horario-columns-grid {
+        display: grid !important;
+        grid-template-columns: repeat(1, 100%) !important;
+        gap: 12px !important;
+        min-height: auto !important;
+    }
+
+    .col-dia {
+        padding: 10px 8px !important;
+    }
+
+    .materia-item-row {
+        padding: 12px 14px !important;
+    }
+}
