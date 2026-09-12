@@ -243,6 +243,7 @@
     color: #94a3b8;
     font-size: 13px;
 }
+
 /* ==============================================================================
    EXPERIENCIA MÓVIL ESTILO APP CON MODAL (< 768px)
    ============================================================================== */
@@ -265,9 +266,17 @@
         border-radius: 12px !important;
     }
 
-    .kpi-label { font-size: 10px !important; }
-    .kpi-number { font-size: 20px !important; }
-    .kpi-icon { font-size: 20px !important; }
+    .kpi-label {
+        font-size: 10px !important;
+    }
+
+    .kpi-number {
+        font-size: 20px !important;
+    }
+
+    .kpi-icon {
+        font-size: 20px !important;
+    }
 
     .main-columns-layout {
         display: flex !important;
@@ -340,12 +349,14 @@
         line-height: 1.15 !important;
         display: -webkit-box !important;
         -webkit-line-clamp: 2 !important;
+        line-clamp: 2;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
     }
 
     .event-aula {
-        display: none !important; /* Oculto en la miniatura, se muestra completo en el modal */
+        display: none !important;
+        /* Oculto en la miniatura, se muestra completo en el modal */
     }
 
     .materia-item-row {
@@ -431,7 +442,8 @@
     width: 100%;
     max-width: 160px;
     margin: 0 auto;
-    background: #0284c7; /* Azul institucional Galeno */
+    background: #0284c7;
+    /* Azul institucional Galeno */
     color: #ffffff;
     border: none;
     padding: 10px 18px;
@@ -451,6 +463,13 @@
 }
 
 @keyframes fadeInModal {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
