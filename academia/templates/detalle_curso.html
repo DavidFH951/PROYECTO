@@ -8,33 +8,29 @@
     <title>{{ curso.titulo }} | Aula Virtual</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
-    <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=5.1">
-    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=5.1">
-
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=6.0">
+    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=6.0">
 </head>
 
 <body class="aula-virtual-body">
 
-    <!-- 1. TOPBAR PROPIO DEL AULA VIRTUAL (ANCHO COMPLETO) -->
+    <!-- 1. TOPBAR DEL AULA VIRTUAL -->
     {% include 'componentes/topbar_curso.html' %}
 
-    <!-- 2. LAYOUT INFERIOR: SIDEBAR CURSO + CONTENIDO -->
+    <!-- 2. CONTENEDOR FLEX: SIDEBAR + CONTENIDO -->
     <div class="aula-virtual-layout">
 
-        <!-- Sidebar Propio del Curso (Semanas del ciclo) -->
+        <!-- Sidebar de Semanas -->
         {% include 'componentes/sidebar_curso.html' with curso=curso bloques_semanas=bloques_semanas %}
 
-        <!-- Área de Contenido Principal -->
+        <!-- Área Principal de Contenido -->
         <main class="course-main-stage">
-
             <div class="course-main-content">
 
-                <!-- Alertas del Sistema -->
+                <!-- Mensajes del Sistema -->
                 {% include 'componentes/mensajes.html' %}
 
-                <!-- Banner de Portada del Curso -->
+                <!-- Banner de Portada -->
                 <div class="course-header-banner">
                     {% if curso.imagen_portada %}
                     <img src="{{ curso.imagen_portada.url }}" alt="{{ curso.titulo }}" class="banner-bg-img">
@@ -59,7 +55,7 @@
                         {% endif %}
 
                         <div class="banner-docentes-list">
-                            <span>Plana Docente:</span>
+                            <span>Plana Docente: </span>
                             <strong>
                                 {% for doc in curso.docentes.all %}
                                 Prof. {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif %}
@@ -71,7 +67,7 @@
                     </div>
                 </div>
 
-                <!-- Barra de Acciones del Docente / Encabezado -->
+                <!-- Barra de Acciones y Título de Materiales -->
                 <div class="content-action-bar">
                     <h3 class="section-materials-title">Materiales de Estudio y Clases</h3>
 
@@ -100,13 +96,11 @@
                             <button type="button" class="btn-close-modal"
                                 onclick="document.getElementById('modal-crear-examen').style.display='none'">&times;</button>
                         </div>
-                        <form action="{% url 'crear_examen_curso' curso.id %}" method="POST"
-                            class="modal-evaluacion-form">
+                        <form action="{% url 'crear_examen_curso' curso.id %}" method="POST" class="modal-evaluacion-form">
                             {% csrf_token %}
                             <div>
                                 <label class="form-label-dark">Título de la Evaluación:</label>
-                                <input type="text" name="titulo" placeholder="Ej: Examen Parcial / Test Clínico"
-                                    required class="form-input-text">
+                                <input type="text" name="titulo" placeholder="Ej: Examen Parcial / Test Clínico" required class="form-input-text">
                             </div>
 
                             <div class="form-grid-three">
@@ -114,20 +108,17 @@
                                     <label class="form-label-dark">Semana:</label>
                                     <select name="semana" required class="form-input-text">
                                         {% for sem in cronograma %}
-                                        <option value="{{ sem.numero }}">{{ sem.etiqueta|default:"Semana" }} {{
-                                            sem.numero }}</option>
+                                        <option value="{{ sem.numero }}">{{ sem.etiqueta|default:"Semana" }} {{ sem.numero }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div>
                                     <label class="form-label-dark">Tiempo (min):</label>
-                                    <input type="number" name="duracion_minutos" value="60" min="5" required
-                                        class="form-input-text">
+                                    <input type="number" name="duracion_minutos" value="60" min="5" required class="form-input-text">
                                 </div>
                                 <div>
                                     <label class="form-label-dark">N° Intentos:</label>
-                                    <input type="number" name="intentos_permitidos" value="1" min="1" max="10" required
-                                        class="form-input-text">
+                                    <input type="number" name="intentos_permitidos" value="1" min="1" max="10" required class="form-input-text">
                                 </div>
                             </div>
 
@@ -144,15 +135,11 @@
 
                             <div>
                                 <label class="form-label-dark">Instrucciones (opcional):</label>
-                                <textarea name="descripcion" rows="2"
-                                    placeholder="Instrucciones para los postulantes..."
-                                    class="form-input-text"></textarea>
+                                <textarea name="descripcion" rows="2" placeholder="Instrucciones para los postulantes..." class="form-input-text"></textarea>
                             </div>
 
                             <div class="modal-btn-row">
-                                <button type="button"
-                                    onclick="document.getElementById('modal-crear-examen').style.display='none'"
-                                    class="btn-cancelar-modal">Cancelar</button>
+                                <button type="button" onclick="document.getElementById('modal-crear-examen').style.display='none'" class="btn-cancelar-modal">Cancelar</button>
                                 <button type="submit" class="btn-guardar-modal">Crear Evaluación</button>
                             </div>
                         </form>
@@ -163,7 +150,10 @@
                 <!-- Sección General Fija -->
                 <details id="seccion-general" open class="accordion-semana-box">
                     <summary class="accordion-semana-summary">
-                        <span class="summary-arrow-green">▼</span> General
+                        <div class="summary-title-left">
+                            <span class="summary-arrow-green">►</span>
+                            <span>General</span>
+                        </div>
                     </summary>
                     <div class="accordion-semana-body">
                         <div class="avisos-general-box">
@@ -183,7 +173,7 @@
                     <details id="semana-{{ bloque.info.numero }}" class="accordion-semana-box">
                         <summary class="accordion-semana-summary summary-space-between">
                             <div class="summary-title-left">
-                                <span class="summary-arrow-blue">▼</span>
+                                <span class="summary-arrow-blue">►</span>
                                 <span>
                                     Semana {{ bloque.info.numero }}
                                     {% if bloque.info.inicio and bloque.info.fin %}
@@ -199,26 +189,21 @@
                         </summary>
 
                         <div class="semana-items-list">
-                            <!-- Exámenes de la semana -->
+                            <!-- Exámenes -->
                             {% for ex in bloque.examenes %}
-                            <div
-                                class="card-examen-item {% if ex.activo %}examen-card-activa{% else %}examen-card-pausada{% endif %}">
+                            <div class="card-examen-item {% if ex.activo %}examen-card-activa{% else %}examen-card-pausada{% endif %}">
                                 <div class="examen-item-left">
-                                    <div
-                                        class="examen-icono-box {% if ex.activo %}icono-activo{% else %}icono-pausado{% endif %}">
+                                    <div class="examen-icono-box {% if ex.activo %}icono-activo{% else %}icono-pausado{% endif %}">
                                         📝
                                     </div>
                                     <div>
                                         <h4 class="examen-title-txt">
-                                            {{ ex.titulo }}{% if not ex.activo %}<span class="badge-pausado">Pausado /
-                                                Oculto</span>{% endif %}
+                                            {{ ex.titulo }}{% if not ex.activo %}<span class="badge-pausado">Pausado / Oculto</span>{% endif %}
                                         </h4>
                                         <div class="examen-meta-txt">
-                                            Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }}
-                                            preguntas &bull; Máx. {{ ex.intentos_permitidos }} intento(s)
+                                            Tiempo: {{ ex.duracion_minutos }} min &bull; {{ ex.preguntas.count }} preguntas &bull; Máx. {{ ex.intentos_permitidos }} intento(s)
                                             {% if ex.fecha_apertura and ex.fecha_cierre %}
-                                            &bull; {{ ex.fecha_apertura|date:"d/m H:i" }} a {{ ex.fecha_cierre|date:"d/m
-                                            H:i" }}
+                                            &bull; {{ ex.fecha_apertura|date:"d/m H:i" }} a {{ ex.fecha_cierre|date:"d/m H:i" }}
                                             {% endif %}
                                         </div>
                                     </div>
@@ -227,12 +212,10 @@
                                 <div>
                                     {% if es_docente_curso %}
                                     <div class="examen-actions-group">
-                                        <a href="{% url 'ver_intentos_examen' ex.id %}"
-                                            class="btn-action-base btn-entregas">
+                                        <a href="{% url 'ver_intentos_examen' ex.id %}" class="btn-action-base btn-entregas">
                                             📊 Ver Entregas ({{ ex.intentos.count }})
                                         </a>
-                                        <a href="{% url 'banco_preguntas_curso' curso.id %}"
-                                            class="btn-action-base btn-gestionar">
+                                        <a href="{% url 'banco_preguntas_curso' curso.id %}" class="btn-action-base btn-gestionar">
                                             Gestionar Preguntas
                                         </a>
                                         <a href="{% url 'finalizar_examen_docente' ex.id %}"
@@ -241,11 +224,9 @@
                                             ⏹ Finalizar
                                         </a>
                                         {% if ex.activo %}
-                                        <a href="{% url 'toggle_examen' ex.id %}" class="btn-action-base btn-pausar">⏸
-                                            Pausar</a>
+                                        <a href="{% url 'toggle_examen' ex.id %}" class="btn-action-base btn-pausar">⏸ Pausar</a>
                                         {% else %}
-                                        <a href="{% url 'toggle_examen' ex.id %}"
-                                            class="btn-action-base btn-habilitar">▶ Habilitar</a>
+                                        <a href="{% url 'toggle_examen' ex.id %}" class="btn-action-base btn-habilitar">▶ Habilitar</a>
                                         {% endif %}
                                         <a href="{% url 'eliminar_examen' ex.id %}"
                                             onclick="return confirm('¿Seguro que deseas eliminar esta evaluación?');"
@@ -266,7 +247,7 @@
                             </div>
                             {% endfor %}
 
-                            <!-- Materiales y Videos de la semana -->
+                            <!-- Materiales -->
                             {% for mat in bloque.materiales %}
                             <div class="material-item-card">
                                 <div class="material-info">
@@ -280,8 +261,7 @@
 
                                     <div class="material-details">
                                         {% if mat.es_video %}
-                                        <a href="{% url 'ver_material_curso' curso.id mat.id %}"
-                                            class="material-video-link">
+                                        <a href="{% url 'ver_material_curso' curso.id mat.id %}" class="material-video-link">
                                             {{ mat.titulo }}
                                             <span class="badge-tag-video">VIDEO</span>
                                         </a>
@@ -291,8 +271,7 @@
                                         {% if mat.contenido %}
                                         <p class="material-desc-txt">{{ mat.contenido }}</p>
                                         {% endif %}
-                                        <span class="material-date-txt">Publicado el {{ mat.fecha_subida|date:"d/m/Y
-                                            H:i" }}</span>
+                                        <span class="material-date-txt">Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -307,8 +286,7 @@
                                         📥 Descargar
                                     </a>
                                     {% elif mat.enlace_web %}
-                                    <a href="{{ mat.enlace_web }}" class="btn-mat-link" target="_blank"
-                                        rel="noopener noreferrer">
+                                    <a href="{{ mat.enlace_web }}" class="btn-mat-link" target="_blank" rel="noopener noreferrer">
                                         🌐 Abrir Enlace
                                     </a>
                                     {% endif %}
@@ -340,12 +318,10 @@
                 {% endif %}
 
             </div>
-
         </main>
-
     </div>
 
-    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
+    <script src="{% static 'js/intranet.js' %}?v=2.0" defer></script>
 </body>
 
 </html>
