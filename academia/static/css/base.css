@@ -78,7 +78,7 @@ html, body {
 }
 
 /* ----------------------------------------------------
-   3. BARRA SUPERIOR BLANCA (TOP-NAVBAR) - DESKTOP
+   3. BARRA SUPERIOR (TOP-NAVBAR) - DESKTOP
    ---------------------------------------------------- */
 .top-navbar,
 .intranet-topbar {
@@ -157,7 +157,61 @@ html, body {
 }
 
 /* ----------------------------------------------------
-   4. MENÚ DESPLEGABLE DE USUARIO (NAVBAR GLOBAL)
+   4. TOPBAR ESPECÍFICO DE AULA VIRTUAL
+   ---------------------------------------------------- */
+.topbar-aula-virtual {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: 56px !important;
+    padding: 0 16px !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.topbar-brand-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+}
+
+.topbar-brand-info {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.topbar-brand-title {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    line-height: 1.1 !important;
+}
+
+.topbar-brand-tag {
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+    letter-spacing: 0.5px !important;
+}
+
+.btn-hamburger-curso {
+    background: transparent !important;
+    border: none !important;
+    padding: 4px !important;
+    display: none;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+/* ----------------------------------------------------
+   5. MENÚ DESPLEGABLE DE USUARIO (NAVBAR GLOBAL)
    ---------------------------------------------------- */
 .user-dropdown-container {
     position: relative;
@@ -183,7 +237,8 @@ html, body {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-.user-trigger-text {
+.user-trigger-text,
+.user-profile-name {
     font-size: 13px;
     font-weight: 600;
     color: #1e293b;
@@ -294,7 +349,7 @@ html, body {
 }
 
 /* ----------------------------------------------------
-   5. ALERTAS Y MENSAJES INSTITUCIONALES
+   6. ALERTAS Y MENSAJES INSTITUCIONALES
    ---------------------------------------------------- */
 .contenedor-mensajes-global,
 .contenedor-mensajes-intranet {
@@ -337,7 +392,7 @@ html, body {
 .alerta-info { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
 
 /* ----------------------------------------------------
-   6. TIPOGRAFÍA DE ENCABEZADOS DE PÁGINA
+   7. TIPOGRAFÍA DE ENCABEZADOS DE PÁGINA
    ---------------------------------------------------- */
 .page-header-title {
     font-size: 22px;
@@ -357,19 +412,21 @@ html, body {
 }
 
 /* ----------------------------------------------------
-   7. BLINDAJE DE IMÁGENES Y LOGOS (CONTENCIÓN TOTAL)
+   8. BLINDAJE DE IMÁGENES Y LOGOS (CONTENCIÓN TOTAL)
    ---------------------------------------------------- */
 .sidebar-galeno img,
 .sidebar-brand img,
 .sidebar-logo,
 .brand-logo-img,
-.intranet-sidebar img {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    min-height: 36px !important;
-    max-width: 36px !important;
-    max-height: 36px !important;
+.intranet-sidebar img,
+.topbar-brand-img,
+.topbar-curso-logo {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
     object-fit: contain !important;
     border-radius: 50% !important;
     display: block !important;
@@ -413,7 +470,7 @@ html, body {
 }
 
 /* ==============================================================================
-   8. RESPONSIVE MÓVIL ESTRICTO (< 768px) - BARRA HORIZONTAL COMPACTA
+   9. RESPONSIVE MÓVIL UNIFICADO (< 768px)
    ============================================================================== */
 @media (max-width: 768px) {
     html, body {
@@ -438,10 +495,34 @@ html, body {
         display: block !important;
     }
 
-    /* BARRA SUPERIOR EN UNA SOLA FILA ESTRICTA TIPO APP */
+    /* Reset de espaciados interiores */
+    .main-stage,
+    .intranet-content,
+    .main-content-layout,
+    .main-container {
+        padding: 14px 12px 40px 12px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .page-header-title {
+        font-size: 18px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .page-header-subtitle {
+        font-size: 12px !important;
+        margin-bottom: 14px !important;
+        line-height: 1.35 !important;
+    }
+
+    /* Topbars en una sola fila horizontal estricta */
     header.top-navbar,
     .top-navbar,
-    .intranet-topbar {
+    .intranet-topbar,
+    .topbar-aula-virtual {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
@@ -455,7 +536,11 @@ html, body {
         gap: 8px !important;
     }
 
-    /* Bloque izquierdo: ☰ + Saludo */
+    .btn-hamburger-curso {
+        display: inline-flex !important;
+    }
+
+    /* Bloque izquierdo de la barra */
     .top-navbar > div:first-child {
         display: flex !important;
         flex-direction: row !important;
@@ -476,7 +561,7 @@ html, body {
         margin: 0 !important;
     }
 
-    /* Bloque derecho: Avatar compacto alineado al extremo derecho */
+    /* Bloque derecho: Avatar compacto */
     .user-dropdown-container {
         display: inline-flex !important;
         width: auto !important;
@@ -508,8 +593,8 @@ html, body {
         font-size: 13px !important;
     }
 
-    /* Ocultamos los textos largos en la barra para que no salte de renglón */
     .user-trigger-text,
+    .user-profile-name,
     .user-text-info {
         display: none !important;
     }
@@ -520,7 +605,6 @@ html, body {
         color: var(--text-muted) !important;
     }
 
-    /* Menú flotante anclado a la derecha */
     .user-dropdown-menu {
         position: absolute !important;
         right: 0 !important;
@@ -531,41 +615,7 @@ html, body {
         z-index: 2000 !important;
     }
 
-    .btn-whatsapp-flotante {
-        bottom: 16px !important;
-        right: 16px !important;
-        width: 50px !important;
-        height: 50px !important;
-    }
-}
-/* ==============================================================================
-   SUB-VISTAS INTRANET MÓVIL ESTANDARIZADAS (< 768px)
-   ============================================================================== */
-@media (max-width: 768px) {
-    /* 1. Reset de padding en contenedor de contenidos */
-    .main-stage,
-    .intranet-content,
-    .main-content-layout,
-    .main-container {
-        padding: 14px 12px 40px 12px !important;
-        margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    .page-header-title {
-        font-size: 18px !important;
-        margin-bottom: 4px !important;
-    }
-
-    .page-header-subtitle {
-        font-size: 12px !important;
-        margin-bottom: 14px !important;
-        line-height: 1.35 !important;
-    }
-
-    /* 2. Tarjetas maestras en móvil */
+    /* Tarjetas maestras en móvil */
     .card-white-box,
     .profile-card,
     .asistencia-card,
@@ -577,11 +627,11 @@ html, body {
         border-radius: 14px !important;
         box-sizing: border-box !important;
         margin-bottom: 14px !important;
-        border: 1px solid #e2e8f0 !important;
+        border: 1px solid var(--border-color) !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
     }
 
-    /* 3. Grid de Cursos Matriculados */
+    /* Grilla de asignaturas */
     .cursos-grid,
     .grid-mis-cursos {
         display: flex !important;
@@ -595,7 +645,7 @@ html, body {
         border-radius: 14px !important;
     }
 
-    /* 4. Resumen de Asistencias (Sesiones, Presentes, Tardanzas, Faltas) */
+    /* Módulos de Asistencia */
     .asistencia-resumen-grid,
     .resumen-asistencia-boxes {
         display: grid !important;
@@ -607,7 +657,6 @@ html, body {
         border-radius: 10px !important;
     }
 
-    /* Tablas de notas / asistencias con scroll horizontal protegido */
     .table-responsive-container {
         width: 100% !important;
         overflow-x: auto !important;
@@ -625,7 +674,6 @@ html, body {
         padding: 8px 6px !important;
     }
 
-    /* Badges de estado de asistencia */
     .badge-asist-p, .badge-asist-t, .badge-asist-f, .badge-asist-j {
         font-size: 10px !important;
         padding: 3px 6px !important;
@@ -633,7 +681,7 @@ html, body {
         font-weight: 700 !important;
     }
 
-    /* 5. Vista de Perfil */
+    /* Módulos de Perfil */
     .perfil-card-body {
         padding: 16px 12px !important;
     }
@@ -643,71 +691,13 @@ html, body {
         border-radius: 10px !important;
         margin-bottom: 10px !important;
         background: #f8fafc !important;
-        border: 1px solid #e2e8f0 !important;
+        border: 1px solid var(--border-color) !important;
     }
-}
-/* ==============================================================================
-   CONTENCIÓN DEL LOGO Y HEADER EN AULA VIRTUAL
-   ============================================================================== */
-.topbar-aula-virtual {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    height: 56px !important;
-    padding: 0 14px !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    box-sizing: border-box !important;
-    width: 100% !important;
-}
 
-.topbar-brand-link {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    text-decoration: none !important;
-}
-
-/* BLINDAJE ESTRICTO DEL LOGO */
-.topbar-brand-img,
-.topbar-curso-logo {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    min-height: 34px !important;
-    max-width: 34px !important;
-    max-height: 34px !important;
-    object-fit: contain !important;
-    border-radius: 50% !important;
-    display: block !important;
-    flex-shrink: 0 !important;
-}
-
-.topbar-brand-info {
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-.topbar-brand-title {
-    font-size: 13px !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
-    line-height: 1.1 !important;
-}
-
-.topbar-brand-tag {
-    font-size: 9.5px !important;
-    font-weight: 700 !important;
-    color: #0284c7 !important;
-    letter-spacing: 0.5px !important;
-}
-
-.btn-hamburger-curso {
-    background: transparent !important;
-    border: none !important;
-    padding: 4px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
+    .btn-whatsapp-flotante {
+        bottom: 16px !important;
+        right: 16px !important;
+        width: 50px !important;
+        height: 50px !important;
+    }
 }
