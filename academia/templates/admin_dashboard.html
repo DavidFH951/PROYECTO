@@ -50,9 +50,9 @@
 
                 <select name="rol" class="select-filter-inline" onchange="this.form.submit()">
                     <option value="">Todos los Roles</option>
-                    <option value="alumno" {% if rol_filtro=='alumno' %}selected{% endif %}>Alumnos</option>
-                    <option value="docente" {% if rol_filtro=='docente' %}selected{% endif %}>Docentes</option>
-                    <option value="admin" {% if rol_filtro=='admin' %}selected{% endif %}>Administradores</option>
+                    <option value="alumno" {% if rol_filtro == 'alumno' %}selected{% endif %}>Alumnos</option>
+                    <option value="docente" {% if rol_filtro == 'docente' %}selected{% endif %}>Docentes</option>
+                    <option value="admin" {% if rol_filtro == 'admin' %}selected{% endif %}>Administradores</option>
                 </select>
 
                 <button type="submit" class="btn-search-icon">Buscar</button>
@@ -151,7 +151,7 @@
     </div>
 
     <!-- Script Modular Externo -->
-    <script src="{% static 'js/admin_dashboard.js' %}?v=1.0" defer></script>
+    <script src="{% static 'js/admin_dashboard.js' %}?v=1.5" defer></script>
 
 </body>
 
