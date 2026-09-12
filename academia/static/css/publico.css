@@ -102,7 +102,7 @@
     background: #047857;
 }
 
-/* --- HERO SECTION & SLIDER (CORRECCIÓN DEL DESBORDE) --- */
+/* --- HERO SECTION & SLIDER --- */
 .hero-slider-wrapper {
     position: relative;
     width: 100%;
@@ -113,7 +113,7 @@
     overflow: hidden;
 }
 
-/* Las imágenes de banner se confinan y se escalan adecuadamente */
+/* 1. Subir la visibilidad de la imagen */
 .hero-slide {
     position: absolute;
     inset: 0;
@@ -128,13 +128,19 @@
 }
 
 .hero-slide.active {
-    opacity: 0.35; /* Opacidad tenue para no competir con el texto */
+    opacity: 0.85; /* Antes 0.35: ahora la imagen luce con gran claridad */
 }
 
+/* 2. Sombra sutil solo en el lateral izquierdo para proteger la lectura del texto */
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.75) 100%);
+    background: linear-gradient(
+        90deg, 
+        rgba(15, 23, 42, 0.78) 0%, 
+        rgba(15, 23, 42, 0.45) 55%, 
+        rgba(15, 23, 42, 0.15) 100%
+    );
     z-index: 2;
 }
 
