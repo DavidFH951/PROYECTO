@@ -270,18 +270,22 @@
         padding: 16px 14px !important;
     }
 
-    /* Transformación del horario semanal para desplazamiento horizontal táctil o apilado fluido */
+   @media (max-width: 768px) {
     .horario-columns-grid {
-        display: grid !important;
-        grid-template-columns: repeat(1, 100%) !important;
+        display: flex !important;
+        overflow-x: auto !important;
         gap: 12px !important;
-        min-height: auto !important;
+        padding-bottom: 8px !important;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
     }
 
     .col-dia {
-        padding: 10px 8px !important;
+        min-width: 140px !important;
+        flex: 0 0 140px !important;
+        scroll-snap-align: start;
     }
-
+}
     .materia-item-row {
         padding: 12px 14px !important;
     }
