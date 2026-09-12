@@ -1,9 +1,27 @@
 // ==============================================================================
-// LÓGICA DE PÁGINA PÚBLICA (CARRUSEL HERO Y LEAD WHATSAPP)
+// LÓGICA DE PÁGINA PÚBLICA (CARRUSEL HERO, WHATSAPP LEAD Y MENÚ MÓVIL)
 // ==============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. LÓGICA DEL CARRUSEL ---
+
+    // --- 1. MENÚ HAMBURGUESA MÓVIL ---
+    const btnMenu = document.getElementById('btnToggleMobileMenu');
+    const navArea = document.getElementById('navLinksArea');
+
+    if (btnMenu && navArea) {
+        btnMenu.addEventListener('click', () => {
+            navArea.classList.toggle('menu-open');
+        });
+
+        // Cerrar menú al hacer clic en un enlace
+        navArea.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navArea.classList.remove('menu-open');
+            });
+        });
+    }
+
+    // --- 2. CARRUSEL HERO ---
     let slideIndex = 0;
     const slides = document.querySelectorAll('.hero-slide');
     const dots = document.querySelectorAll('.slider-dot');
@@ -52,13 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
         iniciarIntervalo();
     }
 
-    // --- 2. ENVÍO A WHATSAPP (EN NUEVA PESTAÑA) ---
+    // --- 3. ENVÍO A WHATSAPP ---
     const formLead = document.getElementById('form-whatsapp-lead');
     if (formLead) {
         formLead.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Obtenemos el número desde el atributo data-whatsapp o fallback
             const rawNumber = formLead.getAttribute('data-whatsapp') || '51926901555';
             const numeroAdmin = rawNumber.replace(/\D/g, '');
 
@@ -70,12 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const correo = document.getElementById('lead-correo')?.value.trim() || '';
 
             const mensaje = `¡Hola Academia Galeno! Deseo solicitar informes para inscribirme:\n\n` +
-                            `📚 *Curso:* ${curso}\n` +
-                            `👤 *Postulante:* ${nombres} ${apellidos}\n` +
-                            `🪪 *DNI:* ${dni}\n` +
-                            `📱 *WhatsApp:* ${telefono}\n` +
-                            `✉️ *Correo:* ${correo}\n\n` +
-                            `Quedo a la espera de la información de vacantes y matrícula.`;
+                `📚 *Curso:* ${curso}\n` +
+                `👤 *Postulante:* ${nombres} ${apellidos}\n` +
+                `🪪 *DNI:* ${dni}\n` +
+                `📱 *WhatsApp:* ${telefono}\n` +
+                `✉️ *Correo:* ${correo}\n\n` +
+                `Quedo a la espera de la información de vacantes y matrícula.`;
 
             const urlWa = `https://wa.me/${numeroAdmin}?text=${encodeURIComponent(mensaje)}`;
 

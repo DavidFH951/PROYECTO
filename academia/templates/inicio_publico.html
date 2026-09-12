@@ -7,7 +7,7 @@
     <title>Academia Galeno | Excelencia Médica</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/publico.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/publico.css' %}?v=2.0">
 </head>
 <body>
 
@@ -21,7 +21,12 @@
             </div>
         </a>
 
-        <div class="nav-links-area">
+        <!-- Botón de apertura en celular -->
+        <button type="button" class="mobile-menu-btn" id="btnToggleMobileMenu" aria-label="Abrir menú">
+            ☰
+        </button>
+
+        <div class="nav-links-area" id="navLinksArea">
             <nav class="nav-menu">
                 <a href="#inicio" class="nav-link active">Inicio</a>
                 <a href="#nosotros" class="nav-link">Nosotros</a>
