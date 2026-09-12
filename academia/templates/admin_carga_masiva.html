@@ -20,16 +20,16 @@
         <div class="carga-card">
             <span class="header-title-badge">📥 Importación de Usuarios</span>
             <h1 class="carga-title">Carga Masiva de Usuarios</h1>
-            <p class="carga-subtitle">Registra múltiples estudiantes o docentes simultáneamente subiendo un archivo delimitado por comas (.csv) según la estructura oficial.</p>
+            <p class="carga-subtitle">Registra múltiples estudiantes o docentes simultáneamente subiendo un archivo delimitado (.csv) según la estructura oficial.</p>
 
             <div class="download-box">
                 <div class="download-info">
                     <strong>Plantilla Oficial de Registro</strong>
                     <span>Estructura con cabeceras estándar para rellenar en Microsoft Excel o Google Sheets.</span>
                 </div>
-                <a href="{% url 'descargar_plantilla_usuarios_csv' %}" class="btn-download-template">
+                <button type="button" onclick="descargarPlantillaCSV()" class="btn-download-template" style="border:none; cursor:pointer;">
                     <span>📊</span> Descargar Plantilla (.csv)
-                </a>
+                </button>
             </div>
 
             <p style="font-size: 13px; font-weight: 700; color: #1e293b; margin: 0 0 8px 0;">Estructura requerida de columnas:</p>
@@ -87,16 +87,7 @@
         </div>
     </div>
 
-    <script>
-        function mostrarNombreArchivo(input) {
-            const display = document.getElementById('fileSelectedName');
-            if (input.files && input.files[0]) {
-                display.innerText = 'Archivo cargado: ' + input.files[0].name;
-                display.style.display = 'block';
-            } else {
-                display.style.display = 'none';
-            }
-        }
-    </script>
+    <!-- Script Modular Externo -->
+    <script src="{% static 'js/admin_carga_masiva.js' %}?v=1.0" defer></script>
 </body>
 </html>
