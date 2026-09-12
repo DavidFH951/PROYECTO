@@ -1,13 +1,24 @@
 {% load static %}
 <header class="top-navbar">
-    <div class="top-welcome-text">
-        Bienvenido{% if request.user.is_superuser or request.user.is_staff %}, administrador(a){% elif es_docente %}, profesor(a){% else %}, estudiante{% endif %} 
-        <strong class="top-welcome-name">{{ request.user.first_name|default:request.user.username }}</strong>
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <!-- Botón Hamburguesa Móvil (Visible solo en celular por CSS) -->
+        <button type="button" class="btn-hamburger-intranet" id="btnHamburgerSidebar" aria-label="Abrir Menú">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
+        <div class="top-welcome-text">
+            Bienvenido{% if request.user.is_superuser or request.user.is_staff %}, administrador(a){% elif es_docente %}, profesor(a){% else %}, estudiante{% endif %} 
+            <strong class="top-welcome-name">{{ request.user.first_name|default:request.user.username }}</strong>
+        </div>
     </div>
 
     <!-- Menú Desplegable del Usuario -->
     <div class="user-dropdown-container">
-        <div class="user-profile-trigger">
+        <div class="user-profile-trigger" id="userProfileTrigger">
             <div class="user-avatar-circle">
                 {{ request.user.first_name|first|default:request.user.username|first|upper }}
             </div>
@@ -27,7 +38,7 @@
         </div>
 
         <!-- Menú Flotante -->
-        <div class="user-dropdown-menu">
+        <div class="user-dropdown-menu" id="userMenuDropdown">
             <div class="dropdown-user-info">
                 <div class="dropdown-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
                 <div class="dropdown-user-email">{{ request.user.email|default:"Sin correo registrado" }}</div>

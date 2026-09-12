@@ -136,3 +136,96 @@
     background: rgba(255, 255, 255, 0.2);
     border-radius: 4px;
 }
+/* Botón hamburguesa y cierre: ocultos en PC de escritorio */
+.btn-hamburger-intranet,
+.sidebar-close-btn,
+.sidebar-backdrop {
+    display: none;
+}
+
+/* ==============================================================================
+   DRAWER MÓVIL (TIPO APP NATIVA) EN PANTALLAS < 768px
+   ============================================================================== */
+@media (max-width: 768px) {
+    /* 1. Botón hamburguesa visible en topbar */
+    .btn-hamburger-intranet {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        padding: 4px;
+        cursor: pointer;
+    }
+
+    /* 2. Telón de fondo translúcido */
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(2px);
+        z-index: 998;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .sidebar-backdrop.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* 3. Panel lateral deslizable desde la izquierda */
+    .sidebar-galeno {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 270px !important;
+        min-width: 270px !important;
+        max-width: 270px !important;
+        height: 100vh !important;
+        z-index: 999 !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 10px 0 25px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    .sidebar-galeno.drawer-open {
+        transform: translateX(0) !important;
+    }
+
+    /* Botón X de cierre */
+    .sidebar-close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        color: #ffffff;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-size: 13px;
+        cursor: pointer;
+        margin-left: auto;
+    }
+
+    /* Enlaces verticales completos como en la app */
+    .sidebar-menu {
+        flex-direction: column !important;
+        overflow-y: auto !important;
+        padding: 16px 12px !important;
+        gap: 8px !important;
+    }
+
+    .sidebar-link {
+        font-size: 14px !important;
+        padding: 11px 16px !important;
+    }
+
+    .sidebar-logout {
+        display: flex !important;
+        padding: 16px 20px !important;
+    }
+}
