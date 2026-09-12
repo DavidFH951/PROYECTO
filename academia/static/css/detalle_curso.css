@@ -3,88 +3,21 @@
    ============================================================================== */
 
 /* ----------------------------------------------------
-   1. BARRA SUPERIOR (TOPBAR AULA VIRTUAL)
+   1. CONTENEDOR MAESTRO Y ESTRUCTURA GENERAL
    ---------------------------------------------------- */
-.topbar-aula-virtual {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    height: 56px !important;
-    padding: 0 16px !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    box-sizing: border-box !important;
-    width: 100% !important;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-}
-
-.topbar-brand-link {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    text-decoration: none !important;
-}
-
-.topbar-brand-img,
-.topbar-curso-logo {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    min-height: 34px !important;
-    max-width: 34px !important;
-    max-height: 34px !important;
-    object-fit: contain !important;
-    border-radius: 50% !important;
-    display: block !important;
-    flex-shrink: 0 !important;
-}
-
-.topbar-brand-info {
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-.topbar-brand-title {
-    font-size: 13.5px !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
-    line-height: 1.15 !important;
-}
-
-.topbar-brand-tag {
-    font-size: 9.5px !important;
-    font-weight: 700 !important;
-    color: #0284c7 !important;
-    letter-spacing: 0.6px !important;
-}
-
-.btn-hamburger-curso {
-    background: transparent !important;
-    border: none !important;
-    padding: 6px !important;
-    display: none;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-}
-
-/* ----------------------------------------------------
-   2. CONTENEDOR GENERAL Y ESTRUCTURA DE PANTALLA
-   ---------------------------------------------------- */
-.aula-virtual-body {
+body.aula-virtual-body,
+body {
     background-color: #f8fafc;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    overflow-x: hidden;
 }
 
 .aula-layout-container,
 .curso-detalle-wrapper,
 .intranet-container {
     display: flex;
-    flex: 1;
+    flex-direction: row;
+    align-items: stretch;
     width: 100%;
     min-height: calc(100vh - 56px);
     background-color: #f8fafc;
@@ -92,7 +25,7 @@
 }
 
 /* ----------------------------------------------------
-   3. SIDEBAR OSCURO DE SEMANAS (DESKTOP)
+   2. SIDEBAR LATERAL OSCURO DE SEMANAS (PC)
    ---------------------------------------------------- */
 .sidebar-curso-backdrop {
     display: none;
@@ -109,6 +42,7 @@
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    align-self: stretch;
 }
 
 .sidebar-curso-header-mobile {
@@ -175,129 +109,193 @@
 }
 
 /* ----------------------------------------------------
-   4. CONTENIDO PRINCIPAL Y PORTADA DEL CURSO
+   3. ÁREA PRINCIPAL DE CONTENIDOS Y PORTADA
    ---------------------------------------------------- */
 .aula-main-stage,
-.curso-content-area {
-    flex: 1;
+.curso-content-area,
+main {
+    flex: 1 1 auto;
     min-width: 0;
     padding: 24px 32px 60px 32px;
     box-sizing: border-box;
 }
 
-/* Blindaje de Imagen de Portada */
+/* Contención estricta de la imagen del banner */
 .banner-curso-header,
 .curso-portada-box,
-.aula-banner-container {
-    width: 100% !important;
-    height: 200px !important;
-    max-height: 200px !important;
-    border-radius: 14px !important;
-    overflow: hidden !important;
-    background: #f1f5f9;
-    margin-bottom: 20px !important;
-    border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.banner-curso-header img,
-.curso-portada-box img,
-.aula-banner-container img,
+.aula-banner-container,
 .aula-main-stage > img,
 .curso-content-area > img,
+main > img,
 .portada-curso-img {
     width: 100% !important;
-    height: 200px !important;
-    max-height: 200px !important;
+    height: 180px !important;
+    max-height: 180px !important;
     object-fit: cover !important;
     object-position: center !important;
-    display: block !important;
     border-radius: 14px !important;
-    margin-bottom: 20px !important;
+    display: block !important;
+    margin: 0 0 20px 0 !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
-/* Información del Curso */
+/* Tipografía de Encabezados del Curso */
 .periodo-badge-txt,
 .banner-badge-periodo {
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    color: #0284c7 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0284c7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     margin-bottom: 4px;
     display: inline-block;
 }
 
 .curso-titulo-principal,
 .banner-curso-titulo {
-    font-size: 26px !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
-    margin: 4px 0 6px 0 !important;
-    line-height: 1.25 !important;
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 4px 0 6px 0;
+    line-height: 1.25;
 }
 
 .curso-docente-txt,
 .banner-curso-meta {
-    font-size: 13.5px !important;
-    color: #475569 !important;
-    margin-bottom: 16px !important;
+    font-size: 13.5px;
+    color: #475569;
+    margin-bottom: 16px;
 }
 
 .curso-docente-txt strong {
-    color: #0f172a !important;
+    color: #0f172a;
 }
 
-/* Acciones Docente */
+/* ----------------------------------------------------
+   4. ACCIONES DEL DOCENTE (BOTONES ELEGANTES)
+   ---------------------------------------------------- */
 .docente-acciones-bar,
-.acciones-curso-flex {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 10px !important;
-    margin: 16px 0 24px 0 !important;
+.acciones-curso-flex,
+p:has(> a[href*="examen"]),
+div:has(> a[href*="material"]) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0 24px 0;
+    padding: 0;
 }
 
 .btn-accion-docente,
 .docente-acciones-bar a,
-.acciones-curso-flex a {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 8px 14px !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    text-decoration: none !important;
-    transition: all 0.15s ease !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+.acciones-curso-flex a,
+p:has(> a[href*="examen"]) a,
+div:has(> a[href*="material"]) a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all 0.15s ease;
 }
 
 .btn-accion-docente:hover,
 .docente-acciones-bar a:hover,
-.acciones-curso-flex a:hover {
-    background: #f8fafc !important;
-    border-color: #0284c7 !important;
-    color: #0284c7 !important;
-    transform: translateY(-1px) !important;
+.acciones-curso-flex a:hover,
+p:has(> a[href*="examen"]) a:hover,
+div:has(> a[href*="material"]) a:hover {
+    background: #f8fafc;
+    border-color: #0284c7;
+    color: #0284c7;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(2, 132, 199, 0.1);
 }
 
-/* Materiales de Estudio */
+/* ----------------------------------------------------
+   5. ACORDEONES DE SEMANAS Y MATERIALES (DETAILS / SUMMARY)
+   ---------------------------------------------------- */
 .seccion-materiales-title {
-    font-size: 18px !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
-    margin: 20px 0 14px 0 !important;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 24px 0 14px 0;
+}
+
+details {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.2s ease;
+}
+
+details[open] {
+    border-color: #cbd5e1;
+}
+
+summary {
+    padding: 14px 18px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #0f172a;
+    cursor: pointer;
+    background: #ffffff;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+
+summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Indicador de flecha moderno a la derecha */
+summary::after {
+    content: "▾";
+    font-size: 14px;
+    color: #64748b;
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+details[open] summary::after {
+    transform: rotate(180deg);
+}
+
+details[open] summary {
+    border-bottom: 1px solid #f1f5f9;
+    background: #f8fafc;
+}
+
+/* Interior del acordeón desplegado */
+details > div,
+details > p,
+details > ul {
+    padding: 16px 18px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 13.5px;
+    line-height: 1.5;
 }
 
 .material-card-item {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 12px;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -305,8 +303,8 @@
 }
 
 .material-card-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
 }
 
 .btn-descargar-recurso {
@@ -327,9 +325,9 @@
     background: #0369a1;
 }
 
-/* ----------------------------------------------------
-   5. ADAPTACIÓN MÓVIL ESTRICTA (< 768px)
-   ---------------------------------------------------- */
+/* ==============================================================================
+   6. RESPONSIVE MÓVIL (< 768px) - EXPERIENCIA TIPO APP
+   ============================================================================== */
 @media (max-width: 768px) {
     .btn-hamburger-curso {
         display: inline-flex !important;
@@ -342,7 +340,7 @@
         width: 100% !important;
     }
 
-    /* Fondo deslizable */
+    /* Fondo oscuro traslúcido para celular */
     .sidebar-curso-backdrop {
         display: block;
         position: fixed;
@@ -360,7 +358,7 @@
         visibility: visible;
     }
 
-    /* Menú lateral oculto a la izquierda */
+    /* Sidebar drawer deslizable */
     .sidebar-curso-panel {
         position: fixed !important;
         top: 0 !important;
@@ -405,34 +403,39 @@
         padding: 16px !important;
     }
 
-    /* Contenido a ancho completo */
+    /* Contenido a ancho total de pantalla */
     .aula-main-stage,
-    .curso-content-area {
+    .curso-content-area,
+    main {
         width: 100% !important;
         max-width: 100% !important;
         padding: 14px 12px 40px 12px !important;
     }
 
+    /* Portada contenida en móvil */
     .banner-curso-header,
     .curso-portada-box,
     .aula-banner-container,
-    .banner-curso-header img,
-    .curso-portada-box img,
-    .aula-banner-container img,
     .aula-main-stage > img,
     .curso-content-area > img,
+    main > img,
     .portada-curso-img {
-        height: 135px !important;
-        max-height: 135px !important;
+        height: 130px !important;
+        max-height: 130px !important;
+        border-radius: 12px !important;
+        margin-bottom: 16px !important;
     }
 
     .curso-titulo-principal,
     .banner-curso-titulo {
-        font-size: 19px !important;
+        font-size: 20px !important;
     }
 
+    /* Botones de acción del docente apilados limpiamente */
     .docente-acciones-bar,
-    .acciones-curso-flex {
+    .acciones-curso-flex,
+    p:has(> a[href*="examen"]),
+    div:has(> a[href*="material"]) {
         display: flex !important;
         flex-direction: column !important;
         gap: 8px !important;
@@ -441,12 +444,16 @@
 
     .btn-accion-docente,
     .docente-acciones-bar a,
-    .acciones-curso-flex a {
-        justify-content: center !important;
+    .acciones-curso-flex a,
+    p:has(> a[href*="examen"]) a,
+    div:has(> a[href*="material"]) a {
         width: 100% !important;
+        justify-content: center !important;
         box-sizing: border-box !important;
+        padding: 11px 14px !important;
     }
 
+    /* Materiales descargables en móvil */
     .material-card-item {
         flex-direction: column !important;
         align-items: flex-start !important;
@@ -457,228 +464,5 @@
     .btn-descargar-recurso {
         width: 100% !important;
         justify-content: center !important;
-    }
-}
-/* ==============================================================================
-   RESCATE Y BLINDAJE INMEDIATO DE DETALLE CURSO
-   ============================================================================== */
-
-/* 1. Layout general en PC: Sidebar a la izquierda y contenido a la derecha */
-body {
-    overflow-x: hidden !important;
-}
-
-/* El contenedor principal debe comportarse como flex horizontal en escritorio */
-main,
-.intranet-container,
-.aula-layout-container,
-.curso-detalle-wrapper,
-.aula-virtual-container,
-div[class*="layout"],
-div[class*="wrapper"] {
-    max-width: 100vw !important;
-    box-sizing: border-box !important;
-}
-
-/* 2. Blindaje universal contra cualquier imagen gigante dentro de la vista */
-main img,
-.aula-main-stage img,
-.curso-content-area img,
-.content-wrapper img:not(.topbar-brand-img):not(.sidebar-logo) {
-    max-width: 100% !important;
-    height: 180px !important;
-    max-height: 180px !important;
-    width: 100% !important;
-    object-fit: cover !important;
-    object-position: center !important;
-    border-radius: 12px !important;
-    display: block !important;
-    margin: 0 0 18px 0 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-}
-
-/* 3. Evitar que el área de contenido se desborde */
-.aula-main-stage,
-.curso-content-area,
-.content-wrapper > main,
-.intranet-content {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    padding: 20px 24px !important;
-}
-
-/* 4. En móviles (< 768px): achicar la portada a 130px */
-@media (max-width: 768px) {
-    main img,
-    .aula-main-stage img,
-    .curso-content-area img,
-    .content-wrapper img:not(.topbar-brand-img):not(.sidebar-logo) {
-        height: 130px !important;
-        max-height: 130px !important;
-    }
-    
-    .aula-main-stage,
-    .curso-content-area,
-    .content-wrapper > main,
-    .intranet-content {
-        padding: 12px 10px 30px 10px !important;
-    }
-}
-/* ==============================================================================
-   ESTRUCTURA VISUAL COMPLETA: CURSO DETALLE Y ACORDEONES
-   ============================================================================== */
-
-/* 1. Layout escritorio: Columna izquierda y contenido alineados arriba */
-.aula-layout-container,
-.curso-detalle-wrapper,
-div:has(> .sidebar-curso-panel) {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: flex-start !important;
-    width: 100% !important;
-}
-
-/* 2. Banner de portada con relación de aspecto contenida */
-.banner-curso-header,
-.curso-portada-box,
-main > img,
-.aula-main-stage > img {
-    width: 100% !important;
-    max-height: 190px !important;
-    height: 190px !important;
-    object-fit: cover !important;
-    border-radius: 12px !important;
-    margin: 0 0 20px 0 !important;
-    display: block !important;
-}
-
-/* 3. Encabezados y Metadatos */
-.curso-content-area,
-.aula-main-stage,
-main {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    padding: 24px 28px 60px 28px !important;
-}
-
-/* 4. Barra de Acciones del Docente (+ Programar Examen, Banco, etc.) */
-p:has(> a[href*="examen"]),
-div:has(> a[href*="material"]),
-.docente-acciones-bar {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 10px !important;
-    margin: 14px 0 24px 0 !important;
-}
-
-p:has(> a[href*="examen"]) a,
-div:has(> a[href*="material"]) a,
-.btn-docente-pill {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
-    border: 1px solid #cbd5e1 !important;
-    padding: 8px 14px !important;
-    border-radius: 8px !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    text-decoration: none !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-    transition: all 0.15s ease !important;
-}
-
-p:has(> a[href*="examen"]) a:hover,
-div:has(> a[href*="material"]) a:hover {
-    border-color: #0284c7 !important;
-    color: #0284c7 !important;
-    background: #f8fafc !important;
-}
-
-/* 5. Transformar la lista plana de Semanas (details / summary) en Acordeones Card */
-details {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 10px !important;
-    margin-bottom: 12px !important;
-    overflow: hidden !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
-}
-
-summary {
-    padding: 14px 18px !important;
-    font-weight: 700 !important;
-    font-size: 14px !important;
-    color: #0f172a !important;
-    cursor: pointer !important;
-    background: #ffffff !important;
-    list-style: none !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    user-select: none !important;
-}
-
-summary::-webkit-details-marker {
-    display: none !important;
-}
-
-summary::after {
-    content: "▾" !important;
-    font-size: 14px !important;
-    color: #64748b !important;
-    transition: transform 0.2s ease !important;
-}
-
-details[open] summary::after {
-    transform: rotate(180deg) !important;
-}
-
-details[open] summary {
-    border-bottom: 1px solid #f1f5f9 !important;
-    background: #f8fafc !important;
-}
-
-/* Contenido dentro de la semana desplegada */
-details > div,
-details > p,
-details > ul {
-    padding: 14px 18px !important;
-    background: #ffffff !important;
-    color: #334155 !important;
-    font-size: 13.5px !important;
-    line-height: 1.5 !important;
-}
-
-/* 6. Ajustes en Móvil (< 768px) */
-@media (max-width: 768px) {
-    .curso-content-area,
-    .aula-main-stage,
-    main {
-        padding: 12px 10px 30px 10px !important;
-    }
-
-    .banner-curso-header,
-    .curso-portada-box,
-    main > img,
-    .aula-main-stage > img {
-        height: 120px !important;
-        max-height: 120px !important;
-    }
-
-    p:has(> a[href*="examen"]),
-    div:has(> a[href*="material"]) {
-        flex-direction: column !important;
-        gap: 8px !important;
-    }
-
-    p:has(> a[href*="examen"]) a,
-    div:has(> a[href*="material"]) a {
-        width: 100% !important;
-        justify-content: center !important;
-        box-sizing: border-box !important;
     }
 }
