@@ -1,31 +1,32 @@
 {% load static %}
-<!-- Fondo oscuro para celular al abrir el menú de semanas -->
-<div class="sidebar-backdrop" id="sidebarCursoBackdrop"></div>
+<!-- Fondo oscuro para celular -->
+<div class="sidebar-curso-backdrop" id="sidebarCursoBackdrop"></div>
 
-<aside class="sidebar-curso-dark" id="sidebarCurso">
-    <!-- Cabecera en móvil con botón X -->
-    <div class="sidebar-curso-mobile-header">
-        <span class="sidebar-curso-mobile-title">Semanas del Ciclo</span>
-        <button type="button" class="sidebar-close-btn" id="btnSidebarCursoClose">✕</button>
+<aside class="sidebar-curso-panel" id="sidebarCurso">
+    <!-- Cabecera exclusiva para celulares -->
+    <div class="sidebar-curso-header-mobile">
+        <span>Menú de Semanas</span>
+        <button type="button" class="btn-close-curso-sidebar" id="btnSidebarCursoClose">✕</button>
     </div>
 
-    <!-- Contenido existente de navegación y semanas -->
-    <div class="sidebar-curso-scroll">
-        <div class="seccion-bloque">
-            <span class="bloque-label">NAVEGACIÓN</span>
-            <a href="{% url 'detalle_curso_token' token=token curso_id=curso.id %}" class="btn-semana-item active">
+    <div class="sidebar-curso-body">
+        <div class="bloque-nav-group">
+            <span class="bloque-nav-label">NAVEGACIÓN</span>
+            <a href="{% if token %}{% url 'detalle_curso_token' token=token curso_id=curso.id %}{% else %}{% url 'detalle_curso' curso_id=curso.id %}{% endif %}" class="btn-nav-semana active">
                 <span>🏠</span> General y Avisos
             </a>
         </div>
 
-        <div class="seccion-bloque">
-            <span class="bloque-label">SEMANAS DEL CICLO</span>
-            <div class="lista-semanas">
+        <div class="bloque-nav-group">
+            <span class="bloque-nav-label">SEMANAS DEL CICLO</span>
+            <div class="lista-nav-semanas">
                 {% for sem in semanas %}
-                <a href="?semana={{ sem.numero }}" class="btn-semana-item {% if semana_activa == sem.numero %}selected{% endif %}">
+                <a href="?semana={{ sem.numero }}" class="btn-nav-semana {% if semana_activa == sem.numero %}selected{% endif %}">
                     <span>📅</span> {{ sem.etiqueta|default:sem.nombre }}
-                    <span class="badge-count">{{ sem.total_materiales|default:"0" }}</span>
+                    <span class="badge-num-materiales">{{ sem.total_materiales|default:"0" }}</span>
                 </a>
+                {% empty %}
+                <span class="sin-semanas-txt">Ciclo en configuración</span>
                 {% endfor %}
             </div>
         </div>
