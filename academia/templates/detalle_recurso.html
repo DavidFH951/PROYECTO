@@ -34,42 +34,61 @@
                 <div class="recurso-detalle-container">
 
                     <!-- Breadcrumbs de navegación -->
-                    <nav class="breadcrumb-aula-virtual" style="margin-bottom: 16px; font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <nav class="breadcrumb-aula-virtual"
+                        style="margin-bottom: 16px; font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         {% if token %}
-                            <a href="{% url 'mis_cursos_token' token=token %}" style="color: #0284c7; text-decoration: none; font-weight: 600;">🎓 Aula Virtual</a>
-                            <span>/</span>
-                            <a href="{% url 'detalle_curso_token' token=token curso_id=recurso.curso.id %}" style="color: #0284c7; text-decoration: none; font-weight: 600;">{{ recurso.curso.titulo }}</a>
+                        <a href="{% url 'mis_cursos_token' token=token %}"
+                            style="color: #0284c7; text-decoration: none; font-weight: 600;">🎓 Aula Virtual</a>
+                        <span>/</span>
+                        <a href="{% url 'detalle_curso_token' token=token curso_id=recurso.curso.id %}"
+                            style="color: #0284c7; text-decoration: none; font-weight: 600;">{{ recurso.curso.titulo
+                            }}</a>
                         {% else %}
-                            <a href="{% url 'mis_cursos' %}" style="color: #0284c7; text-decoration: none; font-weight: 600;">🎓 Aula Virtual</a>
-                            <span>/</span>
-                            <a href="{% url 'detalle_curso' curso_id=recurso.curso.id %}" style="color: #0284c7; text-decoration: none; font-weight: 600;">{{ recurso.curso.titulo }}</a>
+                        <a href="{% url 'mis_cursos' %}"
+                            style="color: #0284c7; text-decoration: none; font-weight: 600;">🎓 Aula Virtual</a>
+                        <span>/</span>
+                        <a href="{% url 'detalle_curso' curso_id=recurso.curso.id %}"
+                            style="color: #0284c7; text-decoration: none; font-weight: 600;">{{ recurso.curso.titulo
+                            }}</a>
                         {% endif %}
-                        
+
                         {% if recurso.semana %}
-                            <span>/</span>
-                            <span>Semana {{ recurso.semana }}</span>
+                        <span>/</span>
+                        <span>Semana {{ recurso.semana }}</span>
                         {% endif %}
                         <span>/</span>
                         <span style="color: #0f172a; font-weight: 700;">{{ recurso.titulo }}</span>
                     </nav>
 
-                    <div class="recurso-detalle-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div class="recurso-detalle-card"
+                        style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
 
                         <!-- Encabezado del Recurso -->
-                        <div class="recurso-header-block" style="margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px;">
+                        <div class="recurso-header-block"
+                            style="margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px;">
                             {% if recurso.video_url or 'video' in recurso.titulo|lower %}
-                                <span class="tipo-recurso-pill pill-video" style="display: inline-block; background: #fee2e2; color: #dc2626; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px;">🎥 Video de Sesión / Clase</span>
+                            <span class="tipo-recurso-pill pill-video"
+                                style="display: inline-block; background: #fee2e2; color: #dc2626; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px;">🎥
+                                Video de Sesión / Clase</span>
                             {% elif recurso.es_examen or 'examen' in recurso.titulo|lower %}
-                                <span class="tipo-recurso-pill pill-examen" style="display: inline-block; background: #fef3c7; color: #d97706; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px;">📝 Evaluación / Cuestionario</span>
+                            <span class="tipo-recurso-pill pill-examen"
+                                style="display: inline-block; background: #fef3c7; color: #d97706; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px;">📝
+                                Evaluación / Cuestionario</span>
                             {% else %}
-                                <span class="tipo-recurso-pill pill-lectura" style="display: inline-block; background: #e0f2fe; color: #0284c7; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px;">📄 Material Didáctico</span>
+                            <span class="tipo-recurso-pill pill-lectura"
+                                style="display: inline-block; background: #e0f2fe; color: #0284c7; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px;">📄
+                                Material Didáctico</span>
                             {% endif %}
 
-                            <h1 class="recurso-titulo-principal" style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0;">{{ recurso.titulo }}</h1>
+                            <h1 class="recurso-titulo-principal"
+                                style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 12px 0;">{{
+                                recurso.titulo }}</h1>
 
-                            <div class="recurso-meta-row" style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: #64748b;">
+                            <div class="recurso-meta-row"
+                                style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: #64748b;">
                                 <div class="recurso-meta-item">
-                                    <span>📅</span> Publicado el {{ recurso.fecha_subida|default:recurso.fecha_creacion|date:"d/m/Y H:i" }}
+                                    <span>📅</span> Publicado el {{
+                                    recurso.fecha_subida|default:recurso.fecha_creacion|date:"d/m/Y H:i" }}
                                 </div>
                                 {% if recurso.semana %}
                                 <div class="recurso-meta-item">
@@ -78,7 +97,15 @@
                                 {% endif %}
                                 {% if recurso.curso.docente %}
                                 <div class="recurso-meta-item">
-                                    <span>👨‍🏫</span> Docente: {{ recurso.curso.docente.get_full_name|default:recurso.curso.docente.username }}
+                                    <span>👨‍🏫</span>
+                                    <span>Docente:
+                                        {% for doc in recurso.curso.docentes.all %}
+                                        {{ doc.get_full_name|default:doc.username }}{% if not forloop.last %}, {% endif
+                                        %}
+                                        {% empty %}
+                                        Plana Médica Galeno
+                                        {% endfor %}
+                                    </span>
                                 </div>
                                 {% endif %}
                             </div>
@@ -87,13 +114,18 @@
                         <!-- Reproductor si es Video -->
                         {% if recurso.video_url %}
                         <div class="recurso-media-box" style="margin-bottom: 24px;">
-                            <div class="iframe-video-wrapper" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000;">
-                                <iframe src="{{ recurso.video_url }}" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <div class="iframe-video-wrapper"
+                                style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000;">
+                                <iframe src="{{ recurso.video_url }}"
+                                    style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border: 0;"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
                             </div>
                         </div>
                         {% elif recurso.archivo and '.mp4' in recurso.archivo.url %}
                         <div class="recurso-media-box" style="margin-bottom: 24px;">
-                            <video controls class="media-video-native" style="width: 100%; max-height: 480px; border-radius: 12px; background: #000;">
+                            <video controls class="media-video-native"
+                                style="width: 100%; max-height: 480px; border-radius: 12px; background: #000;">
                                 <source src="{{ recurso.archivo.url }}" type="video/mp4">
                                 Tu navegador no admite reproducción de video MP4.
                             </video>
@@ -102,28 +134,49 @@
 
                         <!-- Información y Descripción -->
                         <div class="recurso-info-body" style="margin-bottom: 24px;">
-                            <div class="info-section-title" style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
+                            <div class="info-section-title"
+                                style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
                                 <span>📋</span> Instrucciones y Detalles
                             </div>
-                            <div class="info-descripcion-text" style="font-size: 14px; color: #334155; line-height: 1.6;">
-                                {{ recurso.descripcion|default:recurso.contenido|default:"El docente no ha incluido comentarios adicionales para este material."|linebreaks }}
+                            <div class="info-descripcion-text"
+                                style="font-size: 14px; color: #334155; line-height: 1.6;">
+                                {{ recurso.descripcion|default:recurso.contenido|default:"El docente no ha incluido
+                                comentarios adicionales para este material."|linebreaks }}
                             </div>
 
                             {% if recurso.es_examen or 'examen' in recurso.titulo|lower %}
-                            <div class="card-examen-instrucciones" style="margin-top: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;">
-                                <strong style="color: #0f172a; font-size: 13.5px; display: block; margin-bottom: 12px;">Información de la Evaluación</strong>
-                                <div class="examen-grid-detalles" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
-                                    <div class="examen-stat-card" style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
-                                        <span class="examen-stat-val" style="display: block; font-size: 16px; font-weight: 800; color: #0284c7;">{{ recurso.duracion_minutos|default:"60" }} min</span>
-                                        <span class="examen-stat-lbl" style="font-size: 11px; color: #64748b; font-weight: 600;">Tiempo Límite</span>
+                            <div class="card-examen-instrucciones"
+                                style="margin-top: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;">
+                                <strong
+                                    style="color: #0f172a; font-size: 13.5px; display: block; margin-bottom: 12px;">Información
+                                    de la Evaluación</strong>
+                                <div class="examen-grid-detalles"
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
+                                    <div class="examen-stat-card"
+                                        style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                                        <span class="examen-stat-val"
+                                            style="display: block; font-size: 16px; font-weight: 800; color: #0284c7;">{{
+                                            recurso.duracion_minutos|default:"60" }} min</span>
+                                        <span class="examen-stat-lbl"
+                                            style="font-size: 11px; color: #64748b; font-weight: 600;">Tiempo
+                                            Límite</span>
                                     </div>
-                                    <div class="examen-stat-card" style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
-                                        <span class="examen-stat-val" style="display: block; font-size: 16px; font-weight: 800; color: #0284c7;">{{ recurso.total_preguntas|default:recurso.preguntas.count|default:"--" }}</span>
-                                        <span class="examen-stat-lbl" style="font-size: 11px; color: #64748b; font-weight: 600;">Preguntas</span>
+                                    <div class="examen-stat-card"
+                                        style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                                        <span class="examen-stat-val"
+                                            style="display: block; font-size: 16px; font-weight: 800; color: #0284c7;">{{
+                                            recurso.total_preguntas|default:recurso.preguntas.count|default:"--"
+                                            }}</span>
+                                        <span class="examen-stat-lbl"
+                                            style="font-size: 11px; color: #64748b; font-weight: 600;">Preguntas</span>
                                     </div>
-                                    <div class="examen-stat-card" style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
-                                        <span class="examen-stat-val" style="display: block; font-size: 16px; font-weight: 800; color: #0284c7;">1</span>
-                                        <span class="examen-stat-lbl" style="font-size: 11px; color: #64748b; font-weight: 600;">Intento Permitido</span>
+                                    <div class="examen-stat-card"
+                                        style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                                        <span class="examen-stat-val"
+                                            style="display: block; font-size: 16px; font-weight: 800; color: #0284c7;">1</span>
+                                        <span class="examen-stat-lbl"
+                                            style="font-size: 11px; color: #64748b; font-weight: 600;">Intento
+                                            Permitido</span>
                                     </div>
                                 </div>
                             </div>
@@ -131,29 +184,38 @@
                         </div>
 
                         <!-- Botones de Acción -->
-                        <div class="recurso-bottom-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+                        <div class="recurso-bottom-bar"
+                            style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; border-top: 1px solid #f1f5f9; padding-top: 16px;">
                             {% if token %}
-                                <a href="{% url 'detalle_curso_token' token=token curso_id=recurso.curso.id %}" class="btn-volver-curso" style="text-decoration: none; font-size: 13px; font-weight: 700; color: #64748b; display: inline-flex; align-items: center; gap: 6px;">
-                                    ← Volver al Curso
-                                </a>
+                            <a href="{% url 'detalle_curso_token' token=token curso_id=recurso.curso.id %}"
+                                class="btn-volver-curso"
+                                style="text-decoration: none; font-size: 13px; font-weight: 700; color: #64748b; display: inline-flex; align-items: center; gap: 6px;">
+                                ← Volver al Curso
+                            </a>
                             {% else %}
-                                <a href="{% url 'detalle_curso' curso_id=recurso.curso.id %}" class="btn-volver-curso" style="text-decoration: none; font-size: 13px; font-weight: 700; color: #64748b; display: inline-flex; align-items: center; gap: 6px;">
-                                    ← Volver al Curso
-                                </a>
+                            <a href="{% url 'detalle_curso' curso_id=recurso.curso.id %}" class="btn-volver-curso"
+                                style="text-decoration: none; font-size: 13px; font-weight: 700; color: #64748b; display: inline-flex; align-items: center; gap: 6px;">
+                                ← Volver al Curso
+                            </a>
                             {% endif %}
 
                             {% if recurso.es_examen or 'examen' in recurso.titulo|lower %}
-                                <a href="{% url 'rendir_examen' examen_id=recurso.id %}" class="btn-accion-recurso btn-accion-examen" style="background: #0284c7; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 8px;">
-                                    ✍️ Iniciar Evaluación
-                                </a>
+                            <a href="{% url 'rendir_examen' examen_id=recurso.id %}"
+                                class="btn-accion-recurso btn-accion-examen"
+                                style="background: #0284c7; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 8px;">
+                                ✍️ Iniciar Evaluación
+                            </a>
                             {% elif recurso.archivo %}
-                                <a href="{{ recurso.archivo.url }}" download class="btn-accion-recurso" style="background: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 8px;">
-                                    📥 Descargar Archivo Adjunto
-                                </a>
+                            <a href="{{ recurso.archivo.url }}" download class="btn-accion-recurso"
+                                style="background: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 8px;">
+                                📥 Descargar Archivo Adjunto
+                            </a>
                             {% elif recurso.enlace %}
-                                <a href="{{ recurso.enlace }}" target="_blank" rel="noopener noreferrer" class="btn-accion-recurso" style="background: #0284c7; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 8px;">
-                                    🌐 Ir al Enlace →
-                                </a>
+                            <a href="{{ recurso.enlace }}" target="_blank" rel="noopener noreferrer"
+                                class="btn-accion-recurso"
+                                style="background: #0284c7; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 8px;">
+                                🌐 Ir al Enlace →
+                            </a>
                             {% endif %}
                         </div>
 

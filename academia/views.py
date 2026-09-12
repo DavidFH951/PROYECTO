@@ -616,6 +616,11 @@ def detalle_recurso(request, curso_id=None, material_id=None, token=None):
         'curso': curso,
         'token': token,
     }
+    es_docente = (
+        request.user in curso.docentes.all() or
+        request.user.is_staff or
+        request.user.is_superuser
+    )
     return render(request, 'detalle_recurso.html', {
         'curso': curso,
         'recurso': recurso,
