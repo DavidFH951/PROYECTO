@@ -431,7 +431,7 @@
     width: 100%;
     max-width: 160px;
     margin: 0 auto;
-    background: #16a34a; /* Verde institucional tipo URP */
+    background: #0284c7; /* Azul institucional Galeno */
     color: #ffffff;
     border: none;
     padding: 10px 18px;
@@ -439,11 +439,15 @@
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .modal-btn-aceptar:hover {
-    background: #15803d;
+    background: #0369a1;
+}
+
+.modal-btn-aceptar:active {
+    transform: scale(0.98);
 }
 
 @keyframes fadeInModal {
