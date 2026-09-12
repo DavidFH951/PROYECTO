@@ -616,7 +616,11 @@ def detalle_recurso(request, curso_id=None, material_id=None, token=None):
         'curso': curso,
         'token': token,
     }
-    return render(request, 'detalle_recurso.html', context)
+    return render(request, 'detalle_recurso.html', {
+        'curso': curso,
+        'recurso': recurso,
+        'es_docente': request.user == curso.docente or request.user.is_staff
+    })
 
 @login_required
 def rendir_examen(request, examen_id):

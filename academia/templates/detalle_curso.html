@@ -9,7 +9,7 @@
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=7.0">
-    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=7.0">
+    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=7.1">
 </head>
 
 <body class="aula-virtual-body">
@@ -20,7 +20,7 @@
     <!-- 2. CONTENEDOR FLEX: SIDEBAR + CONTENIDO -->
     <div class="aula-virtual-layout">
 
-        <!-- Sidebar de Semanas (Pasamos bloques_semanas y semanas para garantizar compatibilidad) -->
+        <!-- Sidebar de Semanas -->
         {% include 'componentes/sidebar_curso.html' with curso=curso semanas=bloques_semanas bloques_semanas=bloques_semanas %}
 
         <!-- Área Principal de Contenido -->
@@ -247,7 +247,7 @@
                             </div>
                             {% endfor %}
 
-                            <!-- Materiales -->
+                            <!-- Materiales / Recursos -->
                             {% for mat in bloque.materiales %}
                             <div class="material-item-card">
                                 <div class="material-info">
@@ -260,28 +260,30 @@
                                     {% endif %}
 
                                     <div class="material-details">
-                                        {% if mat.es_video %}
-                                        <a href="{% url 'ver_material_curso' curso.id mat.id %}" class="material-video-link">
-                                            {{ mat.titulo }}
-                                            <span class="badge-tag-video">VIDEO</span>
+                                        <!-- Título enlazado a la vista detalle_recurso -->
+                                        <a href="{% url 'detalle_recurso_vista' curso.id mat.id %}" style="text-decoration: none; color: inherit;">
+                                            <h4 class="material-normal-title" style="color: #0284c7; cursor: pointer; transition: color 0.15s ease;">
+                                                {{ mat.titulo }}
+                                                {% if mat.es_video %}
+                                                <span class="badge-tag-video">VIDEO</span>
+                                                {% endif %}
+                                            </h4>
                                         </a>
-                                        <span class="sub-video-protected">Visualización en plataforma</span>
-                                        {% else %}
-                                        <h4 class="material-normal-title">{{ mat.titulo }}</h4>
+
                                         {% if mat.contenido %}
                                         <p class="material-desc-txt">{{ mat.contenido }}</p>
                                         {% endif %}
                                         <span class="material-date-txt">Publicado el {{ mat.fecha_subida|date:"d/m/Y H:i" }}</span>
-                                        {% endif %}
                                     </div>
                                 </div>
 
                                 <div class="material-actions">
-                                    {% if mat.es_video %}
-                                    <a href="{% url 'ver_material_curso' curso.id mat.id %}" class="btn-video-watch">
-                                        ▶ Ver Video
+                                    <!-- Botón Ver Detalle -->
+                                    <a href="{% url 'detalle_recurso_vista' curso.id mat.id %}" class="btn-mat-link" style="background: #e0f2fe; color: #0284c7; font-weight: 700;">
+                                        👁️ Ver Detalle
                                     </a>
-                                    {% elif mat.archivo %}
+
+                                    {% if mat.archivo %}
                                     <a href="{{ mat.archivo.url }}" class="btn-mat-download" target="_blank" download>
                                         📥 Descargar
                                     </a>
@@ -321,7 +323,7 @@
         </main>
     </div>
 
-    <script src="{% static 'js/intranet.js' %}?v=2.0" defer></script>
+    <script src="{% static 'js/intranet.js' %}?v=10.0" defer></script>
 </body>
 
 </html>
