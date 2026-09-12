@@ -57,6 +57,10 @@ urlpatterns = [
     # Recursos y material del curso
     path('curso/<int:curso_id>/subir-material/', views.subir_material, name='subir_material'),
     path('material/<int:material_id>/eliminar/', views.eliminar_material, name='eliminar_material'),
+    # Detalle de recurso / material
+    path('curso/<int:curso_id>/material/<int:material_id>/', views.detalle_recurso, name='ver_material_curso'),
+    # Si manejas token de acceso:
+    path('aula-virtual/curso/<uuid:token>/material/<int:material_id>/', views.detalle_recurso, name='ver_material_curso_token'),
 
     # Exámenes y Banco de Preguntas
     path('curso/<int:curso_id>/crear-examen/', views.crear_examen_curso, name='crear_examen_curso'),

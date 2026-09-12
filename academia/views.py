@@ -602,6 +602,21 @@ def detalle_curso(request, curso_id, token=None):
     }
     return render(request, 'detalle_curso.html', context)
 
+@login_required
+def detalle_recurso(request, curso_id=None, material_id=None, token=None):
+    if token:
+        curso = get_object_or_404(Curso, token=token)
+    else:
+        curso = get_object_or_404(Curso, id=curso_id)
+        
+    recurso = get_object_or_404(Material, id=material_id, curso=curso)
+    
+    context = {
+        'recurso': recurso,
+        'curso': curso,
+        'token': token,
+    }
+    return render(request, 'detalle_recurso.html', context)
 
 @login_required
 def rendir_examen(request, examen_id):
