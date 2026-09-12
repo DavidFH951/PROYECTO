@@ -185,3 +185,106 @@
         height: 120px;
     }
 }
+/* ==============================================================================
+   RESPONSIVE MÓVIL: PLANILLA DE CALIFICACIONES (TIPO TARJETAS)
+   ============================================================================== */
+@media (max-width: 768px) {
+    /* 1. Ocultar la cabecera rígida de la tabla */
+    .custom-table thead,
+    .table-card thead {
+        display: none !important;
+    }
+
+    /* 2. Convertir la tabla y el tbody en contenedor flexible */
+    .custom-table,
+    .custom-table tbody,
+    .table-card table,
+    .table-card tbody {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+        border: none !important;
+    }
+
+    .table-card {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    /* 3. Cada fila (tr) se transforma en una tarjeta blanca estilizada */
+    .custom-table tr,
+    .table-card tr {
+        display: flex !important;
+        flex-direction: column !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 14px !important;
+        padding: 16px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+        gap: 10px !important;
+    }
+
+    /* 4. Resetear celdas (td) */
+    .custom-table td,
+    .table-card td {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 !important;
+        border: none !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
+
+    /* Fila superior de la tarjeta: Badge de ciclo a la izquierda */
+    .custom-table td:nth-child(1),
+    .table-card td:nth-child(1) {
+        order: 1;
+        margin-bottom: 2px;
+    }
+
+    /* Título del curso destacado */
+    .custom-table td:nth-child(2),
+    .table-card td:nth-child(2) {
+        order: 2;
+        font-size: 16px !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+        line-height: 1.3 !important;
+        display: block !important;
+    }
+
+    /* Metadato de Alumnos inscritos */
+    .custom-table td:nth-child(3),
+    .table-card td:nth-child(3) {
+        order: 3;
+        font-size: 12.5px !important;
+        color: #64748b !important;
+        padding-bottom: 8px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+
+    /* Botón de acción: Ancho completo al fondo de la tarjeta */
+    .custom-table td:nth-child(4),
+    .table-card td:nth-child(4) {
+        order: 4;
+        margin-top: 4px;
+    }
+
+    .custom-table td a,
+    .table-card td a,
+    .btn-calificar-curso {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 11px 16px !important;
+        border-radius: 8px !important;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        box-sizing: border-box !important;
+    }
+}
