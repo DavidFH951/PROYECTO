@@ -459,3 +459,70 @@
         justify-content: center !important;
     }
 }
+/* ==============================================================================
+   RESCATE Y BLINDAJE INMEDIATO DE DETALLE CURSO
+   ============================================================================== */
+
+/* 1. Layout general en PC: Sidebar a la izquierda y contenido a la derecha */
+body {
+    overflow-x: hidden !important;
+}
+
+/* El contenedor principal debe comportarse como flex horizontal en escritorio */
+main,
+.intranet-container,
+.aula-layout-container,
+.curso-detalle-wrapper,
+.aula-virtual-container,
+div[class*="layout"],
+div[class*="wrapper"] {
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. Blindaje universal contra cualquier imagen gigante dentro de la vista */
+main img,
+.aula-main-stage img,
+.curso-content-area img,
+.content-wrapper img:not(.topbar-brand-img):not(.sidebar-logo) {
+    max-width: 100% !important;
+    height: 180px !important;
+    max-height: 180px !important;
+    width: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: 12px !important;
+    display: block !important;
+    margin: 0 0 18px 0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 3. Evitar que el área de contenido se desborde */
+.aula-main-stage,
+.curso-content-area,
+.content-wrapper > main,
+.intranet-content {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 20px 24px !important;
+}
+
+/* 4. En móviles (< 768px): achicar la portada a 130px */
+@media (max-width: 768px) {
+    main img,
+    .aula-main-stage img,
+    .curso-content-area img,
+    .content-wrapper img:not(.topbar-brand-img):not(.sidebar-logo) {
+        height: 130px !important;
+        max-height: 130px !important;
+    }
+    
+    .aula-main-stage,
+    .curso-content-area,
+    .content-wrapper > main,
+    .intranet-content {
+        padding: 12px 10px 30px 10px !important;
+    }
+}
