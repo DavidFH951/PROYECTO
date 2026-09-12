@@ -244,97 +244,209 @@
     font-size: 13px;
 }
 /* ==============================================================================
-   DASHBOARD MÓVIL ESTILO APP (< 768px)
+   EXPERIENCIA MÓVIL ESTILO APP CON MODAL (< 768px)
    ============================================================================== */
 @media (max-width: 768px) {
-    .main-stage,
-    .intranet-content {
-        padding: 12px 14px 40px 14px !important;
+    .main-stage {
+        padding: 12px 10px 32px 10px !important;
         width: 100% !important;
-        max-width: 100% !important;
         box-sizing: border-box !important;
     }
 
-    .dashboard-wrapper {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-
-    /* KPIs en dos columnas simétricas que llenan el ancho */
     .kpis-row {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
-        gap: 10px !important;
-        width: 100% !important;
-        margin-bottom: 14px !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
     }
 
     .kpi-card-white {
         padding: 12px 14px !important;
         border-radius: 12px !important;
-        border: 1px solid #e2e8f0 !important;
-        box-sizing: border-box !important;
     }
 
-    .kpi-label {
-        font-size: 10px !important;
-    }
+    .kpi-label { font-size: 10px !important; }
+    .kpi-number { font-size: 20px !important; }
+    .kpi-icon { font-size: 20px !important; }
 
-    .kpi-number {
-        font-size: 20px !important;
-    }
-
-    .kpi-icon {
-        font-size: 20px !important;
-    }
-
-    /* Layout principal de tarjetas */
     .main-columns-layout {
         display: flex !important;
         flex-direction: column !important;
-        gap: 14px !important;
-        width: 100% !important;
+        gap: 12px !important;
     }
 
     .card-white-box {
-        width: 100% !important;
-        padding: 14px 12px !important;
+        padding: 14px 10px !important;
         border-radius: 12px !important;
-        box-sizing: border-box !important;
     }
 
-    /* Horario con deslizamiento suave sin deformar la pantalla */
+    .horario-help-text {
+        display: block !important;
+    }
+
+    /* Grilla compacta de 6 columnas que entran juntas como en el sistema universitario */
     .horario-columns-grid {
-        display: flex !important;
+        display: grid !important;
+        grid-template-columns: repeat(6, 1fr) !important;
+        gap: 4px !important;
+        min-height: 180px !important;
         width: 100% !important;
-        overflow-x: auto !important;
-        gap: 8px !important;
-        min-height: auto !important;
-        padding-bottom: 8px !important;
         box-sizing: border-box !important;
-        -webkit-overflow-scrolling: touch;
+        overflow-x: visible !important;
     }
 
     .col-dia {
-        flex: 0 0 130px !important;
-        width: 130px !important;
-        min-width: 130px !important;
-        max-width: 130px !important;
-        background: #f8fafc !important;
-        border-radius: 8px !important;
-        padding: 8px 6px !important;
-        box-sizing: border-box !important;
-    }
-
-    .event-card {
+        min-width: 0 !important;
+        max-width: none !important;
+        padding: 6px 2px !important;
+        border-radius: 6px !important;
+        border: 1px solid #e2e8f0 !important;
         background: #ffffff !important;
-        padding: 6px 8px !important;
     }
 
-    /* Materias */
+    .col-dia-header {
+        font-size: 9.5px !important;
+        font-weight: 800 !important;
+        padding-bottom: 4px !important;
+    }
+
+    .col-dia-events {
+        margin-top: 4px !important;
+        gap: 4px !important;
+    }
+
+    /* Tarjeta compacta e interactiva que se abre con un toque */
+    .event-card {
+        padding: 4px 3px !important;
+        border-radius: 4px !important;
+        border-left: 2px solid #0284c7 !important;
+        background: #e0f2fe !important;
+        cursor: pointer !important;
+        transition: transform 0.1s ease;
+    }
+
+    .event-card:active {
+        transform: scale(0.96);
+    }
+
+    .event-time {
+        font-size: 8.5px !important;
+        line-height: 1.1 !important;
+        margin-bottom: 2px !important;
+    }
+
+    .event-title {
+        font-size: 9.5px !important;
+        line-height: 1.15 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+
+    .event-aula {
+        display: none !important; /* Oculto en la miniatura, se muestra completo en el modal */
+    }
+
     .materia-item-row {
         padding: 10px 12px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
     }
+}
+
+/* ==============================================================================
+   MODAL DE DETALLES DE CLASE (UNIVERSIDAD / APP ESTILO RICARDO PALMA)
+   ============================================================================== */
+.modal-horario-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+}
+
+.modal-horario-overlay.active {
+    display: flex;
+    animation: fadeInModal 0.2s ease-out forwards;
+}
+
+.modal-horario-card {
+    background: #ffffff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 360px;
+    padding: 24px 20px 20px 20px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+}
+
+.modal-horario-titulo {
+    font-size: 16px;
+    font-weight: 800;
+    color: #334155;
+    margin: 0 0 18px 0;
+    line-height: 1.35;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 12px;
+}
+
+.modal-horario-filas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.modal-fila {
+    display: flex;
+    align-items: flex-start;
+    font-size: 13.5px;
+    line-height: 1.35;
+}
+
+.modal-label {
+    width: 95px;
+    color: #475569;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.modal-sep {
+    padding: 0 6px;
+    color: #475569;
+    font-weight: 600;
+}
+
+.modal-val {
+    color: #0f172a;
+    font-weight: 500;
+    flex: 1;
+}
+
+.modal-btn-aceptar {
+    display: block;
+    width: 100%;
+    max-width: 160px;
+    margin: 0 auto;
+    background: #16a34a; /* Verde institucional tipo URP */
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.modal-btn-aceptar:hover {
+    background: #15803d;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }

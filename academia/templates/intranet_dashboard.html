@@ -8,10 +8,10 @@
     <title>Inicio / Intranet | Academia Galeno</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=4.0">
-    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=4.2">
+    <link rel="stylesheet" href="{% static 'css/sidebar_intranet.css' %}?v=2.2">
     <link rel="stylesheet" href="{% static 'css/panel_docente.css' %}?v=3.1">
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3.5">
 </head>
 
 <body class="dashboard-page-body">
@@ -80,6 +80,9 @@
                                 </h3>
                                 <span class="badge-tag-cycle">Ciclo Regular</span>
                             </div>
+                            <small class="horario-help-text" style="display:none; color: #64748b; font-size: 11px; margin-bottom: 8px;">
+                                * Presiona sobre la tarjeta para ver los detalles completos.
+                            </small>
 
                             <div class="horario-columns-grid">
                                 
@@ -89,7 +92,11 @@
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
                                             {% if h.dia == 'LUN' or h.dia == 'Lunes' or h.dia == '1' or h.dia_semana == 'LUN' or h.dia_semana == 'Lunes' or h.dia_semana == '1' or h.dia_semana == 1 or h.dia == 1 %}
-                                            <div class="event-card">
+                                            <div class="event-card js-event-clickable" 
+                                                 data-curso="{{ h.curso.titulo }}"
+                                                 data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
+                                                 data-aula="{{ h.aula|default:'Virtual' }}"
+                                                 data-docente="{% if h.curso.docente %}{{ h.curso.docente.get_full_name|default:h.curso.docente.username }}{% else %}Plana Médica Galeno{% endif %}">
                                                 <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
                                                 <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
@@ -105,7 +112,11 @@
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
                                             {% if h.dia == 'MAR' or h.dia == 'Martes' or h.dia == '2' or h.dia_semana == 'MAR' or h.dia_semana == 'Martes' or h.dia_semana == '2' or h.dia_semana == 2 or h.dia == 2 %}
-                                            <div class="event-card">
+                                            <div class="event-card js-event-clickable" 
+                                                 data-curso="{{ h.curso.titulo }}"
+                                                 data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
+                                                 data-aula="{{ h.aula|default:'Virtual' }}"
+                                                 data-docente="{% if h.curso.docente %}{{ h.curso.docente.get_full_name|default:h.curso.docente.username }}{% else %}Plana Médica Galeno{% endif %}">
                                                 <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
                                                 <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
@@ -121,7 +132,11 @@
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
                                             {% if h.dia == 'MIE' or h.dia == 'MIÉ' or h.dia == 'Miércoles' or h.dia_semana == 'MIE' or h.dia_semana == 'MIÉ' or h.dia_semana == 'Miércoles' or h.dia_semana == '3' or h.dia_semana == 3 or h.dia == 3 %}
-                                            <div class="event-card">
+                                            <div class="event-card js-event-clickable" 
+                                                 data-curso="{{ h.curso.titulo }}"
+                                                 data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
+                                                 data-aula="{{ h.aula|default:'Virtual' }}"
+                                                 data-docente="{% if h.curso.docente %}{{ h.curso.docente.get_full_name|default:h.curso.docente.username }}{% else %}Plana Médica Galeno{% endif %}">
                                                 <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
                                                 <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
@@ -137,7 +152,11 @@
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
                                             {% if h.dia == 'JUE' or h.dia == 'Jueves' or h.dia == '4' or h.dia_semana == 'JUE' or h.dia_semana == 'Jueves' or h.dia_semana == '4' or h.dia_semana == 4 or h.dia == 4 %}
-                                            <div class="event-card">
+                                            <div class="event-card js-event-clickable" 
+                                                 data-curso="{{ h.curso.titulo }}"
+                                                 data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
+                                                 data-aula="{{ h.aula|default:'Virtual' }}"
+                                                 data-docente="{% if h.curso.docente %}{{ h.curso.docente.get_full_name|default:h.curso.docente.username }}{% else %}Plana Médica Galeno{% endif %}">
                                                 <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
                                                 <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
@@ -153,7 +172,11 @@
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
                                             {% if h.dia == 'VIE' or h.dia == 'Viernes' or h.dia == '5' or h.dia_semana == 'VIE' or h.dia_semana == 'Viernes' or h.dia_semana == '5' or h.dia_semana == 5 or h.dia == 5 %}
-                                            <div class="event-card">
+                                            <div class="event-card js-event-clickable" 
+                                                 data-curso="{{ h.curso.titulo }}"
+                                                 data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
+                                                 data-aula="{{ h.aula|default:'Virtual' }}"
+                                                 data-docente="{% if h.curso.docente %}{{ h.curso.docente.get_full_name|default:h.curso.docente.username }}{% else %}Plana Médica Galeno{% endif %}">
                                                 <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
                                                 <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
@@ -169,7 +192,11 @@
                                     <div class="col-dia-events">
                                         {% for h in horarios %}
                                             {% if h.dia == 'SAB' or h.dia == 'SÁB' or h.dia == 'Sábado' or h.dia == '6' or h.dia_semana == 'SAB' or h.dia_semana == 'SÁB' or h.dia_semana == 'Sábado' or h.dia_semana == '6' or h.dia_semana == 6 or h.dia == 6 %}
-                                            <div class="event-card">
+                                            <div class="event-card js-event-clickable" 
+                                                 data-curso="{{ h.curso.titulo }}"
+                                                 data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}"
+                                                 data-aula="{{ h.aula|default:'Virtual' }}"
+                                                 data-docente="{% if h.curso.docente %}{{ h.curso.docente.get_full_name|default:h.curso.docente.username }}{% else %}Plana Médica Galeno{% endif %}">
                                                 <strong class="event-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</strong>
                                                 <span class="event-title">{{ h.curso.titulo }}</span>
                                                 <small class="event-aula">📍 {{ h.aula|default:"Virtual" }}</small>
@@ -217,7 +244,39 @@
 
     </div>
 
-    <script src="{% static 'js/intranet.js' %}?v=1.0" defer></script>
+    <!-- Modal emergente estilo Ricardo Palma para ver detalles de clase -->
+    <div class="modal-horario-overlay" id="modalHorarioOverlay">
+        <div class="modal-horario-card">
+            <h4 class="modal-horario-titulo" id="modalCursoTitulo">Título del Curso</h4>
+            
+            <div class="modal-horario-filas">
+                <div class="modal-fila">
+                    <span class="modal-label">Tipo de Curso</span>
+                    <span class="modal-sep">:</span>
+                    <span class="modal-val">Teoría y Práctica</span>
+                </div>
+                <div class="modal-fila">
+                    <span class="modal-label">Hora</span>
+                    <span class="modal-sep">:</span>
+                    <span class="modal-val" id="modalCursoHora">--:--</span>
+                </div>
+                <div class="modal-fila">
+                    <span class="modal-label">Aula</span>
+                    <span class="modal-sep">:</span>
+                    <span class="modal-val" id="modalCursoAula">Virtual</span>
+                </div>
+                <div class="modal-fila">
+                    <span class="modal-label">Docente</span>
+                    <span class="modal-sep">:</span>
+                    <span class="modal-val" id="modalCursoDocente">Docente Asignado</span>
+                </div>
+            </div>
+
+            <button type="button" class="modal-btn-aceptar" id="btnCerrarModalHorario">Aceptar</button>
+        </div>
+    </div>
+
+    <script src="{% static 'js/intranet.js' %}?v=2.0" defer></script>
 </body>
 
 </html>

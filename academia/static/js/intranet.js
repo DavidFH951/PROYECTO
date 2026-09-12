@@ -75,3 +75,46 @@ function toggleUserMenu(event) {
         container.classList.toggle('active');
     }
 }
+// ==============================================================================
+// 3. CONTROL DEL MODAL DE DETALLES DE HORARIO
+// ==============================================================================
+document.addEventListener('DOMContentLoaded', function () {
+    const modalOverlay = document.getElementById('modalHorarioOverlay');
+    const btnCerrarModal = document.getElementById('btnCerrarModalHorario');
+
+    const txtTitulo = document.getElementById('modalCursoTitulo');
+    const txtHora = document.getElementById('modalCursoHora');
+    const txtAula = document.getElementById('modalCursoAula');
+    const txtDocente = document.getElementById('modalCursoDocente');
+
+    // Asignar clic a todas las tarjetas de clase
+    document.querySelectorAll('.js-event-clickable').forEach(tarjeta => {
+        tarjeta.addEventListener('click', function () {
+            const curso = this.getAttribute('data-curso') || 'Curso';
+            const hora = this.getAttribute('data-hora') || '--:--';
+            const aula = this.getAttribute('data-aula') || 'Virtual';
+            const docente = this.getAttribute('data-docente') || 'Plana Médica Galeno';
+
+            if (txtTitulo) txtTitulo.textContent = curso;
+            if (txtHora) txtHora.textContent = hora;
+            if (txtAula) txtAula.textContent = aula;
+            if (txtDocente) txtDocente.textContent = docente;
+
+            if (modalOverlay) modalOverlay.classList.add('active');
+        });
+    });
+
+    if (btnCerrarModal && modalOverlay) {
+        btnCerrarModal.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+        });
+    }
+
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+    }
+});
