@@ -1,7 +1,71 @@
 /* ==============================================================================
    ACADEMIA GALENO - AULA VIRTUAL / DETALLE DE CURSO (detalle_curso.css)
    ============================================================================== */
+/* ==============================================================================
+   CONTENCIÓN DEL LOGO Y HEADER EN AULA VIRTUAL
+   ============================================================================== */
+.topbar-aula-virtual {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: 56px !important;
+    padding: 0 14px !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
 
+.topbar-brand-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+}
+
+/* BLINDAJE ESTRICTO DEL LOGO */
+.topbar-brand-img,
+.topbar-curso-logo {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+    object-fit: contain !important;
+    border-radius: 50% !important;
+    display: block !important;
+    flex-shrink: 0 !important;
+}
+
+.topbar-brand-info {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.topbar-brand-title {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    line-height: 1.1 !important;
+}
+
+.topbar-brand-tag {
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    color: #0284c7 !important;
+    letter-spacing: 0.5px !important;
+}
+
+.btn-hamburger-curso {
+    background: transparent !important;
+    border: none !important;
+    padding: 4px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
 /* --- 1. LAYOUT PRINCIPAL Y CONTENEDOR (DESKTOP) --- */
 .aula-virtual-body {
     background-color: #f8fafc;
