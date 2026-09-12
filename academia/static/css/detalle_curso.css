@@ -822,76 +822,107 @@ aside.sidebar-curso {
     color: #94a3b8;
 }
 /* ==============================================================================
-   AULA VIRTUAL DETALLE RESPONSIVE (< 768px)
+   AULA VIRTUAL RESPONSIVE MÓVIL ESTRICTO (< 768px)
    ============================================================================== */
 @media (max-width: 768px) {
-    /* Romper la grilla de dos columnas fija */
+    /* 1. Contenedor principal a una sola columna */
+    .aula-virtual-container,
+    .course-detail-layout,
     .aula-layout,
-    .curso-detalle-container,
-    .aula-virtual-wrapper {
+    .main-content-layout {
         display: flex !important;
         flex-direction: column !important;
         width: 100% !important;
-        gap: 12px !important;
+        max-width: 100% !important;
+        padding: 10px 12px 30px 12px !important;
+        box-sizing: border-box !important;
+        gap: 14px !important;
     }
 
-    /* Convertir el sidebar lateral oscuro de semanas en un carrusel superior horizontal */
+    /* 2. Menú oscuro lateral convertido en carrusel superior horizontal */
+    .sidebar-semanas,
     .aula-sidebar,
-    .sidebar-semanas {
+    aside.aula-nav {
         width: 100% !important;
-        min-width: 100% !important;
         max-width: 100% !important;
+        min-width: 0 !important;
         height: auto !important;
-        padding: 10px 12px !important;
         border-radius: 12px !important;
+        padding: 12px 10px !important;
         box-sizing: border-box !important;
     }
 
-    .semanas-nav-list,
-    .sidebar-semanas-menu {
+    .sidebar-semanas h4,
+    .aula-sidebar .section-title {
+        font-size: 11px !important;
+        margin-bottom: 8px !important;
+    }
+
+    /* El botón General y las Semanas en un slider táctil */
+    .semanas-nav-container,
+    .semanas-list,
+    .nav-semanas-menu {
         display: flex !important;
         flex-direction: row !important;
         overflow-x: auto !important;
         white-space: nowrap !important;
-        gap: 8px !important;
+        gap: 6px !important;
         padding-bottom: 6px !important;
         -webkit-overflow-scrolling: touch;
     }
 
-    .semanas-nav-list::-webkit-scrollbar {
-        height: 3px;
+    .semanas-nav-container::-webkit-scrollbar,
+    .semanas-list::-webkit-scrollbar {
+        display: none;
     }
 
-    .semanas-nav-list::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 3px;
-    }
-
-    .semana-btn-item {
+    .semana-btn,
+    .nav-semana-item,
+    .semanas-nav-container a,
+    .semanas-list a {
         flex-shrink: 0 !important;
-        padding: 6px 12px !important;
+        padding: 7px 12px !important;
         font-size: 12px !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
     }
 
-    /* Área central de materiales a ancho total */
+    /* 3. Columna derecha (Contenido del Curso) al 100% del ancho */
     .aula-content,
-    .materiales-stage {
+    .course-main-content,
+    .materiales-wrapper {
         width: 100% !important;
-        min-width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
         padding: 0 !important;
     }
 
-    .banner-curso-detalle {
+    /* Banner gris del curso expandido */
+    .curso-banner-header,
+    .card-curso-info,
+    .banner-periodo {
         width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
         border-radius: 12px !important;
         padding: 16px 14px !important;
-        margin-bottom: 12px !important;
+        box-sizing: border-box !important;
     }
 
-    .material-card-item {
-        padding: 12px 14px !important;
+    /* Títulos y secciones de materiales */
+    .seccion-materiales-title {
+        font-size: 16px !important;
+        margin: 14px 0 10px 0 !important;
+    }
+
+    .material-card,
+    .recurso-card-item {
+        width: 100% !important;
+        box-sizing: border-box !important;
         border-radius: 10px !important;
+        padding: 12px 14px !important;
         margin-bottom: 10px !important;
     }
 }
