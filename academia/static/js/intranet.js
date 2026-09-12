@@ -1,23 +1,40 @@
 // ==============================================================================
-// INTRANET - CONTROL DE MENÚ DRAWER MÓVIL Y DESPLEGABLE DE USUARIO
+// INTRANET - CONTROL DE MENÚ DRAWER MÓVIL Y DESPLEGABLE DE USUARIO (ACADEMIA GALENO)
 // ==============================================================================
 
 document.addEventListener('DOMContentLoaded', function () {
-    // --- 1. MENÚ DRAWER LATERAL (MÓVIL) ---
-    const btnOpen = document.getElementById('btnHamburgerSidebar');
-    const btnClose = document.getElementById('btnSidebarClose');
-    const sidebar = document.getElementById('sidebarGaleno');
-    const backdrop = document.getElementById('sidebarBackdrop');
+
+    // --------------------------------------------------------------------------
+    // 1. CONTROL DE SIDEBAR GENERAL / PANEL DOCENTE / INTRANET
+    // --------------------------------------------------------------------------
+    // Busca por ID institucional o selectores alternativos comunes
+    const btnOpen = document.getElementById('btnHamburgerSidebar') || 
+                    document.getElementById('btnSidebarToggle') ||
+                    document.querySelector('.top-navbar .btn-hamburger') ||
+                    document.querySelector('.top-navbar button');
+
+    const btnClose = document.getElementById('btnSidebarClose') || 
+                     document.querySelector('.btn-close-sidebar');
+
+    const sidebar = document.getElementById('sidebarGaleno') || 
+                    document.getElementById('sidebar') ||
+                    document.querySelector('.intranet-sidebar') ||
+                    document.querySelector('.sidebar-galeno');
+
+    const backdrop = document.getElementById('sidebarBackdrop') || 
+                     document.querySelector('.sidebar-backdrop');
 
     function toggleSidebar(open) {
-        if (!sidebar || !backdrop) return;
+        if (!sidebar) return;
         if (open) {
             sidebar.classList.add('drawer-open');
-            backdrop.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Bloquea scroll detrás del menú
+            sidebar.classList.add('active');
+            if (backdrop) backdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
         } else {
             sidebar.classList.remove('drawer-open');
-            backdrop.classList.remove('active');
+            sidebar.classList.remove('active');
+            if (backdrop) backdrop.classList.remove('active');
             document.body.style.overflow = '';
         }
     }
@@ -42,15 +59,68 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Cerrar drawer automáticamente si tocan un enlace dentro del menú
+    // Cerrar si tocan cualquier enlace del menú
     if (sidebar) {
-        sidebar.querySelectorAll('.sidebar-link').forEach(link => {
+        sidebar.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => toggleSidebar(false));
         });
     }
 
-    // --- 2. CONTROL DEL DESPLEGABLE DE USUARIO ---
-    const trigger = document.getElementById('userProfileTrigger') || document.querySelector('.user-profile-trigger');
+    // --------------------------------------------------------------------------
+    // 2. CONTROL DEL SIDEBAR DE AULA VIRTUAL (CURSOS ESPECÍFICOS)
+    // --------------------------------------------------------------------------
+    const btnOpenCurso = document.getElementById('btnHamburgerCurso') || 
+                         document.querySelector('.btn-hamburger-curso');
+
+    const btnCloseCurso = document.getElementById('btnSidebarCursoClose') || 
+                          document.querySelector('.btn-close-curso-sidebar');
+
+    const sidebarCurso = document.getElementById('sidebarCurso') || 
+                         document.querySelector('.sidebar-curso-panel');
+
+    const backdropCurso = document.getElementById('sidebarCursoBackdrop') || 
+                          document.querySelector('.sidebar-curso-backdrop');
+
+    function toggleSidebarCurso(open) {
+        if (!sidebarCurso) return;
+        if (open) {
+            sidebarCurso.classList.add('drawer-open');
+            sidebarCurso.classList.add('active');
+            if (backdropCurso) backdropCurso.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            sidebarCurso.classList.remove('drawer-open');
+            sidebarCurso.classList.remove('active');
+            if (backdropCurso) backdropCurso.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    if (btnOpenCurso) {
+        btnOpenCurso.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebarCurso(true);
+        });
+    }
+
+    if (btnCloseCurso) {
+        btnCloseCurso.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleSidebarCurso(false);
+        });
+    }
+
+    if (backdropCurso) {
+        backdropCurso.addEventListener('click', function () {
+            toggleSidebarCurso(false);
+        });
+    }
+
+    // --------------------------------------------------------------------------
+    // 3. DESPLEGABLE DE PERFIL DE USUARIO
+    // --------------------------------------------------------------------------
+    const trigger = document.getElementById('userProfileTrigger') || 
+                    document.querySelector('.user-profile-trigger');
     const container = document.querySelector('.user-dropdown-container');
 
     if (trigger && container) {
@@ -65,29 +135,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-});
 
-// Soporte retrocompatible para llamadas onclick="toggleUserMenu(event)" directas
-function toggleUserMenu(event) {
-    if (event) event.stopPropagation();
-    const container = document.querySelector('.user-dropdown-container');
-    if (container) {
-        container.classList.toggle('active');
-    }
-}
-// ==============================================================================
-// 3. CONTROL DEL MODAL DE DETALLES DE HORARIO
-// ==============================================================================
-document.addEventListener('DOMContentLoaded', function () {
+    // --------------------------------------------------------------------------
+    // 4. MODAL DE HORARIOS
+    // --------------------------------------------------------------------------
     const modalOverlay = document.getElementById('modalHorarioOverlay');
     const btnCerrarModal = document.getElementById('btnCerrarModalHorario');
-
     const txtTitulo = document.getElementById('modalCursoTitulo');
     const txtHora = document.getElementById('modalCursoHora');
     const txtAula = document.getElementById('modalCursoAula');
     const txtDocente = document.getElementById('modalCursoDocente');
 
-    // Asignar clic a todas las tarjetas de clase
     document.querySelectorAll('.js-event-clickable').forEach(tarjeta => {
         tarjeta.addEventListener('click', function () {
             const curso = this.getAttribute('data-curso') || 'Curso';
@@ -117,28 +175,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-}
+});
 
-)
-// --- CONTROL DE DRAWER PARA SIDEBAR DE CURSO ---
-const btnOpenCurso = document.getElementById('btnHamburgerCurso');
-const btnCloseCurso = document.getElementById('btnSidebarCursoClose');
-const sidebarCurso = document.getElementById('sidebarCurso');
-const backdropCurso = document.getElementById('sidebarCursoBackdrop');
-
-function toggleSidebarCurso(open) {
-    if (!sidebarCurso || !backdropCurso) return;
-    if (open) {
-        sidebarCurso.classList.add('drawer-open');
-        backdropCurso.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    } else {
-        sidebarCurso.classList.remove('drawer-open');
-        backdropCurso.classList.remove('active');
-        document.body.style.overflow = '';
+// Soporte retrocompatible para llamadas en línea onclick
+function toggleUserMenu(event) {
+    if (event) event.stopPropagation();
+    const container = document.querySelector('.user-dropdown-container');
+    if (container) {
+        container.classList.toggle('active');
     }
 }
-
-if (btnOpenCurso) btnOpenCurso.addEventListener('click', () => toggleSidebarCurso(true));
-if (btnCloseCurso) btnCloseCurso.addEventListener('click', () => toggleSidebarCurso(false));
-if (backdropCurso) backdropCurso.addEventListener('click', () => toggleSidebarCurso(false));;
