@@ -244,49 +244,156 @@
     font-size: 13px;
 }
 /* ==============================================================================
-   ADAPTACIÓN RESPONSIVE MÓVIL (SOLO DISPOSITIVOS PEQUEÑOS < 768px)
+   EXPERIENCIA MÓVIL ESTILO APP NATIVA (< 768px)
    ============================================================================== */
 @media (max-width: 768px) {
-    .main-stage {
-        padding: 16px 12px 40px 12px !important;
+    /* 1. Reset de contenedor para abarcar toda la pantalla */
+    body.dashboard-page-body {
+        background-color: #f1f5f9 !important;
     }
 
+    .main-stage {
+        padding: 12px 10px 32px 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .dashboard-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* 2. KPIs Compactos en Fila (Estilo App) */
     .kpis-row {
-        grid-template-columns: 1fr !important;
-        gap: 12px !important;
-        margin-bottom: 16px !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
     }
 
     .kpi-card-white {
-        padding: 16px 18px !important;
+        padding: 12px 14px !important;
+        border-radius: 12px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
     }
 
+    .kpi-label {
+        font-size: 10px !important;
+        letter-spacing: 0.2px !important;
+    }
+
+    .kpi-number {
+        font-size: 20px !important;
+        margin-top: 2px !important;
+    }
+
+    .kpi-icon {
+        font-size: 20px !important;
+    }
+
+    .kpi-btn-action {
+        font-size: 11px !important;
+        padding: 5px 8px !important;
+        margin-top: 4px !important;
+    }
+
+    /* 3. Estructura de tarjetas principales */
     .main-columns-layout {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
     }
 
     .card-white-box {
-        padding: 16px 14px !important;
+        padding: 14px 12px !important;
+        border-radius: 12px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
     }
 
-   @media (max-width: 768px) {
+    .card-header-flex {
+        margin-bottom: 12px !important;
+    }
+
+    .card-header-title {
+        font-size: 14px !important;
+    }
+
+    .badge-tag-cycle {
+        font-size: 10px !important;
+        padding: 2px 8px !important;
+    }
+
+    /* 4. Textura del Horario Semanal (Deslizamiento táctil fluido tipo agenda) */
     .horario-columns-grid {
         display: flex !important;
         overflow-x: auto !important;
-        gap: 12px !important;
-        padding-bottom: 8px !important;
+        gap: 8px !important;
+        min-height: auto !important;
+        padding-bottom: 6px !important;
         -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
+        scroll-snap-type: x proximity;
+    }
+
+    /* Ocultar barra de scroll tosca */
+    .horario-columns-grid::-webkit-scrollbar {
+        height: 3px;
+    }
+    .horario-columns-grid::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
     }
 
     .col-dia {
-        min-width: 140px !important;
-        flex: 0 0 140px !important;
+        flex: 0 0 135px !important; /* Ancho fijo perfecto para que quepan 2.5 días en pantalla y se intuya el scroll */
+        min-width: 135px !important;
+        max-width: 135px !important;
+        padding: 8px 6px !important;
+        border-radius: 8px !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
         scroll-snap-align: start;
     }
-}
+
+    .col-dia-header {
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        color: #475569 !important;
+        padding-bottom: 6px !important;
+    }
+
+    .col-dia-events {
+        margin-top: 6px !important;
+        gap: 6px !important;
+    }
+
+    .event-card {
+        padding: 6px 8px !important;
+        border-radius: 6px !important;
+        border-left: 3px solid #0284c7 !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    /* 5. Lista de Materias en Móvil */
     .materia-item-row {
-        padding: 12px 14px !important;
+        padding: 10px 12px !important;
+        border-radius: 8px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .materia-title-txt {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+    }
+
+    .materia-sub-txt {
+        font-size: 11px !important;
+    }
+
+    .btn-entrar-curso {
+        font-size: 11.5px !important;
+        padding: 4px 8px !important;
     }
 }
