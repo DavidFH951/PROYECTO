@@ -8,7 +8,7 @@ urlpatterns = [
     # ==============================================================================
     # 1. CORE, AUTENTICACIÓN Y SEGURIDAD
     # ==============================================================================
-    path('panel-k8f9a2b71c4e90d/', admin.site.urls),
+    path('panel-de-davik/', admin.site.urls),
     path('', views.inicio_publico, name='inicio_publico'),
     path('salir/', views.salir, name='salir'),
     path('seguridad/2fa/configurar/', views.configurar_2fa, name='configurar_2fa'),
