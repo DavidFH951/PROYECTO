@@ -8,8 +8,8 @@
     <title>{{ curso.titulo }} | Aula Virtual</title>
     <link rel="icon" type="image/jpeg" href="{% static 'image/logo.jpeg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=6.0">
-    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=6.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=7.0">
+    <link rel="stylesheet" href="{% static 'css/detalle_curso.css' %}?v=7.0">
 </head>
 
 <body class="aula-virtual-body">
@@ -20,8 +20,8 @@
     <!-- 2. CONTENEDOR FLEX: SIDEBAR + CONTENIDO -->
     <div class="aula-virtual-layout">
 
-        <!-- Sidebar de Semanas -->
-        {% include 'componentes/sidebar_curso.html' with curso=curso bloques_semanas=bloques_semanas %}
+        <!-- Sidebar de Semanas (Pasamos bloques_semanas y semanas para garantizar compatibilidad) -->
+        {% include 'componentes/sidebar_curso.html' with curso=curso semanas=bloques_semanas bloques_semanas=bloques_semanas %}
 
         <!-- Área Principal de Contenido -->
         <main class="course-main-stage">

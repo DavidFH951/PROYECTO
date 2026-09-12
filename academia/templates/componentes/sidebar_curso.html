@@ -6,24 +6,28 @@
     <!-- Cabecera exclusiva para celulares -->
     <div class="sidebar-curso-header-mobile">
         <span>Menú de Semanas</span>
-        <button type="button" class="btn-close-curso-sidebar" id="btnSidebarCursoClose">✕</button>
+        <button type="button" class="btn-close-curso-sidebar" id="btnSidebarCursoClose" aria-label="Cerrar menú">✕</button>
     </div>
 
     <div class="sidebar-curso-body">
+        <!-- Navegación General -->
         <div class="bloque-nav-group">
             <span class="bloque-nav-label">NAVEGACIÓN</span>
-            <a href="{% if token %}{% url 'detalle_curso_token' token=token curso_id=curso.id %}{% else %}{% url 'detalle_curso' curso_id=curso.id %}{% endif %}" class="btn-nav-semana active">
+            <a href="#seccion-general" class="btn-nav-semana active">
                 <span>🏠</span> General y Avisos
             </a>
         </div>
 
+        <!-- Semanas del Ciclo -->
         <div class="bloque-nav-group">
             <span class="bloque-nav-label">SEMANAS DEL CICLO</span>
             <div class="lista-nav-semanas">
-                {% for sem in semanas %}
-                <a href="?semana={{ sem.numero }}" class="btn-nav-semana {% if semana_activa == sem.numero %}selected{% endif %}">
-                    <span>📅</span> {{ sem.etiqueta|default:sem.nombre }}
-                    <span class="badge-num-materiales">{{ sem.total_materiales|default:"0" }}</span>
+                {% for sem in bloques_semanas|default:semanas %}
+                <a href="#semana-{{ sem.info.numero|default:sem.numero }}" class="btn-nav-semana">
+                    <span>📅</span> Semana {{ sem.info.numero|default:sem.numero }}
+                    <span class="badge-num-materiales">
+                        {{ sem.total_recursos|default:sem.total_materiales|default:"0" }}
+                    </span>
                 </a>
                 {% empty %}
                 <span class="sin-semanas-txt">Ciclo en configuración</span>
