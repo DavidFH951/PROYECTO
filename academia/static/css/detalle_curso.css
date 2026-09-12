@@ -526,3 +526,159 @@ main img,
         padding: 12px 10px 30px 10px !important;
     }
 }
+/* ==============================================================================
+   ESTRUCTURA VISUAL COMPLETA: CURSO DETALLE Y ACORDEONES
+   ============================================================================== */
+
+/* 1. Layout escritorio: Columna izquierda y contenido alineados arriba */
+.aula-layout-container,
+.curso-detalle-wrapper,
+div:has(> .sidebar-curso-panel) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+}
+
+/* 2. Banner de portada con relación de aspecto contenida */
+.banner-curso-header,
+.curso-portada-box,
+main > img,
+.aula-main-stage > img {
+    width: 100% !important;
+    max-height: 190px !important;
+    height: 190px !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+    margin: 0 0 20px 0 !important;
+    display: block !important;
+}
+
+/* 3. Encabezados y Metadatos */
+.curso-content-area,
+.aula-main-stage,
+main {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding: 24px 28px 60px 28px !important;
+}
+
+/* 4. Barra de Acciones del Docente (+ Programar Examen, Banco, etc.) */
+p:has(> a[href*="examen"]),
+div:has(> a[href*="material"]),
+.docente-acciones-bar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    margin: 14px 0 24px 0 !important;
+}
+
+p:has(> a[href*="examen"]) a,
+div:has(> a[href*="material"]) a,
+.btn-docente-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.15s ease !important;
+}
+
+p:has(> a[href*="examen"]) a:hover,
+div:has(> a[href*="material"]) a:hover {
+    border-color: #0284c7 !important;
+    color: #0284c7 !important;
+    background: #f8fafc !important;
+}
+
+/* 5. Transformar la lista plana de Semanas (details / summary) en Acordeones Card */
+details {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    margin-bottom: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+summary {
+    padding: 14px 18px !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    color: #0f172a !important;
+    cursor: pointer !important;
+    background: #ffffff !important;
+    list-style: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    user-select: none !important;
+}
+
+summary::-webkit-details-marker {
+    display: none !important;
+}
+
+summary::after {
+    content: "▾" !important;
+    font-size: 14px !important;
+    color: #64748b !important;
+    transition: transform 0.2s ease !important;
+}
+
+details[open] summary::after {
+    transform: rotate(180deg) !important;
+}
+
+details[open] summary {
+    border-bottom: 1px solid #f1f5f9 !important;
+    background: #f8fafc !important;
+}
+
+/* Contenido dentro de la semana desplegada */
+details > div,
+details > p,
+details > ul {
+    padding: 14px 18px !important;
+    background: #ffffff !important;
+    color: #334155 !important;
+    font-size: 13.5px !important;
+    line-height: 1.5 !important;
+}
+
+/* 6. Ajustes en Móvil (< 768px) */
+@media (max-width: 768px) {
+    .curso-content-area,
+    .aula-main-stage,
+    main {
+        padding: 12px 10px 30px 10px !important;
+    }
+
+    .banner-curso-header,
+    .curso-portada-box,
+    main > img,
+    .aula-main-stage > img {
+        height: 120px !important;
+        max-height: 120px !important;
+    }
+
+    p:has(> a[href*="examen"]),
+    div:has(> a[href*="material"]) {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    p:has(> a[href*="examen"]) a,
+    div:has(> a[href*="material"]) a {
+        width: 100% !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+    }
+}
