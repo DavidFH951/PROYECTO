@@ -623,11 +623,76 @@ html, body {
     /* Topbar adaptable a pantallas pequeñas */
     .top-navbar,
     .intranet-topbar {
-        padding: 10px 16px !important;
-        height: auto !important;
-        flex-wrap: wrap !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 10px 14px !important;
+        height: 56px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
         gap: 8px !important;
     }
+    /* 2. Contenedor izquierdo: Botón hamburguesa + Bienvenida */
+    .top-navbar > div:first-child {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+    }
+
+    .top-welcome-text {
+        font-size: 11.5px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        line-height: 1.2 !important;
+    }
+
+    /* 3. Perfil a la derecha: Versión compacta para teléfono */
+    .user-dropdown-container {
+        flex-shrink: 0 !important;
+        position: relative !important;
+    }
+
+    .user-profile-trigger {
+        padding: 3px 6px 3px 3px !important;
+        gap: 4px !important;
+        border-radius: 20px !important;
+    }
+
+    .user-avatar-circle,
+    .user-circle {
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+        min-height: 30px !important;
+        font-size: 12px !important;
+    }
+
+    /* Ocultamos los textos largos (nombre completo y rol) en la barra de móvil para que no ocupen toda la fila */
+    .user-trigger-text,
+    .user-text-info {
+        display: none !important;
+    }
+
+    .dropdown-arrow {
+        font-size: 7px !important;
+        margin-right: 2px !important;
+    }
+
+    /* 4. Menú desplegable flotante posicionado a la derecha */
+    .user-dropdown-menu {
+        position: absolute !important;
+        right: 0 !important;
+        left: auto !important;
+        top: calc(100% + 6px) !important;
+        width: 220px !important;
+        max-width: 85vw !important;
+        z-index: 2000 !important;
+    }
+}
 
     .top-welcome-text {
         font-size: 12px !important;
@@ -640,7 +705,7 @@ html, body {
         width: 50px !important;
         height: 50px !important;
     }
-}
+
 /* Ajuste táctil del dropdown en móvil */
     .user-dropdown-menu {
         right: 0 !important;
