@@ -2,40 +2,58 @@
    MÓDULO PANEL DOCENTE / CATÁLOGO DE ASIGNATURAS (ACADEMIA GALENO)
    ============================================================================== */
 
-.courses-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-    gap: 22px;
+/* Grilla en 2-3 columnas para escritorio */
+.courses-grid,
+.cursos-docente-grid,
+.grid-mis-cursos,
+.asignaturas-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 22px !important;
+    margin-top: 20px !important;
 }
 
-.course-card-clean {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+/* Tarjeta con efecto hover y borde limpio */
+.course-card-clean,
+.card-curso-docente,
+.card-curso {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
 }
 
-.course-card-clean:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-    border-color: #cbd5e1;
+.course-card-clean:hover,
+.card-curso-docente:hover,
+.card-curso:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.07) !important;
+    border-color: #cbd5e1 !important;
 }
 
+/* Encabezado / Miniatura de portada */
 .course-thumb-box {
     position: relative;
-    height: 120px;
+    height: 135px;
     background: #0f172a;
+    overflow: hidden;
 }
 
 .course-thumb-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     display: block;
+    transition: transform 0.3s ease;
+}
+
+.course-card-clean:hover .course-thumb-img {
+    transform: scale(1.03);
 }
 
 .course-thumb-fallback {
@@ -44,20 +62,23 @@
     background: linear-gradient(135deg, #02529c 0%, #0284c7 100%);
 }
 
+/* Etiqueta flotante sobre la imagen */
 .course-status-tag {
     position: absolute;
     top: 10px;
     left: 12px;
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(15, 23, 42, 0.82);
     color: #ffffff;
     font-size: 10px;
     font-weight: 700;
     padding: 3px 8px;
     border-radius: 4px;
     letter-spacing: 0.5px;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
+    z-index: 2;
 }
 
+/* Cuerpo de la tarjeta */
 .course-body-clean {
     padding: 16px 18px;
     display: flex;
@@ -67,36 +88,42 @@
 }
 
 .course-title-clean {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 800;
     color: #0f172a;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     line-height: 1.3;
 }
 
 .course-students-meta {
-    font-size: 12px;
+    font-size: 12.5px;
     color: #64748b;
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
-.course-footer-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 12px;
-    border-top: 1px solid #f1f5f9;
+/* Pie de tarjeta estandarizado */
+.course-footer-row,
+.card-curso-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-top: 12px !important;
+    border-top: 1px solid #f1f5f9 !important;
+    margin-top: auto !important;
 }
 
 .course-type-label {
     font-size: 11.5px;
     color: #94a3b8;
-    font-weight: 500;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
+/* Botón Administrar Curso */
 .btn-admin-curso {
     display: inline-flex;
     align-items: center;
@@ -105,10 +132,11 @@
     color: #ffffff;
     font-size: 12.5px;
     font-weight: 700;
-    padding: 7px 14px;
-    border-radius: 6px;
+    padding: 8px 14px;
+    border-radius: 7px;
     text-decoration: none;
     transition: background-color 0.15s ease, transform 0.1s ease;
+    box-shadow: 0 1px 3px rgba(5, 150, 105, 0.2);
 }
 
 .btn-admin-curso:hover {
@@ -117,9 +145,10 @@
 }
 
 .btn-admin-curso:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
 }
 
+/* Estado Vacío */
 .empty-state-courses {
     grid-column: 1 / -1;
     background: #ffffff;
@@ -140,4 +169,19 @@
     font-size: 14.5px;
     font-weight: 600;
     color: #475569;
+}
+
+/* Adaptación Móvil */
+@media (max-width: 768px) {
+    .courses-grid,
+    .cursos-docente-grid,
+    .grid-mis-cursos,
+    .asignaturas-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+
+    .course-thumb-box {
+        height: 120px;
+    }
 }
