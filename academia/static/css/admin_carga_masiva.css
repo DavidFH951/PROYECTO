@@ -1,0 +1,204 @@
+/* ==========================================================================
+   ESTILOS PARA CARGA MASIVA DE USUARIOS
+   ========================================================================== */
+
+.carga-container {
+    max-width: 920px;
+    margin: 32px auto;
+    padding: 0 20px;
+}
+
+.carga-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.header-title-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0284c7;
+    background: #e0f2fe;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.carga-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+}
+
+.carga-subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+}
+
+/* Caja de descarga de plantilla */
+.download-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.download-info strong {
+    display: block;
+    font-size: 14px;
+    color: #1e293b;
+    margin-bottom: 2px;
+}
+
+.download-info span {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.btn-download-template {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+}
+
+.btn-download-template:hover {
+    background: #1e293b;
+}
+
+/* Tabla de previsualización */
+.preview-table-wrapper {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 10px;
+}
+
+.table-example {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+}
+
+.table-example th {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.table-example td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.table-example tr:last-child td {
+    border-bottom: none;
+}
+
+.table-note {
+    color: #64748b;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 24px;
+}
+
+/* Zona Dropzone de subida de archivo */
+.dropzone-box {
+    border: 2px dashed #94a3b8;
+    border-radius: 12px;
+    padding: 32px 20px;
+    text-align: center;
+    background: #f8fafc;
+    margin-bottom: 24px;
+    cursor: pointer;
+    display: block;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.dropzone-box:hover {
+    border-color: #0284c7;
+    background: #f0f9ff;
+}
+
+.dropzone-box input[type="file"] {
+    display: none;
+}
+
+.file-name-display {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0284c7;
+    display: block;
+}
+
+/* Acciones del Formulario */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-cancel {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    transition: background 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: #f8fafc;
+}
+
+.btn-submit-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0284c7;
+    color: #ffffff;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-submit-upload:hover {
+    background: #0369a1;
+}
