@@ -78,22 +78,32 @@ html, body {
 }
 
 /* ----------------------------------------------------
-   3. BARRA SUPERIOR (TOP-NAVBAR) - DESKTOP
+   3. BARRAS SUPERIORES (TOPBARS) - ESCRITORIO
    ---------------------------------------------------- */
 .top-navbar,
-.intranet-topbar {
+.intranet-topbar,
+.topbar-aula-virtual {
     background: #ffffff !important;
-    height: 62px;
     border-bottom: 1px solid var(--border-color) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 0 32px !important;
     position: sticky;
     top: 0;
-    z-index: 40;
-    box-shadow: var(--shadow-subtle) !important;
+    z-index: 50;
     box-sizing: border-box;
+}
+
+.top-navbar,
+.intranet-topbar {
+    height: 62px;
+    padding: 0 32px !important;
+    box-shadow: var(--shadow-subtle) !important;
+}
+
+.topbar-aula-virtual {
+    height: 56px;
+    padding: 0 16px !important;
 }
 
 .top-welcome-text,
@@ -109,71 +119,7 @@ html, body {
     font-weight: 700;
 }
 
-.user-pill {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: transparent;
-}
-
-.user-circle,
-.user-avatar-circle {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13.5px;
-    font-weight: 800;
-    text-transform: uppercase;
-    flex-shrink: 0;
-}
-
-.user-text-info,
-.intranet-user-meta {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-}
-
-.user-text-name,
-.intranet-user-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-main);
-    line-height: 1.2;
-}
-
-.user-text-role,
-.intranet-user-role {
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--primary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* ----------------------------------------------------
-   4. TOPBAR ESPECÍFICO DE AULA VIRTUAL
-   ---------------------------------------------------- */
-.topbar-aula-virtual {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    height: 56px !important;
-    padding: 0 16px !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid var(--border-color) !important;
-    box-sizing: border-box !important;
-    width: 100% !important;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-}
-
+/* Marca en Topbar Aula Virtual */
 .topbar-brand-link {
     display: inline-flex !important;
     align-items: center !important;
@@ -211,7 +157,7 @@ html, body {
 }
 
 /* ----------------------------------------------------
-   5. MENÚ DESPLEGABLE DE USUARIO (NAVBAR GLOBAL)
+   4. PERFIL Y MENÚ DESPLEGABLE DE USUARIO (NAVBAR GLOBAL)
    ---------------------------------------------------- */
 .user-dropdown-container {
     position: relative;
@@ -237,11 +183,51 @@ html, body {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
+.user-circle,
+.user-avatar-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
 .user-trigger-text,
 .user-profile-name {
     font-size: 13px;
     font-weight: 600;
     color: #1e293b;
+}
+
+.user-text-info,
+.intranet-user-meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-text-name,
+.intranet-user-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.user-text-role,
+.intranet-user-role {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .dropdown-arrow {
@@ -349,7 +335,7 @@ html, body {
 }
 
 /* ----------------------------------------------------
-   6. ALERTAS Y MENSAJES INSTITUCIONALES
+   5. ALERTAS INSTITUCIONALES
    ---------------------------------------------------- */
 .contenedor-mensajes-global,
 .contenedor-mensajes-intranet {
@@ -392,7 +378,7 @@ html, body {
 .alerta-info { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
 
 /* ----------------------------------------------------
-   7. TIPOGRAFÍA DE ENCABEZADOS DE PÁGINA
+   6. ENCABEZADOS Y ELEMENTOS DE PÁGINA
    ---------------------------------------------------- */
 .page-header-title {
     font-size: 22px;
@@ -412,7 +398,7 @@ html, body {
 }
 
 /* ----------------------------------------------------
-   8. BLINDAJE DE IMÁGENES Y LOGOS (CONTENCIÓN TOTAL)
+   7. BLINDAJE DE IMÁGENES Y LOGOS (CONTENCIÓN TOTAL)
    ---------------------------------------------------- */
 .sidebar-galeno img,
 .sidebar-brand img,
@@ -470,7 +456,7 @@ html, body {
 }
 
 /* ==============================================================================
-   9. RESPONSIVE MÓVIL UNIFICADO (< 768px)
+   8. RESPONSIVE MÓVIL ESTRICTO (< 768px)
    ============================================================================== */
 @media (max-width: 768px) {
     html, body {
@@ -495,7 +481,6 @@ html, body {
         display: block !important;
     }
 
-    /* Reset de espaciados interiores */
     .main-stage,
     .intranet-content,
     .main-content-layout,
@@ -518,7 +503,7 @@ html, body {
         line-height: 1.35 !important;
     }
 
-    /* Topbars en una sola fila horizontal estricta */
+    /* Barras superiores en 1 sola fila fija horizontal */
     header.top-navbar,
     .top-navbar,
     .intranet-topbar,
@@ -540,7 +525,6 @@ html, body {
         display: inline-flex !important;
     }
 
-    /* Bloque izquierdo de la barra */
     .top-navbar > div:first-child {
         display: flex !important;
         flex-direction: row !important;
@@ -561,7 +545,7 @@ html, body {
         margin: 0 !important;
     }
 
-    /* Bloque derecho: Avatar compacto */
+    /* Gatillo desplegable usuario compacto */
     .user-dropdown-container {
         display: inline-flex !important;
         width: auto !important;
@@ -645,7 +629,7 @@ html, body {
         border-radius: 14px !important;
     }
 
-    /* Módulos de Asistencia */
+    /* Resumen Asistencias */
     .asistencia-resumen-grid,
     .resumen-asistencia-boxes {
         display: grid !important;
@@ -681,7 +665,7 @@ html, body {
         font-weight: 700 !important;
     }
 
-    /* Módulos de Perfil */
+    /* Perfil */
     .perfil-card-body {
         padding: 16px 12px !important;
     }
