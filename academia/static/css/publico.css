@@ -1,115 +1,620 @@
-body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #ffffff;
-    color: #333333;
+/* ==========================================================================
+   ACADEMIA GALENO - PÁGINA DE INICIO PÚBLICA (LANDING PAGE)
+   ========================================================================== */
+
+/* --- RESET Y BASES --- */
+* {
+    box-sizing: border-box;
 }
 
-header {
-    background-color: #1b4f72;
-    color: #ffffff;
+/* --- CABECERA PRINCIPAL (NAVBAR) --- */
+.main-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 50px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 12px 32px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.logo-area {
-    font-size: 20px;
-    font-weight: bold;
+.header-logo-area {
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.logo-area span {
-    color: #ffffff;
-}
-
-nav a {
-    color: #ffffff;
+    gap: 12px;
     text-decoration: none;
-    margin-left: 20px;
-    font-size: 15px;
+}
+
+.header-logo-img {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.header-titles {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-main-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+.header-sub-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #0284c7;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.nav-links-area {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
     font-weight: 600;
 }
 
-nav a:hover {
-    color: #d1e7dd;
-}
-
-.btn-intranet {
-    background-color: #27ae60 !important;
-    padding: 8px 18px;
-    border-radius: 4px;
-    transition: background 0.3s;
-}
-
-.btn-intranet:hover {
-    background-color: #219653 !important;
-}
-
-.hero {
-    background-color: #ffffff;
-    min-height: 60vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: #1b4f72;
-    padding: 50px 20px;
-}
-
-.hero h1 {
-    font-size: 42px;
-    font-weight: 700;
-    color: #1b4f72;
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
-.hero p {
-    font-size: 18px;
-    max-width: 700px;
-    margin-bottom: 30px;
-    line-height: 1.6;
-    color: #555555;
-}
-
-.btn-contacto {
-    background-color: #f39c12;
-    color: #ffffff;
-    padding: 12px 30px;
-    border-radius: 5px;
+.nav-link {
+    color: #475569;
     text-decoration: none;
-    font-weight: bold;
-    font-size: 16px;
-    transition: background 0.3s;
-    box-shadow: 0 4px 6px rgba(243, 156, 18, 0.2);
+    transition: color 0.2s ease;
 }
 
-.btn-contacto:hover {
-    background-color: #d68910;
+.nav-link:hover,
+.nav-link.active {
+    color: #0284c7;
 }
 
-.info-section {
-    padding: 60px 20px;
-    text-align: center;
-    max-width: 1000px;
+.btn-nav-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0284c7;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 20px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.btn-nav-action:hover {
+    background: #0369a1;
+}
+
+.btn-nav-intranet {
+    background: #059669;
+}
+
+.btn-nav-intranet:hover {
+    background: #047857;
+}
+
+/* --- HERO SECTION & SLIDER (CORRECCIÓN DEL DESBORDE) --- */
+.hero-slider-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 560px;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Las imágenes de banner se confinan y se escalan adecuadamente */
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+    z-index: 1;
+}
+
+.hero-slide.active {
+    opacity: 0.35; /* Opacidad tenue para no competir con el texto */
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.75) 100%);
+    z-index: 2;
+}
+
+.hero-slider-content {
+    position: relative;
+    z-index: 3;
+    max-width: 1240px;
     margin: 0 auto;
-    background-color: #ffffff;
+    padding: 50px 24px;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 40px;
+    align-items: center;
+    width: 100%;
 }
 
-.info-section h2 {
-    color: #1b4f72;
-    font-size: 32px;
+/* Contenido izquierdo del Hero */
+.hero-left-content {
+    color: #ffffff;
+}
+
+.hero-badge {
+    display: inline-block;
+    background: rgba(2, 132, 199, 0.2);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
     margin-bottom: 20px;
 }
 
-.info-section p {
-    color: #666666;
+.hero-main-title {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #ffffff;
+    margin: 0 0 18px 0;
+}
+
+.hero-description {
     font-size: 16px;
     line-height: 1.6;
+    color: #cbd5e1;
+    margin: 0 0 24px 0;
+}
+
+.hero-pills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hero-pill-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #e2e8f0;
+}
+
+.check-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: #0284c7;
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+/* --- TARJETA DE ADMISIÓN / FORMULARIO FLOTANTE --- */
+.hero-card-form {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    padding: 24px;
+}
+
+.card-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.card-form-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.3;
+}
+
+.card-form-badge {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.card-form-badge span {
+    color: #38bdf8;
+}
+
+.lead-form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group-full {
+    width: 100%;
+}
+
+.form-row-dual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.hero-input-field {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #1e293b;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.hero-input-field:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.required-notice {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.form-terms-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #475569;
+}
+
+.form-terms-check a {
+    color: #0284c7;
+    text-decoration: underline;
+}
+
+.btn-submit-whatsapp-hero {
+    background: #16a34a;
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s ease;
+}
+
+.btn-submit-whatsapp-hero:hover {
+    background: #15803d;
+}
+
+/* Puntos indicadores del slider */
+.slider-dots {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 4;
+}
+
+.slider-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.slider-dot.active {
+    background: #38bdf8;
+    width: 24px;
+    border-radius: 6px;
+}
+
+/* --- SECCIÓN SOBRE NOSOTROS --- */
+.about-section {
+    padding: 70px 24px;
+    background: #ffffff;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-intro-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 48px;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.section-badge {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #0284c7;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.section-heading {
+    font-size: 30px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.about-image-frame {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.about-image-frame img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Misión, Visión y Valores */
+.mv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.mv-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mv-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.mv-card-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+.mv-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 10px 0;
+}
+
+.mv-card-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #64748b;
+    margin: 0;
+}
+
+/* --- SECCIÓN CURSOS --- */
+.landing-section {
+    padding: 60px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.info-courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.info-course-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+.info-course-header {
+    position: relative;
+    height: 170px;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.info-course-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.info-course-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(15, 23, 42, 0.85);
+    color: #ffffff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.info-course-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.info-course-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 10px 0;
+}
+
+.info-course-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #64748b;
+    margin: 0 0 16px 0;
+    flex: 1;
+}
+
+.info-course-meta {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    color: #475569;
+}
+
+.info-course-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* --- FOOTER CORPORATIVO --- */
+.main-footer {
+    background: #0f172a;
+    color: #94a3b8;
+    padding: 50px 24px 20px;
+    font-size: 14px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h4 {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #38bdf8;
+}
+
+.footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 20px;
+    border-top: 1px solid #1e293b;
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* --- BOTÓN FLOTANTE WHATSAPP --- */
+.btn-whatsapp-flotante {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 54px;
+    height: 54px;
+    background: #25d366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.45);
+    z-index: 1000;
+    transition: transform 0.2s ease;
+}
+
+.btn-whatsapp-flotante:hover {
+    transform: scale(1.08);
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 900px) {
+    .hero-slider-content {
+        grid-template-columns: 1fr;
+    }
+    .about-intro-grid {
+        grid-template-columns: 1fr;
+    }
+    .mv-grid {
+        grid-template-columns: 1fr;
+    }
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
+    .nav-menu {
+        display: none; /* Simplificado en mobile */
+    }
 }
