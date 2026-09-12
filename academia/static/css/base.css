@@ -538,3 +538,111 @@ html, body {
         height: 50px !important;
     }
 }
+/* ==============================================================================
+   SUB-VISTAS INTRANET MÓVIL ESTANDARIZADAS (< 768px)
+   ============================================================================== */
+@media (max-width: 768px) {
+    /* 1. Reset de padding en contenedor de contenidos */
+    .main-stage,
+    .intranet-content,
+    .main-content-layout,
+    .main-container {
+        padding: 14px 12px 40px 12px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .page-header-title {
+        font-size: 18px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .page-header-subtitle {
+        font-size: 12px !important;
+        margin-bottom: 14px !important;
+        line-height: 1.35 !important;
+    }
+
+    /* 2. Tarjetas maestras en móvil */
+    .card-white-box,
+    .profile-card,
+    .asistencia-card,
+    .calificaciones-card,
+    .card-asistencia-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 16px 14px !important;
+        border-radius: 14px !important;
+        box-sizing: border-box !important;
+        margin-bottom: 14px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    /* 3. Grid de Cursos Matriculados */
+    .cursos-grid,
+    .grid-mis-cursos {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+        width: 100% !important;
+    }
+
+    .card-curso {
+        width: 100% !important;
+        border-radius: 14px !important;
+    }
+
+    /* 4. Resumen de Asistencias (Sesiones, Presentes, Tardanzas, Faltas) */
+    .asistencia-resumen-grid,
+    .resumen-asistencia-boxes {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        margin-bottom: 14px !important;
+        background: #f8fafc !important;
+        padding: 10px !important;
+        border-radius: 10px !important;
+    }
+
+    /* Tablas de notas / asistencias con scroll horizontal protegido */
+    .table-responsive-container {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 10px !important;
+    }
+
+    .table-custom {
+        min-width: 320px !important;
+        font-size: 12px !important;
+    }
+
+    .table-custom th,
+    .table-custom td {
+        padding: 8px 6px !important;
+    }
+
+    /* Badges de estado de asistencia */
+    .badge-asist-p, .badge-asist-t, .badge-asist-f, .badge-asist-j {
+        font-size: 10px !important;
+        padding: 3px 6px !important;
+        border-radius: 4px !important;
+        font-weight: 700 !important;
+    }
+
+    /* 5. Vista de Perfil */
+    .perfil-card-body {
+        padding: 16px 12px !important;
+    }
+
+    .perfil-item-box {
+        padding: 10px 12px !important;
+        border-radius: 10px !important;
+        margin-bottom: 10px !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+}
