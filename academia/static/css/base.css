@@ -685,3 +685,24 @@ html, body {
         height: 50px !important;
     }
 }
+/* Ocultar botón hamburguesa por defecto en pantallas de escritorio */
+#btnHamburgerSidebar,
+.btn-hamburger-intranet,
+[data-sidebar-toggle="true"] {
+    display: none !important;
+}
+
+/* Mostrarlo exclusivamente en dispositivos móviles y tablets */
+@media (max-width: 768px) {
+    #btnHamburgerSidebar,
+    .btn-hamburger-intranet,
+    [data-sidebar-toggle="true"] {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+    }
+}
